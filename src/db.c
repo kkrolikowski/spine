@@ -1,3 +1,4 @@
+/* db.c -- Database interface */
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
