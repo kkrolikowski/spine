@@ -2,8 +2,15 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <mysql.h>
 #include "db.h"
 
+void dbConnDataInit(dbConnData * dbcd) {
+    dbcd->db_host = NULL;
+    dbcd->db_name = NULL;
+    dbcd->db_pass = NULL;
+    dbcd->db_user = NULL:
+}
 char * BuildQuery(char * qstr, ...) {
     va_list Qpart;                      // query string part
     size_t stringLenght = 0;            // needed for memory allocation
@@ -40,4 +47,16 @@ char * BuildQuery(char * qstr, ...) {
         va_end(Qpart);
     }
     return sql;
+}
+MYSQL * dbhInit(void) {
+    return mysql_init(NULL);
+}
+
+MYSQL * dbLogin(dbConnData * dbcd) {
+    // initialize connection
+    MYSQL * dbh = NULL;                     // MySQL connection handle
+    dbh = dbhInit();
+
+    // trying to connect
+     return mysql_real_connect(dbh, dbcd->db_host, dbcd->db_user, dbcd->db_pass, dbcd->db_name, 3306, NULL, 0);
 }
