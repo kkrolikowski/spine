@@ -1,7 +1,7 @@
 /* poc.c -- functions code testing */
 #include <stdio.h>
 #include <stdlib.h>
-#include <myqsl.h>
+#include <mysql.h>
 #include "db.h"
 
 int main(void) {
@@ -20,7 +20,6 @@ int main(void) {
         printf("Can't connect to MySQL server: %s", dbhost);
 
     char * sql = BuildQuery("SELECT * FROM users WHERE login = '", login, "' AND domain = '", domain, "'", NULL);
-
 
 
     free(sql);

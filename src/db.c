@@ -9,7 +9,7 @@ void dbConnDataInit(dbConnData * dbcd) {
     dbcd->db_host = NULL;
     dbcd->db_name = NULL;
     dbcd->db_pass = NULL;
-    dbcd->db_user = NULL:
+    dbcd->db_user = NULL;
 }
 char * BuildQuery(char * qstr, ...) {
     va_list Qpart;                      // query string part
