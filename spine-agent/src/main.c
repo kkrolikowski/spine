@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <signal.h>
 #include <wait.h>
@@ -38,14 +39,17 @@ int main(int argc, char *argv[]) {
 	if(!agentp) {
 		// odpalamy proces odbierajacy dane
 		recvp = fork();
-		if(!recvp)
+		if(!recvp) {
+			sprintf(argv[0], "spine-reciver");
 			while(1)
 				sleep(1);
+		}
 		else if(recvp > 0) {
 			agentp = getppid();
 			// odpalamy proces wysylajacy dane
 			sendp = fork();
 			if(!sendp) {
+				sprintf(argv[0], "spine-sender");
 				while(1)
 					sleep(1);
 			}
