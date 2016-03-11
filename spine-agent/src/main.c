@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
 	// uruchamiamy proces nadrzedny
 	agentp = fork();
-	if(agentp > 0) {
+	if(!agentp) {
 		recvp = fork();
 		if(!recvp)
 			while(1)
@@ -36,9 +36,8 @@ int main(int argc, char *argv[]) {
 		if(!sendp)
 			while(1)
 				sleep(1);
-	}
-	else if(!agentp)
 		while(1)
 			sleep(1);
+	}
 	return 0;
 }
