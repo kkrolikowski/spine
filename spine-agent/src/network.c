@@ -1,6 +1,7 @@
 /* network.c -- funkcje do obslugi sieci */
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -24,4 +25,25 @@ int listener(int port) {
 	listen(sockfd, CONN_QUEUE);
 
 	return sockfd;
+}
+int clientConnection(int sockfd) {
+	struct sockaddr_in client;
+	socklen_t clilen;
+	int clisockfd;
+
+	clilen = sizeof(client);
+	clisockfd = accept(sockfd, (struct sockaddr *) &client, &clilen);
+
+	return clisockfd;
+}
+int GreetClient(int sockfd) {
+	int sendbytes = 0;
+	char * greet = "Spine Agent v1.0\n\r200 Go Ahead\n\r";
+	char buff[NET_BUFFER];
+	memset(buff, '\0', NET_BUFFER);
+
+	strcpy(buff, greet);
+	sendbytes = write(sockfd, buff, sizeof(buff));
+
+	return sendbytes;
 }

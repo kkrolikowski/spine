@@ -3,9 +3,17 @@
 
 /*			DANE			*/
 
+// podstawowe informacje o systemie
 typedef struct systeminfo {
 	long uptime;
 } systeminfo;
+
+// konfiguracja serwera www
+typedef struct wwwdata {
+	char * ServerName;
+	char * ServerAlias;
+	char * DocumentRoot;
+} wwwdata;
 
 /*			FUNKCJE			*/
 
