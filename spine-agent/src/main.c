@@ -6,6 +6,7 @@
 #include <wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "core.h"
 
 pid_t recvp = -1;
 pid_t sendp = -1;
