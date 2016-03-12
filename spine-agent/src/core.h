@@ -8,6 +8,8 @@
 // dane konfiguracyjne
 typedef struct config_data {
 	char * logpath;		// sciezka do pliku z logami
+	char * host;		// nazwa DNS procesu odbierajacego dane
+	int port;			// port TCP na ktorym dziala usluga
 } config_data;
 
 

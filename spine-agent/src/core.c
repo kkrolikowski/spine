@@ -74,6 +74,8 @@ int norootUser(void) {
 }
 void InitConfigData(config_data * cfd) {
 	cfd->logpath = NULL;
+	cfd->host = NULL;
+	cfd->port = 0;
 }
 int ReadConfig(config_data * cfd, FILE * cf) {
 	char buff[BUFSIZE];
@@ -85,6 +87,14 @@ int ReadConfig(config_data * cfd, FILE * cf) {
 			continue;
 		if(strstr(buff, "log") != NULL) {
 			cfd->logpath = parseLine(buff);
+			status = 1;
+		}
+		else if(strstr(buff, "agent_host") != NULL) {
+			cfd->host = parseLine(buff);
+			status = 1;
+		}
+		else if(strstr(buff, "agent_port") != NULL) {
+			cfd->port = atoi(parseLine(buff));
 			status = 1;
 		}
 	}
