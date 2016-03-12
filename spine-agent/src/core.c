@@ -1,7 +1,9 @@
 /* core.c -- podstawowe funkcje programu */
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <time.h>
 
 char * mkString(char * qstr, ...) {
     va_list String;                     // czesc stringa
@@ -39,4 +41,17 @@ char * mkString(char * qstr, ...) {
         va_end(String);
     }
     return str;
+}
+char * timestamp(void) {
+	time_t epoch;
+	char * timestamp = NULL;
+	struct tm * now;
+
+	time(&epoch);
+	timestamp = (char *) malloc(20 * sizeof(char));
+	memset(timestamp, '\0', 20);
+	now = localtime(&epoch);
+	strftime(timestamp, 20, "%F %T", now);
+
+	return timestamp;
 }
