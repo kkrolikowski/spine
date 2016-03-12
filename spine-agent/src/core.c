@@ -4,6 +4,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include "core.h"
 
 char * mkString(char * qstr, ...) {
     va_list String;                     // czesc stringa
@@ -68,4 +71,44 @@ int norootUser(void) {
 		return 1;
 	else
 		return 0;
+}
+void InitConfigData(config_data * cfd) {
+	cfd->logpath = NULL;
+}
+int ReadConfig(config_data * cfd, FILE * cf) {
+	char buff[BUFSIZE];
+	int status = 0;
+
+	memset(buff, '\0', BUFSIZE);
+	while(fgets(buff, BUFSIZE, cf) != NULL) {
+		if(buff[0] == '#')
+			continue;
+		if(strstr(buff, "log") != NULL) {
+			cfd->logpath = parseLine(buff);
+			status = 1;
+		}
+	}
+	return status;
+}
+char * parseLine(char * line) {
+	char * val;
+	char * pval;
+	char * valStart;
+	size_t val_len;
+
+	pval = strchr(line, '=');
+	val_len = strlen(pval);
+
+	val = (char *) malloc(val_len * sizeof(char));
+	valStart = val;
+	memset(val, '\0', val_len);
+
+	while(*pval++) {
+		if(*pval == '\n')
+			*pval = '\0';
+		else
+			*val = *pval;
+		val++;
+	}
+	return valStart;
 }

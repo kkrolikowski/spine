@@ -1,6 +1,21 @@
 #ifndef SPINE_AGENT_CORE_H_
 #define SPINE_AGENT_CORE_H_
 
+#define BUFSIZE 128		// bufor do odczytu pliku konfiguracyjnego
+
+/* 			STRUKTURY		*/
+
+// dane konfiguracyjne
+typedef struct config_data {
+	char * logpath;		// sciezka do pliku z logami
+} config_data;
+
+
+/* 			FUNKCJE			*/
+
+// Inicjalizacja struktury config_data
+void InitConfigData(config_data * cfd);
+
 // funkcja ogolnego przeznaczenia, ktora sluzy do
 // laczenia stringow. Ostatnim argumentem musi byc NULL
 char * mkString(char * qstr, ...);
@@ -16,4 +31,10 @@ void writeLog(FILE *lf, char * message);
 // zwraca 0 jesli uzytkownik nie jest rootem
 int norootUser(void);
 
+// Funkcja zapisuje w strukturze config_data dane z pliku cf
+// Zwraca 1 jeśli uda się poprawnie odczytać chociaz jedna opcje
+int ReadConfig(config_data * cfd, FILE * cf);
+
+// Funkcja wyciaga wartosci opcji, ktore sa skonfigurowane w pliku
+char * parseLine(char * line);
 #endif /* SPINE_AGENT_CORE_H_ */

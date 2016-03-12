@@ -12,17 +12,21 @@ pid_t recvp = -1;
 pid_t sendp = -1;
 pid_t agentp = -1;
 
-void kill_workers(int sig);
+void kill_workers(int sig);		// nie, nie jest to funcja do zabijania pracownikow ;-)
 
 int main(int argc, char *argv[]) {
 	FILE * cf; 					// uchwyt pliku z logami
 	pid_t parent, sid;			// PID procesu macierzystego oraz ID sesji
+	config_data cfd;			// dane z pliku konfiguracyjnego
 
 	// sprawdzamy czy program jest uruchomiony z prawami roota
 	if(norootUser()) {
 		fprintf(stderr, "Uruchom program jako root\n");
 		exit(EXIT_FAILURE);
 	}
+	// Inicjujemy konfiguracje
+	InitConfigData(&cfd);
+
 	// sprawdzamy, czy zostala podana sciezka do pliku konfiguracyjnego
 	// jesli nie, to szukamy go w katalogu /etc
 	if(argc < 2) {
@@ -36,6 +40,12 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "Blad odczytu pliku %s\n", argv[1]);
 			exit(EXIT_FAILURE);
 		}
+	}
+	// jesli udalo sie poprawnie otworzyc plik konfiguracyjny
+	// sprobujemy wyciagnac z niego dane
+	if(!ReadConfig(&cfd, cf)) {
+		fprintf(stderr, "[CRIT] Dane w pliku konfiguracyjnym sa niepoprawne\n");
+		exit(EXIT_FAILURE);
 	}
 
 	if((parent = fork()) < 0) {
