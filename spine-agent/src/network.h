@@ -17,4 +17,8 @@ int clientConnection(int sockfd);
 // wysyla do klienta wiadomosc powitalna,
 // zwraca liczbe bajtow, ktora udalo sie przeslac
 int GreetClient(int sockfd);
+
+// funkcja odczytujaca dane z socketu.
+// zwraca string z bufora
+char * readClientData(int sockfd);
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */

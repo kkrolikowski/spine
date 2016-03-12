@@ -1,5 +1,6 @@
 /* network.c -- funkcje do obslugi sieci */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -39,6 +40,8 @@ int clientConnection(int sockfd) {
 int GreetClient(int sockfd) {
 	int sendbytes = 0;
 	char * greet = "Spine Agent v1.0\n\r200 Go Ahead\n\r";
+
+	// przygotowujemy bufor
 	char buff[NET_BUFFER];
 	memset(buff, '\0', NET_BUFFER);
 
@@ -46,4 +49,27 @@ int GreetClient(int sockfd) {
 	sendbytes = write(sockfd, buff, sizeof(buff));
 
 	return sendbytes;
+}
+char * readClientData(int sockfd) {
+	int readbytes = 0;
+	char * clientresp = NULL;		// odpowiedz klienta
+	size_t resplen = 0;				// dlugosc stringu przeslanego przez klienta
+	int i = 0;						// index bufora
+
+	// przygotowujemy bufor
+	char buff[NET_BUFFER];
+	memset(buff, '\0', NET_BUFFER);
+
+	readbytes = read(sockfd, buff, sizeof(buff));
+	if(readbytes > 0) {
+		resplen = strlen(buff) + 1;
+		clientresp = (char *) malloc(resplen * sizeof(char));
+		memset(buff, '\0', NET_BUFFER);
+		while(buff[i]) {
+			*clientresp = buff[i];
+			clientresp++;
+			i++;
+		}
+	}
+	return clientresp;
 }
