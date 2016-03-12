@@ -15,7 +15,23 @@ pid_t agentp = -1;
 void kill_workers(int sig);
 
 int main(int argc, char *argv[]) {
-	pid_t parent, sid;
+	FILE * cf; 					// uchwyt pliku z logami
+	pid_t parent, sid;			// PID procesu macierzystego oraz ID sesji
+
+	// sprawdzamy, czy zostala podana sciezka do pliku konfiguracyjnego
+	// jesli nie, to szukamy go w katalogu /etc
+	if(argc < 2) {
+		if((cf = fopen("/etc/spine-agent.conf", "r")) == NULL) {
+			fprintf(stderr, "Skladnia: %s [/sciezka/do/spine-agent.conf]\n", argv[0]);
+			exit(EXIT_FAILURE);
+		}
+	}
+	else {
+		if((cf = fopen(argv[1], "r")) == NULL) {
+			fprintf(stderr, "Blad odczytu pliku %s\n", argv[1]);
+			exit(EXIT_FAILURE);
+		}
+	}
 
 	if((parent = fork()) < 0) {
 		fprintf(stderr, "[CRIT] Nie moge stworzyc procesu\n");
