@@ -55,3 +55,11 @@ char * timestamp(void) {
 
 	return timestamp;
 }
+void writeLog(FILE *lf, char * message) {
+	char * ts = timestamp();
+
+	fprintf(lf, "%s %s\n", ts, message);
+	free(ts);
+	free(message);
+	fflush(lf);
+}

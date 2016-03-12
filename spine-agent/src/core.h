@@ -8,4 +8,7 @@ char * mkString(char * qstr, ...);
 // funkcja zwraca aktualny czas w formacie: YYY-MM-DD hh:mm:ss
 char * timestamp(void);
 
+// funkcja zapisująca informacje do wskazanego przez uchwyt lf
+// pliku z logami.
+void writeLog(FILE *lf, char * message);
 #endif /* SPINE_AGENT_CORE_H_ */
