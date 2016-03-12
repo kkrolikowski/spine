@@ -86,8 +86,7 @@ int main(int argc, char *argv[]) {
 			sprintf(argv[0], "spine-reciver");
 			logentry = mkString("[INFO] (reciver) * reciver ... Done", NULL);
 			writeLog(lf, logentry);
-			while(1)
-				sleep(1);
+			RetrieveData(cfd.port, lf);
 		}
 		else if(recvp > 0) {
 			agentp = getppid();

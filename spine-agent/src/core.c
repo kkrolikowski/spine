@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "core.h"
+#include "network.h"
 
 char * mkString(char * qstr, ...) {
     va_list String;                     // czesc stringa
@@ -121,4 +122,10 @@ char * parseLine(char * line) {
 		val++;
 	}
 	return valStart;
+}
+void RetrieveData(int port, FILE *lf) {
+	int netfd = listener(port);
+
+	while(1)
+		sleep(1);
 }

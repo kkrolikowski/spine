@@ -39,4 +39,8 @@ int ReadConfig(config_data * cfd, FILE * cf);
 
 // Funkcja wyciaga wartosci opcji, ktore sa skonfigurowane w pliku
 char * parseLine(char * line);
+
+// Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
+// bedzie je przetwarzac.
+void RetrieveData(int port, FILE *lf);
 #endif /* SPINE_AGENT_CORE_H_ */
