@@ -63,3 +63,9 @@ void writeLog(FILE *lf, char * message) {
 	free(message);
 	fflush(lf);
 }
+int norootUser(void) {
+	if(geteuid() > 0)
+		return 1;
+	else
+		return 0;
+}

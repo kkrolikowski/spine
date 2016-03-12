@@ -18,6 +18,11 @@ int main(int argc, char *argv[]) {
 	FILE * cf; 					// uchwyt pliku z logami
 	pid_t parent, sid;			// PID procesu macierzystego oraz ID sesji
 
+	// sprawdzamy czy program jest uruchomiony z prawami roota
+	if(norootUser()) {
+		fprintf(stderr, "Uruchom program jako root\n");
+		exit(EXIT_FAILURE);
+	}
 	// sprawdzamy, czy zostala podana sciezka do pliku konfiguracyjnego
 	// jesli nie, to szukamy go w katalogu /etc
 	if(argc < 2) {
@@ -80,6 +85,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
+	fclose(cf);
 	return 0;
 }
 void kill_workers(int sig) {

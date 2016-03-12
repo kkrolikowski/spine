@@ -11,4 +11,9 @@ char * timestamp(void);
 // funkcja zapisująca informacje do wskazanego przez uchwyt lf
 // pliku z logami.
 void writeLog(FILE *lf, char * message);
+
+// funkcja sprawdza czy program jest uruchomiony z uprawnieniami roota
+// zwraca 0 jesli uzytkownik nie jest rootem
+int norootUser(void);
+
 #endif /* SPINE_AGENT_CORE_H_ */
