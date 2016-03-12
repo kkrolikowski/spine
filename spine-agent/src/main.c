@@ -15,9 +15,11 @@ pid_t agentp = -1;
 void kill_workers(int sig);		// nie, nie jest to funcja do zabijania pracownikow ;-)
 
 int main(int argc, char *argv[]) {
-	FILE * cf; 					// uchwyt pliku z logami
+	FILE * cf; 					// uchwyt pliku z konfiguracyjnego
+	FILE * lf;					// uchwyt pliku z logami
 	pid_t parent, sid;			// PID procesu macierzystego oraz ID sesji
 	config_data cfd;			// dane z pliku konfiguracyjnego
+	char * logentry = NULL;		// wskaznik do informacji o zdarzeniu
 
 	// sprawdzamy czy program jest uruchomiony z prawami roota
 	if(norootUser()) {
@@ -45,9 +47,16 @@ int main(int argc, char *argv[]) {
 	// sprobujemy wyciagnac z niego dane
 	if(!ReadConfig(&cfd, cf)) {
 		fprintf(stderr, "[CRIT] Dane w pliku konfiguracyjnym sa niepoprawne\n");
+		fclose(cf);
 		exit(EXIT_FAILURE);
 	}
+	fclose(cf); 				// dane odczytane, mozna zamknac plik.
 
+	// uruchamiamy logowanie do pliku
+	if((lf = fopen(cfd.logpath, "a+")) == NULL) {
+		fprintf(stderr, "[CRIT] Blad zapisu pliku: %s\n", cfd.logpath);
+		exit(EXIT_FAILURE);
+	}
 	if((parent = fork()) < 0) {
 		fprintf(stderr, "[CRIT] Nie moge stworzyc procesu\n");
 		exit(EXIT_FAILURE);
@@ -69,10 +78,14 @@ int main(int argc, char *argv[]) {
 	// uruchamiamy proces nadrzedny
 	agentp = fork();
 	if(!agentp) {
+		logentry = mkString("[INFO] (main) SpineAgent startuje", NULL);
+		writeLog(lf, logentry);
 		// odpalamy proces odbierajacy dane
 		recvp = fork();
 		if(!recvp) {
 			sprintf(argv[0], "spine-reciver");
+			logentry = mkString("[INFO] (reciver) * reciver ... Done", NULL);
+			writeLog(lf, logentry);
 			while(1)
 				sleep(1);
 		}
@@ -82,6 +95,8 @@ int main(int argc, char *argv[]) {
 			sendp = fork();
 			if(!sendp) {
 				sprintf(argv[0], "spine-sender");
+				logentry = mkString("[INFO] (sender) * sender ... Done", NULL);
+				writeLog(lf, logentry);
 				while(1)
 					sleep(1);
 			}
@@ -95,7 +110,7 @@ int main(int argc, char *argv[]) {
 			}
 		}
 	}
-	fclose(cf);
+	fclose(lf);				// zamykamy logi
 	return 0;
 }
 void kill_workers(int sig) {
