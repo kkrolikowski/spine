@@ -152,4 +152,5 @@ void RetrieveData(int port, FILE *lf) {
 		free(clientResponse);
 		close(clientfd);
 	}
+	close(netiffd);		// konczymy  nasluch
 }
