@@ -134,8 +134,16 @@ void RetrieveData(int port, FILE *lf) {
 		if(GreetClient(clientfd) < 1) {
 			logentry = mkString("[WARN] (reciver) Blad wyslania wiadomosci powitalnej", NULL);
 			writeLog(lf, logentry);
+			break;
 		}
-		clientResponse = readClientData(clientfd);
+		if((clientResponse = readClientData(clientfd)) == NULL) {
+			logentry = mkString("[WARN] (reciver) Brak danych od klienta", NULL);
+			writeLog(lf, logentry);
+			close(clientfd);
+			continue;
+		}
+		logentry = mkString("[DEBUG] (reciver) clientdata: ", clientResponse, NULL);
+		writeLog(lf, logentry);
 		free(clientResponse);
 		close(clientfd);
 	}

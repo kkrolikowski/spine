@@ -51,25 +51,22 @@ int GreetClient(int sockfd) {
 	return sendbytes;
 }
 char * readClientData(int sockfd) {
-	int readbytes = 0;
 	char * clientresp = NULL;		// odpowiedz klienta
-	size_t resplen = 0;				// dlugosc stringu przeslanego przez klienta
-	int i = 0;						// index bufora
+	size_t resplen = 0;                             // dlugosc stringu przeslanego przez klienta
+	int i;						// index bufora
 
 	// przygotowujemy bufor
 	char buff[NET_BUFFER];
 	memset(buff, '\0', NET_BUFFER);
 
-	readbytes = read(sockfd, buff, sizeof(buff));
-	if(readbytes > 0) {
+	if(read(sockfd, buff, sizeof(buff)) > 0) {
 		resplen = strlen(buff) + 1;
 		clientresp = (char *) malloc(resplen * sizeof(char));
-		memset(buff, '\0', NET_BUFFER);
-		while(buff[i]) {
-			*clientresp = buff[i];
-			clientresp++;
-			i++;
-		}
+		memset(clientresp, '\0', resplen);
+
+		for(i = 0; i < resplen; i++)
+			clientresp[i] = buff[i];
+		clientresp[i-2] = '\0';
 	}
 	return clientresp;
 }
