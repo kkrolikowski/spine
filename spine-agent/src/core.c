@@ -74,6 +74,7 @@ int norootUser(void) {
 		return 0;
 }
 void InitConfigData(config_data * cfd) {
+	cfd->mode = NULL;
 	cfd->logpath = NULL;
 	cfd->host = NULL;
 	cfd->port = 0;
@@ -86,7 +87,11 @@ int ReadConfig(config_data * cfd, FILE * cf) {
 	while(fgets(buff, BUFSIZE, cf) != NULL) {
 		if(buff[0] == '#')
 			continue;
-		if(strstr(buff, "log") != NULL) {
+		if(strstr(buff, "mode") != NULL) {
+			cfd->mode = parseLine(buff);
+			status = 1;
+		}
+		else if(strstr(buff, "log") != NULL) {
 			cfd->logpath = parseLine(buff);
 			status = 1;
 		}

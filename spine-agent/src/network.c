@@ -66,7 +66,7 @@ char * readClientData(int sockfd) {
 
 		for(i = 0; i < resplen; i++)
 			clientresp[i] = buff[i];
-		clientresp[i-2] = '\0';
+		clientresp[i-2] = '\0';		// pozbywam sie nowej linii
 	}
 	return clientresp;
 }
