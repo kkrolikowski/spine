@@ -126,12 +126,17 @@ char * parseLine(char * line) {
 void RetrieveData(int port, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
-	int clientfd = clientConnection(netiffd);
+	int clientfd;
+	char * clientResponse = NULL;
 
-	if(GreetClient(clientfd) < 1) {
-		logentry = mkString("[WARN] (reciver) Blad wyslania wiadomosci powitalnej", NULL);
-		writeLog(lf, logentry);
+	while(1) {
+		clientfd = clientConnection(netiffd);
+		if(GreetClient(clientfd) < 1) {
+			logentry = mkString("[WARN] (reciver) Blad wyslania wiadomosci powitalnej", NULL);
+			writeLog(lf, logentry);
+		}
+		clientResponse = readClientData(clientfd);
+		free(clientResponse);
+		close(clientfd);
 	}
-	while(1)
-		sleep(1);
 }
