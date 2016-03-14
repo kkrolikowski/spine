@@ -11,6 +11,7 @@
 pid_t recvp = -1;
 pid_t sendp = -1;
 pid_t agentp = -1;
+char mode[8];					// tryb pracy
 
 void kill_workers(int sig);		// nie, nie jest to funcja do zabijania pracownikow ;-)
 
@@ -20,6 +21,7 @@ int main(int argc, char *argv[]) {
 	pid_t parent, sid;			// PID procesu macierzystego oraz ID sesji
 	config_data cfd;			// dane z pliku konfiguracyjnego
 	char * logentry = NULL;		// wskaznik do informacji o zdarzeniu
+	extern char mode[8];		// tryb pracy
 
 	// sprawdzamy czy program jest uruchomiony z prawami roota
 	if(norootUser()) {
@@ -51,6 +53,10 @@ int main(int argc, char *argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	fclose(cf); 				// dane odczytane, mozna zamknac plik.
+
+	// ustawiamy tryb pracy agenta
+	memset(mode, '\0', 8);
+	strncpy(mode, cfd.mode, 8);
 
 	// uruchamiamy logowanie do pliku
 	if((lf = fopen(cfd.logpath, "a+")) == NULL) {
@@ -90,15 +96,18 @@ int main(int argc, char *argv[]) {
 		}
 		else if(recvp > 0) {
 			agentp = getppid();
-			// odpalamy proces wysylajacy dane
-			sendp = fork();
-			if(!sendp) {
-				sprintf(argv[0], "spine-sender");
-				logentry = mkString("[INFO] (sender) * sender ... Done", NULL);
-				writeLog(lf, logentry);
-				while(1)
-					sleep(1);
+			if(!strcmp(mode, "client")) {
+				// odpalamy proces wysylajacy dane
+				sendp = fork();
+				if(!sendp) {
+					sprintf(argv[0], "spine-sender");
+					logentry = mkString("[INFO] (sender) * sender ... Done", NULL);
+					writeLog(lf, logentry);
+					SendData(cfd.mode, cfd.host, cfd.port, lf);
+				}
 			}
+			/* tutaj nie robimy nic innego tylko czekamy na sygnal
+			do wylaczenia procesow 								*/
 			while(1) {
 				if(signal(SIGTERM, kill_workers)) {
 					wait(NULL);
@@ -114,5 +123,6 @@ int main(int argc, char *argv[]) {
 }
 void kill_workers(int sig) {
 	kill(recvp, SIGTERM);
-	kill(sendp, SIGTERM);
+	if(!strcmp(mode, "client"))
+		kill(sendp, SIGTERM);
 }

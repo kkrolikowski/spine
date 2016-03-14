@@ -44,4 +44,8 @@ char * parseLine(char * line);
 // Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
 // bedzie je przetwarzac.
 void RetrieveData(int port, FILE *lf);
+
+// funckja wysyła dane. Jest w stanie przeslac dane zarowno od serwera
+// jak i od klienta
+void SendData(char * mode, char * server, int port, FILE * lf);
 #endif /* SPINE_AGENT_CORE_H_ */

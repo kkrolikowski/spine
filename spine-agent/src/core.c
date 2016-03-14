@@ -154,3 +154,16 @@ void RetrieveData(int port, FILE *lf) {
 	}
 	close(netiffd);		// konczymy  nasluch
 }
+void SendData(char * mode, char * server, int port, FILE * lf) {
+	int confd;
+	char * logentry = NULL;
+
+	while(1) {
+		if((confd = connector(server, port)) < 0) {
+			logentry = mkString("[WARNING] (sender) Blad polaczenia z hostem: ", server, NULL);
+			writeLog(lf, logentry);
+		}
+		close(confd);
+		sleep(5);
+	}
+}

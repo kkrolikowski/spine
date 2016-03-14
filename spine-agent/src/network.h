@@ -21,4 +21,8 @@ int GreetClient(int sockfd);
 // funkcja odczytujaca dane z socketu.
 // zwraca string z bufora
 char * readClientData(int sockfd);
+
+// funkcja nawiazuje polaczenie z hostem docelowym
+int connector(char * host, int port);
+
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */

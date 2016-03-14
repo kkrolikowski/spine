@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <netdb.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -24,6 +25,26 @@ int listener(int port) {
 	if(bind(sockfd, (struct sockaddr *) &iface, sizeof(iface)) < 0)
 		return -1;
 	listen(sockfd, CONN_QUEUE);
+
+	return sockfd;
+}
+int connector(char * host, int port) {
+	int sockfd;
+	struct sockaddr_in dsthost;
+	struct hostent * dstip;
+
+	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+		return -1;
+	if((dstip = gethostbyname(host)) == NULL)
+		return -1;
+
+	bzero((char *) &dsthost, sizeof(dsthost));
+	dsthost.sin_family = AF_INET;
+	bcopy((char *) dstip->h_addr_list, (char *) &dsthost.sin_addr.s_addr, dstip->h_length);
+	dsthost.sin_port = htons(port);
+
+	if(connect(sockfd, (struct sockaddr *) &dsthost, sizeof(dsthost)) < 0)
+		return -1;
 
 	return sockfd;
 }
