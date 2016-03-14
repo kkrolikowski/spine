@@ -1,7 +1,8 @@
 #ifndef SPINE_AGENT_CORE_H_
 #define SPINE_AGENT_CORE_H_
 
-#define BUFSIZE 128		// bufor do odczytu pliku konfiguracyjnego
+#define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
+#define PACKAGE_SIZE 1024 	// bufor dla informacji konfiguracyjnych
 
 /* 			STRUKTURY		*/
 
