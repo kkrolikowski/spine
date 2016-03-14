@@ -28,4 +28,7 @@ int connector(char * host, int port);
 // funkcja przesyla zebrane informacje do oddbiorcy
 int SendPackage(int sockfd, char * message);
 
+// funkcja sprawdza, czy serwer jest gotowy
+int waitForHEllo(int sockfd);
+
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */

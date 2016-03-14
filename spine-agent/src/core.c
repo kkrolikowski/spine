@@ -170,7 +170,12 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 			}
 			writeLog(lf, logentry);
 		}
+		/*
+		 * Wszelkie informacje na temat systemu operacyjnego sa wysylane jedynie z hosta, ktory
+		 * jest klientem
+		 */
 		if(!strcmp(mode, "client")) {
+			// pobieramy informacje na temat systemu
 			InitSystemInformation(&osinfo);
 			if(!getSystemInformation(&osinfo)) {
 				logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
@@ -178,6 +183,14 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 			}
 			memset(tmp, '\0', BUFSIZE);
 			sprintf(tmp, "%ld", osinfo.uptime);
+			// sprawdzamy, czy serwer jest gotowy
+			if(!waitForHEllo(confd)) {
+				logentry = mkString("[WARNING] (sender) Serwer nie jest gotowy, ponawiam probe...", NULL);
+				writeLog(lf, logentry);
+				close(confd);
+				continue;
+			}
+			// wysylamy dane
 			if(!SendPackage(confd, tmp)) {
 				logentry = mkString("[WARNING] (sender) Blad przeslania informacji z systemu", NULL);
 				writeLog(lf, logentry);

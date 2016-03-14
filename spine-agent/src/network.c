@@ -104,3 +104,14 @@ int SendPackage(int sockfd, char * message) {
 
   return bytesSent;
 }
+int waitForHEllo(int sockfd) {
+	int status = 0;
+	char buff[NET_BUFFER];
+	memset(buff, '\0', NET_BUFFER);
+
+	if(read(sockfd, buff, NET_BUFFER) > 1) {
+		if(strstr(buff, "200 Go Ahead") != NULL)
+			status = 1;
+	}
+	return status;
+}
