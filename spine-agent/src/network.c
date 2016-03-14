@@ -91,3 +91,16 @@ char * readClientData(int sockfd) {
 	}
 	return clientresp;
 }
+int SendPackage(int sockfd, char * message) {
+  int bytesSent = 0;
+
+  // Przygotowanie bufora i skopiowanie do niego danych
+  char buff[NET_BUFFER];
+  memset(buff, '\0', NET_BUFFER);
+  strncpy(buff, message, NET_BUFFER);
+
+  if((bytesSent = write(sockfd, buff, NET_BUFFER)) < 1)
+    return 0;
+
+  return bytesSent;
+}

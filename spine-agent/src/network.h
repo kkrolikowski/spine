@@ -25,4 +25,7 @@ char * readClientData(int sockfd);
 // funkcja nawiazuje polaczenie z hostem docelowym
 int connector(char * host, int port);
 
+// funkcja przesyla zebrane informacje do oddbiorcy
+int SendPackage(int sockfd, char * message);
+
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */

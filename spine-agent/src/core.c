@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include "core.h"
 #include "network.h"
+#include "sysconfigdata.h"
 
 char * mkString(char * qstr, ...) {
     va_list String;                     // czesc stringa
@@ -157,6 +158,7 @@ void RetrieveData(int port, FILE *lf) {
 void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;
 	char * logentry = NULL;
+  systeminfo osinfo;            // inforrmacje na temat serwera
 
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
@@ -167,6 +169,13 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 			}
 			writeLog(lf, logentry);
 		}
+    if(!strcmp(mode, "client")) {
+      InitSystemInformation(&osinfo);
+      if(!getSystemInformation(&osinfo)) {
+        logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
+        writeLog(lf, logentry);
+      }
+    }
 		close(confd);
 		sleep(5);
 	}
