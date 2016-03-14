@@ -160,7 +160,11 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
-			logentry = mkString("[WARNING] (sender) Blad polaczenia z hostem: ", server, NULL);
+			switch(confd) {
+				case -1 : logentry = mkString("[WARNING] (sender) Blad tworzenia socketu", NULL); 				break;
+				case -2 : logentry = mkString("[WARNING] (sender) Nieznany host: ", server, NULL); 				break;
+				case -3 : logentry = mkString("[WARNING] (sender) Blad polaczenia z hostem: ", server, NULL); 	break;
+			}
 			writeLog(lf, logentry);
 		}
 		close(confd);
