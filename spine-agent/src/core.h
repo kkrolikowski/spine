@@ -1,5 +1,6 @@
 #ifndef SPINE_AGENT_CORE_H_
 #define SPINE_AGENT_CORE_H_
+#include "sysconfigdata.h"
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
 #define PACKAGE_SIZE 1024 	// bufor dla informacji konfiguracyjnych
@@ -49,4 +50,8 @@ void RetrieveData(int port, FILE *lf);
 // funckja wysyła dane. Jest w stanie przeslac dane zarowno od serwera
 // jak i od klienta
 void SendData(char * mode, char * server, int port, FILE * lf);
+
+// funkcja buduje string w formacie json zawierajacy dane systemowe klienta
+char * BuildPackage(systeminfo * info);
+
 #endif /* SPINE_AGENT_CORE_H_ */

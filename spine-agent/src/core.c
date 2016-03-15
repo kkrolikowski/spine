@@ -155,12 +155,22 @@ void RetrieveData(int port, FILE *lf) {
 	}
 	close(netiffd);		// konczymy  nasluch
 }
+char * BuildPackage(systeminfo * info) {
+	char s_uptime[11]; 		// tablica, ktora przechowa string zawierajacy uptime
+	memset(s_uptime, '\0', 11);
+	sprintf(s_uptime, "%ld", info->uptime);
+
+	char * json = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, "}}]", NULL);
+
+	return json;
+}
 void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;
 	char * logentry = NULL;
-	systeminfo osinfo;			// inforrmacje na temat serwera
-	char tmp[BUFSIZE];		// tymczasowa tablica na przechowanie wiadomosci.
-
+	systeminfo osinfo;				// informacje na temat serwera
+	char buff[NET_BUFFER];			// bufor, ktory sluzy do przeslania danych przez siec
+	memset(buff, '\0', NET_BUFFER);
+	char * json = NULL;				// dane do przeslania
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
 			switch(confd) {
@@ -181,8 +191,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 				logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
 				writeLog(lf, logentry);
 			}
-			memset(tmp, '\0', BUFSIZE);
-			sprintf(tmp, "%ld", osinfo.uptime);
+			json = BuildPackage(&osinfo);		// budujemy jsona z danymi
 			// sprawdzamy, czy serwer jest gotowy
 			if(!waitForHEllo(confd)) {
 				logentry = mkString("[WARNING] (sender) Serwer nie jest gotowy, ponawiam probe...", NULL);
@@ -191,10 +200,11 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 				continue;
 			}
 			// wysylamy dane
-			if(!SendPackage(confd, tmp)) {
+			if(!SendPackage(confd, json)) {
 				logentry = mkString("[WARNING] (sender) Blad przeslania informacji z systemu", NULL);
 				writeLog(lf, logentry);
 			}
+			free(json);
 		}
 		close(confd);
 		sleep(5);
