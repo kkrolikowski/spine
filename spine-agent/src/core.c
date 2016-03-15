@@ -10,6 +10,8 @@
 #include "network.h"
 #include "sysconfigdata.h"
 
+#define PACKAGE_CHUNKS 2		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
+
 char * mkString(char * qstr, ...) {
     va_list String;                     // czesc stringa
     size_t stringLenght = 0;            // liczba znakow w calym stringu
@@ -166,10 +168,10 @@ char * BuildPackage(systeminfo * info) {
 	char * package2 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
 
 	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
-	char * packages[2] = {package1, package2};
+	char * packages[PACKAGE_CHUNKS] = {package1, package2};
 	size_t package_len = 0;
 	int i;
-	for(i = 0; i < 2; i++)
+	for(i = 0; i < PACKAGE_CHUNKS; i++)
 		package_len += strlen(packages[i]);
 	package_len += 1;
 
@@ -178,7 +180,15 @@ char * BuildPackage(systeminfo * info) {
 	strcpy(json, package1);
 	strcat(json, package2);
 
+	// czyscimy pozostalosci
+	cleanChunks(packages, PACKAGE_CHUNKS);
+
 	return json;
+}
+void cleanChunks(char * parts[], int n) {
+	int i;
+	for(i = 0; i < n; i++)
+		free(parts[i]);
 }
 void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;
