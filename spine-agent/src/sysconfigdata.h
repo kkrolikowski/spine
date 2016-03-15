@@ -6,6 +6,7 @@
 // podstawowe informacje o systemie
 typedef struct systeminfo {
 	long uptime;
+	char * net_hwaddr;
 } systeminfo;
 
 // konfiguracja serwera www
@@ -27,4 +28,9 @@ int getSystemInformation(systeminfo * sys);
 // funkcja inicjuje strukture przechowujaca dane systemowe
 void InitSystemInformation(systeminfo * sys);
 
+// funkcja zwalnia pamiec gdzie przechowywane sa informacje systemowe
+void ClearSystemInformation(systeminfo * sys);
+
+// funkcja zwraca sformatowany string zawierajacy mac-adres
+char * getMacAddress(void);
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

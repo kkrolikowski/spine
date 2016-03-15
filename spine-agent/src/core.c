@@ -156,11 +156,27 @@ void RetrieveData(int port, FILE *lf) {
 	close(netiffd);		// konczymy  nasluch
 }
 char * BuildPackage(systeminfo * info) {
-	char s_uptime[11]; 		// tablica, ktora przechowa string zawierajacy uptime
+	// Zapisujemy uptime w formie stringa
+	char s_uptime[11];
 	memset(s_uptime, '\0', 11);
 	sprintf(s_uptime, "%ld", info->uptime);
 
-	char * json = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, "}}]", NULL);
+	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
+	char * package1 = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, ",", NULL);
+	char * package2 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
+
+	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
+	char * packages[2] = {package1, package2};
+	size_t package_len = 0;
+	int i;
+	for(i = 0; i < 2; i++)
+		package_len += strlen(packages[i]);
+	package_len += 1;
+
+	// sklejamy wszystkie czesi pakietu do kupy
+	char * json = (char *) malloc(package_len * sizeof(char));
+	strcpy(json, package1);
+	strcat(json, package2);
 
 	return json;
 }
@@ -205,6 +221,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 				writeLog(lf, logentry);
 			}
 			free(json);
+			ClearSystemInformation(&osinfo);
 		}
 		close(confd);
 		sleep(5);
