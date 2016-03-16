@@ -22,7 +22,6 @@ int main(int argc, char *argv[]) {
 	config_data cfd;			// dane z pliku konfiguracyjnego
 	char * logentry = NULL;		// wskaznik do informacji o zdarzeniu
 	extern char mode[8];		// tryb pracy
-	pid_t pid;					// zmienna, ktora przechowuje pobrany pid w celu stworzenia pidfile'a
 
 	// sprawdzamy czy program jest uruchomiony z prawami roota
 	if(norootUser()) {
