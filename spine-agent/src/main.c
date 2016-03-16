@@ -22,12 +22,20 @@ int main(int argc, char *argv[]) {
 	config_data cfd;			// dane z pliku konfiguracyjnego
 	char * logentry = NULL;		// wskaznik do informacji o zdarzeniu
 	extern char mode[8];		// tryb pracy
+	pid_t pid;					// zmienna, ktora przechowuje pobrany pid w celu stworzenia pidfile'a
 
 	// sprawdzamy czy program jest uruchomiony z prawami roota
 	if(norootUser()) {
 		fprintf(stderr, "Uruchom program jako root\n");
 		exit(EXIT_FAILURE);
 	}
+
+	// sprawdzamy czy program nie jest juz uruchomiony
+	if(existPidFile(PID_PATH)) {
+		fprintf(stderr, "[CRIT] Spine Agent jest juz uruchomiony, wychodze.\n");
+		exit(EXIT_FAILURE);
+	}
+
 	// Inicjujemy konfiguracje
 	InitConfigData(&cfd);
 
@@ -67,8 +75,14 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "[CRIT] Nie moge stworzyc procesu\n");
 		exit(EXIT_FAILURE);
 	}
-	if(parent > 0)
+	if(parent > 0) {
+		// Zapisujemy pidfile i wypisujemy w terminalu informacje
+		// na temat startu procesu. Dirty hack z pidem glownego procesu
+		if(!savePidFile(parent+1))
+			fprintf(stderr, "[WARN] Blad zapisu pliku %s\n", PID_PATH);
+		printf("Spine Agent started: %d\n", parent+1);
 		exit(EXIT_SUCCESS);
+	}
 
 	// demonizujemy proces
 	umask(0);
@@ -111,6 +125,7 @@ int main(int argc, char *argv[]) {
 			while(1) {
 				if(signal(SIGTERM, kill_workers)) {
 					wait(NULL);
+					unlink(PID_PATH);
 					break;
 				}
 				else

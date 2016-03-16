@@ -4,6 +4,7 @@
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
 #define PACKAGE_SIZE 1024 	// bufor dla informacji konfiguracyjnych
+#define PID_PATH "/var/run/spine-agent.pid"		// sciezka do pliku z pidem glownego procesu
 
 /* 			STRUKTURY		*/
 
@@ -17,6 +18,12 @@ typedef struct config_data {
 
 
 /* 			FUNKCJE			*/
+
+// funkcja zapisuje pid glownego procesu w pliku
+int savePidFile(int pid);
+
+// funkcja sprawdza czy istnieje pidfile
+int existPidFile(char * path);
 
 // Inicjalizacja struktury config_data
 void InitConfigData(config_data * cfd);
