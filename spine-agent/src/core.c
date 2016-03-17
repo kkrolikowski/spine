@@ -110,8 +110,10 @@ int ReadConfig(config_data * cfd, FILE * cf) {
 
 	memset(buff, '\0', BUFSIZE);
 	while(fgets(buff, BUFSIZE, cf) != NULL) {
-		if(buff[0] == '#')
+		if(buff[0] == '#') {
+			memset(buff, '\0', BUFSIZE);
 			continue;
+		}
 		if(strstr(buff, "mode") != NULL) {
 			cfd->mode = parseLine(buff);
 			status = 1;
@@ -129,21 +131,22 @@ int ReadConfig(config_data * cfd, FILE * cf) {
 			status = 1;
 		}
 		else if(strstr(buff, "dbhost") != NULL) {
-			cfd->dbinfo->dbhost = parseLine(buff);
+			cfd->dbinfo.dbhost = parseLine(buff);
 			status = 1;
 		}
 		else if(strstr(buff, "dbname") != NULL) {
-			cfd->dbinfo->dbname = parseLine(buff);
+			cfd->dbinfo.dbname = parseLine(buff);
 			status = 1;
 		}
-		else if(strstr(buff, "dblogin") != NULL) {
-			cfd->dbinfo->dblogin = parseLine(buff);
+		else if(strstr(buff, "dbuser") != NULL) {
+			cfd->dbinfo.dblogin = parseLine(buff);
 			status = 1;
 		}
 		else if(strstr(buff, "dbpass") != NULL) {
-			cfd->dbinfo->dbpass = parseLine(buff);
+			cfd->dbinfo.dbpass = parseLine(buff);
 			status = 1;
 		}
+		memset(buff, '\0', BUFSIZE);
 	}
 	return status;
 }
@@ -169,11 +172,12 @@ char * parseLine(char * line) {
 	}
 	return valStart;
 }
-void RetrieveData(int port, FILE *lf) {
+void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
 	int clientfd;
-	char * clientResponse = NULL;
+	char * clientResponse = NULL;	// string przesylany przez klienta (json)
+	char * datatype = NULL; 		// typ danych przesylanych do klienta
 
 	while(1) {
 		clientfd = clientConnection(netiffd);
@@ -188,8 +192,19 @@ void RetrieveData(int port, FILE *lf) {
 			close(clientfd);
 			continue;
 		}
-		logentry = mkString("[DEBUG] (reciver) clientdata: ", clientResponse, NULL);
-		writeLog(lf, logentry);
+		// Sprawdzamy czy klient wysyla poprawne dane
+		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
+			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
+			writeLog(lf, logentry);
+			close(clientfd);
+			continue;
+		}
+
+		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
+		if(!strcmp(datatype, "sysinfo"))
+			updateHostInfo(clientResponse, lf);
+
+		free(datatype);
 		free(clientResponse);
 		close(clientfd);
 	}
@@ -227,6 +242,32 @@ void cleanChunks(char * parts[], int n) {
 	int i;
 	for(i = 0; i < n; i++)
 		free(parts[i]);
+}
+char * jsonVal(const char * json, const char * pattern) {
+	char * val = NULL;
+
+	size_t pattern_len = strlen(pattern);
+	const char * val_pos = strstr(json, pattern) + pattern_len + 1;
+
+	if(val_pos == NULL)
+		return NULL;
+
+	int i = 0;
+	size_t len = 0;
+	char tmp[PACKAGE_SIZE];
+	memset(tmp, '\0', PACKAGE_SIZE);
+
+	while(*val_pos != ',' && *val_pos != '}') {
+		tmp[i] = *val_pos;
+		val_pos++;
+		i++;
+	}
+
+	len = strlen(tmp) + 1;
+	val = (char *) malloc(len * sizeof(char));
+	strcpy(val, tmp);
+
+	return val;
 }
 void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;

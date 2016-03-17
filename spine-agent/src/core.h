@@ -16,7 +16,7 @@ typedef struct config_data {
 	char * logpath;		// sciezka do pliku z logami
 	char * host;		// nazwa DNS procesu odbierajacego dane
 	int port;			// port TCP na ktorym dziala usluga
-	dbconn * dbinfo;	// namiary na baze danych
+	dbconn dbinfo;	// namiary na baze danych
 } config_data;
 
 
@@ -55,7 +55,7 @@ char * parseLine(char * line);
 
 // Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
 // bedzie je przetwarzac.
-void RetrieveData(int port, FILE *lf);
+void RetrieveData(int port, char * mode, FILE *lf);
 
 // funckja wysyła dane. Jest w stanie przeslac dane zarowno od serwera
 // jak i od klienta
@@ -68,5 +68,8 @@ char * BuildPackage(systeminfo * info);
    pierwszy argument to tablica przechowujaca poszczegolne czesci stringa
    druga to liczba elementow tablicy */
 void cleanChunks(char * parts[], int n);
+
+// funkcja zwraca wartosc klucza (pattern) z przekazanego stringa (json)
+char * jsonVal(const char * json, const char * pattern);
 
 #endif /* SPINE_AGENT_CORE_H_ */

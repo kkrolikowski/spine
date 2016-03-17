@@ -6,12 +6,15 @@
 #include <wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <mysql.h>
 #include "core.h"
+#include "database.h"
 
 pid_t recvp = -1;
 pid_t sendp = -1;
 pid_t agentp = -1;
 char mode[8];					// tryb pracy
+MYSQL * dbh = NULL;
 
 void kill_workers(int sig);		// nie, nie jest to funcja do zabijania pracownikow ;-)
 
@@ -99,13 +102,20 @@ int main(int argc, char *argv[]) {
 	if(!agentp) {
 		logentry = mkString("[INFO] (main) SpineAgent startuje", NULL);
 		writeLog(lf, logentry);
+		// nawiazujemy polaczenie z baza danych (tylko server)
+		if(!strcmp(cfd.mode, "server"))
+			if((dbh = dbConnect(cfd.dbinfo)) == NULL) {
+				logentry = mkString("[ERROR] (main) Nie udalo polaczyc sie z baza danych!", NULL);
+				writeLog(lf, logentry);
+			}
+
 		// odpalamy proces odbierajacy dane
 		recvp = fork();
 		if(!recvp) {
 			sprintf(argv[0], "spine-reciver");
 			logentry = mkString("[INFO] (reciver) * reciver ... Done", NULL);
 			writeLog(lf, logentry);
-			RetrieveData(cfd.port, lf);
+			RetrieveData(cfd.port, cfd.mode, lf);
 		}
 		else if(recvp > 0) {
 			agentp = getppid();
@@ -125,6 +135,8 @@ int main(int argc, char *argv[]) {
 				if(signal(SIGTERM, kill_workers)) {
 					wait(NULL);
 					unlink(PID_PATH);
+					if(!strcmp(cfd.mode, "server"))
+						mysql_close(dbh);
 					break;
 				}
 				else
