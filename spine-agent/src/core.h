@@ -1,6 +1,7 @@
 #ifndef SPINE_AGENT_CORE_H_
 #define SPINE_AGENT_CORE_H_
 #include "sysconfigdata.h"
+#include "database.h"
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
 #define PACKAGE_SIZE 1024 	// bufor dla informacji konfiguracyjnych
@@ -15,6 +16,7 @@ typedef struct config_data {
 	char * logpath;		// sciezka do pliku z logami
 	char * host;		// nazwa DNS procesu odbierajacego dane
 	int port;			// port TCP na ktorym dziala usluga
+	dbconn * dbinfo;	// namiary na baze danych
 } config_data;
 
 
