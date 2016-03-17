@@ -220,11 +220,13 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
 			switch(confd) {
-				case -1 : logentry = mkString("[WARNING] (sender) Blad tworzenia socketu", NULL); 				break;
-				case -2 : logentry = mkString("[WARNING] (sender) Nieznany host: ", server, NULL); 				break;
-				case -3 : logentry = mkString("[WARNING] (sender) Blad polaczenia z hostem: ", server, NULL); 	break;
+				case -1 : logentry = mkString("[WARNING] (sender) Polaczenie nie moze zostac zainicjowane", NULL); 	break;
+				case -2 : logentry = mkString("[WARNING] (sender) Nieznany host: ", server, NULL); 					break;
+				case -3 : logentry = mkString("[WARNING] (sender) Blad polaczenia z hostem: ", server, NULL); 		break;
 			}
 			writeLog(lf, logentry);
+			sleep(HEARTBEAT);
+			continue;
 		}
 		/*
 		 * Wszelkie informacje na temat systemu operacyjnego sa wysylane jedynie z hosta, ktory
@@ -243,6 +245,8 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 				logentry = mkString("[WARNING] (sender) Serwer nie jest gotowy, ponawiam probe...", NULL);
 				writeLog(lf, logentry);
 				close(confd);
+				ClearSystemInformation(&osinfo);
+				sleep(HEARTBEAT);
 				continue;
 			}
 			// wysylamy dane
@@ -254,6 +258,6 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 			ClearSystemInformation(&osinfo);
 		}
 		close(confd);
-		sleep(5);
+		sleep(HEARTBEAT);
 	}
 }
