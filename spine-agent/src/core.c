@@ -12,7 +12,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 
-#define PACKAGE_CHUNKS 3		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
+#define PACKAGE_CHUNKS 4		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -173,6 +173,34 @@ char * parseLine(char * line) {
 	}
 	return valStart;
 }
+char * ulong2String(unsigned long n) {
+	char tmp[12];
+	memset(tmp, '\0', 12);
+	char * str = NULL;
+	size_t len = 0;
+
+	sprintf(tmp, "%ld", n);
+	len = strlen(tmp) + 1;
+	str = (char *) malloc(len * sizeof(char));
+	memset(str, '\0', len);
+	strcpy(str, tmp);
+
+	return str;
+}
+char * long2String(long n) {
+	char tmp[12];
+	memset(tmp, '\0', 12);
+	char * str = NULL;
+	size_t len = 0;
+
+	sprintf(tmp, "%ld", n);
+	len = strlen(tmp) + 1;
+	str = (char *) malloc(len * sizeof(char));
+	memset(str, '\0', len);
+	strcpy(str, tmp);
+
+	return str;
+}
 void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
@@ -219,17 +247,19 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 }
 char * BuildPackage(systeminfo * info) {
 	// Zapisujemy uptime w formie stringa
-	char s_uptime[11];
-	memset(s_uptime, '\0', 11);
-	sprintf(s_uptime, "%ld", info->uptime);
+	char * s_uptime = long2String(info->uptime);
+
+	// Zapisujemy calkowita powierzchnie partycji jako string
+	char * s_hdd_total = ulong2String(info->hdd_total);
 
 	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
 	char * package1 = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, ",", NULL);
 	char * package2 = mkString("hostname:", info->hostname, ",", NULL);
-	char * package3 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
+	char * package3 = mkString("hdd_total:", s_hdd_total, ",", NULL);
+	char * package4 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
 
 	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
-	char * packages[PACKAGE_CHUNKS] = {package1, package2, package3};
+	char * packages[PACKAGE_CHUNKS] = {package1, package2, package3, package4};
 	size_t package_len = 0;
 	int i;
 	for(i = 0; i < PACKAGE_CHUNKS; i++)
@@ -241,9 +271,12 @@ char * BuildPackage(systeminfo * info) {
 	strcpy(json, package1);
 	strcat(json, package2);
 	strcat(json, package3);
+	strcat(json, package4);
 
 	// czyscimy pozostalosci
 	cleanChunks(packages, PACKAGE_CHUNKS);
+	free(s_uptime);
+	free(s_hdd_total);
 
 	return json;
 }

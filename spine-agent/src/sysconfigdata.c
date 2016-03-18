@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/sysinfo.h>
 #include <sys/ioctl.h>
+#include <sys/statvfs.h>
 #include <net/if.h>
 #include <unistd.h>
 #include <limits.h>
@@ -35,6 +36,17 @@ char * getMacAddress() {
 	close(sock);
 	return macstr;
 }
+unsigned long DiskSizeTotal() {
+	struct statvfs fs;
+	char * fsdir = "/";
+	unsigned long totalsize = 0L;
+
+	if(statvfs(fsdir, &fs))
+		return 0;
+	totalsize = fs.f_bsize * fs.f_blocks;
+
+	return totalsize;
+}
 char * getHostname() {
 	char tmp[HOST_NAME_MAX];
 	char * hostname = NULL;
@@ -51,11 +63,14 @@ char * getHostname() {
 }
 int getSystemInformation(systeminfo * sys) {
 	int status = 0;
+
 	if((sys->uptime = getuptime()) > 0)
 		status = 1;
 	if((sys->net_hwaddr = getMacAddress()) != NULL)
 		status = 1;
 	if((sys->hostname = getHostname()) != NULL)
+		status = 1;
+	if((sys->hdd_total = DiskSizeTotal()) != 0)
 		status = 1;
 
 	return status;

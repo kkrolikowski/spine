@@ -53,6 +53,12 @@ int ReadConfig(config_data * cfd, FILE * cf);
 // Funkcja wyciaga wartosci opcji, ktore sa skonfigurowane w pliku
 char * parseLine(char * line);
 
+// Funkcja zwraca wartosc unsigned long w formie stringu
+char * ulong2String(unsigned long n);
+
+// Funkcja zwraca wartosc long w formie stringu
+char * long2String(long n);
+
 // Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
 // bedzie je przetwarzac.
 void RetrieveData(int port, char * mode, FILE *lf);

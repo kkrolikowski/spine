@@ -6,6 +6,7 @@
 // podstawowe informacje o systemie
 typedef struct systeminfo {
 	long uptime;
+	unsigned long hdd_total;
 	char * net_hwaddr;
 	char * hostname;
 	char * ip;
@@ -38,4 +39,8 @@ char * getMacAddress(void);
 
 // funkcja zwraca hostname klienta
 char * getHostname(void);
+
+// calkowity rozmiar partycji
+unsigned long DiskSizeTotal();
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
