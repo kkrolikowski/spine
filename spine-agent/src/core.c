@@ -175,37 +175,41 @@ char * parseLine(char * line) {
 void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
-	int clientfd;
 	char * clientResponse = NULL;	// string przesylany przez klienta (json)
 	char * datatype = NULL; 		// typ danych przesylanych do klienta
+	netinfo net;					// struktura przechowujaca ip oraz socket klienta
 
 	while(1) {
-		clientfd = clientConnection(netiffd);
-		if(GreetClient(clientfd) < 1) {
+		net = clientConnection(netiffd);
+		if(GreetClient(net.sock) < 1) {
 			logentry = mkString("[WARN] (reciver) Blad wyslania wiadomosci powitalnej", NULL);
 			writeLog(lf, logentry);
+			free(net.ipaddr);
 			break;
 		}
-		if((clientResponse = readClientData(clientfd)) == NULL) {
+		if((clientResponse = readClientData(net.sock)) == NULL) {
 			logentry = mkString("[WARN] (reciver) Brak danych od klienta", NULL);
 			writeLog(lf, logentry);
-			close(clientfd);
+			free(net.ipaddr);
+			close(net.sock);
 			continue;
 		}
 		// Sprawdzamy czy klient wysyla poprawne dane
 		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
 			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
 			writeLog(lf, logentry);
-			close(clientfd);
+			free(net.ipaddr);
+			close(net.sock);
 			continue;
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo"))
-			updateHostInfo(clientResponse, lf);
+			updateHostInfo(net.ipaddr, clientResponse, lf);
 
+		free(net.ipaddr);
 		free(datatype);
 		free(clientResponse);
-		close(clientfd);
+		close(net.sock);
 	}
 	close(netiffd);		// konczymy  nasluch
 }

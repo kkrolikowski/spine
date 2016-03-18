@@ -8,6 +8,7 @@ typedef struct systeminfo {
 	long uptime;
 	char * net_hwaddr;
 	char * hostname;
+	char * ip;
 } systeminfo;
 
 // konfiguracja serwera www

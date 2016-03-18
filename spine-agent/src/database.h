@@ -32,7 +32,7 @@ int hostExist(char * hostid);
 
 // funkcja aktuliazuje (badz dodaje) informacje przesylane przez
 // klienta
-int updateHostInfo(char * stream, FILE * lf);
+int updateHostInfo(char * clientip, char * stream, FILE * lf);
 
 // funkcja aktualizuje rekord w bazie na podstawie identyfikatora
 // systemu (mac-adres). Zwraca 1 jesli update sie udal a 0 jesli

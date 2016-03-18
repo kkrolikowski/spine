@@ -27,7 +27,7 @@ MYSQL * dbConnect(dbconn cfg) {
 
 	return dbh;
 }
-int updateHostInfo(char * stream, FILE * lf) {
+int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	systeminfo hostinfo;
 	char * logmessage = NULL;
 
@@ -36,6 +36,7 @@ int updateHostInfo(char * stream, FILE * lf) {
 	hostinfo.uptime = atol(jsonVal(stream, "uptime"));
 	hostinfo.net_hwaddr = jsonVal(stream, "systemid");
 	hostinfo.hostname = jsonVal(stream, "hostname");
+	hostinfo.ip = clientip;
 
 	// sprawdzam czy istnieje w bazie rekord z okreslonym systemid.
 	// Aktualizuje rekord jest tak. Jesli nie, dodaje nowy
@@ -85,7 +86,8 @@ int updateItem(systeminfo * info) {
 
 	char * query = mkString(
 			"UPDATE sysinfo SET uptime = ", uptime_s,
-			", hostname = '", info->hostname,
+			", ip = '", info->ip,
+			"', hostname = '", info->hostname,
 			"' WHERE system_id = '", info->net_hwaddr, "'", NULL);
 
 	if(!mysql_query(dbh, query))
@@ -103,8 +105,8 @@ int insertItem(systeminfo * info) {
 	memset(uptime_s, '\0', 12);
 	sprintf(uptime_s, "%ld", info->uptime);
 
-	char * query = mkString("INSERT INTO sysinfo(hostname, uptime, system_id) VALUES('",
-			info->hostname, "', ", uptime_s, ", '", info->net_hwaddr, "')", NULL);
+	char * query = mkString("INSERT INTO sysinfo(ip, hostname, uptime, system_id) VALUES('",
+			info->ip, "', ", info->hostname, "', ", uptime_s, ", '", info->net_hwaddr, "')", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;

@@ -63,9 +63,11 @@ void InitSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
 	sys->net_hwaddr = NULL;
 	sys->hostname = NULL;
+	sys->ip = NULL;
 }
 void ClearSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
 	free(sys->net_hwaddr);
 	free(sys->hostname);
+	free(sys->ip);
 }

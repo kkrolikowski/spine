@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include "network.h"
 
 int listener(int port) {
@@ -52,15 +53,28 @@ int connector(char * host, int port) {
 
 	return sockfd;
 }
-int clientConnection(int sockfd) {
+netinfo clientConnection(int sockfd) {
 	struct sockaddr_in client;
 	socklen_t clilen;
 	int clisockfd;
+	netinfo net;
+	struct in_addr ip;				// adres IP w formie binarnej
+	size_t ip_len = 0;				// dlugosc stringu z adresem ip
+	char tmp[16];					// tymczasowo schowamy tutaj adres IP
+	memset(tmp, '\0', sizeof(tmp));
 
+	initNetinfo(&net);
 	clilen = sizeof(client);
-	clisockfd = accept(sockfd, (struct sockaddr *) &client, &clilen);
+	net.sock = accept(sockfd, (struct sockaddr *) &client, &clilen);
 
-	return clisockfd;
+	ip = client.sin_addr;
+	strcpy(tmp, inet_ntoa(ip));
+
+	ip_len = strlen(tmp) + 1;
+	net.ipaddr = (char * ) malloc(ip_len * sizeof(char));
+	strcpy(net.ipaddr, tmp);
+
+	return net;
 }
 int GreetClient(int sockfd) {
 	int sendbytes = 0;
@@ -118,4 +132,8 @@ int waitForHEllo(int sockfd) {
 			status = 1;
 	}
 	return status;
+}
+void initNetinfo(netinfo * net) {
+	net->ipaddr = NULL;
+	net->sock = 0;
 }
