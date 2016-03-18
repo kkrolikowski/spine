@@ -186,6 +186,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			logentry = mkString("[WARN] (reciver) Blad wyslania wiadomosci powitalnej", NULL);
 			writeLog(lf, logentry);
 			free(net.ipaddr);
+			sleep(5);
 			continue;
 		}
 		if((clientResponse = readClientData(net.sock)) == NULL) {
@@ -193,21 +194,23 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			writeLog(lf, logentry);
 			free(net.ipaddr);
 			close(net.sock);
+			sleep(5);
 			continue;
 		}
-		//close(net.sock);
 		// Sprawdzamy czy klient wysyla poprawne dane
 		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
 			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
 			writeLog(lf, logentry);
 			free(net.ipaddr);
 			close(net.sock);
+			sleep(5);
 			continue;
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo"))
 			updateHostInfo(net.ipaddr, clientResponse, lf);
 
+		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
 		free(clientResponse);
