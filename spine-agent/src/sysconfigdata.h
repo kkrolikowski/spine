@@ -7,6 +7,7 @@
 typedef struct systeminfo {
 	long uptime;
 	char * net_hwaddr;
+	char * hostname;
 } systeminfo;
 
 // konfiguracja serwera www
@@ -33,4 +34,7 @@ void ClearSystemInformation(systeminfo * sys);
 
 // funkcja zwraca sformatowany string zawierajacy mac-adres
 char * getMacAddress(void);
+
+// funkcja zwraca hostname klienta
+char * getHostname(void);
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

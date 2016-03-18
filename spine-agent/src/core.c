@@ -11,7 +11,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 
-#define PACKAGE_CHUNKS 2		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
+#define PACKAGE_CHUNKS 3		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -199,7 +199,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			close(clientfd);
 			continue;
 		}
-
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo"))
 			updateHostInfo(clientResponse, lf);
@@ -218,10 +217,11 @@ char * BuildPackage(systeminfo * info) {
 
 	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
 	char * package1 = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, ",", NULL);
-	char * package2 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
+	char * package2 = mkString("hostname:", info->hostname, ",", NULL);
+	char * package3 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
 
 	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
-	char * packages[PACKAGE_CHUNKS] = {package1, package2};
+	char * packages[PACKAGE_CHUNKS] = {package1, package2, package3};
 	size_t package_len = 0;
 	int i;
 	for(i = 0; i < PACKAGE_CHUNKS; i++)
@@ -232,6 +232,7 @@ char * BuildPackage(systeminfo * info) {
 	char * json = (char *) malloc(package_len * sizeof(char));
 	strcpy(json, package1);
 	strcat(json, package2);
+	strcat(json, package3);
 
 	// czyscimy pozostalosci
 	cleanChunks(packages, PACKAGE_CHUNKS);

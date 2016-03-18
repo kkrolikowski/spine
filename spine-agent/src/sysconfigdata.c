@@ -5,6 +5,8 @@
 #include <sys/sysinfo.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <unistd.h>
+#include <limits.h>
 #include "sysconfigdata.h"
 
 long getuptime(void) {
@@ -32,11 +34,27 @@ char * getMacAddress() {
 
 	return macstr;
 }
+char * getHostname() {
+	char tmp[HOST_NAME_MAX];
+	char * hostname = NULL;
+	size_t hostname_len = 0;
+
+	memset(tmp, '\0', sizeof(tmp));
+	if(gethostname(tmp, sizeof(tmp)) > 0)
+		return NULL;
+	hostname_len = strlen(tmp) + 1;
+	hostname = (char *) malloc(hostname_len * sizeof(char));
+	strncpy(hostname, tmp, hostname_len);
+
+	return hostname;
+}
 int getSystemInformation(systeminfo * sys) {
 	int status = 0;
 	if((sys->uptime = getuptime()) > 0)
 		status = 1;
 	if((sys->net_hwaddr = getMacAddress()) != NULL)
+		status = 1;
+	if((sys->hostname = getHostname()) != NULL)
 		status = 1;
 
 	return status;
@@ -44,8 +62,10 @@ int getSystemInformation(systeminfo * sys) {
 void InitSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
 	sys->net_hwaddr = NULL;
+	sys->hostname = NULL;
 }
 void ClearSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
 	free(sys->net_hwaddr);
+	free(sys->hostname);
 }
