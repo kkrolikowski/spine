@@ -186,7 +186,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			logentry = mkString("[WARN] (reciver) Blad wyslania wiadomosci powitalnej", NULL);
 			writeLog(lf, logentry);
 			free(net.ipaddr);
-			break;
+			continue;
 		}
 		if((clientResponse = readClientData(net.sock)) == NULL) {
 			logentry = mkString("[WARN] (reciver) Brak danych od klienta", NULL);
