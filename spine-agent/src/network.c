@@ -40,7 +40,6 @@ int connector(char * host, int port) {
 		close(sockfd);
 		return -2;
 	}
-
 	bzero((char *) &dsthost, sizeof(dsthost));
 	dsthost.sin_family = AF_INET;
 	bcopy((char *) dstip->h_addr_list[0], (char *) &dsthost.sin_addr.s_addr, dstip->h_length);
@@ -56,7 +55,6 @@ int connector(char * host, int port) {
 netinfo clientConnection(int sockfd) {
 	struct sockaddr_in client;
 	socklen_t clilen;
-	int clisockfd;
 	netinfo net;
 	struct in_addr ip;				// adres IP w formie binarnej
 	size_t ip_len = 0;				// dlugosc stringu z adresem ip
@@ -106,6 +104,7 @@ char * readClientData(int sockfd) {
 		for(i = 0; i < resplen; i++)
 			clientresp[i] = buff[i];
 		clientresp[i-1] = '\0';		// pozbywam sie nowej linii
+
 	}
 	return clientresp;
 }

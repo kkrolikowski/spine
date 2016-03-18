@@ -6,6 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include "core.h"
 #include "network.h"
 #include "sysconfigdata.h"
@@ -194,6 +195,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			close(net.sock);
 			continue;
 		}
+		//close(net.sock);
 		// Sprawdzamy czy klient wysyla poprawne dane
 		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
 			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
@@ -209,7 +211,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		free(net.ipaddr);
 		free(datatype);
 		free(clientResponse);
-		close(net.sock);
 	}
 	close(netiffd);		// konczymy  nasluch
 }
