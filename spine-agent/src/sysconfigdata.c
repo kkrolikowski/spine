@@ -47,6 +47,17 @@ unsigned long DiskSizeTotal() {
 
 	return totalsize;
 }
+unsigned long DiskSizeFree() {
+	struct statvfs fs;
+	char * fsdir = "/";
+	unsigned long freesize = 0L;
+
+	if(statvfs(fsdir, &fs))
+		return 0;
+	freesize = fs.f_bsize * fs.f_bfree;
+
+	return freesize;
+}
 char * getHostname() {
 	char tmp[HOST_NAME_MAX];
 	char * hostname = NULL;
@@ -71,6 +82,8 @@ int getSystemInformation(systeminfo * sys) {
 	if((sys->hostname = getHostname()) != NULL)
 		status = 1;
 	if((sys->hdd_total = DiskSizeTotal()) != 0)
+		status = 1;
+	if((sys->hdd_free = DiskSizeFree()) != 0)
 		status = 1;
 
 	return status;

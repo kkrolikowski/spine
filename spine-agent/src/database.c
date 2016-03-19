@@ -37,6 +37,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	hostinfo.net_hwaddr = jsonVal(stream, "systemid");
 	hostinfo.hostname = jsonVal(stream, "hostname");
 	hostinfo.hdd_total = atol(jsonVal(stream, "hdd_total"));
+	hostinfo.hdd_free = atol(jsonVal(stream, "hdd_free"));
 	hostinfo.ip = clientip;
 
 	// sprawdzam czy istnieje w bazie rekord z okreslonym systemid.
@@ -82,19 +83,23 @@ int updateItem(systeminfo * info) {
 
 	char * uptime_s = long2String(info->uptime);
 	char * hdd_total_s = ulong2String(info->hdd_total);
+	char * hdd_free_s = ulong2String(info->hdd_free);
 
 	char * query = mkString(
 			"UPDATE sysinfo SET uptime = ", uptime_s,
 			", ip = '", info->ip,
 			"', hostname = '", info->hostname,
 			"', hdd_total = ", hdd_total_s,
+			", hdd_free = ", hdd_free_s,
 			" WHERE system_id = '", info->net_hwaddr, "'", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;
+
 	free(query);
 	free(uptime_s);
 	free(hdd_total_s);
+	free(hdd_free_s);
 
 	return status;
 }
@@ -104,13 +109,18 @@ int insertItem(systeminfo * info) {
 
 	char * uptime_s = long2String(info->uptime);
 	char * hdd_total_s = ulong2String(info->hdd_total);
+	char * hdd_free_s = ulong2String(info->hdd_free);
 
-	char * query = mkString("INSERT INTO sysinfo(ip, hostname, uptime, hdd_total, system_id) VALUES('",
-			info->ip, "', ", info->hostname, "', ", uptime_s, ", ", hdd_total_s, ", '", info->net_hwaddr, "')", NULL);
+	char * query = mkString("INSERT INTO sysinfo(ip, hostname, uptime, hdd_total, hdd_free, system_id) VALUES('",
+			info->ip, "', ", info->hostname, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", '", info->net_hwaddr, "')", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;
+
 	free(query);
+	free(uptime_s);
+	free(hdd_total_s);
+	free(hdd_free_s);
 
 	return status;
 }

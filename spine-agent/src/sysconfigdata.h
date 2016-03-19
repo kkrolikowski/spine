@@ -7,6 +7,7 @@
 typedef struct systeminfo {
 	long uptime;
 	unsigned long hdd_total;
+	unsigned long hdd_free;
 	char * net_hwaddr;
 	char * hostname;
 	char * ip;
@@ -42,5 +43,8 @@ char * getHostname(void);
 
 // calkowity rozmiar partycji
 unsigned long DiskSizeTotal();
+
+// wolna przestrzena na dysku
+unsigned long DiskSizeFree();
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
