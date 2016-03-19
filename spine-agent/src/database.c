@@ -112,7 +112,7 @@ int insertItem(systeminfo * info) {
 	char * hdd_free_s = ulong2String(info->hdd_free);
 
 	char * query = mkString("INSERT INTO sysinfo(ip, hostname, uptime, hdd_total, hdd_free, system_id) VALUES('",
-			info->ip, "', ", info->hostname, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", '", info->net_hwaddr, "')", NULL);
+			info->ip, "', '", info->hostname, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", '", info->net_hwaddr, "')", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;
