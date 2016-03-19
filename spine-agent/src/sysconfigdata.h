@@ -47,4 +47,7 @@ unsigned long DiskSizeTotal();
 // wolna przestrzena na dysku
 unsigned long DiskSizeFree();
 
+// funkcja zwraca nazwe pierwszego interfejsu w systemie
+char * getNetInterfaceName();
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

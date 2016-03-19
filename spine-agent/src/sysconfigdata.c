@@ -21,8 +21,8 @@ long getuptime(void) {
 char * getMacAddress() {
 	int sock;
 	struct ifreq ifr;
-	char * iface = "eth0";				// unstawiamy interfejs, ktorego mac-adres bedziemy odczytywac
-	unsigned char * mac = NULL;			// tutaj znajdzie sie mac-adres
+	char * iface = getNetInterfaceName();	// unstawiamy interfejs, ktorego mac-adres bedziemy odczytywac
+	unsigned char * mac = NULL;				// tutaj znajdzie sie mac-adres
 	char * macstr = (char *) malloc(18 * sizeof(char)); // tutaj bedzie string zawierajacy sformatowany mac-adres;
 
 	sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -33,8 +33,27 @@ char * getMacAddress() {
 
 	sprintf(macstr, "%.2x-%.2x-%.2x-%.2x-%.2x-%.2x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
+	free(iface);
 	close(sock);
 	return macstr;
+}
+char * getNetInterfaceName() {
+	struct if_nameindex * netif = if_nameindex();
+	struct if_nameindex * first_netif = netif;
+	char * nifname = NULL;
+	size_t nifname_len = 0;
+	char tmp[16];
+	memset(tmp, '\0', 16);
+
+	netif = netif + 1;
+	strcpy(tmp, netif->if_name);
+
+	nifname_len = strlen(tmp) + 1;
+	nifname = (char *) malloc(nifname_len * sizeof(char));
+	strcpy(nifname, tmp);
+
+	if_freenameindex(first_netif);
+	return nifname;
 }
 unsigned long DiskSizeTotal() {
 	struct statvfs fs;
