@@ -1,3 +1,3 @@
 <?php
-  echo "Hello World!";
+  include_once './include/config.php';
 ?>
