@@ -323,17 +323,15 @@
           <div class="animated flipInY col-md-2 col-sm-4 col-xs-4 tile_stats_count">
             <div class="left"></div>
             <div class="right">
-              <span class="count_top"><i class="fa fa-user"></i> Total Users</span>
-              <div class="count">2500</div>
-              <span class="count_bottom"><i class="green">4% </i> From last Week</span>
+              <span class="count_top"><i class="fa fa-desktop"></i> Liczba serwerów</span>
+              <div class="count">{$HostTotalCount}</div>
             </div>
           </div>
           <div class="animated flipInY col-md-2 col-sm-4 col-xs-4 tile_stats_count">
             <div class="left"></div>
             <div class="right">
-              <span class="count_top"><i class="fa fa-clock-o"></i> Average Time</span>
-              <div class="count">123.50</div>
-              <span class="count_bottom"><i class="green"><i class="fa fa-sort-asc"></i>3% </i> From last Week</span>
+              <span class="count_top"><i class="fa fa-database"></i> Wolne miejsce</span>
+              <div class="count">{$FreeTotalGB} GB</div>
             </div>
           </div>
           <div class="animated flipInY col-md-2 col-sm-4 col-xs-4 tile_stats_count">
@@ -450,110 +448,31 @@
 
 
           <div class="col-md-4 col-sm-4 col-xs-12">
-            <div class="x_panel tile fixed_height_320">
+            <div class="x_panel tile">
               <div class="x_title">
-                <h2>App Versions</h2>
-                <ul class="nav navbar-right panel_toolbox">
-                  <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                  </li>
-                  <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                    <ul class="dropdown-menu" role="menu">
-                      <li><a href="#">Settings 1</a>
-                      </li>
-                      <li><a href="#">Settings 2</a>
-                      </li>
-                    </ul>
-                  </li>
-                  <li><a class="close-link"><i class="fa fa-close"></i></a>
-                  </li>
-                </ul>
+                <h2>Dyski</h2>
                 <div class="clearfix"></div>
               </div>
               <div class="x_content">
-                <h4>App Usage across versions</h4>
+                <h4>Wolne miejsce na poszczególnych serwerach</h4>
+                {foreach from=$SrvHDDFree key=host item=hdd_free}
                 <div class="widget_summary">
                   <div class="w_left w_25">
-                    <span>0.1.5.2</span>
+                    <span>{$host}</span>
                   </div>
                   <div class="w_center w_55">
                     <div class="progress">
-                      <div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 66%;">
-                        <span class="sr-only">60% Complete</span>
+                      <div class="progress-bar bg-green" role="progressbar" aria-valuenow='{$hdd_free|string_format:"%d"}' aria-valuemin="0" aria-valuemax="100" style='width: {$hdd_free|string_format:"%d"}%;'>
+                        <span class="sr-only">{$hdd_free|string_format:"%d"}% Complete</span>
                       </div>
                     </div>
                   </div>
                   <div class="w_right w_20">
-                    <span>123k</span>
+                    <span>{$hdd_free} GB</span>
                   </div>
                   <div class="clearfix"></div>
                 </div>
-
-                <div class="widget_summary">
-                  <div class="w_left w_25">
-                    <span>0.1.5.3</span>
-                  </div>
-                  <div class="w_center w_55">
-                    <div class="progress">
-                      <div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 45%;">
-                        <span class="sr-only">60% Complete</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="w_right w_20">
-                    <span>53k</span>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-                <div class="widget_summary">
-                  <div class="w_left w_25">
-                    <span>0.1.5.4</span>
-                  </div>
-                  <div class="w_center w_55">
-                    <div class="progress">
-                      <div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 25%;">
-                        <span class="sr-only">60% Complete</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="w_right w_20">
-                    <span>23k</span>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-                <div class="widget_summary">
-                  <div class="w_left w_25">
-                    <span>0.1.5.5</span>
-                  </div>
-                  <div class="w_center w_55">
-                    <div class="progress">
-                      <div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 5%;">
-                        <span class="sr-only">60% Complete</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="w_right w_20">
-                    <span>3k</span>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-                <div class="widget_summary">
-                  <div class="w_left w_25">
-                    <span>0.1.5.6</span>
-                  </div>
-                  <div class="w_center w_55">
-                    <div class="progress">
-                      <div class="progress-bar bg-green" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 2%;">
-                        <span class="sr-only">60% Complete</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="w_right w_20">
-                    <span>1k</span>
-                  </div>
-                  <div class="clearfix"></div>
-                </div>
-
+                {/foreach}
               </div>
             </div>
           </div>
@@ -1238,48 +1157,7 @@
 
     icons.play();
   </script>
-
-  <!-- dashbord linegraph -->
-  <script>
-    Chart.defaults.global.legend = {
-      enabled: false
-    };
-
-    var data = {
-      labels: [
-        "Symbian",
-        "Blackberry",
-        "Other",
-        "Android",
-        "IOS"
-      ],
-      datasets: [{
-        data: [15, 20, 30, 10, 30],
-        backgroundColor: [
-          "#BDC3C7",
-          "#9B59B6",
-          "#455C73",
-          "#26B99A",
-          "#3498DB"
-        ],
-        hoverBackgroundColor: [
-          "#CFD4D8",
-          "#B370CF",
-          "#34495E",
-          "#36CAAB",
-          "#49A9EA"
-        ]
-
-      }]
-    };
-
-    var canvasDoughnut = new Chart(document.getElementById("canvas1"), {
-      type: 'doughnut',
-      tooltipFillColor: "rgba(51, 51, 51, 0.55)",
-      data: data
-    });
-  </script>
-  <!-- /dashbord linegraph -->
+<script src="static/diskChart.js"></script>
   <!-- datepicker -->
   <script type="text/javascript">
     $(document).ready(function() {

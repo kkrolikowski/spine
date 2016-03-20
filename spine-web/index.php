@@ -1,18 +1,29 @@
 <?php
   include_once './include/config.php';
   include_once './include/functions.php';
+  include_once './include/dashboard.php';
   include(SMARTY_LIB);
 
   $spine = new Smarty;
   $dbh = DBconnect();
 
   // pobieramy liste serwerow z bazy
-  $q = $dbh->prepare("SELECT id,hostname FROM sysinfo");
-  $q->execute();
-  $HostMenu = array();
-  while($r = $q->fetch()) {
-    $HostMenu[$r['id']] = $r['hostname'];
-  }
+  $HostMenu = serverList($dbh);
   $spine->assign('HostMenu', $HostMenu);
+  $HostTotalCount = serverCount($dbh);
+  $spine->assign('HostTotalCount', $HostTotalCount);
+
+  // calkowita liczba wolnego miejsca na serwerach w GB
+  $FreeTotalGB = hddFreeTotal($dbh);
+  $spine->assign('FreeTotalGB', round($FreeTotalGB, 1));
+
+  // ilosc wolnego miejsca na poszczegolnych serwerach
+  $SrvHDDFree = hddFreePerServer($dbh);
+  $spine->assign('SrvHDDFree', $SrvHDDFree);
+
+  // uptime na poszczegolnych serwerach
+  $uptimePerHost = uptimePerServer($dbh);
+  $spine->assign('uptimePerHost', $uptimePerHost);
+
   $spine->display('main.tpl');
 ?>
