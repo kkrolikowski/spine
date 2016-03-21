@@ -19,13 +19,13 @@
 
   <!-- Custom styling plus plugins -->
   <link href="static/themes/gentelella/css/custom.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="static/themes/gentelella/css/maps/jquery-jvectormap-2.0.3.css" />
   <link href="static/themes/gentelella/css/icheck/flat/green.css" rel="stylesheet" />
   <link href="static/themes/gentelella/css/floatexamples.css" rel="stylesheet" type="text/css" />
 
   <script src="static/themes/gentelella/js/jquery.min.js"></script>
   <script src="static/themes/gentelella/js/nprogress.js"></script>
 
+<script src="static/diskChart.js"></script>
   <!--[if lt IE 9]>
         <script src="../assets/js/ie8-responsive-file-warning.js"></script>
         <![endif]-->
@@ -707,66 +707,7 @@
 
 
 
-            <div class="row">
 
-              <div class="col-md-12 col-sm-12 col-xs-12">
-                <div class="x_panel">
-                  <div class="x_title">
-                    <h2>Visitors location <small>geo-presentation</small></h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                      <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                      </li>
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
-                        <ul class="dropdown-menu" role="menu">
-                          <li><a href="#">Settings 1</a>
-                          </li>
-                          <li><a href="#">Settings 2</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li><a class="close-link"><i class="fa fa-close"></i></a>
-                      </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                  </div>
-                  <div class="x_content">
-                    <div class="dashboard-widget-content">
-                      <div class="col-md-4 hidden-small">
-                        <h2 class="line_30">125.7k Views from 60 countries</h2>
-
-                        <table class="countries_list">
-                          <tbody>
-                            <tr>
-                              <td>United States</td>
-                              <td class="fs15 fw700 text-right">33%</td>
-                            </tr>
-                            <tr>
-                              <td>France</td>
-                              <td class="fs15 fw700 text-right">27%</td>
-                            </tr>
-                            <tr>
-                              <td>Germany</td>
-                              <td class="fs15 fw700 text-right">16%</td>
-                            </tr>
-                            <tr>
-                              <td>Spain</td>
-                              <td class="fs15 fw700 text-right">11%</td>
-                            </tr>
-                            <tr>
-                              <td>Britain</td>
-                              <td class="fs15 fw700 text-right">10%</td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <div id="world-map-gdp" class="col-md-8 col-sm-12 col-xs-12" style="height:230px;"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
             <div class="row">
 
 
@@ -1112,12 +1053,6 @@
       }
     });
   </script>
-
-  <!-- worldmap -->
-  <script type="text/javascript" src="js/maps/jquery-jvectormap-2.0.3.min.js"></script>
-  <script type="text/javascript" src="js/maps/gdp-data.js"></script>
-  <script type="text/javascript" src="js/maps/jquery-jvectormap-world-mill-en.js"></script>
-  <script type="text/javascript" src="js/maps/jquery-jvectormap-us-aea-en.js"></script>
   <!-- pace -->
   <script src="js/pace/pace.min.js"></script>
   <script>
@@ -1157,7 +1092,6 @@
 
     icons.play();
   </script>
-<script src="static/diskChart.js"></script>
   <!-- datepicker -->
   <script type="text/javascript">
     $(document).ready(function() {
