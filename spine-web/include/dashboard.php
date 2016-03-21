@@ -44,7 +44,7 @@
   function secondsToTime($seconds) {
       $dtF = new DateTime("@0");
       $dtT = new DateTime("@$seconds");
-      return $dtF->diff($dtT)->format('%a dni, %h godzin, %i minutes i %s sekund');
+      return $dtF->diff($dtT)->format('%ad%hh%im%ss');
   }
   function uptimePerServer($dbh) {
     $q = $dbh->prepare("SELECT hostname, uptime FROM sysinfo");
