@@ -2,35 +2,6 @@
   include_once './include/config.php';
   include_once './include/functions.php';
   include_once './include/dashboard.php';
-  /*
-  var data = {
-    labels: [
-      "Symbian",
-      "Blackberry",
-      "Other",
-      "Android",
-      "IOS"
-    ],
-    datasets: [{
-      data: [15, 20, 30, 10, 30],
-      backgroundColor: [
-        "#BDC3C7",
-        "#9B59B6",
-        "#455C73",
-        "#26B99A",
-        "#3498DB"
-      ],
-      hoverBackgroundColor: [
-        "#CFD4D8",
-        "#B370CF",
-        "#34495E",
-        "#36CAAB",
-        "#49A9EA"
-      ]
-
-    }]
-  };
-  */
   if (isset($_GET['uptime'])) {
     $dbh = DBconnect();
     $uptimeData = uptimePerServer($dbh);
