@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-22 22:46:15
+<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-22 23:24:53
          compiled from "./templates/main.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:170490275356f19d17487bb9-88435310%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '48ad11f68be179e1830edf3ce56b82b0712baeff' => 
     array (
       0 => './templates/main.tpl',
-      1 => 1458683131,
+      1 => 1458685447,
       2 => 'file',
     ),
   ),
@@ -22,6 +22,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'HostMenu' => 0,
     'id' => 0,
     'srv' => 0,
+    'HostName' => 0,
     'HostTotalCount' => 0,
     'FreeTotalGB' => 0,
   ),
@@ -80,7 +81,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">Spine Web</a>
+                <a class="navbar-brand" href="index.php">Spine Web</a>
             </div>
             <!-- /.navbar-header -->
 
@@ -309,7 +310,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
                             <!-- /input-group -->
                         </li>
                         <li>
-                            <a href="index.html"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                            <a href="index.php"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
                             <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Serwery<span class="fa arrow"></span></a>
@@ -410,11 +411,36 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
+                    <?php if (isset($_GET['serverid'])){?>
+                    <h1 class="page-header"><?php echo $_smarty_tpl->tpl_vars['HostName']->value;?>
+</h1>
+                    <?php }else{ ?>
                     <h1 class="page-header">Dashboard</h1>
+                    <?php }?>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
+            <?php if (isset($_GET['serverid'])){?>
+            <div class="row">
+                <div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+                    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+                </ul>
+
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="home">...</div>
+                    <div role="tabpanel" class="tab-pane" id="profile">...</div>
+                    <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                    <div role="tabpanel" class="tab-pane" id="settings">...</div>
+                </div>
+            </div>
+            <?php }else{ ?>
             <div class="row">
                 <div class="col-lg-3 col-md-6">
                     <div class="panel panel-primary">
@@ -507,6 +533,7 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
                     </div>
                 </div>
             </div>
+            <?php }?>
             <!-- /.row -->
             <div class="row">
             </div>

@@ -24,6 +24,14 @@
   // uptime na poszczegolnych serwerach
   $uptimePerHost = uptimePerServer($dbh);
   $spine->assign('uptimePerHost', $uptimePerHost);
+  
+  if (isset($_GET['serverid'])) {
+      $q = $dbh->prepare("SELECT hostname FROM sysinfo WHERE id = ". $_GET['serverid']);
+      $q->execute();
+      $r = $q->fetch();
+      
+      $spine->assign('HostName', $r['hostname']);
+  }
 
   $spine->display('main.tpl');
 ?>
