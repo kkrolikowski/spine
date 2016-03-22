@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-22 23:24:53
+<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-22 23:33:22
          compiled from "./templates/main.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:170490275356f19d17487bb9-88435310%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '48ad11f68be179e1830edf3ce56b82b0712baeff' => 
     array (
       0 => './templates/main.tpl',
-      1 => 1458685447,
+      1 => 1458685957,
       2 => 'file',
     ),
   ),
@@ -426,10 +426,10 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
                 <div>
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
-                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-                    <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Ogólne</a></li>
+                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Użytkownicy</a></li>
+                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Serwer WWW</a></li>
+
                 </ul>
 
                 <!-- Tab panes -->
@@ -437,7 +437,6 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
                     <div role="tabpanel" class="tab-pane active" id="home">...</div>
                     <div role="tabpanel" class="tab-pane" id="profile">...</div>
                     <div role="tabpanel" class="tab-pane" id="messages">...</div>
-                    <div role="tabpanel" class="tab-pane" id="settings">...</div>
                 </div>
             </div>
             <?php }else{ ?>
