@@ -11,6 +11,17 @@
 
     <title>Spine</title>
 
+        <!-- jQuery -->
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
     <!-- Bootstrap Core CSS -->
     <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -36,6 +47,13 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+      <!-- Wykres kolowy -->
+      <link href="css/jquery.circliful.css" rel="stylesheet" type="text/css" />
+      <script src="js/jquery.circliful.min.js"></script>
+
+      <!-- Customowy skrypt strony i css -->
+      <script src="js/spine.js"></script>
+      <link href="/css/custom.css" rel="stylesheet">
 </head>
 
 <body>
@@ -286,7 +304,7 @@
                             <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Serwery<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 {foreach from=$HostMenu item=srv key=id}
-                                   <li><a href="?serverid={$id}">{$srv}</a></li> 
+                                   <li><a href="?serverid={$id}">{$srv}</a></li>
                                 {/foreach}
                             </ul>
                             <!-- /.nav-second-level -->
@@ -394,10 +412,57 @@
                 </ul>
 
                 <!-- Tab panes -->
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="ogolne">...</div>
-                    <div role="tabpanel" class="tab-pane" id="profile">...</div>
-                    <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                <div class="row div-margin-top-10">
+                    <div class="col-sm-12">
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="ogolne">
+                                <div class="row">
+                                  <div class="col-sm-4">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">Podstawowe informacje</div>
+                                        <div class="panel-body">
+                                          <dl class="dl-horizontal">
+                                            <dt>Hostname</dt><dd>{$sysinfo.hostname}</dd>
+                                            <dt>IP</dt><dd>{$sysinfo.ip}</dd>
+                                            <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
+                                          </dl>
+                                        </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-5">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">Miejsce na dysku</div>
+                                        <div class="panel-body">
+                                          <div class="row">
+                                            <div class="col-sm-8">
+                                              <center><strong>/</strong></center>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-sm-4">
+                                              <div id="diskusage_free" data="{$sysinfo.hdd_percentage_free}"></div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <div id="diskusage_used" data="{$sysinfo.hdd_percentage_used}"></div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-sm-4">
+                                              <center><strong>{$sysinfo.hdd_free} GB</strong></center>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <center><strong>{$sysinfo.hdd_used} GB</strong></center>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="profile">...</div>
+                            <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             {else}
@@ -501,18 +566,6 @@
 
     </div>
     <!-- /#wrapper -->
-
-    <!-- jQuery -->
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="../dist/js/sb-admin-2.js"></script>
 
 </body>
 
