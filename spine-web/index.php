@@ -47,10 +47,11 @@
           'uptime' => $uptime,
           'hdd_percentage_used' => round($hdd_percentage_used, 0),
           'hdd_percentage_free' => round($hdd_percentage_free, 0),
+          'ram_percentage_free' => round($ram_percentage_free, 0),
           'hdd_free' => round($r['hdd_free'] / 1073741824, 2),
-          'hdd_used' =>round($hdd_used / 1073741824, 2),
+          'hdd_used' => round($hdd_used / 1073741824, 2),
           'ram_free' => round($r['ram_free'] / 1073741824, 2),
-          'ram_used' =>round($ram_used / 1073741824, 2)
+          'ram_used' => round($ram_used / 1073741824, 2)
       );
       $spine->assign('sysinfo', $sysinfo);
   }
