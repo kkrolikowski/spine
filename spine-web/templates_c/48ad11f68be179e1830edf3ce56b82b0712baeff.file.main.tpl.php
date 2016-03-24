@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-22 23:33:22
+<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-24 22:21:28
          compiled from "./templates/main.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:170490275356f19d17487bb9-88435310%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '48ad11f68be179e1830edf3ce56b82b0712baeff' => 
     array (
       0 => './templates/main.tpl',
-      1 => 1458685957,
+      1 => 1458854441,
       2 => 'file',
     ),
   ),
@@ -23,6 +23,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'id' => 0,
     'srv' => 0,
     'HostName' => 0,
+    'sysinfo' => 0,
     'HostTotalCount' => 0,
     'FreeTotalGB' => 0,
   ),
@@ -41,6 +42,17 @@ $_valid = $_smarty_tpl->decodeProperties(array (
 
     <title>Spine</title>
 
+        <!-- jQuery -->
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../dist/js/sb-admin-2.js"></script>
     <!-- Bootstrap Core CSS -->
     <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -66,6 +78,13 @@ $_valid = $_smarty_tpl->decodeProperties(array (
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+      <!-- Wykres kolowy -->
+      <link href="css/jquery.circliful.css" rel="stylesheet" type="text/css" />
+      <script src="js/jquery.circliful.min.js"></script>
+
+      <!-- Customowy skrypt strony i css -->
+      <script src="js/spine.js"></script>
+      <link href="/css/custom.css" rel="stylesheet">
 </head>
 
 <body>
@@ -324,7 +343,7 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
 ?>
                                    <li><a href="?serverid=<?php echo $_smarty_tpl->tpl_vars['id']->value;?>
 "><?php echo $_smarty_tpl->tpl_vars['srv']->value;?>
-</a></li> 
+</a></li>
                                 <?php } ?>
                             </ul>
                             <!-- /.nav-second-level -->
@@ -426,17 +445,81 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
                 <div>
                     <!-- Nav tabs -->
                     <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Ogólne</a></li>
+                    <li role="presentation" class="active"><a href="#ogolne" aria-controls="ogolne" role="tab" data-toggle="tab">Ogólne</a></li>
                     <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Użytkownicy</a></li>
                     <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Serwer WWW</a></li>
 
                 </ul>
 
                 <!-- Tab panes -->
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="home">...</div>
-                    <div role="tabpanel" class="tab-pane" id="profile">...</div>
-                    <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                <div class="row div-margin-top-10">
+                    <div class="col-sm-12">
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="ogolne">
+                                <div class="row">
+                                  <div class="col-sm-4">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">Podstawowe informacje</div>
+                                        <div class="panel-body">
+                                          <dl class="dl-horizontal">
+                                            <dt>Hostname</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hostname'];?>
+</dd>
+                                            <dt>IP</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ip'];?>
+</dd>
+                                            <dt>Uptime</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['uptime'];?>
+</dd>
+                                            <dt>RAM</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_total'];?>
+ GB</dd>
+                                          </dl>
+                                        </div>
+                                    </div>
+                                  </div>
+                                  <div class="col-sm-5">
+                                    <div class="panel panel-primary">
+                                        <div class="panel-heading">Dysk / RAM</div>
+                                        <div class="panel-body">
+                                          <div class="row">
+                                            <div class="col-sm-8">
+                                              <center><strong>Filesystem: /</strong></center>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-sm-4">
+                                              <div id="diskusage_free" data="<?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_percentage_free'];?>
+"></div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <div id="diskusage_used" data="<?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_percentage_used'];?>
+"></div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <div id="ram_free" data="<?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_percentage_free'];?>
+"></div>
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-sm-4">
+                                              <center><strong><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_free'];?>
+ GB</strong></center>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <center><strong><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_used'];?>
+ GB</strong></center>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <center><strong><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_free'];?>
+ GB</strong></center>
+                                            </div>
+                                          </div>
+                                        </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="profile">...</div>
+                            <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <?php }else{ ?>
@@ -474,7 +557,7 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
                                 <div class="col-xs-9 text-right">
                                     <div class="huge"><?php echo $_smarty_tpl->tpl_vars['FreeTotalGB']->value;?>
  GB</div>
-                                    <div>Miejsce na dyskach</div>
+                                    <div>Wolne miejsce na serwerach</div>
                                 </div>
                             </div>
                         </div>
@@ -542,18 +625,6 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
 
     </div>
     <!-- /#wrapper -->
-
-    <!-- jQuery -->
-    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-
-    <!-- Metis Menu Plugin JavaScript -->
-    <script src="../bower_components/metisMenu/dist/metisMenu.min.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script src="../dist/js/sb-admin-2.js"></script>
 
 </body>
 

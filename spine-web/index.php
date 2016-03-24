@@ -51,7 +51,7 @@
           'hdd_free' => round($r['hdd_free'] / 1073741824, 2),
           'hdd_used' => round($hdd_used / 1073741824, 2),
           'ram_free' => round($r['ram_free'] / 1073741824, 2),
-          'ram_used' => round($ram_used / 1073741824, 2)
+          'ram_total' => ceil(round($r['ram_total'] / 1073741824, 2))
       );
       $spine->assign('sysinfo', $sysinfo);
   }

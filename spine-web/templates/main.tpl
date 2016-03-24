@@ -425,6 +425,7 @@
                                             <dt>Hostname</dt><dd>{$sysinfo.hostname}</dd>
                                             <dt>IP</dt><dd>{$sysinfo.ip}</dd>
                                             <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
+                                            <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
                                           </dl>
                                         </div>
                                     </div>
