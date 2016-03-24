@@ -26,13 +26,18 @@
   $spine->assign('uptimePerHost', $uptimePerHost);
 
   if (isset($_GET['serverid'])) {
-      $q = $dbh->prepare("SELECT ip, hostname, uptime, hdd_total, hdd_free FROM sysinfo WHERE id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT ip, hostname, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
       $q->execute();
       $r = $q->fetch();
 
       $hdd_used = $r['hdd_total'] - $r['hdd_free'];
       $hdd_percentage_used = $hdd_used / $r['hdd_total'] * 100;
       $hdd_percentage_free = $r['hdd_free'] / $r['hdd_total'] * 100;
+
+      $ram_used = $r['ram_total'] - $r['ram_free'];
+      $ram_percentage_used = $ram_used / $r['ram_total'] * 100;
+      $ram_percentage_free = $r['ram_free'] / $r['ram_total'] * 100;
+
       $uptime = secondsToTime($r['uptime']);
 
       $spine->assign('HostName', $r['hostname']);
@@ -43,7 +48,9 @@
           'hdd_percentage_used' => round($hdd_percentage_used, 0),
           'hdd_percentage_free' => round($hdd_percentage_free, 0),
           'hdd_free' => round($r['hdd_free'] / 1073741824, 2),
-          'hdd_used' =>round($hdd_used / 1073741824, 2)
+          'hdd_used' =>round($hdd_used / 1073741824, 2),
+          'ram_free' => round($r['ram_free'] / 1073741824, 2),
+          'ram_used' =>round($ram_used / 1073741824, 2)
       );
       $spine->assign('sysinfo', $sysinfo);
   }

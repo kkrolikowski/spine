@@ -17,4 +17,11 @@ $(document).ready(function() {
         percent: usage_used,
         text: "Zajęty obszar"
     });
+    $("#ram_free").circliful({
+        animationStep: 5,
+        foregroundBorderWidth: 5,
+        backgroundBorderWidth: 15,
+        percent: usage_free,
+        text: "Wolny RAM"
+    });
 });

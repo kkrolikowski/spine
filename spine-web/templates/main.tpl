@@ -431,11 +431,11 @@
                                   </div>
                                   <div class="col-sm-5">
                                     <div class="panel panel-primary">
-                                        <div class="panel-heading">Miejsce na dysku</div>
+                                        <div class="panel-heading">Dysk / RAM</div>
                                         <div class="panel-body">
                                           <div class="row">
                                             <div class="col-sm-8">
-                                              <center><strong>/</strong></center>
+                                              <center><strong>Filesystem: /</strong></center>
                                             </div>
                                           </div>
                                           <div class="row">
@@ -445,6 +445,9 @@
                                             <div class="col-sm-4">
                                               <div id="diskusage_used" data="{$sysinfo.hdd_percentage_used}"></div>
                                             </div>
+                                            <div class="col-sm-4">
+                                              <div id="ram_free" data="{$sysinfo.ram_percentage_free}"></div>
+                                            </div>
                                           </div>
                                           <div class="row">
                                             <div class="col-sm-4">
@@ -452,6 +455,9 @@
                                             </div>
                                             <div class="col-sm-4">
                                               <center><strong>{$sysinfo.hdd_used} GB</strong></center>
+                                            </div>
+                                            <div class="col-sm-4">
+                                              <center><strong>{$sysinfo.ram_free} GB</strong></center>
                                             </div>
                                           </div>
                                         </div>
@@ -498,7 +504,7 @@
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="huge">{$FreeTotalGB} GB</div>
-                                    <div>Miejsce na dyskach</div>
+                                    <div>Wolne miejsce na serwerach</div>
                                 </div>
                             </div>
                         </div>
