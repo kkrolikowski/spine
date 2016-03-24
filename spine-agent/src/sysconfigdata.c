@@ -18,6 +18,22 @@ long getuptime(void) {
 	else
 		return -1;
 }
+unsigned long ramTotal(void) {
+	struct sysinfo sys;
+
+	if(!sysinfo(&sys))
+		return sys.totalram;
+	else
+		return -1;
+}
+unsigned long ramFree(void) {
+	struct sysinfo sys;
+
+	if(!sysinfo(&sys))
+		return sys.freeram;
+	else
+		return -1;
+}
 char * getMacAddress() {
 	int sock;
 	struct ifreq ifr;
@@ -104,17 +120,29 @@ int getSystemInformation(systeminfo * sys) {
 		status = 1;
 	if((sys->hdd_free = DiskSizeFree()) != 0)
 		status = 1;
+	if((sys->ram_total = ramTotal()) != 0)
+		status = 1;
+	if((sys->ram_free= ramFree()) != 0)
+		status = 1;
 
 	return status;
 }
 void InitSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
+	sys->hdd_free = 0L;
+	sys->hdd_total = 0L;
+	sys->ram_free = 0L;
+	sys->ram_total = 0L;
 	sys->net_hwaddr = NULL;
 	sys->hostname = NULL;
 	sys->ip = NULL;
 }
 void ClearSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
+	sys->hdd_free = 0L;
+	sys->hdd_total = 0L;
+	sys->ram_free = 0L;
+	sys->ram_total = 0L;
 	free(sys->net_hwaddr);
 	free(sys->hostname);
 	free(sys->ip);

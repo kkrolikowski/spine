@@ -8,6 +8,8 @@ typedef struct systeminfo {
 	long uptime;
 	unsigned long hdd_total;
 	unsigned long hdd_free;
+	unsigned long ram_total;
+	unsigned long ram_free;
 	char * net_hwaddr;
 	char * hostname;
 	char * ip;
@@ -46,6 +48,12 @@ unsigned long DiskSizeTotal();
 
 // wolna przestrzena na dysku
 unsigned long DiskSizeFree();
+
+// wolna pamiec RAM
+unsigned long ramFree();
+
+// calkowita pamiec RAM
+unsigned long ramTotal();
 
 // funkcja zwraca nazwe pierwszego interfejsu w systemie
 char * getNetInterfaceName();

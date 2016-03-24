@@ -12,7 +12,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 
-#define PACKAGE_CHUNKS 5		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
+#define PACKAGE_CHUNKS 7		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -249,16 +249,20 @@ char * BuildPackage(systeminfo * info) {
 	char * s_uptime = long2String(info->uptime);
 	char * s_hdd_total = ulong2String(info->hdd_total);
 	char * s_hdd_free = ulong2String(info->hdd_free);
+	char * s_ram_free = ulong2String(info->ram_free);
+	char * s_ram_total = ulong2String(info->ram_total);
 
 	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
 	char * package1 = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, ",", NULL);
 	char * package2 = mkString("hostname:", info->hostname, ",", NULL);
 	char * package3 = mkString("hdd_total:", s_hdd_total, ",", NULL);
 	char * package4 = mkString("hdd_free:", s_hdd_free, ",", NULL);
-	char * package5 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
+	char * package5 = mkString("ram_total:", s_ram_total, ",", NULL);
+	char * package6 = mkString("ram_free:", s_ram_free, ",", NULL);
+	char * package7 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
 
 	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
-	char * packages[PACKAGE_CHUNKS] = { package1, package2, package3, package4, package5 };
+	char * packages[PACKAGE_CHUNKS] = { package1, package2, package3, package4, package5, package6, package7 };
 	size_t package_len = 0;
 	int i;
 	for(i = 0; i < PACKAGE_CHUNKS; i++)
@@ -272,12 +276,16 @@ char * BuildPackage(systeminfo * info) {
 	strcat(json, package3);
 	strcat(json, package4);
 	strcat(json, package5);
+	strcat(json, package6);
+	strcat(json, package7);
 
 	// czyscimy pozostalosci
 	cleanChunks(packages, PACKAGE_CHUNKS);
 	free(s_uptime);
 	free(s_hdd_total);
 	free(s_hdd_free);
+	free(s_ram_total);
+	free(s_ram_free);
 
 	return json;
 }
