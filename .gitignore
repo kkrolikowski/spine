@@ -1,2 +1,2 @@
-/templates_c/*.tpl
+\templates_c\*.tpl
 /Debug/
