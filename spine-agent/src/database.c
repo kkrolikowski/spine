@@ -95,7 +95,7 @@ int updateItem(systeminfo * info) {
 			"', hostname = '", info->hostname,
 			"', hdd_total = ", hdd_total_s,
 			", hdd_free = ", hdd_free_s,
-			"', ram_total = ", ram_total_s,
+			", ram_total = ", ram_total_s,
 			", ram_free = ", ram_free_s,
 			" WHERE system_id = '", info->net_hwaddr, "'", NULL);
 
