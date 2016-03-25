@@ -5,7 +5,7 @@
 
 // podstawowe informacje o systemie
 typedef struct systeminfo {
-	long uptime;
+	unsigned long uptime;
 	unsigned long hdd_total;
 	unsigned long hdd_free;
 	unsigned long ram_total;
@@ -25,11 +25,11 @@ typedef struct wwwdata {
 /*			FUNKCJE			*/
 
 // funkcja zwraca aktualny uptime lub -1 w przypadku bledu
-long getuptime(void);
+unsigned long getuptime(void);
 
 // funkcja zwraca 1 jesli udalo sie odczytac chociaz jeden
 // parametr z systemu
-int getSystemInformation(systeminfo * sys);
+int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int n);
 
 // funkcja inicjuje strukture przechowujaca dane systemowe
 void InitSystemInformation(systeminfo * sys);

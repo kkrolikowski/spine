@@ -10,7 +10,7 @@
 #include <limits.h>
 #include "sysconfigdata.h"
 
-long getuptime(void) {
+unsigned long getuptime(void) {
 	struct sysinfo sys;
 
 	if(!sysinfo(&sys))
@@ -107,22 +107,22 @@ char * getHostname() {
 
 	return hostname;
 }
-int getSystemInformation(systeminfo * sys) {
+int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int n) {
 	int status = 0;
+	int i;
 
-	if((sys->uptime = getuptime()) > 0)
-		status = 1;
+	for(i = 0; i < n; i++) {
+		switch(i) {
+			case 0: sys->uptime = SysInfo[i](); status = 1; break;
+			case 1: sys->hdd_total = SysInfo[i](); status = 1; break;
+			case 2: sys->hdd_free = SysInfo[i](); status = 1; break;
+			case 3: sys->ram_free = SysInfo[i](); status = 1; break;
+			case 4: sys->ram_total = SysInfo[i](); status = 1; break;
+		}
+	}
 	if((sys->net_hwaddr = getMacAddress()) != NULL)
 		status = 1;
 	if((sys->hostname = getHostname()) != NULL)
-		status = 1;
-	if((sys->hdd_total = DiskSizeTotal()) != 0)
-		status = 1;
-	if((sys->hdd_free = DiskSizeFree()) != 0)
-		status = 1;
-	if((sys->ram_total = ramTotal()) != 0)
-		status = 1;
-	if((sys->ram_free= ramFree()) != 0)
 		status = 1;
 
 	return status;

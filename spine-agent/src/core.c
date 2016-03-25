@@ -327,6 +327,10 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	char buff[NET_BUFFER];			// bufor, ktory sluzy do przeslania danych przez siec
 	memset(buff, '\0', NET_BUFFER);
 	char * json = NULL;				// dane do przeslania
+
+	// wskazniki do funkcji pobierajacych dane liczbowe z systemu
+	unsigned long (*SysInfo[5])(void) = { getuptime, DiskSizeTotal, DiskSizeFree, ramFree, ramTotal };
+
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
 			switch(confd) {
@@ -345,7 +349,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 		if(!strcmp(mode, "client")) {
 			// pobieramy informacje na temat systemu
 			InitSystemInformation(&osinfo);
-			if(!getSystemInformation(&osinfo)) {
+			if(!getSystemInformation(&osinfo, SysInfo, 5)) {
 				logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
 				writeLog(lf, logentry);
 			}
