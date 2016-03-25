@@ -381,9 +381,9 @@
             <div class="row">
                 <div class="col-lg-12">
                     {if isset($smarty.get.serverid)}
-                    <h1 class="page-header">{$HostName}</h1>
+                    <h3 class="page-header">Host: {$HostName}</h3>
                     {else}
-                    <h1 class="page-header">Dashboard</h1>
+                    <h3 class="page-header">Dashboard</h3>
                     {/if}
                 </div>
                 <!-- /.col-lg-12 -->
@@ -393,12 +393,23 @@
             <div class="row">
                 <div>
                     <!-- Nav tabs -->
-                    <ul class="nav nav-tabs" role="tablist">
+                  <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#ogolne" aria-controls="ogolne" role="tab" data-toggle="tab">Ogólne</a></li>
-                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Użytkownicy</a></li>
-                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Serwer WWW</a></li>
-
-                </ul>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Użytkownicy <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li role="presentation"><a href="#sysusers" aria-controls="sysusers" role="tab" data-toggle="tab">Lista</a></li>
+                        <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowy użytkownik</a></li>
+                      </ul>
+                    </li>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li role="presentation"><a href="#wwwconfig" aria-controls="wwwconfig" role="tab" data-toggle="tab">Strony WWW</a></li>
+                        <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
+                      </ul>
+                    </li>
+                  </ul>
 
                 <!-- Tab panes -->
                 <div class="row div-margin-top-10">
@@ -455,8 +466,45 @@
                                   </div>
                                 </div>
                             </div>
-                            <div role="tabpanel" class="tab-pane" id="profile">...</div>
-                            <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                            <div role="tabpanel" class="tab-pane" id="sysusers">
+                              <h3>Lista kont użytkowników w systemie</h3>
+                              <div class="col-sm-6">
+                                <table class="table table-stripped">
+                                  <thead>
+                                    <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
+                                  </thead>
+                                  <tbody>
+                                  {foreach from=$sysuser key=userid item=info}
+                                    <tr>
+                                      <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
+                                    </tr>
+                                  {/foreach}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane" id="wwwconfig">
+                              <h3>Lista stron www</h3>
+                              <div class="col-sm-6">
+                                {if isset($EmptySiteList)}
+                                <h5>Brak danych</h5>
+                                {else}
+                                <table class="table table-stripped">
+                                  <thead>
+                                    <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
+                                  </thead>
+                                  <tbody>
+                                  {foreach from=$sysuser key=userid item=info}
+                                    <tr>
+                                      <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
+                                    </tr>
+                                  {/foreach}
+                                  </tbody>
+                                </table>
+                                {/if}
+                              </div>
+                            </div>
                         </div>
                     </div>
                 </div>

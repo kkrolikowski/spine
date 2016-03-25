@@ -26,6 +26,7 @@
   $spine->assign('uptimePerHost', $uptimePerHost);
 
   if (isset($_GET['serverid'])) {
+      // komplet informacji na temat systemu i zuzycia zasobow
       $q = $dbh->prepare("SELECT ip, hostname, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
       $q->execute();
       $r = $q->fetch();
@@ -51,9 +52,34 @@
           'hdd_free' => round($r['hdd_free'] / 1073741824, 2),
           'hdd_used' => round($hdd_used / 1073741824, 2),
           'ram_free' => round($r['ram_free'] / 1073741824, 2),
-          'ram_total' => ceil(round($r['ram_total'] / 1073741824, 2))
+          'ram_total' => round($r['ram_total'] / 1073741824, 2)
       );
       $spine->assign('sysinfo', $sysinfo);
+
+      // Lista kont uzytkownikow w systemie
+      $q = $dbh->prepare("SELECT id, login, fullname, email FROM sysusers WHERE system_id = ". $_GET['serverid']);
+      $q->execute();
+      while ($r = $q->fetch()) {
+        $sysuser[$r['id']] = array(
+          'login' => $r['login'],
+          'fullname' => $r['fullname'],
+          'email' => $r['email']
+        );
+      }
+      $spine->assign('sysuser', $sysuser);
+
+      // lista stron WWW na danym serwerze
+      $q = $dbh->prepare("SELECT id, ServerName WHERE system_id = ". $_GET['serverid']);
+      $q->execute();
+      if($q->rowCount() == 0)
+        $spine->assign('EmptySiteList', 1);
+      else {
+        while ($r = $q->fetch()) {
+          $apacheconf[$r['id']] = array(
+            'ServerName' => $r['ServerName']
+          );
+        }
+      }
   }
 
   $spine->display('main.tpl');
