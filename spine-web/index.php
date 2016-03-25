@@ -80,6 +80,14 @@
           );
         }
       }
+
+      // lista uzytkownikow na danym serwerze
+      $q = $dbh->prepare("SELECT id, login FROM sysusers WHERE system_id = ". $_GET['serverid']);
+      $q->execute();
+      while ($r = $q->fetch()) {
+        $wwwuser[$r['id']] = $r['login'];
+      }
+      $spine->assign('wwwuser', $wwwuser);
   }
 
   $spine->display('main.tpl');

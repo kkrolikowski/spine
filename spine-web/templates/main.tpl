@@ -381,7 +381,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     {if isset($smarty.get.serverid)}
-                    <h3 class="page-header">Host: {$HostName}</h3>
+                    <h3 class="page-header">
+                      <img src="/images/server.png" width="70">Host: {$HostName}</h3>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
@@ -406,7 +407,7 @@
                       <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
                       <ul class="dropdown-menu">
                         <li role="presentation"><a href="#wwwconfig" aria-controls="wwwconfig" role="tab" data-toggle="tab">Strony WWW</a></li>
-                        <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
+                        <li role="presentation"><a href="#wwwconfignew" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
                       </ul>
                     </li>
                   </ul>
@@ -490,19 +491,80 @@
                                 {if isset($EmptySiteList)}
                                 <h5>Brak danych</h5>
                                 {else}
-                                <table class="table table-stripped">
-                                  <thead>
-                                    <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
-                                  </thead>
-                                  <tbody>
-                                  {foreach from=$sysuser key=userid item=info}
-                                    <tr>
-                                      <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
-                                    </tr>
-                                  {/foreach}
-                                  </tbody>
-                                </table>
+                                <!-- tutaj bedzie lista dodanych stron www -->
                                 {/if}
+                              </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="wwwconfignew">
+                              <blockquote>
+                                <p class="lead"><em>Konfiguracja virtualhosta</em></p>
+                              </blockquote>
+                              <div class="col-sm-6">
+                                <form class="form-horizontal">
+                                  <div class="form-group">
+                                      <div class="row">
+                                      <label for="servername" class="col-sm-2 control-label">ServerName</label>
+                                      <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="servername" placeholder="example.com">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group" id="serverAlias">
+                                    <div class="row">
+                                      <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
+                                      <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="server-alias" placeholder="*.example.com">
+                                      </div>
+                                      <div>
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <label for="documentroot" class="col-sm-2 control-label">DocumentRoot</label>
+                                      <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="documentroot" placeholder="/home/user/public_html">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
+                                      <div class="col-sm-4">
+                                        <select class="form-control" id="wwwuser">
+                                          {foreach from=$wwwuser key=id item=user}
+                                          <option>{$user}</option>
+                                          {/foreach}
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <div class="col-sm-offset-2"
+                                        <label class="checkbox-inline">
+                                          <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
+                                      <div class="col-sm-4">
+                                        <textarea class="form-control" id="htaccess" rows="5" disabled></textarea>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <div class="col-sm-offset-4">
+                                        <button type="button" class="btn btn-primary">Zapisz konfigurację</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </form>
                               </div>
                             </div>
                         </div>

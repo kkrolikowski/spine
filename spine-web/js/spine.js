@@ -25,4 +25,25 @@ $(document).ready(function() {
         percent: ram_free,
         text: "Wolny RAM"
     });
+    $('.glyphicon-plus').on('click', function() {
+      $("#serverAlias").after(
+        '<div class="form-group" id="serverAlias">' +
+          '<div class="row">' +
+            '<label for="serveralias" class="col-sm-2 control-label">ServerAlias</label>' +
+            '<div class="col-sm-4">' +
+              '<input type="text" class="form-control" id="serveralias" placeholder="*.example.com">' +
+            '</div>' +
+            '<div>' +
+              '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    });
+    $(document).on('click', '.glyphicon-remove', function() {
+      $(this).closest('#serverAlias').remove();
+    });
+    $(document).on('click', '#enable_htaccess', function() {
+      $('#htaccess').attr('disabled', ! this.checked);
+    });
 });
