@@ -124,6 +124,8 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 		status = 1;
 	if((sys->hostname = getHostname()) != NULL)
 		status = 1;
+	if((sys->config_version = readLocalConfigVersion()) >= 0)
+		status = 1;
 
 	return status;
 }
@@ -136,6 +138,7 @@ void InitSystemInformation(systeminfo * sys) {
 	sys->net_hwaddr = NULL;
 	sys->hostname = NULL;
 	sys->ip = NULL;
+	sys->config_version = 0;
 }
 void ClearSystemInformation(systeminfo * sys) {
 	sys->uptime = 0L;
@@ -143,7 +146,36 @@ void ClearSystemInformation(systeminfo * sys) {
 	sys->hdd_total = 0L;
 	sys->ram_free = 0L;
 	sys->ram_total = 0L;
+	sys->config_version = 0;
 	free(sys->net_hwaddr);
 	free(sys->hostname);
 	free(sys->ip);
+}
+int readLocalConfigVersion(void) {
+	int ver = 0;
+	FILE * vf;
+
+	if((vf = fopen(VERSION_FILE, "r")) == NULL) {
+		if((vf = fopen(VERSION_FILE, "w")) == NULL)
+			return -1;
+		writeLocalConfigVersion(ver);
+		fclose(vf);
+		return 0;
+	}
+	if(fscanf(vf, "%d", &ver)) {
+		fclose(vf);
+		return ver;
+	}
+	else
+		return 0;
+}
+int writeLocalConfigVersion(int ver) {
+	FILE * vf;
+
+	if((vf = fopen(VERSION_FILE, "w")) == NULL)
+		return 0;
+	fwrite(&ver, sizeof(ver), 1, vf);
+	fclose(vf);
+
+	return 1;
 }

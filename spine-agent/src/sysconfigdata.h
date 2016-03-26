@@ -1,6 +1,8 @@
 #ifndef SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 
+#define VERSION_FILE "/var/spool/spine-agent.dat"
+
 /*			DANE			*/
 
 // podstawowe informacje o systemie
@@ -13,6 +15,7 @@ typedef struct systeminfo {
 	char * net_hwaddr;
 	char * hostname;
 	char * ip;
+	int config_version;
 } systeminfo;
 
 // konfiguracja serwera www
@@ -57,5 +60,15 @@ unsigned long ramTotal();
 
 // funkcja zwraca nazwe pierwszego interfejsu w systemie
 char * getNetInterfaceName();
+
+// funkcja zapisuje do pliku aktualna wersje konfiguracji
+// zwraca 1 w przypadku sukcesu
+int writeLocalConfigVersion(int ver);
+
+// funkcja odczytuje lokalna wersje konfiguracji. Wartosci zwracane:
+// 0 - nowy plik
+// > 0 - lokalna wersja konfiguracji
+// -1 - nie udalo sie stworzyc nowego pliku
+int readLocalConfigVersion(void);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

@@ -76,8 +76,29 @@ int hostExist(char * hostid) {
 	else
 		status = 0;
 
+	free(query);
 	mysql_free_result(res);
 	return status;
+}
+int checkDBConfigVer(char * systemid) {
+	extern MYSQL * dbh;
+	MYSQL_RES * res;
+	MYSQL_ROW r;
+	char * query = mkString("SELECT config_ver FROM sysinfo WHERE system_id = '", systemid, "'", NULL);
+	int ver = 0;
+
+	if(mysql_query(dbh, query)) {
+		free(query);
+		return -1;
+	}
+	if((res = mysql_store_result(dbh))) {
+		r = mysql_fetch_row(res);
+		ver = atoi(r[0]);
+	}
+	mysql_free_result(res);
+	free(query);
+
+	return ver;
 }
 int updateItem(systeminfo * info) {
 	extern MYSQL * dbh;

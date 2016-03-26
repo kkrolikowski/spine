@@ -43,4 +43,7 @@ int updateItem(systeminfo * info);
 // 0 w przypadku niepowodzenia
 int insertItem(systeminfo * info);
 
+// funkcja zwraca wersje konfiguracji danego hosta
+int checkDBConfigVer(char * systemid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

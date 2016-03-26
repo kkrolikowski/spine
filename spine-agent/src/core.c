@@ -12,7 +12,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 
-#define PACKAGE_CHUNKS 7		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
+#define PACKAGE_CHUNKS 8		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -187,6 +187,20 @@ char * ulong2String(unsigned long n) {
 
 	return str;
 }
+char * int2String(int n) {
+	char tmp[11];
+	memset(tmp, '\0', 11);
+	char * str = NULL;
+	size_t len = 0;
+
+	sprintf(tmp, "%d", n);
+	len = strlen(tmp) + 1;
+	str = (char *) malloc(len * sizeof(char));
+	memset(str, '\0', len);
+	strcpy(str, tmp);
+
+	return str;
+}
 char * long2String(long n) {
 	char tmp[12];
 	memset(tmp, '\0', 12);
@@ -235,8 +249,14 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
-		if(!strcmp(datatype, "sysinfo"))
+		if(!strcmp(datatype, "sysinfo")) {
 			updateHostInfo(net.ipaddr, clientResponse, lf);
+			if(clientNeedUpdate(clientResponse)) {
+				//sendDataToClient(net.ipaddr);
+				logentry = mkString("[INFO] (reciver) Jest gotowa nowa konfiguracja", NULL);
+				writeLog(lf, logentry);
+			}
+		}
 
 		close(net.sock);
 		free(net.ipaddr);
@@ -251,6 +271,7 @@ char * BuildPackage(systeminfo * info) {
 	char * s_hdd_free = ulong2String(info->hdd_free);
 	char * s_ram_free = ulong2String(info->ram_free);
 	char * s_ram_total = ulong2String(info->ram_total);
+	char * s_config_ver = int2String(info->config_version);
 
 	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
 	char * package1 = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, ",", NULL);
@@ -259,10 +280,11 @@ char * BuildPackage(systeminfo * info) {
 	char * package4 = mkString("hdd_free:", s_hdd_free, ",", NULL);
 	char * package5 = mkString("ram_total:", s_ram_total, ",", NULL);
 	char * package6 = mkString("ram_free:", s_ram_free, ",", NULL);
-	char * package7 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
+	char * package7 = mkString("config_ver:", s_config_ver, ",", NULL);
+	char * package8 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
 
 	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
-	char * packages[PACKAGE_CHUNKS] = { package1, package2, package3, package4, package5, package6, package7 };
+	char * packages[PACKAGE_CHUNKS] = { package1, package2, package3, package4, package5, package6, package7, package8 };
 	size_t package_len = 0;
 	int i;
 	for(i = 0; i < PACKAGE_CHUNKS; i++)
@@ -278,6 +300,7 @@ char * BuildPackage(systeminfo * info) {
 	strcat(json, package5);
 	strcat(json, package6);
 	strcat(json, package7);
+	strcat(json, package8);
 
 	// czyscimy pozostalosci
 	cleanChunks(packages, PACKAGE_CHUNKS);
@@ -286,6 +309,7 @@ char * BuildPackage(systeminfo * info) {
 	free(s_hdd_free);
 	free(s_ram_total);
 	free(s_ram_free);
+	free(s_config_ver);
 
 	return json;
 }
@@ -374,4 +398,21 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 		close(confd);
 		sleep(HEARTBEAT);
 	}
+}
+int clientNeedUpdate(char * clientData) {
+	// parsujemy wersje konfiguracji otrzymana od klienta
+	char * verStr = jsonVal(clientData, "config_ver");
+	int clientConfVer = atoi(verStr);
+
+	// pobieramy z bazy wersje konfiguracji na podstawie ID klienta
+	char * hostID = jsonVal(clientData, "systemid");
+	int dbConfVer = checkDBConfigVer(hostID);
+
+	free(hostID);
+	free(verStr);
+
+	if(clientConfVer < dbConfVer)
+		return 1;
+	else
+		return 0;
 }

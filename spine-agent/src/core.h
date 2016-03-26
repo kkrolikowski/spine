@@ -59,6 +59,9 @@ char * ulong2String(unsigned long n);
 // Funkcja zwraca wartosc long w formie stringu
 char * long2String(long n);
 
+// Funkcja zwraca wartosc int w formie stringu
+char * int2String(int n);
+
 // Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
 // bedzie je przetwarzac.
 void RetrieveData(int port, char * mode, FILE *lf);
@@ -78,4 +81,6 @@ void cleanChunks(char * parts[], int n);
 // funkcja zwraca wartosc klucza (pattern) z przekazanego stringa (json)
 char * jsonVal(const char * json, const char * pattern);
 
+// funkcja sprawdza czy trzeba wyslac konfiguracje do klienta
+int clientNeedUpdate(char * clientData);
 #endif /* SPINE_AGENT_CORE_H_ */
