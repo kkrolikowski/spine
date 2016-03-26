@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-24 22:21:28
+<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-26 09:20:53
          compiled from "./templates/main.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:170490275356f19d17487bb9-88435310%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '48ad11f68be179e1830edf3ce56b82b0712baeff' => 
     array (
       0 => './templates/main.tpl',
-      1 => 1458854441,
+      1 => 1458980378,
       2 => 'file',
     ),
   ),
@@ -24,6 +24,11 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'srv' => 0,
     'HostName' => 0,
     'sysinfo' => 0,
+    'sysuser' => 0,
+    'info' => 0,
+    'EmptySiteList' => 0,
+    'wwwuser' => 0,
+    'user' => 0,
     'HostTotalCount' => 0,
     'FreeTotalGB' => 0,
   ),
@@ -71,6 +76,9 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     <!-- Custom Fonts -->
     <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <!-- Notification plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -100,7 +108,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.php">Spine Web</a>
+                <a class="navbar-brand" href="index.php"><img src="/images/spine-logo.png"></a>
             </div>
             <!-- /.navbar-header -->
 
@@ -317,17 +325,6 @@ $_valid = $_smarty_tpl->decodeProperties(array (
             <div class="navbar-default sidebar" role="navigation">
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
-                        <li class="sidebar-search">
-                            <div class="input-group custom-search-form">
-                                <input type="text" class="form-control" placeholder="Search...">
-                                <span class="input-group-btn">
-                                <button class="btn btn-default" type="button">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </span>
-                            </div>
-                            <!-- /input-group -->
-                        </li>
                         <li>
                             <a href="index.php"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
@@ -431,10 +428,11 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
             <div class="row">
                 <div class="col-lg-12">
                     <?php if (isset($_GET['serverid'])){?>
-                    <h1 class="page-header"><?php echo $_smarty_tpl->tpl_vars['HostName']->value;?>
-</h1>
+                    <h3 class="page-header">
+                      <img src="/images/server.png" width="70">Host: <?php echo $_smarty_tpl->tpl_vars['HostName']->value;?>
+</h3>
                     <?php }else{ ?>
-                    <h1 class="page-header">Dashboard</h1>
+                    <h3 class="page-header">Dashboard</h3>
                     <?php }?>
                 </div>
                 <!-- /.col-lg-12 -->
@@ -444,12 +442,23 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
             <div class="row">
                 <div>
                     <!-- Nav tabs -->
-                    <ul class="nav nav-tabs" role="tablist">
+                  <ul class="nav nav-tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#ogolne" aria-controls="ogolne" role="tab" data-toggle="tab">Ogólne</a></li>
-                    <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Użytkownicy</a></li>
-                    <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Serwer WWW</a></li>
-
-                </ul>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Użytkownicy <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li role="presentation"><a href="#sysusers" aria-controls="sysusers" role="tab" data-toggle="tab">Lista</a></li>
+                        <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowy użytkownik</a></li>
+                      </ul>
+                    </li>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li role="presentation"><a href="#wwwconfig" aria-controls="wwwconfig" role="tab" data-toggle="tab">Strony WWW</a></li>
+                        <li role="presentation"><a href="#wwwconfignew" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
+                      </ul>
+                    </li>
+                  </ul>
 
                 <!-- Tab panes -->
                 <div class="row div-margin-top-10">
@@ -516,8 +525,134 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
                                   </div>
                                 </div>
                             </div>
-                            <div role="tabpanel" class="tab-pane" id="profile">...</div>
-                            <div role="tabpanel" class="tab-pane" id="messages">...</div>
+                            <div role="tabpanel" class="tab-pane" id="sysusers">
+                              <h3>Lista kont użytkowników w systemie</h3>
+                              <div class="col-sm-6">
+                                <table class="table table-stripped">
+                                  <thead>
+                                    <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
+                                  </thead>
+                                  <tbody>
+                                  <?php  $_smarty_tpl->tpl_vars['info'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['info']->_loop = false;
+ $_smarty_tpl->tpl_vars['userid'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['sysuser']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['info']->key => $_smarty_tpl->tpl_vars['info']->value){
+$_smarty_tpl->tpl_vars['info']->_loop = true;
+ $_smarty_tpl->tpl_vars['userid']->value = $_smarty_tpl->tpl_vars['info']->key;
+?>
+                                    <tr>
+                                      <td><?php echo $_smarty_tpl->tpl_vars['info']->value['login'];?>
+</td><td><?php echo $_smarty_tpl->tpl_vars['info']->value['fullname'];?>
+</td><td><?php echo $_smarty_tpl->tpl_vars['info']->value['email'];?>
+</td>
+                                    </tr>
+                                  <?php } ?>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane" id="wwwconfig">
+                              <h3>Lista stron www</h3>
+                              <div class="col-sm-6">
+                                <?php if (isset($_smarty_tpl->tpl_vars['EmptySiteList']->value)){?>
+                                <h5>Brak danych</h5>
+                                <?php }else{ ?>
+                                <!-- tutaj bedzie lista dodanych stron www -->
+                                <?php }?>
+                              </div>
+                            </div>
+                            <div role="tabpanel" class="tab-pane" id="wwwconfignew">
+                              <blockquote>
+                                <p class="lead"><em>Konfiguracja virtualhosta</em></p>
+                              </blockquote>
+                              <div class="col-sm-6">
+                                <form class="form-horizontal" id="addvhost">
+                                  <input type="hidden" name="serverid" value="<?php echo $_GET['serverid'];?>
+">
+                                  <div class="form-group">
+                                      <div class="row">
+                                      <label for="servername" class="col-sm-2 control-label">ServerName</label>
+                                      <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <div class="col-sm-offset-2"
+                                        <label class="checkbox-inline">
+                                          <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group" id="serverAlias">
+                                    <div class="row">
+                                      <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
+                                      <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com" disabled>
+                                      </div>
+                                      <div>
+                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <label for="documentroot" class="col-sm-2 control-label">DocumentRoot</label>
+                                      <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
+                                      <div class="col-sm-4">
+                                        <select class="form-control" id="wwwuser" name="account">
+                                          <?php  $_smarty_tpl->tpl_vars['user'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['user']->_loop = false;
+ $_smarty_tpl->tpl_vars['id'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['wwwuser']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['user']->key => $_smarty_tpl->tpl_vars['user']->value){
+$_smarty_tpl->tpl_vars['user']->_loop = true;
+ $_smarty_tpl->tpl_vars['id']->value = $_smarty_tpl->tpl_vars['user']->key;
+?>
+                                          <option value="<?php echo $_smarty_tpl->tpl_vars['id']->value;?>
+"><?php echo $_smarty_tpl->tpl_vars['user']->value;?>
+</option>
+                                          <?php } ?>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <div class="col-sm-offset-2"
+                                        <label class="checkbox-inline">
+                                          <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
+                                      <div class="col-sm-4">
+                                        <textarea class="form-control" id="htaccess" name="htaccess" rows="5" disabled></textarea>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <div class="col-sm-offset-4">
+                                        <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -22,9 +22,13 @@
 .form-group {
   margin-top: -10px;
 }
-#enable_htaccess {
+#enable_htaccess, #enable_server_alias {
   margin-left: 15px;
 }
 .col-sm-offset-4 > button {
   margin-left: -18px;
+}
+.navbar-brand > img {
+  margin-top: -15px;
+  margin-left: -10px;
 }

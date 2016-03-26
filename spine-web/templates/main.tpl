@@ -40,6 +40,9 @@
     <!-- Custom Fonts -->
     <link href="../bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
+    <!-- Notification plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -69,7 +72,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.php">Spine Web</a>
+                <a class="navbar-brand" href="index.php"><img src="/images/spine-logo.png"></a>
             </div>
             <!-- /.navbar-header -->
 
@@ -500,12 +503,22 @@
                                 <p class="lead"><em>Konfiguracja virtualhosta</em></p>
                               </blockquote>
                               <div class="col-sm-6">
-                                <form class="form-horizontal">
+                                <form class="form-horizontal" id="addvhost">
+                                  <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
                                   <div class="form-group">
                                       <div class="row">
                                       <label for="servername" class="col-sm-2 control-label">ServerName</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="servername" placeholder="example.com">
+                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com">
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
+                                      <div class="col-sm-offset-2"
+                                        <label class="checkbox-inline">
+                                          <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
+                                        </label>
                                       </div>
                                     </div>
                                   </div>
@@ -513,7 +526,7 @@
                                     <div class="row">
                                       <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="server-alias" placeholder="*.example.com">
+                                        <input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com" disabled>
                                       </div>
                                       <div>
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
@@ -524,7 +537,7 @@
                                     <div class="row">
                                       <label for="documentroot" class="col-sm-2 control-label">DocumentRoot</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="documentroot" placeholder="/home/user/public_html">
+                                        <input type="text" class="form-control" id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html">
                                       </div>
                                     </div>
                                   </div>
@@ -532,9 +545,9 @@
                                     <div class="row">
                                       <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
                                       <div class="col-sm-4">
-                                        <select class="form-control" id="wwwuser">
+                                        <select class="form-control" id="wwwuser" name="account">
                                           {foreach from=$wwwuser key=id item=user}
-                                          <option>{$user}</option>
+                                          <option value="{$id}">{$user}</option>
                                           {/foreach}
                                         </select>
                                       </div>
@@ -553,14 +566,14 @@
                                     <div class="row">
                                       <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
                                       <div class="col-sm-4">
-                                        <textarea class="form-control" id="htaccess" rows="5" disabled></textarea>
+                                        <textarea class="form-control" id="htaccess" name="htaccess" rows="5" disabled></textarea>
                                       </div>
                                     </div>
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
                                       <div class="col-sm-offset-4">
-                                        <button type="button" class="btn btn-primary">Zapisz konfigurację</button>
+                                        <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
                                       </div>
                                     </div>
                                   </div>

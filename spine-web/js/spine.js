@@ -31,7 +31,7 @@ $(document).ready(function() {
           '<div class="row">' +
             '<label for="serveralias" class="col-sm-2 control-label">ServerAlias</label>' +
             '<div class="col-sm-4">' +
-              '<input type="text" class="form-control" id="serveralias" placeholder="*.example.com">' +
+              '<input type="text" class="form-control" id="serveralias" name="ServerAlias[]" placeholder="*.example.com">' +
             '</div>' +
             '<div>' +
               '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
@@ -46,4 +46,27 @@ $(document).ready(function() {
     $(document).on('click', '#enable_htaccess', function() {
       $('#htaccess').attr('disabled', ! this.checked);
     });
+    $(document).on('click', '#enable_server_alias', function() {
+      $('#server-alias').attr('disabled', ! this.checked);
+    });
+    $(document).on('click', '#addvhost-btn', function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: '/apache.php?addvhost',
+        method: 'POST',
+        data: $('#addvhost').serializeArray(),
+        success: function() {
+          $.bootstrapGrowl(
+            'Konfiguracja apacza zapisana',
+            {
+              type: 'success',
+              align: 'center',
+              offset: { from: 'top', amount: 55},
+              width: 500
+            }
+          );
+          $('#addvhost')[0].reset();
+        }
+    });
+  });
 });
