@@ -166,8 +166,10 @@ int readLocalConfigVersion(void) {
 		fclose(vf);
 		return ver;
 	}
-	else
+	else {
+		fclose(vf);
 		return 0;
+	}
 }
 int writeLocalConfigVersion(int ver) {
 	FILE * vf;

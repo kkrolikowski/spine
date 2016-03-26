@@ -23,6 +23,7 @@ typedef struct wwwdata {
 	char * ServerName;
 	char * ServerAlias;
 	char * DocumentRoot;
+	char * htaccess;
 } wwwdata;
 
 /*			FUNKCJE			*/
