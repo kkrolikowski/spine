@@ -253,6 +253,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			updateHostInfo(net.ipaddr, clientResponse, lf);
 			if(clientNeedUpdate(clientResponse)) {
 				//sendDataToClient(net.ipaddr);
+				// lub sendDataToClient(net.sock);
 				logentry = mkString("[INFO] (reciver) Jest gotowa nowa konfiguracja", NULL);
 				writeLog(lf, logentry);
 			}
