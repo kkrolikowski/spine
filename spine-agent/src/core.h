@@ -4,7 +4,7 @@
 #include "database.h"
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
-#define PACKAGE_SIZE 1024 	// bufor dla informacji konfiguracyjnych
+#define PACKAGE_SIZE 4096 	// bufor dla informacji konfiguracyjnych
 #define PID_PATH "/var/run/spine-agent.pid"		// sciezka do pliku z pidem glownego procesu
 #define HEARTBEAT 5			// interwal czasu pomiedzy kolejnymi iteracjami wykonywania funkcji
 
@@ -83,4 +83,8 @@ char * jsonVal(const char * json, const char * pattern);
 
 // funkcja sprawdza czy trzeba wyslac konfiguracje do klienta
 int clientNeedUpdate(char * clientData);
+
+char * apacheConfigPackage(hostconfig data);
+char * BuildConfigurationPackage(hostconfig data);
+void clearVhostData(struct wwwdata vhost[], int n);
 #endif /* SPINE_AGENT_CORE_H_ */

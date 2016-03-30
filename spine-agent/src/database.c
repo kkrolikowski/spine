@@ -158,3 +158,41 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
+hostconfig ReadWWWConfiguration(char * hostid) {
+	extern MYSQL * dbh;
+	MYSQL_RES * res;
+	MYSQL_ROW row;
+	hostconfig hconfig;
+
+	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login as user,",
+	" sysinfo.config_ver as config_ver FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN",
+	" sysinfo ON sysinfo.id = www.system_id	WHERE www.system_id = (SELECT id FROM sysinfo WHERE",
+	" system_id = '", hostid, "')", NULL);
+
+	int vhi = 0;			// index tablicy przechowujacej vhosty apacza
+	if(!mysql_query(dbh, query)) {
+		if((res = mysql_store_result(dbh)) != NULL) {
+			while((row = mysql_fetch_row(res)) && vhi < VHOST_MAX) {
+				hconfig.vhost[vhi].ServerName = readData(row[0]);
+				hconfig.vhost[vhi].ServerAlias = readData(row[1]);
+				hconfig.vhost[vhi].DocumentRoot = readData(row[2]);
+				hconfig.vhost[vhi].htaccess = readData(row[3]);
+				hconfig.vhost[vhi].user = readData(row[4]);
+				hconfig.confVer = atoi(row[5]);
+				vhi++;
+			}
+			hconfig.vhost_num = vhi;
+			mysql_free_result(res);
+		}
+	}
+	free(query);
+	return hconfig;
+}
+char * readData(char * input) {
+	size_t len = strlen(input) + 1;
+	char * tmp = (char *) malloc(len * sizeof(char));
+	memset(tmp, '\0', len);
+	strcpy(tmp, input);
+
+	return tmp;
+}

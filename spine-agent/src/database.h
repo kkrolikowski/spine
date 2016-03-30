@@ -46,4 +46,11 @@ int insertItem(systeminfo * info);
 // funkcja zwraca wersje konfiguracji danego hosta
 int checkDBConfigVer(char * systemid);
 
+// funkcja pobiera string wejsciowy alokuje pamiec i przepisuje jego
+// zawartosc do zaalokowanego obszaru pamieci.
+char * readData(char * input);
+
+// funkcja wczytuje konfiguracje serwera www z bazy do pamieci.
+hostconfig ReadWWWConfiguration(char * hostid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

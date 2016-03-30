@@ -218,9 +218,13 @@ char * long2String(long n) {
 void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
+	int clifd = -1;
 	char * clientResponse = NULL;	// string przesylany przez klienta (json)
 	char * datatype = NULL; 		// typ danych przesylanych do klienta
+	char * system_id = NULL;
+	char * configstring = NULL;
 	netinfo net;					// struktura przechowujaca ip oraz socket klienta
+	hostconfig configdata;
 
 	while(1) {
 		net = clientConnection(netiffd);
@@ -248,17 +252,29 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			sleep(5);
 			continue;
 		}
+		if(!strcmp(mode, "client")) {
+			logentry = mkString("[DEBUG] (reciver) ", clientResponse, NULL);
+			writeLog(lf, logentry);
+		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
 			updateHostInfo(net.ipaddr, clientResponse, lf);
 			if(clientNeedUpdate(clientResponse)) {
+				system_id = jsonVal(clientResponse, "systemid");
+				configdata = ReadWWWConfiguration(system_id);
+				configstring = BuildConfigurationPackage(configdata);
+				clifd = connector(net.ipaddr, 2016);
+				SendPackage(clifd, configstring);
+				close(clifd);
+				free(configstring);
+				free(system_id);
+
 				//sendDataToClient(net.ipaddr);
 				// lub sendDataToClient(net.sock);
 				logentry = mkString("[INFO] (reciver) Jest gotowa nowa konfiguracja", NULL);
 				writeLog(lf, logentry);
 			}
 		}
-
 		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
@@ -416,4 +432,77 @@ int clientNeedUpdate(char * clientData) {
 		return 1;
 	else
 		return 0;
+}
+char * BuildConfigurationPackage(hostconfig data) {
+	size_t len = 0;
+	char * tmp = NULL;
+
+	// bufor na dane konfiguracyjne
+	char buff[PACKAGE_SIZE];
+	memset(buff, '\0', PACKAGE_SIZE);
+
+	// string zawierajacy numer wersji konfiguracji
+	char * s_config_ver = int2String(data.confVer);
+
+	strcpy(buff, "[");
+	tmp = apacheConfigPackage(data);
+	strcat(buff, tmp);
+	free(tmp);
+	strcat(buff, "config_ver:");
+	strcat(buff, s_config_ver);
+	strcat(buff, "}]");
+
+	len = strlen(buff) + 1;
+	tmp = (char *) malloc(len + 1);
+	memset(tmp, '\0', len);
+	strncpy(tmp, buff, len);
+
+	free(s_config_ver);
+
+	return tmp;
+}
+char * apacheConfigPackage(hostconfig data) {
+	int vidx;
+	size_t len = 0;
+	char * tmp = NULL;
+
+	// bufor na dane konfiguracyjne
+	char buff[PACKAGE_SIZE];
+	memset(buff, '\0', PACKAGE_SIZE);
+
+	strcpy(buff, "{datatype:apache,");
+	for(vidx = 0; vidx < data.vhost_num; vidx++) {
+		strcat(buff, "vhost_");
+		tmp = int2String(vidx);
+		strcat(buff, tmp);
+		free(tmp);
+		strcat(buff, ":{ServerName:");
+		strcat(buff, data.vhost[vidx].ServerName);
+		strcat(buff, ",ServerAlias:");
+		strcat(buff, data.vhost[vidx].ServerAlias);
+		strcat(buff, ",DocumentRoot:");
+		strcat(buff, data.vhost[vidx].DocumentRoot);
+		strcat(buff, ",user:");
+		strcat(buff, data.vhost[vidx].user);
+		strcat(buff, "},");
+	}
+	len = strlen(buff) + 1;
+	tmp = (char *) malloc(len * sizeof(char));
+	memset(tmp, '\0', len);
+	strncpy(tmp, buff, len);
+
+	clearVhostData(data.vhost, data.vhost_num);
+
+	return tmp;
+}
+void clearVhostData(struct wwwdata vhost[], int n) {
+	int i;
+
+	for(i = 0; i < n; i++) {
+		free(vhost[i].DocumentRoot);
+		free(vhost[i].ServerAlias);
+		free(vhost[i].ServerName);
+		free(vhost[i].htaccess);
+		free(vhost[i].user);
+	}
 }

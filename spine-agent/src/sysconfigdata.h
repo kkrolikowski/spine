@@ -2,6 +2,7 @@
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 
 #define VERSION_FILE "/var/spool/spine-agent.dat"
+#define VHOST_MAX 200		// limit vhostow na serwerze
 
 /*			DANE			*/
 
@@ -24,7 +25,16 @@ typedef struct wwwdata {
 	char * ServerAlias;
 	char * DocumentRoot;
 	char * htaccess;
+	char * user;
 } wwwdata;
+
+// struktura, ktora bedzie przechowywac wskazniki
+// do poszczegolnych elementow pakietu.
+typedef struct hosconfig {
+	struct wwwdata vhost[VHOST_MAX];	// definicja vhostow
+	int vhost_num;						// liczba skonfigurowanych vhostow
+	int confVer;						// wersja konfiguracji
+} hostconfig;
 
 /*			FUNKCJE			*/
 
