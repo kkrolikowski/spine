@@ -8,6 +8,7 @@
 #include <net/if.h>
 #include <unistd.h>
 #include <limits.h>
+#include "core.h"
 #include "sysconfigdata.h"
 
 unsigned long getuptime(void) {
@@ -180,4 +181,20 @@ int writeLocalConfigVersion(int ver) {
 	fclose(vf);
 
 	return 1;
+}
+hostconfig ParseConfigData(char * json) {
+	int i;
+	hostconfig conf;
+	conf.datatype = jsonVal(json, "datatype");
+	conf.confVer = atoi(jsonVal(json, "config_ver"));
+	conf.vhost_num = atoi(jsonVal(json, "vhost_num"));
+
+	for(i = 0; i < conf.vhost_num; i++) {
+		conf.vhost[i].ServerName = jsonVal(json, "ServerName");
+		conf.vhost[i].ServerAlias = jsonVal(json, "ServerAlias");
+		conf.vhost[i].DocumentRoot = jsonVal(json, "DocumentRoot");
+		conf.vhost[i].htaccess = jsonVal(json, "htaccess");
+	}
+
+	return conf;
 }

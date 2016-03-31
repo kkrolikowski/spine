@@ -34,6 +34,7 @@ typedef struct hosconfig {
 	struct wwwdata vhost[VHOST_MAX];	// definicja vhostow
 	int vhost_num;						// liczba skonfigurowanych vhostow
 	int confVer;						// wersja konfiguracji
+	char * datatype;					// typ konfiguracji
 } hostconfig;
 
 /*			FUNKCJE			*/
@@ -81,5 +82,8 @@ int writeLocalConfigVersion(int ver);
 // > 0 - lokalna wersja konfiguracji
 // -1 - nie udalo sie stworzyc nowego pliku
 int readLocalConfigVersion(void);
+
+// funkcja na podstawie danych z jsona wypelnia strukture konfiguracyjna
+hostconfig ParseConfigData(char * json);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

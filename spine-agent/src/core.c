@@ -253,6 +253,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		if(!strcmp(mode, "client")) {
+			configdata = ParseConfigData(clientResponse);
 			logentry = mkString("[DEBUG] (reciver) ", clientResponse, NULL);
 			writeLog(lf, logentry);
 		}
@@ -462,38 +463,55 @@ char * BuildConfigurationPackage(hostconfig data) {
 	return tmp;
 }
 char * apacheConfigPackage(hostconfig data) {
-	int vidx;
-	size_t len = 0;
-	char * tmp = NULL;
+	int vidx;					// vhost index
+	size_t len = 0;				// liczba bajtow konfiguracji
+	char * numstr = NULL;		// string z liczby
+	char * vhostdata = NULL; 	// zawartosc vhosta
+	char * metainfo = NULL;		// dane pomocnicze
+	char * configstr = NULL;	// string przechowujacy odczytana konfiguracje
 
 	// bufor na dane konfiguracyjne
 	char buff[PACKAGE_SIZE];
 	memset(buff, '\0', PACKAGE_SIZE);
 
-	strcpy(buff, "{datatype:apache,");
+	strcpy(buff, "{datatype:apache,");		// definiujemy typ konfiguracji (apache)
+
+	// przetwarzamy dodane vhosty apacza
 	for(vidx = 0; vidx < data.vhost_num; vidx++) {
-		strcat(buff, "vhost_");
-		tmp = int2String(vidx);
-		strcat(buff, tmp);
-		free(tmp);
-		strcat(buff, ":{ServerName:");
-		strcat(buff, data.vhost[vidx].ServerName);
-		strcat(buff, ",ServerAlias:");
-		strcat(buff, data.vhost[vidx].ServerAlias);
-		strcat(buff, ",DocumentRoot:");
-		strcat(buff, data.vhost[vidx].DocumentRoot);
-		strcat(buff, ",user:");
-		strcat(buff, data.vhost[vidx].user);
-		strcat(buff, "},");
+
+		numstr = int2String(vidx);
+		metainfo = mkString("vhost_", numstr, NULL);
+		strcat(buff, metainfo);
+
+		vhostdata = mkString(
+				":{ServerName:", data.vhost[vidx].ServerName,
+				",ServerAlias:", data.vhost[vidx].ServerAlias,
+				",DocumentRoot:", data.vhost[vidx].DocumentRoot,
+				",user:", data.vhost[vidx].user, "},", NULL);
+		strcat(buff, vhostdata);
+
+		free(vhostdata);
+		free(numstr);
+		free(metainfo);
 	}
+
+	// dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+	numstr = int2String(data.vhost_num);
+	metainfo = mkString("vhost_num:", numstr, ",", NULL);
+	strcat(buff, metainfo);
+
+	// kopiujemy zawartosc bufora do pamieci
 	len = strlen(buff) + 1;
-	tmp = (char *) malloc(len * sizeof(char));
-	memset(tmp, '\0', len);
-	strncpy(tmp, buff, len);
+	configstr = (char *) malloc(len * sizeof(char));
+	memset(configstr, '\0', len);
+	strncpy(configstr, buff, len);
 
+	// czyscimy niepotrzebne dane
 	clearVhostData(data.vhost, data.vhost_num);
+	free(numstr);
+	free(metainfo);
 
-	return tmp;
+	return configstr;
 }
 void clearVhostData(struct wwwdata vhost[], int n) {
 	int i;
