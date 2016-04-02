@@ -251,7 +251,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		if(!strcmp(mode, "client")) {
-			configdata = ParseConfigData(clientResponse);
+			// TODO: configdata = ParseConfigData(clientResponse);
 			logentry = mkString("[DEBUG] (reciver) ", clientResponse, NULL);
 			writeLog(lf, logentry);
 		}
@@ -467,6 +467,7 @@ char * apacheConfigPackage(hostconfig data) {
 				":{ServerName:", data.vhost[vidx].ServerName,
 				",ServerAlias:", data.vhost[vidx].ServerAlias,
 				",DocumentRoot:", data.vhost[vidx].DocumentRoot,
+				",htaccess:", data.vhost[vidx].htaccess,
 				",user:", data.vhost[vidx].user, "},", NULL);
 		strcat(buff, vhostdata);
 
