@@ -36,6 +36,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	hostinfo.uptime = atol(jsonVal(stream, "uptime"));
 	hostinfo.net_hwaddr = jsonVal(stream, "systemid");
 	hostinfo.hostname = jsonVal(stream, "hostname");
+	hostinfo.os = jsonVal(stream, "distro_name");
 	hostinfo.hdd_total = atol(jsonVal(stream, "hdd_total"));
 	hostinfo.hdd_free = atol(jsonVal(stream, "hdd_free"));
 	hostinfo.ram_total = atol(jsonVal(stream, "ram_total"));
@@ -56,6 +57,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 			writeLog(lf, logmessage);
 		}
 	}
+	ClearSystemInformation(&hostinfo);
 
 	return 1;
 }
@@ -114,6 +116,7 @@ int updateItem(systeminfo * info) {
 			"UPDATE sysinfo SET uptime = ", uptime_s,
 			", ip = '", info->ip,
 			"', hostname = '", info->hostname,
+			"', distro = '", info->os,
 			"', hdd_total = ", hdd_total_s,
 			", hdd_free = ", hdd_free_s,
 			", ram_total = ", ram_total_s,
@@ -142,8 +145,8 @@ int insertItem(systeminfo * info) {
 	char * ram_total_s = ulong2String(info->ram_total);
 	char * ram_free_s = ulong2String(info->ram_free);
 
-	char * query = mkString("INSERT INTO sysinfo(ip, hostname, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id) VALUES('",
-			info->ip, "', '", info->hostname, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
+	char * query = mkString("INSERT INTO sysinfo(ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id) VALUES('",
+			info->ip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
 			", '", info->net_hwaddr, "')", NULL);
 
 	if(!mysql_query(dbh, query))

@@ -289,10 +289,10 @@ char * BuildPackage(systeminfo * info) {
 	char * s_ram_total = ulong2String(info->ram_total);
 	char * s_config_ver = int2String(info->config_version);
 
-	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
 	char * package = mkString(
 			"[{datatype:sysinfo,package:{uptime:", s_uptime, ",",
 			"hostname:", info->hostname, ",",
+			"distro_name:", info->os, ",",
 			"hdd_total:", s_hdd_total, ",",
 			"hdd_free:", s_hdd_free, ",",
 			"ram_total:", s_ram_total, ",",
@@ -312,6 +312,7 @@ char * BuildPackage(systeminfo * info) {
 	free(s_ram_total);
 	free(s_ram_free);
 	free(s_config_ver);
+	free(package);
 
 	return json;
 }

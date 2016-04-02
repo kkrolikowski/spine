@@ -5,6 +5,7 @@
 #include <sys/sysinfo.h>
 #include <sys/ioctl.h>
 #include <sys/statvfs.h>
+#include <sys/utsname.h>
 #include <net/if.h>
 #include <unistd.h>
 #include <limits.h>
@@ -127,6 +128,8 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 		status = 1;
 	if((sys->config_version = readLocalConfigVersion()) >= 0)
 		status = 1;
+	if((sys->os = linuxDistro()) != NULL)
+		status = 1;
 
 	return status;
 }
@@ -138,6 +141,7 @@ void InitSystemInformation(systeminfo * sys) {
 	sys->ram_total = 0L;
 	sys->net_hwaddr = NULL;
 	sys->hostname = NULL;
+	sys->os = NULL;
 	sys->ip = NULL;
 	sys->config_version = 0;
 }
@@ -150,6 +154,7 @@ void ClearSystemInformation(systeminfo * sys) {
 	sys->config_version = 0;
 	free(sys->net_hwaddr);
 	free(sys->hostname);
+	free(sys->os);
 	free(sys->ip);
 }
 int readLocalConfigVersion(void) {
@@ -197,4 +202,28 @@ hostconfig ParseConfigData(char * json) {
 	}
 
 	return conf;
+}
+char * linuxDistro(void) {
+	char buff[128];
+	char * distro = NULL;
+	struct utsname info;
+	char * name = NULL;
+	size_t len = 0;
+
+	uname(&info);
+	memset(buff, '\0', 128);
+	strcpy(buff, info.release);
+	strcat(buff, info.version);
+
+	if(strstr(buff, "Ubuntu") != NULL)
+		distro = "Ubuntu";
+	else if(strstr(buff, "el") != NULL)
+		distro = "Centos";
+
+	len = strlen(distro) + 1;
+	name = (char *) malloc(len * sizeof(char));
+	memset(name, '\0', len);
+	strncpy(name, distro, len);
+
+	return name;
 }

@@ -15,6 +15,7 @@ typedef struct systeminfo {
 	unsigned long ram_free;
 	char * net_hwaddr;
 	char * hostname;
+	char * os;
 	char * ip;
 	int config_version;
 } systeminfo;
@@ -85,5 +86,7 @@ int readLocalConfigVersion(void);
 
 // funkcja na podstawie danych z jsona wypelnia strukture konfiguracyjna
 hostconfig ParseConfigData(char * json);
+
+char * linuxDistro(void);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
