@@ -155,7 +155,6 @@ void ClearSystemInformation(systeminfo * sys) {
 	free(sys->net_hwaddr);
 	free(sys->hostname);
 	free(sys->os);
-	free(sys->ip);
 }
 int readLocalConfigVersion(void) {
 	int ver = 0;
