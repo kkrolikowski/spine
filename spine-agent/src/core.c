@@ -12,8 +12,6 @@
 #include "sysconfigdata.h"
 #include "database.h"
 
-#define PACKAGE_CHUNKS 8		// liczba kawalkow z ktorych sklada sie pakiet wysylany przez klienta
-
 int savePidFile(int pid) {
 	FILE * pf;
 
@@ -292,36 +290,22 @@ char * BuildPackage(systeminfo * info) {
 	char * s_config_ver = int2String(info->config_version);
 
 	// deklarujemy i inicujemy poszczegolne czesci skladowe pakietu
-	char * package1 = mkString("[{datatype:sysinfo,package:{uptime:", s_uptime, ",", NULL);
-	char * package2 = mkString("hostname:", info->hostname, ",", NULL);
-	char * package3 = mkString("hdd_total:", s_hdd_total, ",", NULL);
-	char * package4 = mkString("hdd_free:", s_hdd_free, ",", NULL);
-	char * package5 = mkString("ram_total:", s_ram_total, ",", NULL);
-	char * package6 = mkString("ram_free:", s_ram_free, ",", NULL);
-	char * package7 = mkString("config_ver:", s_config_ver, ",", NULL);
-	char * package8 = mkString("systemid:", info->net_hwaddr, "}}]", NULL);
+	char * package = mkString(
+			"[{datatype:sysinfo,package:{uptime:", s_uptime, ",",
+			"hostname:", info->hostname, ",",
+			"hdd_total:", s_hdd_total, ",",
+			"hdd_free:", s_hdd_free, ",",
+			"ram_total:", s_ram_total, ",",
+			"ram_free:", s_ram_free, ",",
+			"config_ver:", s_config_ver, ",",
+			"systemid:", info->net_hwaddr, "}}]",
+	NULL);
 
-	// obliczamy ile pamieci bedzie potrzeba na przechowanie calego pakietu
-	char * packages[PACKAGE_CHUNKS] = { package1, package2, package3, package4, package5, package6, package7, package8 };
-	size_t package_len = 0;
-	int i;
-	for(i = 0; i < PACKAGE_CHUNKS; i++)
-		package_len += strlen(packages[i]);
-	package_len += 1;
-
-	// sklejamy wszystkie czesi pakietu do kupy
+	size_t package_len = strlen(package) + 1;
 	char * json = (char *) malloc(package_len * sizeof(char));
-	strcpy(json, package1);
-	strcat(json, package2);
-	strcat(json, package3);
-	strcat(json, package4);
-	strcat(json, package5);
-	strcat(json, package6);
-	strcat(json, package7);
-	strcat(json, package8);
+	strncpy(json, package, package_len);
 
 	// czyscimy pozostalosci
-	cleanChunks(packages, PACKAGE_CHUNKS);
 	free(s_uptime);
 	free(s_hdd_total);
 	free(s_hdd_free);
@@ -330,11 +314,6 @@ char * BuildPackage(systeminfo * info) {
 	free(s_config_ver);
 
 	return json;
-}
-void cleanChunks(char * parts[], int n) {
-	int i;
-	for(i = 0; i < n; i++)
-		free(parts[i]);
 }
 char * jsonVal(const char * json, const char * pattern) {
 	char * val = NULL;

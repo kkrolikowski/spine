@@ -73,11 +73,6 @@ void SendData(char * mode, char * server, int port, FILE * lf);
 // funkcja buduje string w formacie json zawierajacy dane systemowe klienta
 char * BuildPackage(systeminfo * info);
 
-/* zwalnia pamiec po skladowych jsona stanowiacego pakiet danych klienta
-   pierwszy argument to tablica przechowujaca poszczegolne czesci stringa
-   druga to liczba elementow tablicy */
-void cleanChunks(char * parts[], int n);
-
 // funkcja zwraca wartosc klucza (pattern) z przekazanego stringa (json)
 char * jsonVal(const char * json, const char * pattern);
 
