@@ -219,7 +219,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	int clifd = -1;
 	char * clientResponse = NULL;	// string przesylany przez klienta (json)
 	char * datatype = NULL; 		// typ danych przesylanych do klienta
-	char * system_id = NULL;
+	char * system_id = NULL;		// indentyfikator systemu (mac-adress)
+	char * os = NULL;				// nazwa dystrubucji Linuksa
 	char * configstring = NULL;
 	netinfo net;					// struktura przechowujaca ip oraz socket klienta
 	hostconfig configdata;
@@ -251,7 +252,11 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		if(!strcmp(mode, "client")) {
-			// TODO: configdata = ParseConfigData(clientResponse);
+			os = linuxDistro();
+			configdata = ParseConfigData(clientResponse);
+			if(!strcmp(configdata.datatype, "apache")) {
+				// TODO: konfiguracja apacza
+			}
 			logentry = mkString("[DEBUG] (reciver) ", clientResponse, NULL);
 			writeLog(lf, logentry);
 		}
