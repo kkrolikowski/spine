@@ -229,7 +229,6 @@ char * linuxDistro(void) {
 int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 	char * configDir = NULL;			// sciezka do katalogu konfiguracyjnego apacza
 	char * logsDir = NULL;				// sciezka do logow apacza
-	char * vhostFileName = NULL;		// nazwa pliku konfiguracyjnego vhosta
 	char * path = NULL;					// pelna sciezka do pliku konfiguracyjnego vhosta
 	FILE * vhost;						// uchwyt pliku vhosta
 	int counter = 0;					// liczba stworzonych vhostow
@@ -252,18 +251,18 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 		fprintf(vhost, "<VirtualHost: *:80>\n");
 		fprintf(vhost, "\tServerName: %s\n", vhosts[i].ServerName);
 		if(strcmp(vhosts[i].ServerAlias, "NaN"))
-			fprintf(vhosts, "\tServerAlias: %s\n", vhosts[i].ServerAlias);
-		fprintf(vhosts, "\tDocumentRoot: \"%s\"\n\n", vhosts[i].DocumentRoot);
-		fprintf(vhosts, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
-		fprintf(vhosts, "\t\tOptions Indexes FollowSymLinks MultiViews\n");
-		fprintf(vhosts, "\t\tAllowOverride All\n");
-		fprintf(vhosts, "\t\tOrder deny,allow\n");
-		fprintf(vhosts, "\t\tAllow from all");
+			fprintf(vhost, "\tServerAlias: %s\n", vhosts[i].ServerAlias);
+		fprintf(vhost, "\tDocumentRoot: \"%s\"\n\n", vhosts[i].DocumentRoot);
+		fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
+		fprintf(vhost, "\t\tOptions Indexes FollowSymLinks MultiViews\n");
+		fprintf(vhost, "\t\tAllowOverride All\n");
+		fprintf(vhost, "\t\tOrder deny,allow\n");
+		fprintf(vhost, "\t\tAllow from all");
 		if(!strcmp(distro, "Ubuntu"))
-			fprintf(vhosts, "\t\tRequire all granted\n");
-		fprintf(vhosts, "\t</Directory>\n\n");
-		fprintf(vhosts, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
-		fprintf(vhosts, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
+			fprintf(vhost, "\t\tRequire all granted\n");
+		fprintf(vhost, "\t</Directory>\n\n");
+		fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
+		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "</VirtualHost>");
 		fclose(vhost);
 		free(path);

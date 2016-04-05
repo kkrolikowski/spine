@@ -87,6 +87,11 @@ int readLocalConfigVersion(void);
 // funkcja na podstawie danych z jsona wypelnia strukture konfiguracyjna
 hostconfig ParseConfigData(char * json);
 
+// funkcja zwraca nazwe dystrybucji Linuksa
 char * linuxDistro(void);
+
+// funkcja tworzy pliki z konfiguracja virtualek apacza. Polozenie
+// plikow jest uzaleznione od dystrybucji linuksa
+int createVhostConfig(char * distro, wwwdata vhosts[], int n);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
