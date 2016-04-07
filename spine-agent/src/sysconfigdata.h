@@ -94,4 +94,12 @@ char * linuxDistro(void);
 // plikow jest uzaleznione od dystrybucji linuksa
 int createVhostConfig(char * distro, wwwdata vhosts[], int n);
 
+// funkcja tworzy Katalogi w ktorych beda znajdowac sie strony www
+void createWebsiteDir(wwwdata vhosts[], int n);
+
+// funkcja tworzy strukture katalogow na podstawie podanej sciezki
+void mkdirtree(char * path);
+
+// ogolna funkcja do konfiguracji apacza
+void apacheSetup(hostconfig cfg, char * os, FILE * lf);
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

@@ -255,10 +255,11 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			os = linuxDistro();
 			configdata = ParseConfigData(clientResponse);
 			if(!strcmp(configdata.datatype, "apache")) {
-				// TODO: konfiguracja apacza
+				if(configdata.vhost_num > 0) {
+					apacheSetup(configdata, os, lf);
+					clearVhostData(configdata.vhost, configdata.vhost_num);
+				}
 			}
-			logentry = mkString("[DEBUG] (reciver) ", clientResponse, NULL);
-			writeLog(lf, logentry);
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {

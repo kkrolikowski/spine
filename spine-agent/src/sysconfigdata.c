@@ -4,6 +4,8 @@
 #include <string.h>
 #include <sys/sysinfo.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/statvfs.h>
 #include <sys/utsname.h>
 #include <net/if.h>
@@ -189,16 +191,27 @@ int writeLocalConfigVersion(int ver) {
 hostconfig ParseConfigData(char * json) {
 	int i;
 	hostconfig conf;
+	char * config_pos = NULL;
+	char * vheader = NULL;
+	char * index = NULL;
 	conf.datatype = jsonVal(json, "datatype");
 	conf.confVer = atoi(jsonVal(json, "config_ver"));
 	conf.vhost_num = atoi(jsonVal(json, "vhost_num"));
 
 	for(i = 0; i < conf.vhost_num; i++) {
-		conf.vhost[i].ServerName = jsonVal(json, "ServerName");
-		conf.vhost[i].ServerAlias = jsonVal(json, "ServerAlias");
-		conf.vhost[i].DocumentRoot = jsonVal(json, "DocumentRoot");
-		conf.vhost[i].htaccess = jsonVal(json, "htaccess");
+		index = int2String(i);
+		vheader = mkString("vhost_", index, NULL);
+		config_pos = strstr(json, vheader);
+		conf.vhost[i].ServerName = jsonVal(config_pos, "ServerName");
+		conf.vhost[i].ServerAlias = jsonVal(config_pos, "ServerAlias");
+		conf.vhost[i].DocumentRoot = jsonVal(config_pos, "DocumentRoot");
+		conf.vhost[i].htaccess = jsonVal(config_pos, "htaccess");
+		conf.vhost[i].user = jsonVal(config_pos, "user");
 	}
+
+	//free(config_pos);
+	free(vheader);
+	free(index);
 
 	return conf;
 }
@@ -257,13 +270,13 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 		fprintf(vhost, "\t\tOptions Indexes FollowSymLinks MultiViews\n");
 		fprintf(vhost, "\t\tAllowOverride All\n");
 		fprintf(vhost, "\t\tOrder deny,allow\n");
-		fprintf(vhost, "\t\tAllow from all");
+		fprintf(vhost, "\t\tAllow from all\n");
 		if(!strcmp(distro, "Ubuntu"))
 			fprintf(vhost, "\t\tRequire all granted\n");
 		fprintf(vhost, "\t</Directory>\n\n");
 		fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
-		fprintf(vhost, "</VirtualHost>");
+		fprintf(vhost, "</VirtualHost>\n");
 		fclose(vhost);
 		free(path);
 	}
@@ -279,4 +292,36 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 		return 1;
 	else
 		return 0;
+}
+void createWebsiteDir(wwwdata vhosts[], int n) {
+	int i;
+
+	for(i = 0; i < n; i++)
+		mkdirtree(vhosts[i].DocumentRoot);
+}
+void mkdirtree(char * path) {
+  int i = 0;
+  char * p = path;
+  char buff[PATH_MAX];
+  memset(buff, '\0', PATH_MAX);
+
+  while(*p) {
+    buff[i] = *p;
+    if(*p == '/')
+      mkdir(buff, 0755);
+    i++; p++;
+  }
+  mkdir(buff, 0755);
+}
+void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
+	char * msg = NULL;
+	if(createVhostConfig(os, cfg.vhost, cfg.vhost_num)) {
+		createWebsiteDir(cfg.vhost, cfg.vhost_num);
+		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
+		writeLog(lf, msg);
+	}
+	else {
+		msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
+		writeLog(lf, msg);
+	}
 }
