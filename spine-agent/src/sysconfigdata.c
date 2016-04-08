@@ -239,12 +239,13 @@ char * linuxDistro(void) {
 
 	return name;
 }
-int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
+int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	char * configDir = NULL;			// sciezka do katalogu konfiguracyjnego apacza
 	char * configDir2 = NULL;			// Ubuntu only. sciezka do katalogu sites-enabled
 	char * logsDir = NULL;				// sciezka do logow apacza
 	char * path = NULL;					// pelna sciezka do pliku konfiguracyjnego vhosta
 	char * path2 = NULL;				// symlink do sites-enabled (Ubuntu only)
+	char * logentry = NULL;				// komunikat do logu programu
 	FILE * vhost;						// uchwyt pliku vhosta
 	int counter = 0;					// liczba stworzonych vhostow
 	int i;
@@ -262,8 +263,11 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 	for(i = 0; i < n; i++) {
 		path = mkString(configDir, vhosts[i].ServerName, ".conf", NULL);
 		path2 = mkString(configDir2, vhosts[i].ServerName, ".conf", NULL);
-		if((vhost = fopen(path, "w")) == NULL)
+		if((vhost = fopen(path, "w")) == NULL) {
+			logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
+			writeLog(lf, logentry);
 			continue;
+		}
 		counter++;
 		fprintf(vhost, "<VirtualHost: *:80>\n");
 		fprintf(vhost, "\tServerName: %s\n", vhosts[i].ServerName);
@@ -282,9 +286,13 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "</VirtualHost>\n");
 		fclose(vhost);
-
+		logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhosts[i].ServerName, NULL);
+		writeLog(lf, logentry);
 		if(!strcmp(distro, "Ubuntu"))
-			symlink(path, path2);
+			if(symlink(path, path2)) {
+				logentry = mkString("[WARNING] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
+				writeLog(lf, logentry);
+			}
 
 		free(path);
 		free(path2);
@@ -324,7 +332,7 @@ void mkdirtree(char * path) {
 }
 void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 	char * msg = NULL;
-	if(createVhostConfig(os, cfg.vhost, cfg.vhost_num)) {
+	if(createVhostConfig(os, cfg.vhost, cfg.vhost_num, lf)) {
 		createWebsiteDir(cfg.vhost, cfg.vhost_num);
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);

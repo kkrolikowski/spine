@@ -92,7 +92,7 @@ char * linuxDistro(void);
 
 // funkcja tworzy pliki z konfiguracja virtualek apacza. Polozenie
 // plikow jest uzaleznione od dystrybucji linuksa
-int createVhostConfig(char * distro, wwwdata vhosts[], int n);
+int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf);
 
 // funkcja tworzy Katalogi w ktorych beda znajdowac sie strony www
 void createWebsiteDir(wwwdata vhosts[], int n);
