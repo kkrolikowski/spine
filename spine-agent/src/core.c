@@ -254,10 +254,18 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		if(!strcmp(mode, "client")) {
 			os = linuxDistro();
 			configdata = ParseConfigData(clientResponse);
-			if(!strcmp(configdata.datatype, "apache")) {
-				if(configdata.vhost_num > 0) {
-					apacheSetup(configdata, os, lf);
-					clearVhostData(configdata.vhost, configdata.vhost_num);
+			if(readLocalConfigVersion() < configdata.confVer) {
+				if(!strcmp(configdata.datatype, "apache")) {
+					if(configdata.vhost_num > 0) {
+						apacheSetup(configdata, os, lf);
+						if(writeLocalConfigVersion(configdata.confVer))
+							logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
+						else
+							logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
+						writeLog(lf, logentry);
+
+						clearVhostData(configdata.vhost, configdata.vhost_num);
+					}
 				}
 			}
 			free(os);

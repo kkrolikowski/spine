@@ -11,6 +11,8 @@
 #include <net/if.h>
 #include <unistd.h>
 #include <limits.h>
+#include <wait.h>
+#include <errno.h>
 #include "core.h"
 #include "sysconfigdata.h"
 
@@ -290,7 +292,10 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		writeLog(lf, logentry);
 		if(!strcmp(distro, "Ubuntu"))
 			if(symlink(path, path2)) {
-				logentry = mkString("[WARNING] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
+				if(errno == EEXIST)
+					logentry = mkString("[WARNING] (reciver) Vhost: ", vhosts[i].ServerName, " byl juz aktywny", NULL);
+				else
+					logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
 				writeLog(lf, logentry);
 			}
 
@@ -336,9 +341,19 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 		createWebsiteDir(cfg.vhost, cfg.vhost_num);
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);
+		reloadApache();
 	}
 	else {
 		msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
 		writeLog(lf, msg);
 	}
+}
+void reloadApache(void) {
+	pid_t pid;
+
+	pid = fork();
+	if(pid == 0)
+		execl("/usr/sbin/service", "service", "apache", "reload", NULL);
+	else if(pid > 0)
+		wait(NULL);
 }
