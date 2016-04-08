@@ -260,6 +260,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 					clearVhostData(configdata.vhost, configdata.vhost_num);
 				}
 			}
+			free(os);
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {

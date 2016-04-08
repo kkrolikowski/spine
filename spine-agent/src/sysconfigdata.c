@@ -241,8 +241,10 @@ char * linuxDistro(void) {
 }
 int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 	char * configDir = NULL;			// sciezka do katalogu konfiguracyjnego apacza
+	char * configDir2 = NULL;			// Ubuntu only. sciezka do katalogu sites-enabled
 	char * logsDir = NULL;				// sciezka do logow apacza
 	char * path = NULL;					// pelna sciezka do pliku konfiguracyjnego vhosta
+	char * path2 = NULL;				// symlink do sites-enabled (Ubuntu only)
 	FILE * vhost;						// uchwyt pliku vhosta
 	int counter = 0;					// liczba stworzonych vhostow
 	int i;
@@ -253,11 +255,13 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 	}
 	else if(!strcmp(distro, "Ubuntu")) {
 		configDir = "/etc/apache2/sites-available/";
+		configDir2 = "/etc/apache2/sites-enabled/";
 		logsDir = "/var/log/apache2";
 	}
 
 	for(i = 0; i < n; i++) {
 		path = mkString(configDir, vhosts[i].ServerName, ".conf", NULL);
+		path2 = mkString(configDir2, vhosts[i].ServerName, ".conf", NULL);
 		if((vhost = fopen(path, "w")) == NULL)
 			continue;
 		counter++;
@@ -278,7 +282,12 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n) {
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "</VirtualHost>\n");
 		fclose(vhost);
+
+		if(!strcmp(distro, "Ubuntu"))
+			symlink(path, path2);
+
 		free(path);
+		free(path2);
 	}
 
 	/* weryfikujemy rezultat zakladania plikow
