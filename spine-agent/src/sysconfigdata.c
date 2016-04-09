@@ -271,7 +271,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 			continue;
 		}
 		counter++;
-		fprintf(vhost, "<VirtualHost: *:80>\n");
+		fprintf(vhost, "<VirtualHost *:80>\n");
 		fprintf(vhost, "\tServerName: %s\n", vhosts[i].ServerName);
 		if(strcmp(vhosts[i].ServerAlias, "NaN"))
 			fprintf(vhost, "\tServerAlias: %s\n", vhosts[i].ServerAlias);
