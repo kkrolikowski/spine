@@ -171,7 +171,7 @@ int readLocalConfigVersion(void) {
 		fclose(vf);
 		return 0;
 	}
-	if(fscanf(vf, "%d", &ver)) {
+	if(fread(&ver, sizeof(ver), 1, vf)) {
 		fclose(vf);
 		return ver;
 	}
