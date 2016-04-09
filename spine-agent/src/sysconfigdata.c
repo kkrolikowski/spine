@@ -327,9 +327,21 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 }
 void createWebsiteDir(wwwdata vhosts[], int n) {
 	int i;
+	char * dirpath = NULL;
+	size_t len = 0;
 
-	for(i = 0; i < n; i++)
-		mkdirtree(vhosts[i].DocumentRoot);
+	for(i = 0; i < n; i++) {
+		len = strlen(vhosts[i].DocumentRoot) + 2;
+		dirpath = (char *) malloc(len * sizeof(char));
+		memset(dirpath, '\0', len);
+		strcpy(dirpath, vhosts[i].DocumentRoot);
+		strcat(dirpath, "/");
+		if(access(dirpath, F_OK) < 0) {
+			if(errno == ENOENT)
+				mkdirtree(vhosts[i].DocumentRoot);
+		}
+		free(dirpath);
+	}
 }
 void mkdirtree(char * path) {
   int i = 0;
