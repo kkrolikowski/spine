@@ -309,6 +309,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 				}
 			}
 
+		vhostExist = 0;
 		free(path);
 		free(path2);
 	}
@@ -375,13 +376,13 @@ void reloadApache(char * os) {
 	char * apache = NULL;
 
 	if(!strcmp(os, "Ubuntu"))
-		apache = "apache";
+		apache = "apache2";
 	else if(!strcmp(os, "Centos"))
 		apache = "httpd";
 
 	pid = fork();
 	if(pid == 0)
-		execl("/usr/sbin/service", "service", apache, "reload", NULL);
+		execl("/usr/sbin/service", "/usr/sbin/service", apache, "reload", NULL);
 	else if(pid > 0)
 		wait(NULL);
 }
