@@ -494,7 +494,11 @@
                                 {if isset($EmptySiteList)}
                                 <h5>Brak danych</h5>
                                 {else}
-                                <!-- tutaj bedzie lista dodanych stron www -->
+                                <ul>
+                                  {foreach from=$websites key=id item=website}
+                                  <li><a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a></li>
+                                  {/foreach}
+                                </ul>
                                 {/if}
                               </div>
                             </div>
