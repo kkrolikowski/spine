@@ -104,6 +104,6 @@ void mkdirtree(char * path);
 void apacheSetup(hostconfig cfg, char * os, FILE * lf);
 
 // funkcja wywoluje skrypt do przeladowania konfiguracji apacza
-void reloadApache(void);
+void reloadApache(char * os);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

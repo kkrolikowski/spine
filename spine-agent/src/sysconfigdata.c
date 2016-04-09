@@ -341,19 +341,25 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 		createWebsiteDir(cfg.vhost, cfg.vhost_num);
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);
-		reloadApache();
+		reloadApache(os);
 	}
 	else {
 		msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
 		writeLog(lf, msg);
 	}
 }
-void reloadApache(void) {
+void reloadApache(char * os) {
 	pid_t pid;
+	char * apache = NULL;
+
+	if(!strcmp(os, "Ubuntu"))
+		apache = "apache";
+	else if(!strcmp(os, "Centos"))
+		apache = "httpd";
 
 	pid = fork();
 	if(pid == 0)
-		execl("/usr/sbin/service", "service", "apache", "reload", NULL);
+		execl("/usr/sbin/service", "service", apache, "reload", NULL);
 	else if(pid > 0)
 		wait(NULL);
 }
