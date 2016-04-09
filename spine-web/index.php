@@ -69,7 +69,7 @@
       $spine->assign('sysuser', $sysuser);
 
       // lista stron WWW na danym serwerze
-      $q = $dbh->prepare("SELECT id, ServerName WHERE system_id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT id, ServerName FROM www WHERE system_id = ". $_GET['serverid']);
       $q->execute();
       if($q->rowCount() == 0)
         $spine->assign('EmptySiteList', 1);
@@ -79,6 +79,7 @@
             'ServerName' => $r['ServerName']
           );
         }
+        $spine->assign('websites', $apacheconf);
       }
 
       // lista uzytkownikow na danym serwerze
