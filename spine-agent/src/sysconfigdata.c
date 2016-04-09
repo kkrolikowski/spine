@@ -250,6 +250,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	char * logentry = NULL;				// komunikat do logu programu
 	FILE * vhost;						// uchwyt pliku vhosta
 	int counter = 0;					// liczba stworzonych vhostow
+	int vhostExist = 0;					// ustawiamy 1 jesli plik juz istnial
 	int i;
 
 	if(!strcmp(distro, "Centos")) {
@@ -265,6 +266,8 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	for(i = 0; i < n; i++) {
 		path = mkString(configDir, vhosts[i].ServerName, ".conf", NULL);
 		path2 = mkString(configDir2, vhosts[i].ServerName, ".conf", NULL);
+		if(!access(path, F_OK))
+			vhostExist = 1;
 		if((vhost = fopen(path, "w")) == NULL) {
 			logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
 			writeLog(lf, logentry);
@@ -288,15 +291,22 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "</VirtualHost>\n");
 		fclose(vhost);
-		logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhosts[i].ServerName, NULL);
+		if(vhostExist)
+			logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhosts[i].ServerName, " zostala zaktualizowana", NULL);
+		else
+			logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhosts[i].ServerName, NULL);
 		writeLog(lf, logentry);
 		if(!strcmp(distro, "Ubuntu"))
-			if(symlink(path, path2)) {
-				if(errno == EEXIST)
-					logentry = mkString("[WARNING] (reciver) Vhost: ", vhosts[i].ServerName, " byl juz aktywny", NULL);
-				else
-					logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
-				writeLog(lf, logentry);
+			if(access(path2, F_OK) < 0) {
+				if(errno == ENOENT) {
+					if(symlink(path, path2)) {
+						if(errno == EEXIST)
+							logentry = mkString("[WARNING] (reciver) Vhost: ", vhosts[i].ServerName, " byl juz aktywny", NULL);
+						else
+							logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
+						writeLog(lf, logentry);
+					}
+				}
 			}
 
 		free(path);
