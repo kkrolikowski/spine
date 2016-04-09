@@ -272,10 +272,10 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		}
 		counter++;
 		fprintf(vhost, "<VirtualHost *:80>\n");
-		fprintf(vhost, "\tServerName: %s\n", vhosts[i].ServerName);
+		fprintf(vhost, "\tServerName %s\n", vhosts[i].ServerName);
 		if(strcmp(vhosts[i].ServerAlias, "NaN"))
-			fprintf(vhost, "\tServerAlias: %s\n", vhosts[i].ServerAlias);
-		fprintf(vhost, "\tDocumentRoot: \"%s\"\n\n", vhosts[i].DocumentRoot);
+			fprintf(vhost, "\tServerAlias %s\n", vhosts[i].ServerAlias);
+		fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhosts[i].DocumentRoot);
 		fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
 		fprintf(vhost, "\t\tOptions Indexes FollowSymLinks MultiViews\n");
 		fprintf(vhost, "\t\tAllowOverride All\n");
