@@ -231,8 +231,10 @@ char * linuxDistro(void) {
 
 	if(strstr(buff, "Ubuntu") != NULL)
 		distro = "Ubuntu";
-	else if(strstr(buff, "el") != NULL)
-		distro = "Centos";
+	else if(strstr(buff, "el6") != NULL)
+		distro = "Centos6";
+	else if(strstr(buff, "el7") != NULL)
+		distro = "Centos7";
 
 	len = strlen(distro) + 1;
 	name = (char *) malloc(len * sizeof(char));
@@ -253,7 +255,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	int vhostExist = 0;					// ustawiamy 1 jesli plik juz istnial
 	int i;
 
-	if(!strcmp(distro, "Centos")) {
+	if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
 		configDir = "/etc/httpd/conf.d/";
 		logsDir = "/var/log/httpd";
 	}
@@ -378,12 +380,10 @@ void reloadApache(char * os) {
 	if(pid == 0) {
 		if(!strcmp(os, "Ubuntu"))
 			execl("/usr/sbin/apache2ctl", "apache2ctl", "graceful", NULL);
-		else if(!strcmp(os, "Centos")) {
-			if(!access("/sbin/service", F_OK))
-				execlp("/bin/sh", "/bin/sh", "/sbin/service", "httpd", "reload", NULL);
-			else if(!access("/usr/sbin/service", F_OK))
-				execlp("/bin/sh", "/bin/sh", "/usr/sbin/service", "httpd", "reload", NULL);
-		}
+		else if(!strcmp(os, "Centos6"))
+			execl("/usr/sbin/apachectl", "apachectl", "graceful", NULL);
+		else if(!strcmp(os, "Centos7"))
+			execlp("/bin/sh", "/bin/sh", "/usr/sbin/service", "httpd", "reload", NULL);
 	}
 	else if(pid > 0)
 		wait(NULL);
