@@ -373,16 +373,18 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 }
 void reloadApache(char * os) {
 	pid_t pid;
-	char * apache = NULL;
-
-	if(!strcmp(os, "Ubuntu"))
-		apache = "apache2";
-	else if(!strcmp(os, "Centos"))
-		apache = "httpd";
 
 	pid = fork();
-	if(pid == 0)
-		execl("/usr/sbin/service", "/usr/sbin/service", apache, "reload", NULL);
+	if(pid == 0) {
+		if(!strcmp(os, "Ubuntu"))
+			execl("/usr/sbin/apache2ctl", "apache2ctl", "graceful", NULL);
+		else if(!strcmp(os, "Centos")) {
+			if(!access("/sbin/service", F_OK))
+				execlp("/bin/sh", "/bin/sh", "/sbin/service", "httpd", "reload", NULL);
+			else if(!access("/usr/sbin/service", F_OK))
+				execlp("/bin/sh", "/bin/sh", "/usr/sbin/service", "httpd", "reload", NULL);
+		}
+	}
 	else if(pid > 0)
 		wait(NULL);
 }
