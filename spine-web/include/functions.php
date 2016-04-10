@@ -17,7 +17,7 @@ function checkConfigVer($dbh, $serverid) {
   $q->execute();
   $r = $q->fetch();
 
-  return $r['ver'];
+  return $r['config_ver'];
 }
 function updateConfigVersion($dbh, $serverid) {
   $newVer = dayVersion();
