@@ -27,7 +27,7 @@
 
   if (isset($_GET['serverid'])) {
       // komplet informacji na temat systemu i zuzycia zasobow
-      $q = $dbh->prepare("SELECT ip, hostname, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -45,6 +45,7 @@
       $sysinfo = array(
           'ip' => $r['ip'],
           'hostname' =>$r['hostname'],
+          'system' => $r['distro'],
           'uptime' => $uptime,
           'hdd_percentage_used' => round($hdd_percentage_used, 0),
           'hdd_percentage_free' => round($hdd_percentage_free, 0),

@@ -430,6 +430,7 @@
                                             <dt>IP</dt><dd>{$sysinfo.ip}</dd>
                                             <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
                                             <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
+                                            <dt>System</dt><dd>{$sysinfo.system}</dd>
                                           </dl>
                                         </div>
                                     </div>
