@@ -145,9 +145,9 @@ int insertItem(systeminfo * info) {
 	char * ram_total_s = ulong2String(info->ram_total);
 	char * ram_free_s = ulong2String(info->ram_free);
 
-	char * query = mkString("INSERT INTO sysinfo(ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id) VALUES('",
+	char * query = mkString("INSERT INTO sysinfo(ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver) VALUES('",
 			info->ip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
-			", '", info->net_hwaddr, "')", NULL);
+			", '", info->net_hwaddr, "', 0)", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;
