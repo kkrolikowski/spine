@@ -517,8 +517,13 @@
                                       <div class="row">
                                       <label for="servername" class="col-sm-2 control-label">ServerName</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="servername" data-minlength="3" name="ServerName" placeholder="example.com"  required>
+                                        <input type="text" class="form-control" id="servername"
+                                        data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                                        name="ServerName" placeholder="example.com"  required>
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                      </div>
+                                      <div class="col-sm-4">
+                                        <div class="help-block with-errors"></div>
                                       </div>
                                     </div>
                                   </div>
@@ -535,11 +540,16 @@
                                     <div class="row">
                                       <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="server-alias" data-minlength="3" name="ServerAlias[]" placeholder="*.example.com" required disabled>
+                                        <input type="text" class="form-control" id="server-alias"
+                                        data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                                        name="ServerAlias[]" placeholder="*.example.com" required disabled>
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
-                                      <div>
+                                      <div >
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                      </div>
+                                      <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
+                                        <div class="help-block with-errors"></div>
                                       </div>
                                     </div>
                                   </div>
@@ -547,8 +557,12 @@
                                     <div class="row">
                                       <label for="documentroot" class="col-sm-2 control-label">DocumentRoot</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" data-minlength="3" pattern="^\/(.*)" id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html" required>
+                                        <input type="text" class="form-control" data-minlength="3" pattern="^\/(.*)" data-error="Ścieżka powinna zaczynać się od /"
+                                        id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html" required>
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                      </div>
+                                      <div class="col-sm-4">
+                                        <div class="help-block with-errors"></div>
                                       </div>
                                     </div>
                                   </div>

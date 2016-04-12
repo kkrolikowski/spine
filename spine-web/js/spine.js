@@ -34,12 +34,17 @@ $(document).ready(function() {
               '<div class="row">' +
                 '<label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>' +
                 '<div class="col-sm-4">' +
-                  '<input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com" required>' +
+                  '<input type="text" class="form-control" id="server-alias"' +
+                  'data-minlength="3" data-error="Wpisz co najmniej trzy znaki"' +
+                  'name="ServerAlias[]" placeholder="*.example.com" required>' +
                   '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
                 '</div>' +
                 '<div>' +
                   '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
                 '</div>' +
+              '</div>' +
+              '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
+                '<div class="help-block with-errors"></div>' +
               '</div>' +
             '</div>'
           );
