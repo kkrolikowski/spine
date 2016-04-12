@@ -511,13 +511,13 @@
                                 <p class="lead"><em>Konfiguracja virtualhosta</em></p>
                               </blockquote>
                               <div class="col-sm-6" id="vhost-config">
-                                <form class="form-horizontal" data-toggle="validator" id="addvhost">
+                                <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost">
                                   <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
                                   <div class="form-group">
                                       <div class="row">
                                       <label for="servername" class="col-sm-2 control-label">ServerName</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com"  required>
+                                        <input type="text" class="form-control" id="servername" data-minlength="3" name="ServerName" placeholder="example.com"  required>
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
                                     </div>
@@ -535,7 +535,8 @@
                                     <div class="row">
                                       <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com" disabled>
+                                        <input type="text" class="form-control" id="server-alias" data-minlength="3" name="ServerAlias[]" placeholder="*.example.com" required disabled>
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
                                       <div>
                                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
@@ -546,7 +547,8 @@
                                     <div class="row">
                                       <label for="documentroot" class="col-sm-2 control-label">DocumentRoot</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html">
+                                        <input type="text" class="form-control" data-minlength="3" pattern="^\/(.*)" id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html" required>
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
                                     </div>
                                   </div>
@@ -582,7 +584,7 @@
                                   <div class="form-group">
                                     <div class="row">
                                       <div class="col-sm-offset-4">
-                                        <button type="button" class="btn btn-primary" id="addvhost-btn" disabled>Zapisz konfigurację</button>
+                                        <button type="submit" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
                                       </div>
                                     </div>
                                   </div>

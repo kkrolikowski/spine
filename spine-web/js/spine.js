@@ -25,7 +25,6 @@ $(document).ready(function() {
         percent: ram_free,
         text: "Wolny RAM"
     });
-    $('#addvhost').validator();
     $(document).on('click', '#enable_server_alias', function() {
       $('#server-alias').attr('disabled', ! this.checked);
       if($('#enable_server_alias').is(':checked')) {
@@ -35,7 +34,8 @@ $(document).ready(function() {
               '<div class="row">' +
                 '<label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>' +
                 '<div class="col-sm-4">' +
-                  '<input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com">' +
+                  '<input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com" required>' +
+                  '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
                 '</div>' +
                 '<div>' +
                   '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
@@ -78,4 +78,13 @@ $(document).ready(function() {
         }
     });
   });
+  $('#addvhost-btn').attr('disabled', true);
+  $('#servername').keyup(function() {
+    if($(this).val().lenght != 0)
+      $('#addvhost-btn').attr('disabled', false);
+    else {
+      $('#addvhost-btn').attr('disabled', true);
+    }
+  });
+  $('#addvhost').validator();
 });
