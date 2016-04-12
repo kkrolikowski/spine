@@ -43,6 +43,9 @@
     <!-- Notification plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
 
+    <!-- Form validator plugin -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -507,20 +510,21 @@
                               <blockquote>
                                 <p class="lead"><em>Konfiguracja virtualhosta</em></p>
                               </blockquote>
-                              <div class="col-sm-6">
-                                <form class="form-horizontal" id="addvhost">
+                              <div class="col-sm-6" id="vhost-config">
+                                <form class="form-horizontal" data-toggle="validator" id="addvhost">
                                   <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
                                   <div class="form-group">
                                       <div class="row">
                                       <label for="servername" class="col-sm-2 control-label">ServerName</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com">
+                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com"  required>
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
                                     </div>
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
-                                      <div class="col-sm-offset-2"
+                                      <div class="col-sm-offset-2 enable-option">
                                         <label class="checkbox-inline">
                                           <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
                                         </label>
@@ -560,7 +564,7 @@
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
-                                      <div class="col-sm-offset-2"
+                                      <div class="col-sm-offset-2 enable-option">
                                         <label class="checkbox-inline">
                                           <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
                                         </label>
@@ -578,7 +582,7 @@
                                   <div class="form-group">
                                     <div class="row">
                                       <div class="col-sm-offset-4">
-                                        <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
+                                        <button type="button" class="btn btn-primary" id="addvhost-btn" disabled>Zapisz konfigurację</button>
                                       </div>
                                     </div>
                                   </div>

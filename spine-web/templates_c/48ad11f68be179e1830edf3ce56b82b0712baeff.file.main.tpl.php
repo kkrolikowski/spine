@@ -1,4 +1,4 @@
-<?php /* Smarty version Smarty-3.1-DEV, created on 2016-03-26 09:20:53
+<?php /* Smarty version Smarty-3.1-DEV, created on 2016-04-12 21:03:05
          compiled from "./templates/main.tpl" */ ?>
 <?php /*%%SmartyHeaderCode:170490275356f19d17487bb9-88435310%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
@@ -7,7 +7,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     '48ad11f68be179e1830edf3ce56b82b0712baeff' => 
     array (
       0 => './templates/main.tpl',
-      1 => 1458980378,
+      1 => 1460487672,
       2 => 'file',
     ),
   ),
@@ -27,6 +27,8 @@ $_valid = $_smarty_tpl->decodeProperties(array (
     'sysuser' => 0,
     'info' => 0,
     'EmptySiteList' => 0,
+    'websites' => 0,
+    'website' => 0,
     'wwwuser' => 0,
     'user' => 0,
     'HostTotalCount' => 0,
@@ -78,6 +80,9 @@ $_valid = $_smarty_tpl->decodeProperties(array (
 
     <!-- Notification plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
+
+    <!-- Form validator plugin -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -479,6 +484,8 @@ $_smarty_tpl->tpl_vars['srv']->_loop = true;
 </dd>
                                             <dt>RAM</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_total'];?>
  GB</dd>
+                                            <dt>System</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['system'];?>
+</dd>
                                           </dl>
                                         </div>
                                     </div>
@@ -558,7 +565,19 @@ $_smarty_tpl->tpl_vars['info']->_loop = true;
                                 <?php if (isset($_smarty_tpl->tpl_vars['EmptySiteList']->value)){?>
                                 <h5>Brak danych</h5>
                                 <?php }else{ ?>
-                                <!-- tutaj bedzie lista dodanych stron www -->
+                                <ul>
+                                  <?php  $_smarty_tpl->tpl_vars['website'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['website']->_loop = false;
+ $_smarty_tpl->tpl_vars['id'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['websites']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['website']->key => $_smarty_tpl->tpl_vars['website']->value){
+$_smarty_tpl->tpl_vars['website']->_loop = true;
+ $_smarty_tpl->tpl_vars['id']->value = $_smarty_tpl->tpl_vars['website']->key;
+?>
+                                  <li><a href="http://<?php echo $_smarty_tpl->tpl_vars['website']->value['ServerName'];?>
+/" target="_blank"><?php echo $_smarty_tpl->tpl_vars['website']->value['ServerName'];?>
+</a></li>
+                                  <?php } ?>
+                                </ul>
                                 <?php }?>
                               </div>
                             </div>
@@ -566,21 +585,22 @@ $_smarty_tpl->tpl_vars['info']->_loop = true;
                               <blockquote>
                                 <p class="lead"><em>Konfiguracja virtualhosta</em></p>
                               </blockquote>
-                              <div class="col-sm-6">
-                                <form class="form-horizontal" id="addvhost">
+                              <div class="col-sm-6" id="vhost-config">
+                                <form class="form-horizontal" data-toggle="validator" id="addvhost">
                                   <input type="hidden" name="serverid" value="<?php echo $_GET['serverid'];?>
 ">
                                   <div class="form-group">
                                       <div class="row">
                                       <label for="servername" class="col-sm-2 control-label">ServerName</label>
                                       <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com">
+                                        <input type="text" class="form-control" id="servername" name="ServerName" placeholder="example.com"  required>
+                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
                                     </div>
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
-                                      <div class="col-sm-offset-2"
+                                      <div class="col-sm-offset-2 enable-option">
                                         <label class="checkbox-inline">
                                           <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
                                         </label>
@@ -628,7 +648,7 @@ $_smarty_tpl->tpl_vars['user']->_loop = true;
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
-                                      <div class="col-sm-offset-2"
+                                      <div class="col-sm-offset-2 enable-option">
                                         <label class="checkbox-inline">
                                           <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
                                         </label>
@@ -646,7 +666,7 @@ $_smarty_tpl->tpl_vars['user']->_loop = true;
                                   <div class="form-group">
                                     <div class="row">
                                       <div class="col-sm-offset-4">
-                                        <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
+                                        <button type="button" class="btn btn-primary" id="addvhost-btn" disabled>Zapisz konfigurację</button>
                                       </div>
                                     </div>
                                   </div>

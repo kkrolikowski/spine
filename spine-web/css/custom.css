@@ -22,8 +22,8 @@
 .form-group {
   margin-top: -10px;
 }
-#enable_htaccess, #enable_server_alias {
-  margin-left: 15px;
+.enable-option {
+  margin-left: 156px;
 }
 .col-sm-offset-4 > button {
   margin-left: -18px;
@@ -31,4 +31,8 @@
 .navbar-brand > img {
   margin-top: -15px;
   margin-left: -10px;
+}
+.glyphicon.form-control-feedback {
+  margin-top: 0px;
+  margin-right: 10px;
 }

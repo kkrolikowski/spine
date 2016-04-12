@@ -25,29 +25,38 @@ $(document).ready(function() {
         percent: ram_free,
         text: "Wolny RAM"
     });
-    $('.glyphicon-plus').on('click', function() {
-      $("#serverAlias").after(
-        '<div class="form-group" id="serverAlias">' +
-          '<div class="row">' +
-            '<label for="serveralias" class="col-sm-2 control-label">ServerAlias</label>' +
-            '<div class="col-sm-4">' +
-              '<input type="text" class="form-control" id="serveralias" name="ServerAlias[]" placeholder="*.example.com">' +
-            '</div>' +
-            '<div>' +
-              '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
-            '</div>' +
-          '</div>' +
-        '</div>'
-      );
+    $('#addvhost').validator();
+    $(document).on('click', '#enable_server_alias', function() {
+      $('#server-alias').attr('disabled', ! this.checked);
+      if($('#enable_server_alias').is(':checked')) {
+        $('.glyphicon-plus').on('click', function() {
+          $("#serverAlias").after(
+            '<div class="form-group" id="serverAliasPlus">' +
+              '<div class="row">' +
+                '<label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>' +
+                '<div class="col-sm-4">' +
+                  '<input type="text" class="form-control" id="server-alias" name="ServerAlias[]" placeholder="*.example.com">' +
+                '</div>' +
+                '<div>' +
+                  '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        });
+      }
+      else {
+        $('.glyphicon-plus').unbind('click');
+      }
+      if(! $('#enable_server_alias').checked) {
+        $('div').remove('#serverAliasPlus');
+      }
     });
     $(document).on('click', '.glyphicon-remove', function() {
-      $(this).closest('#serverAlias').remove();
+      $(this).closest('#serverAliasPlus').remove();
     });
     $(document).on('click', '#enable_htaccess', function() {
       $('#htaccess').attr('disabled', ! this.checked);
-    });
-    $(document).on('click', '#enable_server_alias', function() {
-      $('#server-alias').attr('disabled', ! this.checked);
     });
     $(document).on('click', '#addvhost-btn', function(e) {
       e.preventDefault();
