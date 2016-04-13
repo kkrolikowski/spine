@@ -53,4 +53,7 @@ char * readData(char * input);
 // funkcja wczytuje konfiguracje serwera www z bazy do pamieci.
 hostconfig ReadWWWConfiguration(char * hostid);
 
+// funkcja zwraca ID rekordu z bazy zawierajacego okreslony mac-adres serwera
+int getDBHostID(char * hwaddr);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

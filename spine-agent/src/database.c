@@ -138,12 +138,15 @@ int updateItem(systeminfo * info) {
 int insertItem(systeminfo * info) {
 	extern MYSQL * dbh;
 	int status = 0;
+	int sysid = 0;			// ID rekordu w bazie
+	char * sysid_s = NULL;	// ID w formie stringu
 
 	char * uptime_s = long2String(info->uptime);
 	char * hdd_total_s = ulong2String(info->hdd_total);
 	char * hdd_free_s = ulong2String(info->hdd_free);
 	char * ram_total_s = ulong2String(info->ram_total);
 	char * ram_free_s = ulong2String(info->ram_free);
+
 
 	char * query = mkString("INSERT INTO sysinfo(ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver) VALUES('",
 			info->ip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
@@ -158,6 +161,19 @@ int insertItem(systeminfo * info) {
 	free(hdd_free_s);
 	free(ram_total_s);
 	free(ram_free_s);
+
+	// sprawdzamy ID z jakim dodal sie do bazy serwer
+	sysid = getDBHostID(info->net_hwaddr);
+	sysid_s = int2String(sysid);
+
+	// dodajemy do bazy domyslnego usera (root).
+	query = mkString("INSERT INTO sysusers(login,fullname,email,system_id) ",
+			"VALUES('root', 'Charlie Root', 'root@angrybits.pl', ", sysid_s, ")", NULL);
+	if(!mysql_query(dbh, query))
+		status = 1;
+
+	free(query);
+	free(sysid_s);
 
 	return status;
 }
@@ -198,4 +214,21 @@ char * readData(char * input) {
 	strcpy(tmp, input);
 
 	return tmp;
+}
+int getDBHostID(char * hwaddr) {
+	extern MYSQL * dbh;
+	MYSQL_RES * res;
+	MYSQL_ROW row;
+	int id = 0;
+	char * query = mkString("SELECT id FROM sysinfo WHERE system_id = '", hwaddr, "'", NULL);
+
+	if(!mysql_query(dbh, query)) {
+		if((res = mysql_store_result(dbh)) != NULL) {
+			row = mysql_fetch_row(res);
+			id = atoi(row[0]);
+			mysql_free_result(res);
+		}
+	}
+	free(query);
+	return id;
 }
