@@ -23,5 +23,9 @@
     ", ". $_POST['serverid'] .")");
     $q->execute();
     updateConfigVersion($dbh, $_POST['serverid']);
+
+    $json = array('ServerName' => $_POST['ServerName']);
+    header('Content-Type: application/json');
+    echo json_encode($json);
   }
 ?>
