@@ -346,6 +346,22 @@ void createWebsiteDir(wwwdata vhosts[], int n) {
 		free(dirpath);
 	}
 }
+void createHtaccess(wwwdata vhosts[], int n) {
+	FILE * htaccess;
+	char * htaccessPath = NULL;
+	int i;
+
+	for(i = 0; i < n; i++) {
+		htaccessPath = mkString(vhosts[i].DocumentRoot, "/.htaccess", NULL);
+		if(strcmp(vhosts[i].htaccess, "NaN")) {
+			if((htaccess = fopen(htaccessPath, "w")) != NULL)
+				fprintf(htaccess, "%s\n", vhosts[i].htaccess);
+
+			fclose(htaccess);
+			free(htaccessPath);
+		}
+	}
+}
 void mkdirtree(char * path) {
   int i = 0;
   char * p = path;
@@ -364,6 +380,7 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 	char * msg = NULL;
 	if(createVhostConfig(os, cfg.vhost, cfg.vhost_num, lf)) {
 		createWebsiteDir(cfg.vhost, cfg.vhost_num);
+		createHtaccess(cfg.vhost, cfg.vhost_num);
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);
 		reloadApache(os);

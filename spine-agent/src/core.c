@@ -345,7 +345,14 @@ char * jsonVal(const char * json, const char * pattern) {
 	char tmp[PACKAGE_SIZE];
 	memset(tmp, '\0', PACKAGE_SIZE);
 
-	while(*val_pos != ',' && *val_pos != '}') {
+	while(*val_pos != ',' &&
+			(
+			(*val_pos != '}' || *(val_pos+1) != ',') &&
+			(*val_pos != '}' || *(val_pos+1) != ']') &&
+			(*val_pos != '}' || *(val_pos+1) != '}')
+			)
+		)
+	{
 		tmp[i] = *val_pos;
 		val_pos++;
 		i++;

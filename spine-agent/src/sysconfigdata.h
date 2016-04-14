@@ -106,4 +106,8 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf);
 // funkcja wywoluje skrypt do przeladowania konfiguracji apacza
 void reloadApache(char * os);
 
+// funkcja tworzy pliki htaccess w katalogach stron www jesli wartosc htaccess jest rozna
+// od NaN
+void createHtaccess(wwwdata vhosts[], int n);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
