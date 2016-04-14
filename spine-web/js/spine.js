@@ -81,6 +81,9 @@ $(document).ready(function() {
           );
           $('#addvhost')[0].reset();
         }
+    }).success(function(response) {
+      var li = $('#wwwconfig').find('li').last();
+      li.after('<li><a href="http://'+ response.ServerName +'/" target="_blank">'+ response.ServerName +'</a></li>');
     });
   });
   $('#addvhost-btn').attr('disabled', true);
