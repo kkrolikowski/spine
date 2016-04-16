@@ -25,6 +25,10 @@
   $uptimePerHost = uptimePerServer($dbh);
   $spine->assign('uptimePerHost', $uptimePerHost);
 
+  // calkowita liczba stron www
+  $websiteCount = allWebsitesCount($dbh);
+  $spine->assign('websiteCount', $websiteCount);
+
   if (isset($_GET['serverid'])) {
       // komplet informacji na temat systemu i zuzycia zasobow
       $q = $dbh->prepare("SELECT ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);

@@ -296,7 +296,7 @@
                             <a href="index.php"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
-                            <a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Serwery<span class="fa arrow"></span></a>
+                            <a href="#"><i class="fa fa-linux f-fw"></i> Serwery<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 {foreach from=$HostMenu item=srv key=id}
                                    <li><a href="?serverid={$id}">{$srv}</a></li>
@@ -494,15 +494,36 @@
 
                             <div role="tabpanel" class="tab-pane" id="wwwconfig">
                               <h3>Lista stron www</h3>
-                              <div class="col-sm-6">
+                              <div class="col-sm-4">
                                 {if isset($EmptySiteList)}
                                 <h5>Brak danych</h5>
                                 {else}
-                                <ul>
-                                  {foreach from=$websites key=id item=website}
-                                  <li><a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a></li>
-                                  {/foreach}
-                                </ul>
+                                <table class="table table-hover">
+                                  <thead>
+                                    <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
+                                  </thead>
+                                  <tbody>
+                                    {foreach from=$websites key=id item=website}
+                                    <tr>
+                                      <td>
+                                        <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
+                                      </td>
+                                      <td class="button-cell">
+                                        <div class="btn-group">
+                                          <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
+                                          <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                          </button>
+                                          <ul class="dropdown-menu">
+                                            <li><a href="#" data-id="{$id}">Edytuj</a></li>
+                                          </ul>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                    {/foreach}
+                                  </tbody>
+                                </table>
                                 {/if}
                               </div>
                             </div>
@@ -616,7 +637,7 @@
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <i class="fa fa-comments fa-5x"></i>
+                                    <i class="fa fa-linux fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="huge">{$HostTotalCount}</div>
@@ -638,7 +659,7 @@
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <i class="fa fa-tasks fa-5x"></i>
+                                    <i class="fa fa-hdd-o fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
                                     <div class="huge">{$FreeTotalGB} GB</div>
@@ -660,11 +681,11 @@
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <i class="fa fa-shopping-cart fa-5x"></i>
+                                    <i class="fa  fa-globe fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">124</div>
-                                    <div>New Orders!</div>
+                                    <div class="huge">{$websiteCount}</div>
+                                    <div>Strony WWW</div>
                                 </div>
                             </div>
                         </div>

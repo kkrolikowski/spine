@@ -60,4 +60,11 @@
     }
     return $uptime;
   }
+  function allWebsitesCount($dbh) {
+    $q = $dbh->prepare("SELECT count(ServerName) AS websiteCount FROM www WHERE status = 'A'");
+    $q->execute();
+    $r = $q->fetch();
+
+    return $r['websiteCount'];
+  }
 ?>

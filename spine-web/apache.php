@@ -18,9 +18,9 @@
     else {
       $htaccess = $_POST['htaccess'];
     }
-    $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id) VALUES('".
+    $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status) VALUES('".
     $_POST['ServerName']. "', '". $ServerALias . "', '". $_POST['DocumentRoot']. "', '". $htaccess. "', ". $_POST['account'].
-    ", ". $_POST['serverid'] .")");
+    ", ". $_POST['serverid'] .", 'A')");
     $q->execute();
     updateConfigVersion($dbh, $_POST['serverid']);
 
