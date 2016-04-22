@@ -46,6 +46,12 @@
     <!-- Form validator plugin -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
 
+    <!-- Bootbox - wyskakujace okienka -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+
+    <!-- Shuttle box plugin -->
+    <script src="js/dual-list-box.min.js"></script>
+
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -63,8 +69,24 @@
 </head>
 
 <body>
-
+  <!-- BEGIN: Sekcja formularzy edycji danych -->
+    <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
+      <input type="hidden" name="id" value="">
+      <div class="form-group">
+        <label for="ServerName" class="col-sm-2 control-label">ServerName</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" name="ServerName" id="ServerName" disabled>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="ServerName" class="col-sm-2 control-label">ServerName</label>
+        <div class="col-sm-4">
+          <input type="text" class="form-control" name="ServerName" id="ServerName" disabled>
+        </div>
+      </div>
+    </form>
     <div id="wrapper">
+<!-- END: Sekcja formularzy edycji danych -->
 
         <!-- Navigation -->
         <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
@@ -516,7 +538,7 @@
                                             <span class="sr-only">Toggle Dropdown</span>
                                           </button>
                                           <ul class="dropdown-menu">
-                                            <li><a href="#" data-id="{$id}">Edytuj</a></li>
+                                            <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
                                           </ul>
                                         </div>
                                       </td>
@@ -576,11 +598,14 @@
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
-                                      <label for="documentroot" class="col-sm-2 control-label">DocumentRoot</label>
-                                      <div class="col-sm-4">
-                                        <input type="text" class="form-control" data-minlength="3" pattern="^\/(.*)" data-error="Ścieżka powinna zaczynać się od /"
-                                        id="documentroot" name="DocumentRoot" placeholder="/home/user/public_html" required>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                      <label for="vhostOptSelect" class="col-sm-2 control-label">Opcje</label>
+                                      <div class="col-sm-8">
+                                        <select  multiple="multiple" class="form-control" id="vhostOptSelect" name="optname"
+                                          data-source="data/vhost_options.json"
+                                          data-title="opcje"
+                                          data-value='id'
+                                          data-text='vhostopt'>
+                                        </select>
                                       </div>
                                       <div class="col-sm-4">
                                         <div class="help-block with-errors"></div>

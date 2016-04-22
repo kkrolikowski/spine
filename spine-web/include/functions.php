@@ -33,4 +33,17 @@ function updateConfigVersion($dbh, $serverid) {
     $q->execute();
   }
 }
+function vhostOptionFile($dbh) {
+  $q = $dbh->prepare("SELECT id, vhostopt FROM www_opts");
+  $q->execute();
+  $str = '[';
+  while($r = $q->fetch(PDO::FETCH_ASSOC)) {
+    $str .= (json_encode($r)) . ',';
+  }
+  $json = substr($str, 0, -1);
+  $json .= ']';
+  $fd = fopen('data/vhost_options.json', 'w');
+  fwrite($fd, $json);
+  fclose($fd);
+}
 ?>

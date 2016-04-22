@@ -63,12 +63,37 @@ $(document).ready(function() {
     $(document).on('click', '#enable_htaccess', function() {
       $('#htaccess').attr('disabled', ! this.checked);
     });
+    $('#vhostOptSelect').DualListBox();
     $(document).on('click', '#addvhost-btn', function(e) {
       e.preventDefault();
+      var form = $('#addvhost');
+      var serverid = form.find('[name="serverid"]').val();
+      var sn = form.find('[name="ServerName"]').val();
+      var sa = [];
+      if($('#enable_server_alias').attr('checked')) {
+        form.find('[name="ServerAlias[]"]').each(function() {
+          sa.push($(this).val());
+        });
+      }
+      else {
+        sa.push("NaN");
+      }
+      var vhopts = [];
+      $('select.selected > option').each(function() {
+        vhopts.push($(this).val());
+      });
+      var account = form.find('[name="account"]').val();
+      var htaccess;
+      if(form.find('[name="htaccess"]').val()) {
+        htaccess = form.find('[name="htaccess"]').val();
+      }
+      else {
+        htaccess = "NaN";
+      }
       $.ajax({
         url: '/apache.php?addvhost',
         method: 'POST',
-        data: $('#addvhost').serializeArray(),
+        data: {serverid, sn, sa, vhopts, account, htaccess},
         success: function() {
           $.bootstrapGrowl(
             'Konfiguracja apacza zapisana',
@@ -80,10 +105,31 @@ $(document).ready(function() {
             }
           );
           $('#addvhost')[0].reset();
+          $('select.selected > option').each(function() {
+            $(this).appendTo('select.unselected');
+          });
         }
     }).success(function(response) {
-      var li = $('#wwwconfig').find('li').last();
-      li.after('<li><a href="http://'+ response.ServerName +'/" target="_blank">'+ response.ServerName +'</a></li>');
+      var tr = $('#wwwconfig').find('tr').last();
+      tr.after(
+        '<tr>' +
+          '<td>' +
+            '<a href="http://'+ response.ServerName +'/" target="_blank">'+ response.ServerName +'</a>' +
+          '</td>' +
+          '<td class="button-cell">' +
+            '<div class="btn-group">' +
+              '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+              '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                '<span class="caret"></span>' +
+                '<span class="sr-only">Toggle Dropdown</span>' +
+              '</button>' +
+              '<ul class="dropdown-menu">' +
+                '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+              '</ul>' +
+            '</div>' +
+          '</td>' +
+        '</tr>'
+      );
     });
   });
   $('#addvhost-btn').attr('disabled', true);
@@ -95,4 +141,29 @@ $(document).ready(function() {
     }
   });
   $('#addvhost').validator();
+  $(document).on('click', '.edit-apache-conf', function() {
+    var id = $(this).attr('data-id');
+    $.ajax({
+      url: "/apache.php?vhostid=" + id,
+      method: "GET"
+    }).success(function(response) {
+      $('#vhostEditForm')
+        .find('[name="id"]').val(response.id).end()
+        .find('[name="ServerName"]').val(response.ServerName).end();
+      bootbox
+        .dialog({
+          title: 'Konfiguracja witryny',
+          message: $('#vhostEditForm'),
+          show: false
+        })
+        .on('shown.bs.modal', function() {
+          $('#vhostEditForm')
+            .show()
+        })
+        .on('hide.bs.modal', function(e) {
+          $('#vhostEditForm').hide().appendTo('body');
+        })
+        .modal('show');
+    });
+  });
 });
