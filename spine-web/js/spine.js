@@ -25,8 +25,8 @@ $(document).ready(function() {
         percent: ram_free,
         text: "Wolny RAM"
     });
-    $(document).on('click', '#enable_server_alias', function() {
-      $('#server-alias').attr('disabled', ! this.checked);
+    $(document).on('click', '#enable_server_alias, #enable_sa', function() {
+      $('#server-alias, #sa').attr('disabled', ! this.checked);
       if($('#enable_server_alias').is(':checked')) {
         $('.glyphicon-plus').on('click', function() {
           $("#serverAlias").after(
@@ -40,11 +40,34 @@ $(document).ready(function() {
                   '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
                 '</div>' +
                 '<div>' +
-                  '<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>' +
+                  '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
                 '</div>' +
               '</div>' +
               '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
                 '<div class="help-block with-errors"></div>' +
+              '</div>' +
+            '</div>'
+          );
+        });
+      }
+      else if($('#enable_sa').is(':checked')) {
+        $('.glyphicon-plus').on('click', function() {
+          $("#sa-group").after(
+            '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+              '<div class="row">' +
+                '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
+                '<div class="col-sm-4">' +
+                  '<input type="text" class="form-control" id="sa-new"' +
+                  'data-minlength="3" data-error="Wpisz co najmniej trzy znaki"' +
+                  'name="sa[]" placeholder="*.example.com" required>' +
+                  '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
+                '</div>' +
+                '<div>' +
+                  '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
+                '</div>' +
+                '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
+                  '<div class="help-block with-errors"></div>' +
+                '</div>' +
               '</div>' +
             '</div>'
           );
@@ -56,9 +79,12 @@ $(document).ready(function() {
       if(! $('#enable_server_alias').checked) {
         $('div').remove('#serverAliasPlus');
       }
+      if(! $('#enable_sa').checked) {
+        $('div').remove('#sa-group-new');
+      }
     });
-    $(document).on('click', '.glyphicon-remove', function() {
-      $(this).closest('#serverAliasPlus').remove();
+    $(document).on('click', '.glyphicon-minus', function() {
+      $(this).closest('#serverAliasPlus, #sa-group-new').remove();
     });
     $(document).on('click', '#enable_htaccess', function() {
       $('#htaccess').attr('disabled', ! this.checked);
@@ -150,9 +176,42 @@ $(document).ready(function() {
       $('#vhostEditForm')
         .find('[name="id"]').val(response.id).end()
         .find('[name="ServerName"]').val(response.ServerName).end();
+      if(response.ServerAlias[0] != "NaN") {
+        $('#enable_sa').prop("checked", true);
+
+        $.each(response.ServerAlias, function(i, sa) {
+          if(i === 0) {
+            $('#sa').val(sa).prop("disabled", false);
+          }
+          else {
+            $("#sa-group").after(
+              '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+                '<div class="row">' +
+                  '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
+                  '<div class="col-sm-4">' +
+                    '<input type="text" class="form-control" id="sa-new"' +
+                    'data-minlength="3" data-error="Wpisz co najmniej trzy znaki"' +
+                    'name="sa['+ i +']" placeholder="*.example.com" value="'+ sa +'" required>' +
+                    '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
+                  '</div>' +
+                  '<div>' +
+                    '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
+                  '</div>' +
+                  '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
+                    '<div class="help-block with-errors"></div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>'
+            );
+          }
+        });
+      }
+      else {
+        $('#enable_sa').prop("checked", false);
+      }
       bootbox
         .dialog({
-          title: 'Konfiguracja witryny',
+          title: '<strong>Edycja witryny: ' + response.ServerName + '</strong>',
           message: $('#vhostEditForm'),
           show: false
         })
@@ -161,9 +220,39 @@ $(document).ready(function() {
             .show()
         })
         .on('hide.bs.modal', function(e) {
+          $('#sa-group-new').each(function() {
+            $(this).remove();
+          });
+          $('.edit-apache-conf').unbind('click');
+          $('#vhostEditForm')[0].reset();
+          $('#sa').prop('disabled', true);
           $('#vhostEditForm').hide().appendTo('body');
+          i = 0;
         })
         .modal('show');
     });
   });
+  if($('#enable_sa').is(':checked')) {
+    $('.glyphicon-plus').on('click', function() {
+      $("#sa-group").after(
+        '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+          '<div class="row">' +
+            '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
+            '<div class="col-sm-4">' +
+              '<input type="text" class="form-control" id="sa-new"' +
+              'data-minlength="3" data-error="Wpisz co najmniej trzy znaki"' +
+              'name="sa[]" placeholder="*.example.com" required>' +
+              '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
+            '</div>' +
+            '<div>' +
+              '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
+            '</div>' +
+            '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
+              '<div class="help-block with-errors"></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    });
+  }
 });

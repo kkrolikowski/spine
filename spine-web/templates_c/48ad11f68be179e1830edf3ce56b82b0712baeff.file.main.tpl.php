@@ -1,4 +1,43 @@
-<!DOCTYPE html>
+<?php /* Smarty version Smarty-3.1-DEV, created on 2016-04-26 21:10:37
+         compiled from "./templates/main.tpl" */ ?>
+<?php /*%%SmartyHeaderCode:2123905005570d5ce1ecc202-78765174%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+$_valid = $_smarty_tpl->decodeProperties(array (
+  'file_dependency' => 
+  array (
+    '48ad11f68be179e1830edf3ce56b82b0712baeff' => 
+    array (
+      0 => './templates/main.tpl',
+      1 => 1461616769,
+      2 => 'file',
+    ),
+  ),
+  'nocache_hash' => '2123905005570d5ce1ecc202-78765174',
+  'function' => 
+  array (
+  ),
+  'version' => 'Smarty-3.1-DEV',
+  'unifunc' => 'content_570d5ce2014544_43440848',
+  'variables' => 
+  array (
+    'HostMenu' => 0,
+    'id' => 0,
+    'srv' => 0,
+    'HostName' => 0,
+    'sysinfo' => 0,
+    'sysuser' => 0,
+    'info' => 0,
+    'EmptySiteList' => 0,
+    'websites' => 0,
+    'website' => 0,
+    'wwwuser' => 0,
+    'user' => 0,
+    'HostTotalCount' => 0,
+    'FreeTotalGB' => 0,
+    'websiteCount' => 0,
+  ),
+  'has_nocache_code' => false,
+),false); /*/%%SmartyHeaderCode%%*/?>
+<?php if ($_valid && !is_callable('content_570d5ce2014544_43440848')) {function content_570d5ce2014544_43440848($_smarty_tpl) {?><!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -334,9 +373,17 @@
                         <li>
                             <a href="#"><i class="fa fa-linux f-fw"></i> Serwery<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
-                                {foreach from=$HostMenu item=srv key=id}
-                                   <li><a href="?serverid={$id}">{$srv}</a></li>
-                                {/foreach}
+                                <?php  $_smarty_tpl->tpl_vars['srv'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['srv']->_loop = false;
+ $_smarty_tpl->tpl_vars['id'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['HostMenu']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['srv']->key => $_smarty_tpl->tpl_vars['srv']->value){
+$_smarty_tpl->tpl_vars['srv']->_loop = true;
+ $_smarty_tpl->tpl_vars['id']->value = $_smarty_tpl->tpl_vars['srv']->key;
+?>
+                                   <li><a href="?serverid=<?php echo $_smarty_tpl->tpl_vars['id']->value;?>
+"><?php echo $_smarty_tpl->tpl_vars['srv']->value;?>
+</a></li>
+                                <?php } ?>
                             </ul>
                             <!-- /.nav-second-level -->
                         </li>
@@ -422,17 +469,18 @@
         <div id="page-wrapper">
             <div class="row">
                 <div class="col-lg-12">
-                    {if isset($smarty.get.serverid)}
+                    <?php if (isset($_GET['serverid'])){?>
                     <h3 class="page-header">
-                      <img src="/images/server.png" width="70">Host: {$HostName}</h3>
-                    {else}
+                      <img src="/images/server.png" width="70">Host: <?php echo $_smarty_tpl->tpl_vars['HostName']->value;?>
+</h3>
+                    <?php }else{ ?>
                     <h3 class="page-header">Dashboard</h3>
-                    {/if}
+                    <?php }?>
                 </div>
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
-            {if isset($smarty.get.serverid)}
+            <?php if (isset($_GET['serverid'])){?>
             <div class="row">
                 <div>
                     <!-- Nav tabs -->
@@ -465,11 +513,16 @@
                                         <div class="panel-heading">Podstawowe informacje</div>
                                         <div class="panel-body">
                                           <dl class="dl-horizontal">
-                                            <dt>Hostname</dt><dd>{$sysinfo.hostname}</dd>
-                                            <dt>IP</dt><dd>{$sysinfo.ip}</dd>
-                                            <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
-                                            <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
-                                            <dt>System</dt><dd>{$sysinfo.system}</dd>
+                                            <dt>Hostname</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hostname'];?>
+</dd>
+                                            <dt>IP</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ip'];?>
+</dd>
+                                            <dt>Uptime</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['uptime'];?>
+</dd>
+                                            <dt>RAM</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_total'];?>
+ GB</dd>
+                                            <dt>System</dt><dd><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['system'];?>
+</dd>
                                           </dl>
                                         </div>
                                     </div>
@@ -485,24 +538,30 @@
                                           </div>
                                           <div class="row">
                                             <div class="col-sm-4">
-                                              <div id="diskusage_free" data="{$sysinfo.hdd_percentage_free}"></div>
+                                              <div id="diskusage_free" data="<?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_percentage_free'];?>
+"></div>
                                             </div>
                                             <div class="col-sm-4">
-                                              <div id="diskusage_used" data="{$sysinfo.hdd_percentage_used}"></div>
+                                              <div id="diskusage_used" data="<?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_percentage_used'];?>
+"></div>
                                             </div>
                                             <div class="col-sm-4">
-                                              <div id="ram_free" data="{$sysinfo.ram_percentage_free}"></div>
+                                              <div id="ram_free" data="<?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_percentage_free'];?>
+"></div>
                                             </div>
                                           </div>
                                           <div class="row">
                                             <div class="col-sm-4">
-                                              <center><strong>{$sysinfo.hdd_free} GB</strong></center>
+                                              <center><strong><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_free'];?>
+ GB</strong></center>
                                             </div>
                                             <div class="col-sm-4">
-                                              <center><strong>{$sysinfo.hdd_used} GB</strong></center>
+                                              <center><strong><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['hdd_used'];?>
+ GB</strong></center>
                                             </div>
                                             <div class="col-sm-4">
-                                              <center><strong>{$sysinfo.ram_free} GB</strong></center>
+                                              <center><strong><?php echo $_smarty_tpl->tpl_vars['sysinfo']->value['ram_free'];?>
+ GB</strong></center>
                                             </div>
                                           </div>
                                         </div>
@@ -518,11 +577,20 @@
                                     <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
                                   </thead>
                                   <tbody>
-                                  {foreach from=$sysuser key=userid item=info}
+                                  <?php  $_smarty_tpl->tpl_vars['info'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['info']->_loop = false;
+ $_smarty_tpl->tpl_vars['userid'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['sysuser']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['info']->key => $_smarty_tpl->tpl_vars['info']->value){
+$_smarty_tpl->tpl_vars['info']->_loop = true;
+ $_smarty_tpl->tpl_vars['userid']->value = $_smarty_tpl->tpl_vars['info']->key;
+?>
                                     <tr>
-                                      <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
+                                      <td><?php echo $_smarty_tpl->tpl_vars['info']->value['login'];?>
+</td><td><?php echo $_smarty_tpl->tpl_vars['info']->value['fullname'];?>
+</td><td><?php echo $_smarty_tpl->tpl_vars['info']->value['email'];?>
+</td>
                                     </tr>
-                                  {/foreach}
+                                  <?php } ?>
                                   </tbody>
                                 </table>
                               </div>
@@ -531,36 +599,46 @@
                             <div role="tabpanel" class="tab-pane" id="wwwconfig">
                               <h3>Lista stron www</h3>
                               <div class="col-sm-4">
-                                {if isset($EmptySiteList)}
+                                <?php if (isset($_smarty_tpl->tpl_vars['EmptySiteList']->value)){?>
                                 <h5>Brak danych</h5>
-                                {else}
+                                <?php }else{ ?>
                                 <table class="table table-hover">
                                   <thead>
                                     <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
                                   </thead>
                                   <tbody>
-                                    {foreach from=$websites key=id item=website}
+                                    <?php  $_smarty_tpl->tpl_vars['website'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['website']->_loop = false;
+ $_smarty_tpl->tpl_vars['id'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['websites']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['website']->key => $_smarty_tpl->tpl_vars['website']->value){
+$_smarty_tpl->tpl_vars['website']->_loop = true;
+ $_smarty_tpl->tpl_vars['id']->value = $_smarty_tpl->tpl_vars['website']->key;
+?>
                                     <tr>
                                       <td>
-                                        <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
+                                        <a href="http://<?php echo $_smarty_tpl->tpl_vars['website']->value['ServerName'];?>
+/" target="_blank"><?php echo $_smarty_tpl->tpl_vars['website']->value['ServerName'];?>
+</a>
                                       </td>
                                       <td class="button-cell">
                                         <div class="btn-group">
-                                          <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
+                                          <button type="button" class="btn btn-danger" data-id="<?php echo $_smarty_tpl->tpl_vars['id']->value;?>
+">Usuń</button>
                                           <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <span class="caret"></span>
                                             <span class="sr-only">Toggle Dropdown</span>
                                           </button>
                                           <ul class="dropdown-menu">
-                                            <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
+                                            <li><a href="#" data-id="<?php echo $_smarty_tpl->tpl_vars['id']->value;?>
+" class="edit-apache-conf">Edytuj</a></li>
                                           </ul>
                                         </div>
                                       </td>
                                     </tr>
-                                    {/foreach}
+                                    <?php } ?>
                                   </tbody>
                                 </table>
-                                {/if}
+                                <?php }?>
                               </div>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="wwwconfignew">
@@ -569,7 +647,8 @@
                               </blockquote>
                               <div class="col-sm-6" id="vhost-config">
                                 <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost">
-                                  <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+                                  <input type="hidden" name="serverid" value="<?php echo $_GET['serverid'];?>
+">
                                   <div class="form-group">
                                       <div class="row">
                                       <label for="servername" class="col-sm-2 control-label">ServerName</label>
@@ -631,9 +710,17 @@
                                       <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
                                       <div class="col-sm-4">
                                         <select class="form-control" id="wwwuser" name="account">
-                                          {foreach from=$wwwuser key=id item=user}
-                                          <option value="{$id}">{$user}</option>
-                                          {/foreach}
+                                          <?php  $_smarty_tpl->tpl_vars['user'] = new Smarty_Variable; $_smarty_tpl->tpl_vars['user']->_loop = false;
+ $_smarty_tpl->tpl_vars['id'] = new Smarty_Variable;
+ $_from = $_smarty_tpl->tpl_vars['wwwuser']->value; if (!is_array($_from) && !is_object($_from)) { settype($_from, 'array');}
+foreach ($_from as $_smarty_tpl->tpl_vars['user']->key => $_smarty_tpl->tpl_vars['user']->value){
+$_smarty_tpl->tpl_vars['user']->_loop = true;
+ $_smarty_tpl->tpl_vars['id']->value = $_smarty_tpl->tpl_vars['user']->key;
+?>
+                                          <option value="<?php echo $_smarty_tpl->tpl_vars['id']->value;?>
+"><?php echo $_smarty_tpl->tpl_vars['user']->value;?>
+</option>
+                                          <?php } ?>
                                         </select>
                                       </div>
                                     </div>
@@ -669,7 +756,7 @@
                     </div>
                 </div>
             </div>
-            {else}
+            <?php }else{ ?>
             <div class="row">
                 <div class="col-lg-3 col-md-6">
                     <div class="panel panel-primary">
@@ -679,7 +766,8 @@
                                     <i class="fa fa-linux fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">{$HostTotalCount}</div>
+                                    <div class="huge"><?php echo $_smarty_tpl->tpl_vars['HostTotalCount']->value;?>
+</div>
                                     <div>Liczba serwerów</div>
                                 </div>
                             </div>
@@ -701,7 +789,8 @@
                                     <i class="fa fa-hdd-o fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">{$FreeTotalGB} GB</div>
+                                    <div class="huge"><?php echo $_smarty_tpl->tpl_vars['FreeTotalGB']->value;?>
+ GB</div>
                                     <div>Wolne miejsce na serwerach</div>
                                 </div>
                             </div>
@@ -723,7 +812,8 @@
                                     <i class="fa  fa-globe fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">{$websiteCount}</div>
+                                    <div class="huge"><?php echo $_smarty_tpl->tpl_vars['websiteCount']->value;?>
+</div>
                                     <div>Strony WWW</div>
                                 </div>
                             </div>
@@ -760,7 +850,7 @@
                     </div>
                 </div>
             </div>
-            {/if}
+            <?php }?>
             <!-- /.row -->
             <div class="row">
             </div>
@@ -774,3 +864,4 @@
 </body>
 
 </html>
+<?php }} ?>
