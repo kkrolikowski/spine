@@ -205,6 +205,29 @@ $(document).ready(function() {
             );
           }
         });
+        if($('#enable_sa').is(':checked')) {
+          $('.glyphicon-plus').on('click', function() {
+            $("#sa-group").after(
+              '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+                '<div class="row">' +
+                  '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
+                  '<div class="col-sm-4">' +
+                    '<input type="text" class="form-control" id="sa-new"' +
+                    'data-minlength="3" data-error="Wpisz co najmniej trzy znaki"' +
+                    'name="sa[]" placeholder="*.example.com" required>' +
+                    '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
+                  '</div>' +
+                  '<div>' +
+                    '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
+                  '</div>' +
+                  '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
+                    '<div class="help-block with-errors"></div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>'
+            );
+          });
+        }
       }
       else {
         $('#enable_sa').prop("checked", false);
@@ -224,6 +247,7 @@ $(document).ready(function() {
             $(this).remove();
           });
           $('.edit-apache-conf').unbind('click');
+          $('.glyphicon-plus').unbind('click');
           $('#vhostEditForm')[0].reset();
           $('#sa').prop('disabled', true);
           $('#vhostEditForm').hide().appendTo('body');
@@ -232,27 +256,4 @@ $(document).ready(function() {
         .modal('show');
     });
   });
-  if($('#enable_sa').is(':checked')) {
-    $('.glyphicon-plus').on('click', function() {
-      $("#sa-group").after(
-        '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
-          '<div class="row">' +
-            '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
-            '<div class="col-sm-4">' +
-              '<input type="text" class="form-control" id="sa-new"' +
-              'data-minlength="3" data-error="Wpisz co najmniej trzy znaki"' +
-              'name="sa[]" placeholder="*.example.com" required>' +
-              '<span class="glyphicon form-control-feedback" aria-hidden="true"></span>' +
-            '</div>' +
-            '<div>' +
-              '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>' +
-            '</div>' +
-            '<div class="col-sm-4 col-sm-offset-6 server-alias-txt">' +
-              '<div class="help-block with-errors"></div>' +
-            '</div>' +
-          '</div>' +
-        '</div>'
-      );
-    });
-  }
 });
