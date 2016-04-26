@@ -90,6 +90,7 @@ $(document).ready(function() {
       $('#htaccess').attr('disabled', ! this.checked);
     });
     $('#vhostOptSelect').DualListBox();
+    $('#vhostOptEdit').DualListBox();
     $(document).on('click', '#addvhost-btn', function(e) {
       e.preventDefault();
       var form = $('#addvhost');
@@ -239,6 +240,7 @@ $(document).ready(function() {
           show: false
         })
         .on('shown.bs.modal', function() {
+          $(this).attr("id", "edit-vhost-modal");
           $('#vhostEditForm')
             .show()
         })

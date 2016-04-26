@@ -98,6 +98,22 @@
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <div class="row">
+          <label for="vhostOptEdit" class="col-sm-2 control-label">Opcje</label>
+          <div class="col-sm-8" id="options-edit">
+            <select  multiple="multiple" class="form-control" id="vhostOptEdit" name="optname"
+              data-source="data/vhost_options.json"
+              data-title="opcje"
+              data-value='id'
+              data-text='vhostopt'>
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
     </form>
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
