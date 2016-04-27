@@ -101,7 +101,7 @@
       <div class="form-group">
         <div class="row">
           <label for="vhostOptEdit" class="col-sm-2 control-label">Opcje</label>
-          <div class="col-sm-8" id="options-edit">
+          <div class="col-sm-8 options-edit">
             <select  multiple="multiple" class="form-control" id="vhostOptEdit" name="optname"
               data-source="data/vhost_options.json"
               data-title="opcje"

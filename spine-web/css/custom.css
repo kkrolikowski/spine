@@ -45,12 +45,9 @@
 #sa-group, #sa-group-new {
   margin-left: 25px;
 }
-#options-edit {
+.options-edit {
   margin-left: 19px;
 }
 #edit-vhost-modal > .modal-dialog {
   width: 40%;
-}
-#dual-list-box-opcje {
-  margin-left: 19px;
 }
