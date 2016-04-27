@@ -104,7 +104,7 @@
           <div class="col-sm-8 options-edit">
             <select  multiple="multiple" class="form-control" id="vhostOptEdit" name="optname"
               data-source="data/vhost_options.json"
-              data-title="opcje"
+              data-title="optedit"
               data-value='id'
               data-text='vhostopt'>
             </select>
