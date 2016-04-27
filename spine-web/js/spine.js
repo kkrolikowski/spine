@@ -233,6 +233,13 @@ $(document).ready(function() {
       else {
         $('#enable_sa').prop("checked", false);
       }
+      $.each(response.vhost_options, function(i, opt) {
+        $('select.unselected > option[value="'+ i +'"]').remove();
+        $('select.selected').append($('<option>', {
+          value: i,
+          text: opt
+        }));
+      });
       bootbox
         .dialog({
           title: '<strong>Edycja witryny: ' + response.ServerName + '</strong>',

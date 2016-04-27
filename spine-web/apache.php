@@ -70,7 +70,7 @@
 
     $opts = array_filter(explode(" ", $r['selected_options']));
     $optids = array_filter(explode(" ", $r['selected_optid']));
-    $optsWithID = array_combine($opts, $optids);
+    $optsWithID = array_combine($optids, $opts);
 
     $json = array(
       'id' => $r['id'],
