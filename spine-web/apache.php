@@ -53,6 +53,7 @@
   }
   if(isset($_GET['vhostid'])) {
     $q = $dbh->prepare("SELECT w.id, w.ServerName, w.ServerAlias, w.DocumentRoot, w.htaccess, su.login, ".
+       "group_concat(wo.id separator ' ') as selected_optid, ".
        "group_concat(wo.vhostopt separator ' ') as selected_options ".
        "FROM www w ".
         "JOIN sysusers su ".
@@ -66,7 +67,11 @@
     $r = $q->fetch();
 
     $sa = array_filter(explode(" ", $r['ServerAlias']));
+
     $opts = array_filter(explode(" ", $r['selected_options']));
+    $optids = array_filter(explode(" ", $r['selected_optid']));
+    $optsWithID = array_combine($opts, $optids);
+
     $json = array(
       'id' => $r['id'],
       'ServerName' => $r['ServerName'],
@@ -74,7 +79,7 @@
       'DocumentRoot' => $r['DocumentRoot'],
       'htaccess' => $r['htaccess'],
       'user' => $r['login'],
-      'vhost_options' => $opts
+      'vhost_options' => $optsWithID
     );
     header('Content-Type: application/json');
     echo json_encode($json);
