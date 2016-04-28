@@ -260,6 +260,15 @@ $(document).ready(function() {
           $('#vhostEditForm')[0].reset();
           $('#sa').prop('disabled', true);
           $('#vhostEditForm').hide().appendTo('body');
+          $('#dual-list-box-optedit').find('select.selected > option').each(function() {
+            var id = $(this).val();
+            var text = $(this).text();
+            $('select.selected > option[value="'+ id +'"]').remove();
+            $('select.unselected').append($('<option>', {
+              value: id,
+              text: text
+            }));
+          });
           i = 0;
         })
         .modal('show');
