@@ -114,6 +114,18 @@
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <div class="row">
+          <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
+          <div class="col-sm-4" id="edit-wwwuser">
+            <select class="form-control" id="wwwuser" name="account">
+              {foreach from=$wwwuser key=id item=user}
+              <option value="{$id}">{$user}</option>
+              {/foreach}
+            </select>
+          </div>
+        </div>
+      </div>
     </form>
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
