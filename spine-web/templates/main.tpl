@@ -126,6 +126,23 @@
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2 enable-option">
+            <label class="checkbox-inline" id="htaccess-checkbox">
+              <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row" id="htaccess-row">
+          <label for="htaccess-field" class="col-sm-2 control-label">.htaccess</label>
+          <div class="col-sm-4">
+            <textarea class="form-control htaccess-group" id="htaccess-field" name="htaccess" rows="5" disabled></textarea>
+          </div>
+        </div>
+      </div>
     </form>
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
