@@ -240,6 +240,7 @@ $(document).ready(function() {
           text: opt
         }));
       });
+      $('#wwwuser-edit').find('option[text="'+ response.user +'"]').attr('selected', 'selected');
       bootbox
         .dialog({
           title: '<strong>Edycja witryny: ' + response.ServerName + '</strong>',

@@ -116,9 +116,9 @@
       </div>
       <div class="form-group">
         <div class="row">
-          <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
+          <label for="wwwuser_edit" class="col-sm-2 control-label">Konto</label>
           <div class="col-sm-4" id="edit-wwwuser">
-            <select class="form-control" id="wwwuser" name="account">
+            <select class="form-control" id="wwwuser-edit" name="account" disabled>
               {foreach from=$wwwuser key=id item=user}
               <option value="{$id}">{$user}</option>
               {/foreach}
