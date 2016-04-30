@@ -143,6 +143,14 @@
           </div>
         </div>
       </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-3">
+            <button type="submit" class="btn btn-primary" id="editvhost-btn">Zapisz konfigurację</button>
+            <button type="submit" class="btn btn-default">Anuluj</button>
+          </div>
+        </div>
+      </div>
     </form>
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
