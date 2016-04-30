@@ -86,8 +86,8 @@ $(document).ready(function() {
     $(document).on('click', '.glyphicon-minus', function() {
       $(this).closest('#serverAliasPlus, #sa-group-new').remove();
     });
-    $(document).on('click', '#enable_htaccess', function() {
-      $('#htaccess').attr('disabled', ! this.checked);
+    $(document).on('click', '#enable_htaccess, #edit_enable_htaccess', function() {
+      $('#htaccess, #htaccess-field').attr('disabled', ! this.checked);
     });
     $('#vhostOptSelect').DualListBox();
     $('#vhostOptEdit').DualListBox();
@@ -241,6 +241,18 @@ $(document).ready(function() {
         }));
       });
       $('#wwwuser-edit').find('option[text="'+ response.user +'"]').attr('selected', 'selected');
+      if(response.htaccess != "NaN") {
+        $('#htaccess-row').find('[name="htaccess"]').text(response.htaccess).attr("disabled", false);
+        $('#edit_enable_htaccess').prop("checked", true);
+      }
+      $(document).on('click', '#edit_enable_htaccess', function() {
+        if(! $('#edit_enable_htaccess').is(':checked')) {
+          $('#vhostEditForm').append('<input type="hidden" name="htaccess" value="NaN">');
+        }
+        else {
+          $('#vhostEditForm').find('[name="htaccess"][value="NaN"]').remove();
+        }
+      });
       bootbox
         .dialog({
           title: '<strong>Edycja witryny: ' + response.ServerName + '</strong>',
@@ -269,6 +281,8 @@ $(document).ready(function() {
               value: id,
               text: text
             }));
+            $('#htaccess-row').find('[name="htaccess"]').text("").attr("disabled", "disabled");
+            $('#edit_enable_htaccess').prop("checked", false);
           });
           i = 0;
         })
