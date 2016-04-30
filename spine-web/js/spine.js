@@ -97,7 +97,7 @@ $(document).ready(function() {
       var serverid = form.find('[name="serverid"]').val();
       var sn = form.find('[name="ServerName"]').val();
       var sa = [];
-      if($('#enable_server_alias').attr('checked')) {
+      if($('#enable_server_alias').is(':checked')) {
         form.find('[name="ServerAlias[]"]').each(function() {
           sa.push($(this).val());
         });
