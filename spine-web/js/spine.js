@@ -289,4 +289,37 @@ $(document).ready(function() {
         .modal('show');
     });
   });
+  $(document).on('click', '#editvhost-btn', function() {
+
+    var id = $('#vhostEditForm').find('[name="id"]').val();
+    var sa = [];
+    var opts = [];
+    var htaccess = $('#vhostEditForm').find('[name="htaccess"]').text();
+
+    if(!htaccess) {
+      htaccess = "NaN"
+    }
+
+    if($('#enable_sa').is(':checked')) {
+      sa.push($('#sa').val());
+      $('#sa-new').each(function() {
+        sa.push($(this).val());
+      });
+    }
+    else {
+      sa.push("NaN");
+    }
+
+    $('#dual-list-box-optedit').find('select.selected > option').each(function() {
+      opts.push($(this).val());
+    });
+
+    var account = $('#vhostEditForm').find('[name="account"]').val();
+
+    $.ajax({
+      url: '/apache.php?edit=' + id,
+      method: 'POST',
+      data: {sa, opts, account, htaccess}
+    });
+  });
 });
