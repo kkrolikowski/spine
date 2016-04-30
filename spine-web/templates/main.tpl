@@ -75,7 +75,7 @@
       <div class="form-group">
         <div class="row">
           <div class="col-sm-offset-2 enable-option">
-            <label class="checkbox-inline">
+            <label class="checkbox-inline checkbox-placement">
               <input type="checkbox" id="enable_sa" value="enable_sa"> <strong>Konfiguracja ServerAlias</strong>
             </label>
           </div>
@@ -129,7 +129,7 @@
       <div class="form-group">
         <div class="row">
           <div class="col-sm-offset-2 enable-option">
-            <label class="checkbox-inline" id="htaccess-checkbox">
+            <label class="checkbox-inline checkbox-placement">
               <input type="checkbox" id="edit_enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
             </label>
           </div>
