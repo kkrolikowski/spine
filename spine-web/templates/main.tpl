@@ -72,6 +72,7 @@
   <!-- BEGIN: Sekcja formularzy edycji danych -->
     <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
       <input type="hidden" name="id" value="">
+      <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
       <div class="form-group">
         <div class="row">
           <div class="col-sm-offset-2 enable-option">
@@ -146,8 +147,8 @@
       <div class="form-group">
         <div class="row">
           <div class="col-sm-offset-3">
-            <button type="submit" class="btn btn-primary" id="editvhost-btn">Zapisz konfigurację</button>
-            <button type="submit" class="btn btn-default">Anuluj</button>
+            <button type="button" class="btn btn-primary" id="editvhost-btn">Zapisz konfigurację</button>
+            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
           </div>
         </div>
       </div>

@@ -294,7 +294,14 @@ $(document).ready(function() {
     var id = $('#vhostEditForm').find('[name="id"]').val();
     var sa = [];
     var opts = [];
-    var htaccess = $('#vhostEditForm').find('[name="htaccess"]').text();
+    var htaccess;
+    if($('#edit_enable_htaccess').is(':checked')) {
+      htaccess = $('#vhostEditForm').find('[name="htaccess"]').text();
+    }
+    else {
+      htaccess = "NaN";
+    }
+    var serverid = $('#vhostEditForm').find('[name="serverid"]').val();
 
     if(!htaccess) {
       htaccess = "NaN"
@@ -314,12 +321,79 @@ $(document).ready(function() {
       opts.push($(this).val());
     });
 
-    var account = $('#vhostEditForm').find('[name="account"]').val();
-
     $.ajax({
       url: '/apache.php?edit=' + id,
       method: 'POST',
-      data: {sa, opts, account, htaccess}
+      data: {serverid, sa, opts, htaccess},
+      success: function() {
+        $.bootstrapGrowl(
+          'Konfiguracja vhosta zapisana',
+          {
+            type: 'success',
+            align: 'center',
+            offset: { from: 'top', amount: 55},
+            width: 500
+          }
+        );
+      },
+      error: function() {
+        $.bootstrapGrowl(
+          'Blad aktualizaji konfiguracji',
+          {
+            type: 'danger',
+            align: 'center',
+            offset: { from: 'top', amount: 55},
+            width: 500
+          }
+        );
+      }
+    }).success(function() {
+      $('.modal').hide();
+      $('.modal-backdrop').hide();
+      $('#sa-group-new').each(function() {
+        $(this).remove();
+      });
+      $('.edit-apache-conf').unbind('click');
+      $('.glyphicon-plus').unbind('click');
+      $('#vhostEditForm')[0].reset();
+      $('#sa').prop('disabled', true);
+      $('#vhostEditForm').hide().appendTo('body');
+      $('#dual-list-box-optedit').find('select.selected > option').each(function() {
+        var id = $(this).val();
+        var text = $(this).text();
+        $('select.selected > option[value="'+ id +'"]').remove();
+        $('select.unselected').append($('<option>', {
+          value: id,
+          text: text
+        }));
+        $('#htaccess-row').find('[name="htaccess"]').text("").attr("disabled", "disabled");
+        $('#edit_enable_htaccess').prop("checked", false);
+      });
+      i = 0;
     });
+  });
+  $(document).on('click', '#edit-cancel', function() {
+    $('.modal').hide();
+    $('.modal-backdrop').hide();
+    $('#sa-group-new').each(function() {
+      $(this).remove();
+    });
+    $('.edit-apache-conf').unbind('click');
+    $('.glyphicon-plus').unbind('click');
+    $('#vhostEditForm')[0].reset();
+    $('#sa').prop('disabled', true);
+    $('#vhostEditForm').hide().appendTo('body');
+    $('#dual-list-box-optedit').find('select.selected > option').each(function() {
+      var id = $(this).val();
+      var text = $(this).text();
+      $('select.selected > option[value="'+ id +'"]').remove();
+      $('select.unselected').append($('<option>', {
+        value: id,
+        text: text
+      }));
+      $('#htaccess-row').find('[name="htaccess"]').text("").attr("disabled", "disabled");
+      $('#edit_enable_htaccess').prop("checked", false);
+    });
+    i = 0;
   });
 });

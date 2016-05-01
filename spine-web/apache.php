@@ -84,4 +84,29 @@
     header('Content-Type: application/json');
     echo json_encode($json);
   }
+  if(isset($_GET['edit'])) {
+    $opts = array();
+
+    if($_POST['sa'][0] == "NaN") {
+      $sa = "NaN";
+    }
+    else {
+      foreach ($_POST['sa'] as $value) {
+        $sa .= $value . " ";
+      }
+    }
+    foreach ($_POST['opts'] as $value) {
+      array_push($opts, $value);
+    }
+    $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $sa ."', htaccess = '". $_POST['htaccess']. "' WHERE id = ". $_GET['edit']);
+    $q->execute();
+
+    $q = $dbh->prepare("DELETE FROM www_opts_selected WHERE vhost_id = ". $_GET['edit']);
+    $q->execute();
+    foreach ($opts as $value) {
+      $q = $dbh->prepare("INSERT INTO www_opts_selected(vhost_id, opt_id) VALUES(".$_GET['edit'].", ".$value.")");
+      $q->execute();
+    }
+    updateConfigVersion($dbh, $_POST['serverid']);
+  }
 ?>
