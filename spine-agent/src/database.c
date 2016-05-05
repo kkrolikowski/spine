@@ -183,10 +183,12 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 	MYSQL_ROW row;
 	hostconfig hconfig;
 
-	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login as user,",
-	" sysinfo.config_ver as config_ver FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN",
-	" sysinfo ON sysinfo.id = www.system_id	WHERE status = 'A' AND www.system_id = (SELECT id FROM sysinfo WHERE",
-	" system_id = '", hostid, "')", NULL);
+	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, ",
+							"sysusers.login as user, sysinfo.config_ver as config_ver, group_concat(www_opts.vhostopt ",
+							"separator ' ') as opts FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN sysinfo ON ",
+							"sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
+							"www_opts ON www_opts.id = www_opts_selected.opt_id WHERE status = 'A' AND www.system_id = (SELECT ",
+							"id FROM sysinfo WHERE system_id = '", hostid, "') group by www.id", NULL );
 
 	int vhi = 0;			// index tablicy przechowujacej vhosty apacza
 	if(!mysql_query(dbh, query)) {
@@ -198,6 +200,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				hconfig.vhost[vhi].htaccess = readData(row[3]);
 				hconfig.vhost[vhi].user = readData(row[4]);
 				hconfig.confVer = atoi(row[5]);
+				hconfig.vhost[vhi].apacheOpts = readData(row[6]);
 				vhi++;
 			}
 			hconfig.vhost_num = vhi;

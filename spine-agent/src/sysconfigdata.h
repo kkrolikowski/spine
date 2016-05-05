@@ -25,6 +25,7 @@ typedef struct wwwdata {
 	char * ServerName;
 	char * ServerAlias;
 	char * DocumentRoot;
+	char * apacheOpts;
 	char * htaccess;
 	char * user;
 } wwwdata;
