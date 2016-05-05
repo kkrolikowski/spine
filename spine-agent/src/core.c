@@ -525,5 +525,6 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 		free(vhost[i].ServerName);
 		free(vhost[i].htaccess);
 		free(vhost[i].user);
+		free(vhost[i].apacheOpts);
 	}
 }
