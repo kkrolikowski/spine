@@ -296,7 +296,7 @@ $(document).ready(function() {
     var opts = [];
     var htaccess;
     if($('#edit_enable_htaccess').is(':checked')) {
-      htaccess = $('#vhostEditForm').find('[name="htaccess"]').text();
+      htaccess = $('#vhostEditForm').find('[name="htaccess"]').val();
     }
     else {
       htaccess = "NaN";
