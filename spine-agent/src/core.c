@@ -489,6 +489,7 @@ char * apacheConfigPackage(hostconfig data) {
 				":{ServerName:", data.vhost[vidx].ServerName,
 				",ServerAlias:", data.vhost[vidx].ServerAlias,
 				",DocumentRoot:", data.vhost[vidx].DocumentRoot,
+				",ApacheOpts:", data.vhost[vidx].apacheOpts,
 				",htaccess:", data.vhost[vidx].htaccess,
 				",user:", data.vhost[vidx].user, "},", NULL);
 		strcat(buff, vhostdata);

@@ -207,6 +207,7 @@ hostconfig ParseConfigData(char * json) {
 		conf.vhost[i].ServerName = jsonVal(config_pos, "ServerName");
 		conf.vhost[i].ServerAlias = jsonVal(config_pos, "ServerAlias");
 		conf.vhost[i].DocumentRoot = jsonVal(config_pos, "DocumentRoot");
+		conf.vhost[i].apacheOpts = jsonVal(config_pos, "ApacheOpts");
 		conf.vhost[i].htaccess = jsonVal(config_pos, "htaccess");
 		conf.vhost[i].user = jsonVal(config_pos, "user");
 	}
@@ -282,7 +283,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 			fprintf(vhost, "\tServerAlias %s\n", vhosts[i].ServerAlias);
 		fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhosts[i].DocumentRoot);
 		fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
-		fprintf(vhost, "\t\tOptions Indexes FollowSymLinks MultiViews\n");
+		fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
 		fprintf(vhost, "\t\tAllowOverride All\n");
 		fprintf(vhost, "\t\tOrder deny,allow\n");
 		fprintf(vhost, "\t\tAllow from all\n");
