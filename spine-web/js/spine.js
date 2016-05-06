@@ -138,6 +138,7 @@ $(document).ready(function() {
         }
     }).success(function(response) {
       var tr = $('#wwwconfig').find('tr').last();
+      var div = $('#wwwconfig > div');
       if(tr.length) {
         tr.after(
           '<tr>' +
@@ -160,7 +161,33 @@ $(document).ready(function() {
         );
       }
       else {
-        // trzeba stworzyc tabelke.
+        div.find('h5').remove();
+        div.append(
+          '<table class="table table-hover">' +
+            '<thead>' +
+              '<th>Nazwa Strony</th><th class="button-cell">Akcja</th>' +
+            '</thead>' +
+            '<tbody>' +
+              '<tr>' +
+                '<td>' +
+                  '<a href="http://'+ response.ServerName +'/" target="_blank">'+ response.ServerName +'</a>' +
+                '</td>' +
+                '<td class="button-cell">' +
+                  '<div class="btn-group">' +
+                    '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+                    '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                      '<span class="caret"></span>' +
+                      '<span class="sr-only">Toggle Dropdown</span>' +
+                    '</button>' +
+                    '<ul class="dropdown-menu">' +
+                      '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+                    '</ul>' +
+                  '</div>' +
+                '</td>' +
+              '</tr>' +
+            '</tbody>' +
+          '</table>'
+        );
       }
     });
   });
