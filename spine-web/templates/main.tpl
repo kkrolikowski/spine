@@ -49,6 +49,9 @@
     <!-- Bootbox - wyskakujace okienka -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 
+    <!-- JQuery - easing -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+
     <!-- Shuttle box plugin -->
     <script src="js/dual-list-box.min.js"></script>
 
@@ -62,6 +65,10 @@
       <!-- Wykres kolowy -->
       <link href="css/jquery.circliful.css" rel="stylesheet" type="text/css" />
       <script src="js/jquery.circliful.min.js"></script>
+
+      <!-- Wizualizacja wolnego miejsca na serwerach -->
+      <link href="css/bi-style.css" rel="stylesheet" type="text/css" />
+      <script src="js/jquery-barIndicator.js"></script>
 
       <!-- Customowy skrypt strony i css -->
       <script src="js/spine.js"></script>
@@ -760,9 +767,9 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="#">
+                        <a href="?show=hddfree">
                             <div class="panel-footer">
-                                <span class="pull-left">View Details</span>
+                                <span class="pull-left">Zobacz szczegóły</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
                                 <div class="clearfix"></div>
                             </div>
@@ -817,6 +824,27 @@
             {/if}
             <!-- /.row -->
             <div class="row">
+              {if $smarty.get.show == "hddfree"}
+              <div class="col-sm-4 table-responsive" id="HDDFree">
+                <ul class="media-list">
+                  {foreach from=$SrvHDDFree key=hostname item=info}
+                  <li class="media">
+                    <div class="media-left">
+                      {if $info.ostype == "Ubuntu"}
+                      <img class="media-object" src="/images/server-ubuntu.png" width="50">
+                      {else}
+                      <img class="media-object" src="/images/server-centos.png" width="50">
+                      {/if}
+                    </div>
+                    <div class="media-body">
+                      <h4 class="media-heading"><strong>{$hostname}</strong></h4>
+                        <div class="freeHDDbar">{$info.pfree}</div>
+                    </div>
+                  </li>
+                  {/foreach}
+                </ul>
+              </div>
+              {/if}
             </div>
             <!-- /.row -->
         </div>

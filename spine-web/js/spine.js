@@ -1,4 +1,10 @@
 $(document).ready(function() {
+    var hdd_bar_opt = {
+      foreColor:'#5cb85c',
+      backColor:'#d9534f',
+      horTitle:'Wolne miejsce:'
+    };
+    $('.freeHDDbar').barIndicator(hdd_bar_opt);
     var diskusage_free = $("#diskusage_free").attr("data");
     var diskusage_used = $("#diskusage_used").attr("data");
     var ram_free = $("#ram_free").attr("data");

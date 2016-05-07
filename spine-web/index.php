@@ -20,7 +20,7 @@
   // ilosc wolnego miejsca na poszczegolnych serwerach
   $SrvHDDFree = hddFreePerServer($dbh);
   $spine->assign('SrvHDDFree', $SrvHDDFree);
-
+  
   // uptime na poszczegolnych serwerach
   $uptimePerHost = uptimePerServer($dbh);
   $spine->assign('uptimePerHost', $uptimePerHost);

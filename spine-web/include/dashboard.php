@@ -31,13 +31,16 @@
   }
   function hddFreePerServer($dbh) {
     global $toGB;
-    $q = $dbh->prepare("SELECT hostname, hdd_free FROM sysinfo");
+    $q = $dbh->prepare("SELECT hostname, distro, hdd_free, hdd_total FROM sysinfo");
     $q->execute();
 
     $SrvHDDFree = array();
     while ($r = $q->fetch()) {
-      $freeGB = $r['hdd_free'] / $toGB;
-      $SrvHDDFree[$r['hostname']] = round($freeGB, 1);
+      $percent_free = $r['hdd_free'] / $r['hdd_total'] * 100;
+      $SrvHDDFree[$r['hostname']] = array(
+        'ostype' => $r['distro'],
+        'pfree' => round($percent_free, 0)
+      );
     }
     return $SrvHDDFree;
   }
