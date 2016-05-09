@@ -93,9 +93,14 @@
         <div class="row">
           <label for="sa" class="col-sm-2 control-label">ServerAlias</label>
           <div class="col-sm-4">
-            <input type="text" class="form-control" id="sa"
-            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
-            name="sa[0]" placeholder="*.example.com" required disabled>
+            <div class="input-group">
+              <span class="input-group-btn">
+                 <button class="btn btn-default" type="button"><span class="fa fa-arrow-down"></span></button>
+              </span>
+              <input type="text" class="form-control" id="sa"
+              data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+              name="sa[0]" placeholder="*.example.com" required disabled>
+            </div>
             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
           </div>
           <div >
