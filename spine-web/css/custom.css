@@ -14,11 +14,12 @@
 }
 .glyphicon-minus {
   color: #d9534f;
-  margin-left: 55px;
 }
 .glyphicon-minus:hover {
   color: #f40f08;
   font-weight: bold;
+}
+#vhostEditForm * .glyphicon-minus {
   margin-left: 55px;
 }
 .form-group {
