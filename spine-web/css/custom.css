@@ -14,10 +14,12 @@
 }
 .glyphicon-minus {
   color: #d9534f;
+  margin-left: 55px;
 }
 .glyphicon-minus:hover {
   color: #f40f08;
   font-weight: bold;
+  margin-left: 55px;
 }
 .form-group {
   margin-top: -10px;
@@ -68,4 +70,8 @@
 }
 #HDDFree  {
   margin-top: 20px;
+}
+#sa-new {
+  width: 247px;
+  margin-left: 39px;
 }

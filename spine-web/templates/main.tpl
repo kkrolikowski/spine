@@ -92,7 +92,7 @@
       <div class="form-group" id="sa-group">
         <div class="row">
           <label for="sa" class="col-sm-2 control-label">ServerAlias</label>
-          <div class="col-sm-4">
+          <div class="col-sm-5">
             <div class="input-group">
               <span class="input-group-btn">
                  <button class="btn btn-default" type="button"><span class="fa fa-arrow-down"></span></button>
