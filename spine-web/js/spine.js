@@ -311,7 +311,7 @@ $(document).ready(function() {
             .show()
         })
         .on('hide.bs.modal', function(e) {
-          $('#sa-group-new').remove();
+          $('#vhostEditForm > #sa-group-new').remove();
           $('.input-group-btn .fa-arrow-down').removeClass("fa-arrow-down").addClass("fa-arrow-up");
           $('.edit-apache-conf').unbind('click');
           $('.glyphicon-plus').unbind('click');
