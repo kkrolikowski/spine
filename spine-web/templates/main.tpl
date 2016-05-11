@@ -706,6 +706,19 @@
                                   </div>
                                   <div class="form-group">
                                     <div class="row">
+                                      <label for="www_access_order" class="col-sm-2 control-label">Order default</label>
+                                      <div class="col-sm-4">
+                                        <label class="radio-inline">
+                                          <input type="radio" id="allow" name="access_order" value="allow" checked> Allow
+                                        </label>
+                                        <label class="radio-inline">
+                                          <input type="radio" id="deny" name="access_order" value="deny"> Deny
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="row">
                                       <div class="col-sm-offset-2 enable-option">
                                         <label class="checkbox-inline">
                                           <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
