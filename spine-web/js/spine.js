@@ -58,6 +58,9 @@ $(document).ready(function() {
       }
       else if($('#enable_sa').is(':checked')) {
         $('.glyphicon-plus').on('click', function() {
+          if($('#sa-arrow').hasClass("fa-arrow-up")) {
+            $('#sa-arrow').removeClass("fa-arrow-up").addClass("fa-arrow-down");
+          }
           $("#sa-group").after(
             '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
               '<div class="row">' +
