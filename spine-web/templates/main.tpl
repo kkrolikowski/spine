@@ -95,7 +95,7 @@
           <div class="col-sm-5">
             <div class="input-group">
               <span class="input-group-btn">
-                 <button class="btn btn-default" type="button"><span class="fa fa-arrow-up" id="sa-arrow"></span></button>
+                 <button class="btn btn-default" type="button" id="sa-arrow-btn"><span class="fa fa-arrow-up" id="sa-arrow"></span></button>
               </span>
               <input type="text" class="form-control" id="sa"
               data-minlength="3" data-error="Wpisz co najmniej trzy znaki"

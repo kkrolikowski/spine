@@ -62,7 +62,7 @@ $(document).ready(function() {
             $('#sa-arrow').removeClass("fa-arrow-up").addClass("fa-arrow-down");
           }
           $("#sa-group").after(
-            '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+            '<div class="form-group col-sm-offset-2 div-sa-new" id="sa-group-new">' +
               '<div class="row">' +
                 '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
                 '<div class="col-sm-4">' +
@@ -227,7 +227,7 @@ $(document).ready(function() {
           }
           else {
             $("#sa-group").after(
-              '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+              '<div class="form-group col-sm-offset-2 div-sa-new" id="sa-group-new">' +
                 '<div class="row">' +
                   '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
                   '<div class="col-sm-4">' +
@@ -250,7 +250,7 @@ $(document).ready(function() {
         if($('#enable_sa').is(':checked')) {
           $('.glyphicon-plus').on('click', function() {
             $("#sa-group").after(
-              '<div class="form-group col-sm-offset-2" id="sa-group-new">' +
+              '<div class="form-group col-sm-offset-2 div-sa-new" id="sa-group-new">' +
                 '<div class="row">' +
                   '<label for="sa-new" class="col-sm-2 control-label">ServerAlias</label>' +
                   '<div class="col-sm-4">' +
@@ -444,5 +444,15 @@ $(document).ready(function() {
       $('#edit_enable_htaccess').prop("checked", false);
     });
     i = 0;
+  });
+  $(document).on('click', '#sa-arrow-btn', function() {
+    if($('#sa-arrow').hasClass("fa-arrow-down")) {
+      $('.div-sa-new').hide();
+      $('#sa-arrow').removeClass("fa-arrow-down").addClass("fa-arrow-up");
+    }
+    else {
+      $('.div-sa-new').show();
+      $('#sa-arrow').removeClass("fa-arrow-up").addClass("fa-arrow-down");
+    }
   });
 });
