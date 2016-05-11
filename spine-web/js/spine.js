@@ -265,6 +265,9 @@ $(document).ready(function() {
                 '</div>' +
               '</div>'
             );
+            if($('#sa-arrow').hasClass("fa-arrow-up")) {
+              $('#sa-arrow').removeClass("fa-arrow-up").addClass("fa-arrow-down");
+            }
           });
         }
         if($('#sa-group-new').length) {
