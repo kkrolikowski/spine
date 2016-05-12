@@ -34,7 +34,7 @@ $(document).ready(function() {
     $(document).on('click', '#enable_server_alias, #enable_sa', function() {
       $('#server-alias, #sa').attr('disabled', ! this.checked);
       if($('#enable_server_alias').is(':checked')) {
-        $('.glyphicon-plus').on('click', function() {
+        $('.new-server-alias').on('click', function() {
           $("#serverAlias").after(
             '<div class="form-group" id="serverAliasPlus">' +
               '<div class="row">' +
@@ -57,7 +57,7 @@ $(document).ready(function() {
         });
       }
       else if($('#enable_sa').is(':checked')) {
-        $('.glyphicon-plus').on('click', function() {
+        $('.new-server-alias').on('click', function() {
           if($('#sa-arrow').hasClass("fa-arrow-up")) {
             $('#sa-arrow').removeClass("fa-arrow-up").addClass("fa-arrow-down");
           }
@@ -83,7 +83,7 @@ $(document).ready(function() {
         });
       }
       else {
-        $('.glyphicon-plus').unbind('click');
+        $('.new-server-alias').unbind('click');
       }
       if(! $('#enable_server_alias').checked) {
         $('div').remove('#serverAliasPlus');
@@ -248,7 +248,7 @@ $(document).ready(function() {
           }
         });
         if($('#enable_sa').is(':checked')) {
-          $('.glyphicon-plus').on('click', function() {
+          $('.new-server-alias').on('click', function() {
             $("#sa-group").after(
               '<div class="form-group col-sm-offset-2 div-sa-new" id="sa-group-new">' +
                 '<div class="row">' +
@@ -320,7 +320,7 @@ $(document).ready(function() {
           $('#vhostEditForm > #sa-group-new').remove();
           $('.input-group-btn .fa-arrow-down').removeClass("fa-arrow-down").addClass("fa-arrow-up");
           $('.edit-apache-conf').unbind('click');
-          $('.glyphicon-plus').unbind('click');
+          $('.new-server-alias').unbind('click');
           $('#vhostEditForm')[0].reset();
           $('#sa').prop('disabled', true);
           $('#vhostEditForm').hide().appendTo('body');
@@ -404,7 +404,7 @@ $(document).ready(function() {
       $('#sa-group-new').remove();
       $('.input-group-btn .fa-arrow-down').removeClass("fa-arrow-down").addClass("fa-arrow-up");
       $('.edit-apache-conf').unbind('click');
-      $('.glyphicon-plus').unbind('click');
+      $('.new-server-alias').unbind('click');
       $('#vhostEditForm')[0].reset();
       $('#sa').prop('disabled', true);
       $('#vhostEditForm').hide().appendTo('body');
@@ -428,7 +428,7 @@ $(document).ready(function() {
     $('#vhostEditForm > #sa-group-new').remove();
     $('.input-group-btn .fa-arrow-down').removeClass("fa-arrow-down").addClass("fa-arrow-up");
     $('.edit-apache-conf').unbind('click');
-    $('.glyphicon-plus').unbind('click');
+    $('.new-server-alias').unbind('click');
     $('#vhostEditForm')[0].reset();
     $('#sa').prop('disabled', true);
     $('#vhostEditForm').hide().appendTo('body');

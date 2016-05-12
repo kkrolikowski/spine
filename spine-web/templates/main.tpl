@@ -104,7 +104,7 @@
             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
           </div>
           <div >
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            <span class="glyphicon glyphicon-plus new-server-alias" aria-hidden="true"></span>
           </div>
           <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
             <div class="help-block with-errors"></div>
@@ -669,7 +669,7 @@
                                         <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                       </div>
                                       <div >
-                                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                                        <span class="glyphicon glyphicon-plus new-server-alias" aria-hidden="true"></span>
                                       </div>
                                       <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
                                         <div class="help-block with-errors"></div>
