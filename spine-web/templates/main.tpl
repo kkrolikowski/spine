@@ -739,7 +739,7 @@
                                                   <input type="text" class="form-control access-from-input" id="from" name="access[]" value="all">
                                                 </div>
                                                 <div>
-                                                  <span class="glyphicon glyphicon-plus vhost-access" aria-hidden="true"></span>
+                                                  <span class="glyphicon glyphicon-plus vhost-access vhost-access-add" aria-hidden="true"></span>
                                                 </div>
                                               </div>
                                             </div>

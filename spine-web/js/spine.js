@@ -465,4 +465,32 @@ $(document).ready(function() {
       $('#expandControl').removeClass("fa-angle-up").addClass("fa-angle-down");
     }
   });
+  var rulesCount = 0;
+  $(document).on('click', '.vhost-access-add', function() {
+    $('#access-list-details').append(
+      '<div class="form-group access-form-group-new">' +
+        '<div class="row col-sm-offset-2" id="accesslist">' +
+          '<div class="col-sm-4">' +
+            '<label class="radio-inline" id="allowfrom">' +
+              '<input type="radio" id="allow" name="allow'+ rulesCount +'" value="1" checked> Allow' +
+            '</label>' +
+            '<label class="radio-inline">' +
+              '<input type="radio" id="deny" name="allow'+ rulesCount +'" value="0"> Deny' +
+            '</label>' +
+          '</div>' +
+          '<label for="from" class="col-sm-2 control-label access-from-label">From</label>' +
+          '<div class="col-sm-5">' +
+            '<input type="text" class="form-control access-from-input" id="from" name="access[]" value="all">' +
+          '</div>' +
+          '<div>' +
+            '<span class="glyphicon glyphicon-minus vhost-access vhost-access-del" aria-hidden="true"></span>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+    rulesCount++;
+  });
+  $(document).on('click', '.vhost-access-del', function() {
+    $(this).closest('.access-form-group-new').remove();
+  });
 });
