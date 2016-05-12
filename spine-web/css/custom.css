@@ -76,3 +76,18 @@
   width: 247px;
   margin-left: 39px;
 }
+#allowfrom {
+  margin-left: -80px;
+}
+.access-from-label {
+  margin-left: -110px;
+}
+.access-from-input {
+  margin-left: -50px;
+}
+.default-vhost-access {
+  margin-left: 5px;
+}
+#accesslist {
+  margin-top: 10px;
+}
