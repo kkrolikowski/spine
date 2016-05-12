@@ -718,12 +718,12 @@
                                               <input type="radio" id="orderdeny" name="access_order" value="0"> Deny
                                             </label>
                                             <div class="pull-right" id="accessListsExpand">
-                                              <button type="button" class="btn btn-default btn-xs">
-                                                <span class="fa fa-angle-down"></span>
+                                              <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
+                                                <span class="fa fa-angle-down" id="expandControl"></span>
                                               </button>
                                             </div>
                                           </div>
-                                          <div class="panel-body">
+                                          <div class="panel-body" id="access-list-details">
                                             <div class="form-group">
                                               <div class="row col-sm-offset-2" id="accesslist">
                                                 <div class="col-sm-4">
