@@ -712,29 +712,34 @@
                                           <div class="panel-heading">
                                             <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
                                             <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                              <input type="radio" id="allow" name="access_order" value="allow" checked> Allow
+                                              <input type="radio" id="orderallow" name="access_order" value="1" checked> Allow
                                             </label>
                                             <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                              <input type="radio" id="deny" name="access_order" value="deny"> Deny
+                                              <input type="radio" id="orderdeny" name="access_order" value="0"> Deny
                                             </label>
+                                            <div class="pull-right" id="accessListsExpand">
+                                              <button type="button" class="btn btn-default btn-xs">
+                                                <span class="fa fa-angle-down"></span>
+                                              </button>
+                                            </div>
                                           </div>
                                           <div class="panel-body">
                                             <div class="form-group">
                                               <div class="row col-sm-offset-2" id="accesslist">
                                                 <div class="col-sm-4">
                                                   <label class="radio-inline" id="allowfrom">
-                                                    <input type="radio" id="allow" name="alllowfrom" value="allow" checked> Allow
+                                                    <input type="radio" id="allow" name="allow[]" value="1" checked> Allow
                                                   </label>
                                                   <label class="radio-inline">
-                                                    <input type="radio" id="deny" name="denyfrom" value="deny"> Deny
+                                                    <input type="radio" id="deny" name="allow[]" value="0"> Deny
                                                   </label>
                                                 </div>
                                                 <label for="from" class="col-sm-2 control-label access-from-label">From</label>
                                                 <div class="col-sm-5">
-                                                  <input type="text" class="form-control access-from-input" id="from"
-                                                  data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
-                                                  name="access[]" value="all" required>
-                                                  <span class="glyphicon form-control-feedback access-feedback" aria-hidden="true"></span>
+                                                  <input type="text" class="form-control access-from-input" id="from" name="access[]" value="all">
+                                                </div>
+                                                <div>
+                                                  <span class="glyphicon glyphicon-plus vhost-access" aria-hidden="true"></span>
                                                 </div>
                                               </div>
                                             </div>
