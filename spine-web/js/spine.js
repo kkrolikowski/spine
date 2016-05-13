@@ -157,6 +157,9 @@ $(document).ready(function() {
     }).success(function(response) {
       var tr = $('#wwwconfig').find('tr').last();
       var div = $('#wwwconfig > div');
+      $('.access-form-group-new').remove();
+      $('.panel-body').hide();
+      $('#expandControl').removeClass("fa-angle-down").addClass("fa-angle-up");
       if(tr.length) {
         tr.after(
           '<tr>' +
