@@ -23,9 +23,9 @@
       $DocumentRoot = "/home/" .$r['login']. "/public_html/". $_POST['sn'];
     }
 
-    $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status) VALUES('".
+    $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status, access_order) VALUES('".
     $_POST['sn']. "', '". $ServerALias . "', '". $DocumentRoot. "', '". $htaccess. "', ". $_POST['account'].
-    ", ". $_POST['serverid'] .", 'A')");
+    ", ". $_POST['serverid'] .", 'A', '".$_POST['access_order']."')");
     $q->execute();
 
     // ustalamy ID vhosta
@@ -34,8 +34,16 @@
     $r = $q->fetch();
     $vhostid = $r['id'];
 
+    // opcje, ktore zostaly wybrane
     foreach ($_POST['vhopts'] as $opt) {
       $q = $dbh->prepare("INSERT INTO www_opts_selected(vhost_id,opt_id) VALUES(".$vhostid.", ".$opt.")");
+      $q->execute();
+    }
+
+    $vhostAccess = array_combine($_POST['fromhost'], $_POST['allow']);
+    foreach ($vhostAccess as $host => $allow) {
+      $q = $dbh->prepare("INSERT INTO www_access(fromhost,access_permission, vhost_id) " .
+                          "VALUES('".$host."', ".$allow.", ".$vhostid.")");
       $q->execute();
     }
     updateConfigVersion($dbh, $_POST['serverid']);

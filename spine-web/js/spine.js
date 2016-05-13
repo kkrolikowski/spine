@@ -126,10 +126,19 @@ $(document).ready(function() {
       else {
         htaccess = "NaN";
       }
+      var access_order = $("input[name*='access_order']").val();
+      var allow = [];
+      var fromhost = [];
+      var idx = 0;
+      $('#access-list-details > .form-group').each(function() {
+        allow.push($(this).find('[name="allow['+ idx +']"]').val());
+        fromhost.push($(this).find('[name="from['+ idx +']"]').val());
+        idx++;
+      });
       $.ajax({
         url: '/apache.php?addvhost',
         method: 'POST',
-        data: {serverid, sn, sa, vhopts, account, htaccess},
+        data: {serverid, sn, sa, vhopts, account, htaccess, access_order, allow, fromhost},
         success: function() {
           $.bootstrapGrowl(
             'Konfiguracja apacza zapisana',
@@ -465,22 +474,22 @@ $(document).ready(function() {
       $('#expandControl').removeClass("fa-angle-up").addClass("fa-angle-down");
     }
   });
-  var rulesCount = 0;
+  var rulesCount = 1;
   $(document).on('click', '.vhost-access-add', function() {
     $('#access-list-details').append(
       '<div class="form-group access-form-group-new">' +
         '<div class="row col-sm-offset-2" id="accesslist">' +
           '<div class="col-sm-4">' +
             '<label class="radio-inline" id="allowfrom">' +
-              '<input type="radio" id="allow" name="allow'+ rulesCount +'" value="1" checked> Allow' +
+              '<input type="radio" id="allow" name="allow['+ rulesCount +']" value="1" checked> Allow' +
             '</label>' +
             '<label class="radio-inline">' +
-              '<input type="radio" id="deny" name="allow'+ rulesCount +'" value="0"> Deny' +
+              '<input type="radio" id="deny" name="allow['+ rulesCount +']" value="0"> Deny' +
             '</label>' +
           '</div>' +
           '<label for="from" class="col-sm-2 control-label access-from-label">From</label>' +
           '<div class="col-sm-5">' +
-            '<input type="text" class="form-control access-from-input" id="from" name="access[]" value="all">' +
+            '<input type="text" class="form-control access-from-input" id="from" name="from['+ rulesCount +']" value="all">' +
           '</div>' +
           '<div>' +
             '<span class="glyphicon glyphicon-minus vhost-access vhost-access-del" aria-hidden="true"></span>' +
