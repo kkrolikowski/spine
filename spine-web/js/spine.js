@@ -126,12 +126,12 @@ $(document).ready(function() {
       else {
         htaccess = "NaN";
       }
-      var access_order = $("input[name*='access_order']").val();
+      var access_order = $("input[name*='access_order']:checked").val();
       var allow = [];
       var fromhost = [];
       var idx = 0;
       $('#access-list-details > .form-group').each(function() {
-        allow.push($(this).find('[name="allow['+ idx +']"]').val());
+        allow.push($(this).find('[name="allow['+ idx +']"]:checked').val());
         fromhost.push($(this).find('[name="from['+ idx +']"]').val());
         idx++;
       });
