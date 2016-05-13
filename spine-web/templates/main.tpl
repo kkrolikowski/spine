@@ -719,11 +719,11 @@
                                             </label>
                                             <div class="pull-right" id="accessListsExpand">
                                               <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
-                                                <span class="fa fa-angle-down" id="expandControl"></span>
+                                                <span class="fa fa-angle-up" id="expandControl"></span>
                                               </button>
                                             </div>
                                           </div>
-                                          <div class="panel-body" id="access-list-details">
+                                          <div class="panel-body" id="access-list-details" style="display: none;">
                                             <div class="form-group">
                                               <div class="row col-sm-offset-2" id="accesslist">
                                                 <div class="col-sm-4">
