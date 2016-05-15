@@ -94,7 +94,7 @@
 #accesslist {
   margin-top: 10px;
 }
-#accessListsExpand {
+#accessListsExpand, #edit_accessListsExpand {
   margin-right: -5px;
 }
 #edit_accessbox {

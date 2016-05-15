@@ -467,14 +467,14 @@ $(document).ready(function() {
       $('#sa-arrow').removeClass("fa-arrow-up").addClass("fa-arrow-down");
     }
   });
-  $(document).on('click', '#access-expandBtn', function() {
-    if($('#expandControl').hasClass("fa-angle-down")) {
-      $('#access-list-details').hide();
-      $('#expandControl').removeClass("fa-angle-down").addClass("fa-angle-up");
+  $(document).on('click', '#access-expandBtn, #edit_access-expandBtn', function() {
+    if($('#expandControl, edit_expandControl').hasClass("fa-angle-down")) {
+      $('#access-list-details, #edit_access-list-details').hide();
+      $('#expandControl, #edit_expandControl').removeClass("fa-angle-down").addClass("fa-angle-up");
     }
     else {
-      $('#access-list-details').show();
-      $('#expandControl').removeClass("fa-angle-up").addClass("fa-angle-down");
+      $('#access-list-details, #edit_access-list-details').show();
+      $('#expandControl, #edit_expandControl').removeClass("fa-angle-up").addClass("fa-angle-down");
     }
   });
   var rulesCount = 1;
