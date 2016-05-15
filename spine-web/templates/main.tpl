@@ -142,7 +142,7 @@
       <div class="form-group">
         <div class="row">
           <label for="www_access_order" class="col-sm-2 control-label">Dostęp do strony</label>
-          <div class="col-sm-8">
+          <div class="col-sm-8" id="edit_accessbox">
             <div class="panel panel-default">
               <div class="panel-heading">
                 <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
