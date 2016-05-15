@@ -126,7 +126,7 @@ $(document).ready(function() {
       else {
         htaccess = "NaN";
       }
-      var access_order = $("input[name*='access_order']:checked").val();
+      var access_order = $('[name="access_order"]:checked').val();
       var allow = [];
       var fromhost = [];
       var idx = 0;
@@ -305,6 +305,7 @@ $(document).ready(function() {
         }));
       });
       $('#wwwuser-edit').find('option[text="'+ response.user +'"]').attr('selected', 'selected');
+      // tutaj bedziemy odbierac accessliste
       if(response.htaccess != "NaN") {
         $('#htaccess-row').find('[name="htaccess"]').text(response.htaccess).attr("disabled", false);
         $('#edit_enable_htaccess').prop("checked", true);
