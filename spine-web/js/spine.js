@@ -313,6 +313,54 @@ $(document).ready(function() {
         $('#edit_orderallow').attr('checked', true);
         $('#edit_orderdeny').attr('checked', false);
       }
+      var idx = 0;
+      $.each(response.access_list, function(accessfrom, permit) {
+        if(idx === 0) {
+          if(permit == 1) {
+            $('#edit_allow_'+ idx).attr('checked', true);
+            $('#edit_deny_'+ idx).attr('checked', false);
+          }
+          else {
+            $('#edit_allow_'+ idx).attr('checked', false);
+            $('#edit_deny_'+ idx).attr('checked', true);
+          }
+          $('[name="from['+ idx +']"]').val(accessfrom);
+          idx++;
+        }
+        else {
+          $('#edit_access-list-details').append(
+            '<div class="form-group">' +
+              '<div class="row col-sm-offset-2" id="edit_accesslist">' +
+                '<div class="col-sm-4">' +
+                  '<label class="radio-inline" id="edit_allowfrom">' +
+                    '<input type="radio" id="edit_allow_'+ idx +'" name="allow['+ idx +']" value="1"> Allow' +
+                  '</label>' +
+                  '<label class="radio-inline">' +
+                    '<input type="radio" id="edit_deny_'+ idx +'" name="allow['+ idx +']" value="0"> Deny' +
+                  '</label>' +
+                '</div>' +
+                '<label for="from" class="col-sm-2 control-label edit_access-from-label">From</label>' +
+                '<div class="col-sm-5">' +
+                  '<input type="text" class="form-control access-from-input" id="edit_from" name="from['+ idx +']" value="all">' +
+                '</div>' +
+                '<div>' +
+                  '<span class="glyphicon glyphicon-minus vhost-access vhost-access-add" aria-hidden="true"></span>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+          if(permit == 1) {
+            $('#edit_allow_'+ idx).attr('checked', true);
+            $('#edit_deny_'+ idx).attr('checked', false);
+          }
+          else {
+            $('#edit_allow_'+ idx).attr('checked', false);
+            $('#edit_deny_'+ idx).attr('checked', true);
+          }
+          $('[name="from['+ idx +']"]').val(accessfrom);
+          idx++;
+        }
+      });
       if(response.htaccess != "NaN") {
         $('#htaccess-row').find('[name="htaccess"]').text(response.htaccess).attr("disabled", false);
         $('#edit_enable_htaccess').prop("checked", true);

@@ -163,10 +163,10 @@
                   <div class="row col-sm-offset-2" id="edit_accesslist">
                     <div class="col-sm-4">
                       <label class="radio-inline" id="edit_allowfrom">
-                        <input type="radio" id="edit_allow" name="allow[0]" value="1" checked> Allow
+                        <input type="radio" id="edit_allow_0" name="allow[0]" value="1" checked> Allow
                       </label>
                       <label class="radio-inline">
-                        <input type="radio" id="edit_deny" name="allow[0]" value="0"> Deny
+                        <input type="radio" id="edit_deny_0" name="allow[0]" value="0"> Deny
                       </label>
                     </div>
                     <label for="from" class="col-sm-2 control-label edit_access-from-label">From</label>
