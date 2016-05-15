@@ -141,6 +141,50 @@
       </div>
       <div class="form-group">
         <div class="row">
+          <label for="www_access_order" class="col-sm-2 control-label">Dostęp do strony</label>
+          <div class="col-sm-8">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
+                <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
+                  <input type="radio" id="orderallow" name="access_order" value="allow,deny" checked> Allow
+                </label>
+                <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
+                  <input type="radio" id="orderdeny" name="access_order" value="deny,allow"> Deny
+                </label>
+                <div class="pull-right" id="accessListsExpand">
+                  <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
+                    <span class="fa fa-angle-up" id="expandControl"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="panel-body" id="access-list-details" style="display: none;">
+                <div class="form-group">
+                  <div class="row col-sm-offset-2" id="accesslist">
+                    <div class="col-sm-4">
+                      <label class="radio-inline" id="allowfrom">
+                        <input type="radio" id="allow" name="allow[0]" value="1" checked> Allow
+                      </label>
+                      <label class="radio-inline">
+                        <input type="radio" id="deny" name="allow[0]" value="0"> Deny
+                      </label>
+                    </div>
+                    <label for="from" class="col-sm-2 control-label access-from-label">From</label>
+                    <div class="col-sm-5">
+                      <input type="text" class="form-control access-from-input" id="from" name="from[0]" value="all">
+                    </div>
+                    <div>
+                      <span class="glyphicon glyphicon-plus vhost-access vhost-access-add" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
           <div class="col-sm-offset-2 enable-option">
             <label class="checkbox-inline checkbox-placement">
               <input type="checkbox" id="edit_enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
