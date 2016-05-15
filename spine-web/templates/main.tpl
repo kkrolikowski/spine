@@ -169,7 +169,7 @@
                         <input type="radio" id="edit_deny" name="allow[0]" value="0"> Deny
                       </label>
                     </div>
-                    <label for="from" class="col-sm-2 control-label access-from-label">From</label>
+                    <label for="from" class="col-sm-2 control-label edit_access-from-label">From</label>
                     <div class="col-sm-5">
                       <input type="text" class="form-control access-from-input" id="edit_from" name="from[0]" value="all">
                     </div>

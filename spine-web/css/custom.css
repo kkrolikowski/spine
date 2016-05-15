@@ -79,11 +79,14 @@
   width: 247px;
   margin-left: 39px;
 }
-#allowfrom {
+#allowfrom, #edit_allowfrom {
   margin-left: -80px;
 }
 .access-from-label {
   margin-left: -110px;
+}
+.edit_access-from-label {
+  margin-left: -100px;
 }
 .access-from-input {
   margin-left: -50px;
