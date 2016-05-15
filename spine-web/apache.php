@@ -61,16 +61,16 @@
   }
   if(isset($_GET['vhostid'])) {
     $q = $dbh->prepare("SELECT w.id, w.ServerName, w.ServerAlias, w.DocumentRoot, w.htaccess, su.login, ".
-       "group_concat(wo.id separator ' ') as selected_optid, ".
-       "group_concat(wo.vhostopt separator ' ') as selected_options ".
-       "FROM www w ".
-        "JOIN sysusers su ".
-       "ON w.user_id =su.id ".
-        "JOIN www_opts_selected wos ".
-	     "ON w.id = wos.vhost_id ".
-        "JOIN www_opts wo ".
-       "ON wo.id = wos.opt_id ".
-       "WHERE w.id = ". $_GET['vhostid']);
+      "GROUP_CONCAT(DISTINCT wo.id SEPARATOR ' ') AS selected_optid, ".
+      "GROUP_CONCAT(DISTINCT wo.vhostopt SEPARATOR ' ') AS selected_options, ".
+      "GROUP_CONCAT(DISTINCT CONCAT(wa.fromhost, ':', wa.access_permission) SEPARATOR ',') AS accesslist, " .
+      "w.access_order ".
+      "FROM www w ".
+        "JOIN sysusers su ON w.user_id = su.id ".
+        "JOIN www_opts_selected wos ON w.id = wos.vhost_id ".
+        "JOIN www_opts wo ON wo.id = wos.opt_id ".
+        "JOIN www_access wa ON wa.vhost_id = w.id ".
+      "WHERE w.id = ".$_GET['vhostid']);
     $q->execute();
     $r = $q->fetch();
 
@@ -80,6 +80,12 @@
     $optids = array_filter(explode(" ", $r['selected_optid']));
     $optsWithID = array_combine($optids, $opts);
 
+    $access = array_filter(explode(",", $r['accesslist']));
+    $accessArr = array();
+    foreach ($access as $val) {
+      $tmp = explode(":", $val);
+      $accessArr[$tmp[0]] = $tmp[1];
+    }
     $json = array(
       'id' => $r['id'],
       'ServerName' => $r['ServerName'],
@@ -87,7 +93,9 @@
       'DocumentRoot' => $r['DocumentRoot'],
       'htaccess' => $r['htaccess'],
       'user' => $r['login'],
-      'vhost_options' => $optsWithID
+      'vhost_options' => $optsWithID,
+      'access_order' => $r['access_order'],
+      'access_list' => $accessArr
     );
     header('Content-Type: application/json');
     echo json_encode($json);
