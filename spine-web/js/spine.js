@@ -440,11 +440,19 @@ $(document).ready(function() {
     $('#dual-list-box-optedit').find('select.selected > option').each(function() {
       opts.push($(this).val());
     });
-
+    var access_order = $('[name="edit_access_order"]:checked').val();
+    var allow = [];
+    var fromhost = [];
+    var idx = 0;
+    $('#edit_access-list-details > .form-group').each(function() {
+      allow.push($(this).find('[name="allow['+ idx +']"]:checked').val());
+      fromhost.push($(this).find('[name="from['+ idx +']"]').val());
+      idx++;
+    });
     $.ajax({
       url: '/apache.php?edit=' + id,
       method: 'POST',
-      data: {serverid, sa, opts, htaccess},
+      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost},
       success: function() {
         $.bootstrapGrowl(
           'Konfiguracja vhosta zapisana',
