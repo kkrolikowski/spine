@@ -114,13 +114,23 @@
     foreach ($_POST['opts'] as $value) {
       array_push($opts, $value);
     }
-    $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $sa ."', htaccess = '". $_POST['htaccess']. "' WHERE id = ". $_GET['edit']);
+    $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $sa ."', htaccess = '". $_POST['htaccess'].
+                        "', access_order = '".$_POST['access_order']."' WHERE id = ". $_GET['edit']);
     $q->execute();
 
     $q = $dbh->prepare("DELETE FROM www_opts_selected WHERE vhost_id = ". $_GET['edit']);
     $q->execute();
     foreach ($opts as $value) {
       $q = $dbh->prepare("INSERT INTO www_opts_selected(vhost_id, opt_id) VALUES(".$_GET['edit'].", ".$value.")");
+      $q->execute();
+    }
+
+    $q = $dbh->prepare("DELETE FROM www_access WHERE vhost_id = ". $_GET['edit']);
+    $q->execute();
+    $accessList = array_combine($_POST['fromhost'], $_POST['allow']);
+    foreach ($accessList as $host => $permission) {
+      $q = $dbh->prepare("INSERT INTO www_access(fromhost,access_permission,vhost_id) " .
+                        "VALUES('".$host."', ".$permission.", ".$_GET['edit'].")");
       $q->execute();
     }
     updateConfigVersion($dbh, $_POST['serverid']);
