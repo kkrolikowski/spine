@@ -93,7 +93,7 @@ $(document).ready(function() {
       }
     });
     $(document).on('click', '.glyphicon-minus', function() {
-      $(this).closest('#serverAliasPlus, #sa-group-new').remove();
+      $(this).closest('#serverAliasPlus, #sa-group-new, .access-rule').remove();
     });
     $(document).on('click', '#enable_htaccess, #edit_enable_htaccess', function() {
       $('#htaccess, #htaccess-field').attr('disabled', ! this.checked);
