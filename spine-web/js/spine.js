@@ -329,7 +329,7 @@ $(document).ready(function() {
         }
         else {
           $('#edit_access-list-details').append(
-            '<div class="form-group">' +
+            '<div class="form-group access-rule">' +
               '<div class="row col-sm-offset-2" id="edit_accesslist">' +
                 '<div class="col-sm-4">' +
                   '<label class="radio-inline" id="edit_allowfrom">' +
@@ -403,6 +403,7 @@ $(document).ready(function() {
             $('#htaccess-row').find('[name="htaccess"]').text("").attr("disabled", "disabled");
             $('#edit_enable_htaccess').prop("checked", false);
           });
+          $('.access-rule').remove();
           i = 0;
         })
         .modal('show');
@@ -487,6 +488,7 @@ $(document).ready(function() {
         $('#htaccess-row').find('[name="htaccess"]').text("").attr("disabled", "disabled");
         $('#edit_enable_htaccess').prop("checked", false);
       });
+      $('.access-rule').remove();
       i = 0;
     });
   });
@@ -511,6 +513,7 @@ $(document).ready(function() {
       $('#htaccess-row').find('[name="htaccess"]').text("").attr("disabled", "disabled");
       $('#edit_enable_htaccess').prop("checked", false);
     });
+    $('.access-rule').remove();
     i = 0;
   });
   $(document).on('click', '#sa-arrow-btn', function() {
