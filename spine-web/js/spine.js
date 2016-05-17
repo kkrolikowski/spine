@@ -157,7 +157,7 @@ $(document).ready(function() {
     }).success(function(response) {
       var tr = $('#wwwconfig').find('tr').last();
       var div = $('#wwwconfig > div');
-      $('.access-form-group-new').remove();
+      $('.access-rule').remove();
       $('.panel-body').hide();
       $('#expandControl').removeClass("fa-angle-down").addClass("fa-angle-up");
       if(tr.length) {
@@ -344,7 +344,7 @@ $(document).ready(function() {
                   '<input type="text" class="form-control access-from-input" id="edit_from" name="from['+ idx +']" value="all">' +
                 '</div>' +
                 '<div>' +
-                  '<span class="glyphicon glyphicon-minus vhost-access vhost-access-add" aria-hidden="true"></span>' +
+                  '<span class="glyphicon glyphicon-minus vhost-access vhost-access-del" aria-hidden="true"></span>' +
                 '</div>' +
               '</div>' +
             '</div>'
@@ -445,8 +445,8 @@ $(document).ready(function() {
     var fromhost = [];
     var idx = 0;
     $('#edit_access-list-details > .form-group').each(function() {
-      allow.push($(this).find('[name="allow['+ idx +']"]:checked').val());
-      fromhost.push($(this).find('[name="from['+ idx +']"]').val());
+      allow.push($(this).find('input[type="radio"]:checked').val());
+      fromhost.push($(this).find('input[type="text"]').val());
       idx++;
     });
     $.ajax({
@@ -546,12 +546,8 @@ $(document).ready(function() {
   });
   var rulesCount = 1;
   $(document).on('click', '.vhost-access-add', function() {
-    if($('#edit_access-list-details > form-group').length > 1) {
-      rulesCount = $('#edit_access-list-details > form-group').length;
-    }
-    rulesCount++;
     $('#access-list-details, #edit_access-list-details').append(
-      '<div class="form-group access-form-group-new">' +
+      '<div class="form-group access-rule">' +
         '<div class="row col-sm-offset-2" id="accesslist">' +
           '<div class="col-sm-4">' +
             '<label class="radio-inline" id="allowfrom">' +
@@ -571,8 +567,9 @@ $(document).ready(function() {
         '</div>' +
       '</div>'
     );
+    rulesCount++;
   });
   $(document).on('click', '.vhost-access-del', function() {
-    $(this).closest('.access-form-group-new').remove();
+    $(this).closest('.access-rule').remove();
   });
 });
