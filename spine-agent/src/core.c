@@ -490,6 +490,8 @@ char * apacheConfigPackage(hostconfig data) {
 				",ServerAlias:", data.vhost[vidx].ServerAlias,
 				",DocumentRoot:", data.vhost[vidx].DocumentRoot,
 				",ApacheOpts:", data.vhost[vidx].apacheOpts,
+				",VhostAccessOrder:", data.vhost[vidx].vhost_access_order,
+				",VhostAccessList:", data.vhost[vidx].vhost_access_list,
 				",htaccess:", data.vhost[vidx].htaccess,
 				",user:", data.vhost[vidx].user, "},", NULL);
 		strcat(buff, vhostdata);
@@ -527,5 +529,7 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 		free(vhost[i].htaccess);
 		free(vhost[i].user);
 		free(vhost[i].apacheOpts);
+		free(vhost[i].vhost_access_list);
+		free(vhost[i].vhost_access_order);
 	}
 }
