@@ -545,19 +545,20 @@ $(document).ready(function() {
     }
   });
   var rulesCount = 1;
-  if($('#edit_access-list-details > form-group').length > 1) {
-    rulesCount = $('#edit_access-list-details > form-group').length;
-  }
   $(document).on('click', '.vhost-access-add', function() {
+    if($('#edit_access-list-details > form-group').length > 1) {
+      rulesCount = $('#edit_access-list-details > form-group').length;
+    }
+    rulesCount++;
     $('#access-list-details, #edit_access-list-details').append(
       '<div class="form-group access-form-group-new">' +
         '<div class="row col-sm-offset-2" id="accesslist">' +
           '<div class="col-sm-4">' +
             '<label class="radio-inline" id="allowfrom">' +
-              '<input type="radio" id="allow" name="allow['+ rulesCount +']" value="1" checked> Allow' +
+              '<input type="radio" id="allow_'+ rulesCount +'" name="allow['+ rulesCount +']" value="1" checked> Allow' +
             '</label>' +
             '<label class="radio-inline">' +
-              '<input type="radio" id="deny" name="allow['+ rulesCount +']" value="0"> Deny' +
+              '<input type="radio" id="deny_'+ rulesCount +'" name="allow['+ rulesCount +']" value="0"> Deny' +
             '</label>' +
           '</div>' +
           '<label for="from" class="col-sm-2 control-label access-from-label">From</label>' +
@@ -570,7 +571,6 @@ $(document).ready(function() {
         '</div>' +
       '</div>'
     );
-    rulesCount++;
   });
   $(document).on('click', '.vhost-access-del', function() {
     $(this).closest('.access-form-group-new').remove();
