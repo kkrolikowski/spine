@@ -545,8 +545,11 @@ $(document).ready(function() {
     }
   });
   var rulesCount = 1;
+  if($('#edit_access-list-details > form-group').length > 1) {
+    rulesCount = $('#edit_access-list-details > form-group').length;
+  }
   $(document).on('click', '.vhost-access-add', function() {
-    $('#access-list-details').append(
+    $('#access-list-details, #edit_access-list-details').append(
       '<div class="form-group access-form-group-new">' +
         '<div class="row col-sm-offset-2" id="accesslist">' +
           '<div class="col-sm-4">' +
