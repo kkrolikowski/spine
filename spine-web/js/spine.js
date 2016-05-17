@@ -443,11 +443,9 @@ $(document).ready(function() {
     var access_order = $('[name="edit_access_order"]:checked').val();
     var allow = [];
     var fromhost = [];
-    var idx = 0;
     $('#edit_access-list-details > .form-group').each(function() {
       allow.push($(this).find('input[type="radio"]:checked').val());
       fromhost.push($(this).find('input[type="text"]').val());
-      idx++;
     });
     $.ajax({
       url: '/apache.php?edit=' + id,
