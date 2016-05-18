@@ -113,4 +113,7 @@ void reloadApache(char * os);
 // od NaN
 void createHtaccess(wwwdata vhosts[], int n);
 
+// funckcja generuje pojedynczy wpis w configu apacza Deny from xxx lub Allow from xxx
+char * apache_accesslist_entry(char * str);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

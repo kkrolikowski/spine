@@ -408,3 +408,46 @@ void reloadApache(char * os) {
 	else if(pid > 0)
 		wait(NULL);
 }
+char * apache_accesslist_entry(char * str) {
+	char * allow = "Allow from ";			// poczatek linijki (allow)
+	char * deny = "Deny from ";				// poczatek linijki (deny)
+	char * rule = NULL;						// przyjmie wartosc allow lub deny
+	char * rule_entry = NULL;				// adres stringa z pojedyncza regula
+	char * access_val = NULL;				// wartosc 0 lub 1 - allow lub deny
+	char * str_begin = str;					// poczatek stringa przekazanego do funkcji
+	char * access_from = NULL;				// string przechowujacy wartosc from
+	char * access_from_begin = NULL;		// poczatek stringa przechowujacego from
+	long from_len = 0L;						// ilosc pamieci potrzebnej do przechowania wartosci from
+	size_t rule_len = 0;					// ilosc pamieci potrzebnej do przechowania calego entry
+
+	access_val = strchr(str, ':') + 1;							// odszukujemy wartosc allow lub deny
+	from_len = access_val - str_begin;							// okreslamy ilosc pamieci potrzebnej na przechowanie wartosci from
+	access_from = (char *) malloc(from_len * sizeof(char));		// alokujemy pamiec do przechowania wartosci from
+	access_from_begin = access_from;							// zapisujemy adres poczatkowy
+	memset(access_from, '\0', from_len);
+
+	// odczytujemy from ze stringa
+	while(*str_begin != ':') {
+		*access_from = *str_begin;
+		access_from++; str_begin++;
+	}
+	*access_from = '\0';
+
+	// okreslamy czy ma byc Deny from czy Allow from
+	if(strcmp(access_val, "0"))
+		rule = allow;
+	else
+		rule = deny;
+
+	// rezerwujemy pamiec i wypelniamy ja zebranymi danymi
+	rule_len = strlen(rule) + strlen(access_from_begin) + 1;
+	rule_entry = (char *) malloc(rule_len * sizeof(char));
+	memset(rule_entry, '\0', rule_len);
+	strcpy(rule_entry, rule);
+	strcat(rule_entry, access_from_begin);
+
+	// zwalniamy niepotrzebna pamiec
+	free(access_from_begin);
+
+	return rule_entry;
+}
