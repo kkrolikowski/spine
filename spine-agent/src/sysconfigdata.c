@@ -482,6 +482,7 @@ char * acl(char * str) {
 
 	accesslist_len = strlen(buff) + 1;
 	accesslist = (char *) malloc(accesslist_len * sizeof(char));
+	memset(accesslist, '\0', accesslist_len);
 	strncpy(accesslist, buff, accesslist_len);
 	free(acl_entry);
 
