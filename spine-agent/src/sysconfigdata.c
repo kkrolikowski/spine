@@ -451,3 +451,39 @@ char * apache_accesslist_entry(char * str) {
 
 	return rule_entry;
 }
+char * acl(char * str) {
+	char buff[256];
+	char chunk[64];
+	char * accesslist = NULL;
+	char * acl_entry = NULL;
+	size_t accesslist_len = 0;
+	int i = 0;
+
+	memset(buff, '\0', 256);
+	memset(chunk, '\0', 64);
+	while(*str) {
+		if(*str == ',') {
+			chunk[i] = '\0';
+			acl_entry = apache_accesslist_entry(chunk);
+			strcat(buff, acl_entry);
+			strcat(buff, "\n");
+			free(acl_entry);
+			i = 0;
+			str++;
+		}
+		else {
+			chunk[i] = *str;
+			str++; i++;
+		}
+	}
+	chunk[i] = '\0';
+	acl_entry = apache_accesslist_entry(chunk);
+	strcat(buff, acl_entry);
+
+	accesslist_len = strlen(buff) + 1;
+	accesslist = (char *) malloc(accesslist_len * sizeof(char));
+	strncpy(accesslist, buff, accesslist_len);
+	free(acl_entry);
+
+	return accesslist;
+}
