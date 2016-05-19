@@ -288,7 +288,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
 		fprintf(vhost, "\t\tAllowOverride All\n");
 		fprintf(vhost, "\t\tOrder %s\n", vhosts[i].vhost_access_order);
-		fprintf(vhost, "\t\t%s", acl(vhosts[i].vhost_access_list));
+		fprintf(vhost, "%s", acl(vhosts[i].vhost_access_list));
 		if(!strcmp(distro, "Ubuntu"))
 			fprintf(vhost, "\t\tRequire all granted\n");
 		fprintf(vhost, "\t</Directory>\n\n");
@@ -409,8 +409,8 @@ void reloadApache(char * os) {
 		wait(NULL);
 }
 char * apache_accesslist_entry(char * str) {
-	char * allow = "Allow from ";			// poczatek linijki (allow)
-	char * deny = "Deny from ";				// poczatek linijki (deny)
+	char * allow = "\t\tAllow from ";		// poczatek linijki (allow)
+	char * deny = "\t\tDeny from ";			// poczatek linijki (deny)
 	char * rule = NULL;						// przyjmie wartosc allow lub deny
 	char * rule_entry = NULL;				// adres stringa z pojedyncza regula
 	char * access_val = NULL;				// wartosc 0 lub 1 - allow lub deny
