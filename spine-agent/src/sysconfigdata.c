@@ -288,7 +288,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
 		fprintf(vhost, "\t\tAllowOverride All\n");
 		fprintf(vhost, "\t\tOrder %s\n", vhosts[i].vhost_access_order);
-		fprintf(vhost, "\t\tAllow from all\n");
+		fprintf(vhost, "\t\t%s", acl(vhosts[i].vhost_access_list));
 		if(!strcmp(distro, "Ubuntu"))
 			fprintf(vhost, "\t\tRequire all granted\n");
 		fprintf(vhost, "\t</Directory>\n\n");
