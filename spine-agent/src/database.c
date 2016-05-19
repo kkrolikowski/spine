@@ -186,7 +186,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, ",
 							"sysusers.login AS user, sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt ",
 							"SEPARATOR ' ') AS opts, GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) ",
-							"SEPARATOR ',') AS accesslist, www.access_order FROM www JOIN sysusers ON sysusers.id = www.user_id ",
+							"SEPARATOR '#') AS accesslist, www.access_order FROM www JOIN sysusers ON sysusers.id = www.user_id ",
 							"JOIN sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id ",
 							"JOIN www_opts ON www_opts.id = www_opts_selected.opt_id JOIN www_access ON www_access.vhost_id = www.id ",
 							"WHERE status = 'A' AND www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid, "') GROUP BY www.id", NULL);
@@ -202,8 +202,8 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				hconfig.vhost[vhi].user = readData(row[4]);
 				hconfig.confVer = atoi(row[5]);
 				hconfig.vhost[vhi].apacheOpts = readData(row[6]);
-				hconfig.vhost[vhi].vhost_access_order = readData(row[7]);
-				hconfig.vhost[vhi].vhost_access_list = readData(row[8]);
+				hconfig.vhost[vhi].vhost_access_list = readData(row[7]);
+				hconfig.vhost[vhi].vhost_access_order = readData(row[8]);
 				vhi++;
 			}
 			hconfig.vhost_num = vhi;
