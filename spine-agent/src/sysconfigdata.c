@@ -253,6 +253,8 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	char * path = NULL;					// pelna sciezka do pliku konfiguracyjnego vhosta
 	char * path2 = NULL;				// symlink do sites-enabled (Ubuntu only)
 	char * logentry = NULL;				// komunikat do logu programu
+	char * acl_entry = NULL;			// kompletna lista konfiguracji dostepu
+	char * acl_order = NULL;			// kolejnosc przetwarzania listy dostepow
 	FILE * vhost;						// uchwyt pliku vhosta
 	int counter = 0;					// liczba stworzonych vhostow
 	int vhostExist = 0;					// ustawiamy 1 jesli plik juz istnial
@@ -279,6 +281,8 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 			continue;
 		}
 		counter++;
+		acl_order = accessOrder(vhosts[i].vhost_access_order);
+		acl_entry = acl(vhosts[i].vhost_access_list);
 		fprintf(vhost, "<VirtualHost *:80>\n");
 		fprintf(vhost, "\tServerName %s\n", vhosts[i].ServerName);
 		if(strcmp(vhosts[i].ServerAlias, "NaN"))
@@ -287,8 +291,8 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
 		fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
 		fprintf(vhost, "\t\tAllowOverride All\n");
-		fprintf(vhost, "\t\tOrder %s\n", vhosts[i].vhost_access_order);
-		fprintf(vhost, "%s\n", acl(vhosts[i].vhost_access_list));
+		fprintf(vhost, "\t\tOrder %s\n", acl_order);
+		fprintf(vhost, "%s\n", acl_entry);
 		if(!strcmp(distro, "Ubuntu"))
 			fprintf(vhost, "\t\tRequire all granted\n");
 		fprintf(vhost, "\t</Directory>\n\n");
@@ -296,6 +300,8 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "</VirtualHost>\n");
 		fclose(vhost);
+		free(acl_order);
+		free(acl_entry);
 		if(vhostExist)
 			logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhosts[i].ServerName, " zostala zaktualizowana", NULL);
 		else
@@ -487,4 +493,25 @@ char * acl(char * str) {
 	free(acl_entry);
 
 	return accesslist;
+}
+char * accessOrder(char * str) {
+	char * allow = "allow,deny";
+	char * deny = "deny,allow";
+	char * order = NULL;
+	size_t len = 0;
+
+	if(!strcmp(str, "10")) {
+		len = strlen(allow) + 1;
+		order = (char *) malloc(len * sizeof(char));
+		memset(order, '\0', len);
+		strcpy(order, allow);
+	}
+	else {
+		len = strlen(deny) + 1;
+		order = (char *) malloc(len * sizeof(char));
+		memset(order, '\0', len);
+		strcpy(order, deny);
+	}
+
+	return order;
 }

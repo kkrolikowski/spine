@@ -118,4 +118,8 @@ char * apache_accesslist_entry(char * str);
 
 // funckcja zwraca kompletny fragment konfiguracji allow/deny apacza
 char * acl(char * str);
+
+// funkcja konfiguruje opcje order apacza na podstawie informacji z bazy
+char * accessOrder(char * str);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
