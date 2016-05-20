@@ -305,7 +305,7 @@ $(document).ready(function() {
         }));
       });
       $('#wwwuser-edit').find('option[text="'+ response.user +'"]').attr('selected', 'selected');
-      if(response.access_order === "deny,allow") {
+      if(response.access_order === "01") {
         $('#edit_orderallow').attr('checked', false);
         $('#edit_orderdeny').attr('checked', true);
       }

@@ -147,10 +147,10 @@
               <div class="panel-heading">
                 <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
                 <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                  <input type="radio" id="edit_orderallow" name="edit_access_order" value="allow,deny" checked> Allow
+                  <input type="radio" id="edit_orderallow" name="edit_access_order" value="10" checked> Allow
                 </label>
                 <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                  <input type="radio" id="edit_orderdeny" name="edit_access_order" value="deny,allow"> Deny
+                  <input type="radio" id="edit_orderdeny" name="edit_access_order" value="01"> Deny
                 </label>
                 <div class="pull-right" id="edit_accessListsExpand">
                   <button type="button" class="btn btn-default btn-xs" id="edit_access-expandBtn">
@@ -756,10 +756,10 @@
                                           <div class="panel-heading">
                                             <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
                                             <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                              <input type="radio" id="orderallow" name="access_order" value="allow,deny" checked> Allow
+                                              <input type="radio" id="orderallow" name="access_order" value="10" checked> Allow
                                             </label>
                                             <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                              <input type="radio" id="orderdeny" name="access_order" value="deny,allow"> Deny
+                                              <input type="radio" id="orderdeny" name="access_order" value="01"> Deny
                                             </label>
                                             <div class="pull-right" id="accessListsExpand">
                                               <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
