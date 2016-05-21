@@ -577,6 +577,7 @@
                                           <dl class="dl-horizontal">
                                             <dt>Hostname</dt><dd>{$sysinfo.hostname}</dd>
                                             <dt>IP</dt><dd>{$sysinfo.ip}</dd>
+                                            <dt>Public IP</dt><dd>{$sysinfo.ext_ip}</dd>
                                             <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
                                             <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
                                             <dt>System</dt><dd>{$sysinfo.system}</dd>

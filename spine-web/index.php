@@ -20,7 +20,7 @@
   // ilosc wolnego miejsca na poszczegolnych serwerach
   $SrvHDDFree = hddFreePerServer($dbh);
   $spine->assign('SrvHDDFree', $SrvHDDFree);
-  
+
   // uptime na poszczegolnych serwerach
   $uptimePerHost = uptimePerServer($dbh);
   $spine->assign('uptimePerHost', $uptimePerHost);
@@ -34,7 +34,7 @@
 
   if (isset($_GET['serverid'])) {
       // komplet informacji na temat systemu i zuzycia zasobow
-      $q = $dbh->prepare("SELECT ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -51,6 +51,7 @@
       $spine->assign('HostName', $r['hostname']);
       $sysinfo = array(
           'ip' => $r['ip'],
+          'ext_ip' => $r['ext_ip'],
           'hostname' =>$r['hostname'],
           'system' => $r['distro'],
           'uptime' => $uptime,
