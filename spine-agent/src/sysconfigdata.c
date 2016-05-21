@@ -15,6 +15,7 @@
 #include <errno.h>
 #include "core.h"
 #include "sysconfigdata.h"
+#include "network.h"
 
 unsigned long getuptime(void) {
 	struct sysinfo sys;
@@ -134,6 +135,8 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 		status = 1;
 	if((sys->os = linuxDistro()) != NULL)
 		status = 1;
+	if((sys->extip = getExternalIP()) != NULL)
+		status = 1;
 
 	return status;
 }
@@ -147,6 +150,7 @@ void InitSystemInformation(systeminfo * sys) {
 	sys->hostname = NULL;
 	sys->os = NULL;
 	sys->ip = NULL;
+	sys->extip = NULL;
 	sys->config_version = 0;
 }
 void ClearSystemInformation(systeminfo * sys) {
@@ -156,6 +160,7 @@ void ClearSystemInformation(systeminfo * sys) {
 	sys->ram_free = 0L;
 	sys->ram_total = 0L;
 	sys->config_version = 0;
+	free(sys->extip);
 	free(sys->net_hwaddr);
 	free(sys->hostname);
 	free(sys->os);

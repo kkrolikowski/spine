@@ -41,6 +41,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	hostinfo.hdd_free = atol(jsonVal(stream, "hdd_free"));
 	hostinfo.ram_total = atol(jsonVal(stream, "ram_total"));
 	hostinfo.ram_free = atol(jsonVal(stream, "ram_free"));
+	hostinfo.extip = jsonVal(stream, "ext_ip");
 	hostinfo.ip = clientip;
 
 	// sprawdzam czy istnieje w bazie rekord z okreslonym systemid.
@@ -115,6 +116,7 @@ int updateItem(systeminfo * info) {
 	char * query = mkString(
 			"UPDATE sysinfo SET uptime = ", uptime_s,
 			", ip = '", info->ip,
+			", ext_ip = '", info->extip,
 			"', hostname = '", info->hostname,
 			"', distro = '", info->os,
 			"', hdd_total = ", hdd_total_s,
@@ -148,8 +150,8 @@ int insertItem(systeminfo * info) {
 	char * ram_free_s = ulong2String(info->ram_free);
 
 
-	char * query = mkString("INSERT INTO sysinfo(ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver) VALUES('",
-			info->ip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
+	char * query = mkString("INSERT INTO sysinfo(ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver) VALUES('",
+			info->ip, "', '", info->extip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
 			", '", info->net_hwaddr, "', 0)", NULL);
 
 	if(!mysql_query(dbh, query))

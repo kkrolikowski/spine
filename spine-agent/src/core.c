@@ -312,6 +312,7 @@ char * BuildPackage(systeminfo * info) {
 			"hdd_free:", s_hdd_free, ",",
 			"ram_total:", s_ram_total, ",",
 			"ram_free:", s_ram_free, ",",
+			"ext_ip:", info->extip, ",",
 			"config_ver:", s_config_ver, ",",
 			"systemid:", info->net_hwaddr, "}}]",
 	NULL);

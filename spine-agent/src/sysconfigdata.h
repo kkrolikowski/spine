@@ -17,6 +17,7 @@ typedef struct systeminfo {
 	char * hostname;
 	char * os;
 	char * ip;
+	char * extip;
 	int config_version;
 } systeminfo;
 

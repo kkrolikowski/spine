@@ -40,4 +40,7 @@ int waitForHEllo(int sockfd);
 // inicjujemy strukture polaczenia klienta
 void initNetinfo(netinfo * net);
 
+// funkcja pobiera publiczny adres IP serwera korzystajac z
+// zewnetrznego api.
+char * getExternalIP(void);
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */

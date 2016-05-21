@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "network.h"
+#include "core.h"
 
 int listener(int port) {
 	int sockfd;
@@ -135,4 +136,50 @@ int waitForHEllo(int sockfd) {
 void initNetinfo(netinfo * net) {
 	net->ipaddr = NULL;
 	net->sock = 0;
+}
+char * getExternalIP(void) {
+	char * extip = NULL;
+	char * extip_pos = NULL;
+	char * strpos = NULL;
+	size_t iplen = 0;
+	char * apihost = "api.angrybits.pl";
+	int apiport = 80;
+	char buff[256];
+	memset(buff, '\0', 256);
+
+	char * request = mkString("GET /ip.php HTTP/1.1\n",
+							"Host: ", apihost, "\n\n", NULL);
+	char * lastHeader = "Content-Type: text/html";
+
+	int apifd = connector(apihost, apiport);
+
+	if(apifd < 0)
+		return NULL;
+
+	memset(buff, '\0', 256);
+	strcpy(buff,request);
+
+	if(write(apifd, buff, 256) < 0)
+		return NULL;
+
+	memset(buff, '\0', 256);
+	if(read(apifd, buff, 256) < 0)
+		return NULL;
+
+	close(apifd);
+
+	strpos = strstr(buff, lastHeader);
+	strpos = strpos + strlen(lastHeader);
+	iplen = strlen(strpos);
+	extip = (char *) malloc(iplen * sizeof(char));
+	extip_pos = extip;
+	memset(extip, '\0', iplen);
+	while(*strpos) {
+		if(*strpos != '\n') {
+				*extip_pos = *strpos;
+				extip_pos++;
+		}
+		strpos++;
+	}
+	return extip;
 }
