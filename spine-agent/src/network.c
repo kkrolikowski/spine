@@ -175,7 +175,7 @@ char * getExternalIP(void) {
 	extip_pos = extip;
 	memset(extip, '\0', iplen);
 	while(*strpos) {
-		if(*strpos != '\n') {
+		if(*strpos != '\n' && *strpos != '\r') {
 				*extip_pos = *strpos;
 				extip_pos++;
 		}

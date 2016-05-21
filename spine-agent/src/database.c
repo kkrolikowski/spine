@@ -116,7 +116,7 @@ int updateItem(systeminfo * info) {
 	char * query = mkString(
 			"UPDATE sysinfo SET uptime = ", uptime_s,
 			", ip = '", info->ip,
-			", ext_ip = '", info->extip,
+			"', ext_ip = '", info->extip,
 			"', hostname = '", info->hostname,
 			"', distro = '", info->os,
 			"', hdd_total = ", hdd_total_s,
