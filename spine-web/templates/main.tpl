@@ -546,6 +546,11 @@
             <div class="row">
                 <div class="col-lg-12">
                     {if isset($smarty.get.serverid)}
+                    <ol class="breadcrumb">
+                      <li><a href="#">Home</a></li>
+                      <li><a href="#">Library</a></li>
+                      <li class="active">Data</li>
+                    </ol>
                     <h3 class="page-header">
                       <img src="/images/server.png" width="70">Host: {$HostName}</h3>
                     {else}
