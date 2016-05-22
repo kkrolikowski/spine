@@ -449,13 +449,13 @@
                                      <a href="#">{$srv} <span class="fa arrow"></span></a>
                                      <ul class="nav nav-third-level">
                                        <li>
-                                         <a href="?serverid={$id}">Informacje</a>
+                                         <a href="?serverid={$id}&item=info">Informacje</a>
                                        </li>
                                        <li>
-                                         <a href="#">Konta użytkowników</a>
+                                         <a href="?serverid={$id}&item=sysusers">Konta użytkowników</a>
                                        </li>
                                        <li>
-                                         <a href="#">Serwer WWW</a>
+                                         <a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a>
                                        </li>
                                      </ul>
                                    </li>
@@ -555,253 +555,256 @@
                 <!-- /.col-lg-12 -->
             </div>
             <!-- /.row -->
-            {if isset($smarty.get.serverid)}
-            <div class="row">
-                <div>
-                    <!-- Nav tabs -->
-                  <ul class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#ogolne" aria-controls="ogolne" role="tab" data-toggle="tab">Ogólne</a></li>
-                    <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Użytkownicy <span class="caret"></span></a>
-                      <ul class="dropdown-menu">
-                        <li role="presentation"><a href="#sysusers" aria-controls="sysusers" role="tab" data-toggle="tab">Lista</a></li>
-                        <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowy użytkownik</a></li>
-                      </ul>
-                    </li>
-                    <li class="dropdown">
-                      <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
-                      <ul class="dropdown-menu">
-                        <li role="presentation"><a href="#wwwconfig" aria-controls="wwwconfig" role="tab" data-toggle="tab">Strony WWW</a></li>
-                        <li role="presentation"><a href="#wwwconfignew" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li role="presentation"><a href="#wwwAccounts" aria-controls="wwwAccounts" role="tab" data-toggle="tab">Konta WWW</a></li>
-                        <li role="presentation"><a href="#wwwNewAccount" aria-controls="wwwNewAccount" role="tab" data-toggle="tab">Nowe Konto WWW</a></li>
-                      </ul>
-                    </li>
-                  </ul>
+            {if isset($smarty.get.serverid) && isset($smarty.get.item)}
+              {if $smarty.get.item == "info"}
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">Podstawowe informacje</div>
+                      <div class="panel-body">
+                        <dl class="dl-horizontal">
+                          <dt>Hostname</dt><dd>{$sysinfo.hostname}</dd>
+                          <dt>IP</dt><dd>{$sysinfo.ip}</dd>
+                          <dt>Public IP</dt><dd>{$sysinfo.ext_ip}</dd>
+                          <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
+                          <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
+                          <dt>System</dt><dd>{$sysinfo.system}</dd>
+                        </dl>
+                      </div>
+                  </div>
+                </div>
+                <div class="col-sm-5">
+                  <div class="panel panel-primary">
+                      <div class="panel-heading">Dysk / RAM</div>
+                      <div class="panel-body">
+                        <div class="row">
+                          <div class="col-sm-8">
+                            <center><strong>Filesystem: /</strong></center>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-4">
+                            <div id="diskusage_free" data="{$sysinfo.hdd_percentage_free}"></div>
+                          </div>
+                          <div class="col-sm-4">
+                            <div id="diskusage_used" data="{$sysinfo.hdd_percentage_used}"></div>
+                          </div>
+                          <div class="col-sm-4">
+                            <div id="ram_free" data="{$sysinfo.ram_percentage_free}"></div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-4">
+                            <center><strong>{$sysinfo.hdd_free} GB</strong></center>
+                          </div>
+                          <div class="col-sm-4">
+                            <center><strong>{$sysinfo.hdd_used} GB</strong></center>
+                          </div>
+                          <div class="col-sm-4">
+                            <center><strong>{$sysinfo.ram_free} GB</strong></center>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+              {elseif $smarty.get.item == "sysusers"}
+              <div class="row">
+                <h3>Lista kont użytkowników w systemie</h3>
+                <div class="col-sm-6">
+                  <table class="table table-stripped">
+                    <thead>
+                      <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
+                    </thead>
+                    <tbody>
+                    {foreach from=$sysuser key=userid item=info}
+                      <tr>
+                        <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
+                      </tr>
+                    {/foreach}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              {elseif $smarty.get.item == "wwwsrv"}
+              <div>
+                  <!-- Nav tabs -->
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active"><a href="#ogolne" aria-controls="ogolne" role="tab" data-toggle="tab">Ogólne</a></li>
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Użytkownicy <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li role="presentation"><a href="#sysusers" aria-controls="sysusers" role="tab" data-toggle="tab">Lista</a></li>
+                      <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowy użytkownik</a></li>
+                    </ul>
+                  </li>
+                  <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li role="presentation"><a href="#wwwconfig" aria-controls="wwwconfig" role="tab" data-toggle="tab">Strony WWW</a></li>
+                      <li role="presentation"><a href="#wwwconfignew" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
+                      <li role="separator" class="divider"></li>
+                      <li role="presentation"><a href="#wwwAccounts" aria-controls="wwwAccounts" role="tab" data-toggle="tab">Konta WWW</a></li>
+                      <li role="presentation"><a href="#wwwNewAccount" aria-controls="wwwNewAccount" role="tab" data-toggle="tab">Nowe Konto WWW</a></li>
+                    </ul>
+                  </li>
+                </ul>
 
-                <!-- Tab panes -->
-                <div class="row div-margin-top-10">
-                    <div class="col-sm-12">
-                        <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" id="ogolne">
-                                <div class="row">
-                                  <div class="col-sm-4">
-                                    <div class="panel panel-primary">
-                                        <div class="panel-heading">Podstawowe informacje</div>
-                                        <div class="panel-body">
-                                          <dl class="dl-horizontal">
-                                            <dt>Hostname</dt><dd>{$sysinfo.hostname}</dd>
-                                            <dt>IP</dt><dd>{$sysinfo.ip}</dd>
-                                            <dt>Public IP</dt><dd>{$sysinfo.ext_ip}</dd>
-                                            <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
-                                            <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
-                                            <dt>System</dt><dd>{$sysinfo.system}</dd>
-                                          </dl>
-                                        </div>
+              <!-- Tab panes -->
+              <div class="row div-margin-top-10">
+                  <div class="col-sm-12">
+                      <div class="tab-content">
+                          <div role="tabpanel" class="tab-pane active" id="ogolne">
+                          </div>
+                          <div role="tabpanel" class="tab-pane" id="sysusers">
+                          </div>
+
+                          <div role="tabpanel" class="tab-pane" id="wwwconfig">
+                            <h3>Lista stron www</h3>
+                            <div class="col-sm-4">
+                              {if isset($EmptySiteList)}
+                              <h5>Brak danych</h5>
+                              {else}
+                              <table class="table table-hover">
+                                <thead>
+                                  <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
+                                </thead>
+                                <tbody>
+                                  {foreach from=$websites key=id item=website}
+                                  <tr>
+                                    <td>
+                                      <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
+                                    </td>
+                                    <td class="button-cell">
+                                      <div class="btn-group">
+                                        <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
+                                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                          <span class="caret"></span>
+                                          <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
+                                        </ul>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  {/foreach}
+                                </tbody>
+                              </table>
+                              {/if}
+                            </div>
+                          </div>
+                          <div role="tabpanel" class="tab-pane" id="wwwconfignew">
+                            <blockquote>
+                              <p class="lead"><em>Konfiguracja virtualhosta</em></p>
+                            </blockquote>
+                            <div class="col-sm-6" id="vhost-config">
+                              <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost">
+                                <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+                                <div class="form-group">
+                                    <div class="row">
+                                    <label for="servername" class="col-sm-2 control-label">ServerName</label>
+                                    <div class="col-sm-4">
+                                      <input type="text" class="form-control" id="servername"
+                                      data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                                      name="ServerName" placeholder="example.com"  required>
+                                      <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
                                     </div>
-                                  </div>
-                                  <div class="col-sm-5">
-                                    <div class="panel panel-primary">
-                                        <div class="panel-heading">Dysk / RAM</div>
-                                        <div class="panel-body">
-                                          <div class="row">
-                                            <div class="col-sm-8">
-                                              <center><strong>Filesystem: /</strong></center>
-                                            </div>
-                                          </div>
-                                          <div class="row">
-                                            <div class="col-sm-4">
-                                              <div id="diskusage_free" data="{$sysinfo.hdd_percentage_free}"></div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                              <div id="diskusage_used" data="{$sysinfo.hdd_percentage_used}"></div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                              <div id="ram_free" data="{$sysinfo.ram_percentage_free}"></div>
-                                            </div>
-                                          </div>
-                                          <div class="row">
-                                            <div class="col-sm-4">
-                                              <center><strong>{$sysinfo.hdd_free} GB</strong></center>
-                                            </div>
-                                            <div class="col-sm-4">
-                                              <center><strong>{$sysinfo.hdd_used} GB</strong></center>
-                                            </div>
-                                            <div class="col-sm-4">
-                                              <center><strong>{$sysinfo.ram_free} GB</strong></center>
-                                            </div>
-                                          </div>
-                                        </div>
+                                    <div class="col-sm-4">
+                                      <div class="help-block with-errors"></div>
                                     </div>
                                   </div>
                                 </div>
-                            </div>
-                            <div role="tabpanel" class="tab-pane" id="sysusers">
-                              <h3>Lista kont użytkowników w systemie</h3>
-                              <div class="col-sm-6">
-                                <table class="table table-stripped">
-                                  <thead>
-                                    <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
-                                  </thead>
-                                  <tbody>
-                                  {foreach from=$sysuser key=userid item=info}
-                                    <tr>
-                                      <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
-                                    </tr>
-                                  {/foreach}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </div>
-
-                            <div role="tabpanel" class="tab-pane" id="wwwconfig">
-                              <h3>Lista stron www</h3>
-                              <div class="col-sm-4">
-                                {if isset($EmptySiteList)}
-                                <h5>Brak danych</h5>
-                                {else}
-                                <table class="table table-hover">
-                                  <thead>
-                                    <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
-                                  </thead>
-                                  <tbody>
-                                    {foreach from=$websites key=id item=website}
-                                    <tr>
-                                      <td>
-                                        <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
-                                      </td>
-                                      <td class="button-cell">
-                                        <div class="btn-group">
-                                          <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
-                                          <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="caret"></span>
-                                            <span class="sr-only">Toggle Dropdown</span>
-                                          </button>
-                                          <ul class="dropdown-menu">
-                                            <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
-                                          </ul>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                    {/foreach}
-                                  </tbody>
-                                </table>
-                                {/if}
-                              </div>
-                            </div>
-                            <div role="tabpanel" class="tab-pane" id="wwwconfignew">
-                              <blockquote>
-                                <p class="lead"><em>Konfiguracja virtualhosta</em></p>
-                              </blockquote>
-                              <div class="col-sm-6" id="vhost-config">
-                                <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost">
-                                  <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
-                                  <div class="form-group">
-                                      <div class="row">
-                                      <label for="servername" class="col-sm-2 control-label">ServerName</label>
-                                      <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="servername"
-                                        data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
-                                        name="ServerName" placeholder="example.com"  required>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                      </div>
-                                      <div class="col-sm-4">
-                                        <div class="help-block with-errors"></div>
-                                      </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <div class="col-sm-offset-2 enable-option">
+                                      <label class="checkbox-inline">
+                                        <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
+                                      </label>
                                     </div>
                                   </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <div class="col-sm-offset-2 enable-option">
-                                        <label class="checkbox-inline">
-                                          <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
-                                        </label>
-                                      </div>
+                                </div>
+                                <div class="form-group" id="serverAlias">
+                                  <div class="row">
+                                    <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
+                                    <div class="col-sm-4">
+                                      <input type="text" class="form-control" id="server-alias"
+                                      data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                                      name="ServerAlias[]" placeholder="*.example.com" required disabled>
+                                      <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                    </div>
+                                    <div >
+                                      <span class="glyphicon glyphicon-plus new-server-alias" aria-hidden="true"></span>
+                                    </div>
+                                    <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
+                                      <div class="help-block with-errors"></div>
                                     </div>
                                   </div>
-                                  <div class="form-group" id="serverAlias">
-                                    <div class="row">
-                                      <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
-                                      <div class="col-sm-4">
-                                        <input type="text" class="form-control" id="server-alias"
-                                        data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
-                                        name="ServerAlias[]" placeholder="*.example.com" required disabled>
-                                        <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                      </div>
-                                      <div >
-                                        <span class="glyphicon glyphicon-plus new-server-alias" aria-hidden="true"></span>
-                                      </div>
-                                      <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
-                                        <div class="help-block with-errors"></div>
-                                      </div>
+                                </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <label for="vhostOptSelect" class="col-sm-2 control-label">Opcje</label>
+                                    <div class="col-sm-8">
+                                      <select  multiple="multiple" class="form-control" id="vhostOptSelect" name="optname"
+                                        data-source="data/vhost_options.json"
+                                        data-title="opcje"
+                                        data-value='id'
+                                        data-text='vhostopt'>
+                                      </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                      <div class="help-block with-errors"></div>
                                     </div>
                                   </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <label for="vhostOptSelect" class="col-sm-2 control-label">Opcje</label>
-                                      <div class="col-sm-8">
-                                        <select  multiple="multiple" class="form-control" id="vhostOptSelect" name="optname"
-                                          data-source="data/vhost_options.json"
-                                          data-title="opcje"
-                                          data-value='id'
-                                          data-text='vhostopt'>
-                                        </select>
-                                      </div>
-                                      <div class="col-sm-4">
-                                        <div class="help-block with-errors"></div>
-                                      </div>
+                                </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
+                                    <div class="col-sm-4">
+                                      <select class="form-control" id="wwwuser" name="account">
+                                        {foreach from=$wwwuser key=id item=user}
+                                        <option value="{$id}">{$user}</option>
+                                        {/foreach}
+                                      </select>
                                     </div>
                                   </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
-                                      <div class="col-sm-4">
-                                        <select class="form-control" id="wwwuser" name="account">
-                                          {foreach from=$wwwuser key=id item=user}
-                                          <option value="{$id}">{$user}</option>
-                                          {/foreach}
-                                        </select>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <label for="www_access_order" class="col-sm-2 control-label">Dostęp do strony</label>
-                                      <div class="col-sm-8">
-                                        <div class="panel panel-default">
-                                          <div class="panel-heading">
-                                            <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
-                                            <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                              <input type="radio" id="orderallow" name="access_order" value="10" checked> Allow
-                                            </label>
-                                            <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                              <input type="radio" id="orderdeny" name="access_order" value="01"> Deny
-                                            </label>
-                                            <div class="pull-right" id="accessListsExpand">
-                                              <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
-                                                <span class="fa fa-angle-up" id="expandControl"></span>
-                                              </button>
-                                            </div>
+                                </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <label for="www_access_order" class="col-sm-2 control-label">Dostęp do strony</label>
+                                    <div class="col-sm-8">
+                                      <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                          <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
+                                          <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
+                                            <input type="radio" id="orderallow" name="access_order" value="10" checked> Allow
+                                          </label>
+                                          <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
+                                            <input type="radio" id="orderdeny" name="access_order" value="01"> Deny
+                                          </label>
+                                          <div class="pull-right" id="accessListsExpand">
+                                            <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
+                                              <span class="fa fa-angle-up" id="expandControl"></span>
+                                            </button>
                                           </div>
-                                          <div class="panel-body" id="access-list-details" style="display: none;">
-                                            <div class="form-group">
-                                              <div class="row col-sm-offset-2" id="accesslist">
-                                                <div class="col-sm-4">
-                                                  <label class="radio-inline" id="allowfrom">
-                                                    <input type="radio" id="allow" name="allow[0]" value="1" checked> Allow
-                                                  </label>
-                                                  <label class="radio-inline">
-                                                    <input type="radio" id="deny" name="allow[0]" value="0"> Deny
-                                                  </label>
-                                                </div>
-                                                <label for="from" class="col-sm-2 control-label access-from-label">From</label>
-                                                <div class="col-sm-5">
-                                                  <input type="text" class="form-control access-from-input" id="from" name="from[0]" value="all">
-                                                </div>
-                                                <div>
-                                                  <span class="glyphicon glyphicon-plus vhost-access vhost-access-add" aria-hidden="true"></span>
-                                                </div>
+                                        </div>
+                                        <div class="panel-body" id="access-list-details" style="display: none;">
+                                          <div class="form-group">
+                                            <div class="row col-sm-offset-2" id="accesslist">
+                                              <div class="col-sm-4">
+                                                <label class="radio-inline" id="allowfrom">
+                                                  <input type="radio" id="allow" name="allow[0]" value="1" checked> Allow
+                                                </label>
+                                                <label class="radio-inline">
+                                                  <input type="radio" id="deny" name="allow[0]" value="0"> Deny
+                                                </label>
+                                              </div>
+                                              <label for="from" class="col-sm-2 control-label access-from-label">From</label>
+                                              <div class="col-sm-5">
+                                                <input type="text" class="form-control access-from-input" id="from" name="from[0]" value="all">
+                                              </div>
+                                              <div>
+                                                <span class="glyphicon glyphicon-plus vhost-access vhost-access-add" aria-hidden="true"></span>
                                               </div>
                                             </div>
                                           </div>
@@ -809,37 +812,42 @@
                                       </div>
                                     </div>
                                   </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <div class="col-sm-offset-2 enable-option">
-                                        <label class="checkbox-inline">
-                                          <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
-                                        </label>
-                                      </div>
+                                </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <div class="col-sm-offset-2 enable-option">
+                                      <label class="checkbox-inline">
+                                        <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
+                                      </label>
                                     </div>
                                   </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
-                                      <div class="col-sm-4">
-                                        <textarea class="form-control" id="htaccess" name="htaccess" rows="5" disabled></textarea>
-                                      </div>
+                                </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
+                                    <div class="col-sm-4">
+                                      <textarea class="form-control" id="htaccess" name="htaccess" rows="5" disabled></textarea>
                                     </div>
                                   </div>
-                                  <div class="form-group">
-                                    <div class="row">
-                                      <div class="col-sm-offset-4">
-                                        <button type="submit" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
-                                      </div>
+                                </div>
+                                <div class="form-group">
+                                  <div class="row">
+                                    <div class="col-sm-offset-4">
+                                      <button type="submit" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
                                     </div>
                                   </div>
-                                </form>
-                              </div>
+                                </div>
+                              </form>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+              {/if}
+            {/if}
+            {if isset($smarty.get.serverid)}
+            <div class="row">
             {else}
             <div class="row">
                 <div class="col-lg-3 col-md-6">
