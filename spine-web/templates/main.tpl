@@ -445,7 +445,20 @@
                             <a href="#"><i class="fa fa-linux f-fw"></i> Serwery<span class="fa arrow"></span></a>
                             <ul class="nav nav-second-level">
                                 {foreach from=$HostMenu item=srv key=id}
-                                   <li><a href="?serverid={$id}">{$srv}</a></li>
+                                   <li>
+                                     <a href="#">{$srv} <span class="fa arrow"></span></a>
+                                     <ul class="nav nav-third-level">
+                                       <li>
+                                         <a href="?serverid={$id}">Informacje</a>
+                                       </li>
+                                       <li>
+                                         <a href="#">Konta użytkowników</a>
+                                       </li>
+                                       <li>
+                                         <a href="#">Serwer WWW</a>
+                                       </li>
+                                     </ul>
+                                   </li>
                                 {/foreach}
                             </ul>
                             <!-- /.nav-second-level -->
