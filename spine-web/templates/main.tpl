@@ -547,9 +547,19 @@
                 <div class="col-lg-12">
                     {if isset($smarty.get.serverid)}
                     <ol class="breadcrumb">
-                      <li><a href="?serverid={$id}&item=info">Informacje ogólne</a></li>
+                      {if $smarty.get.item == "info"}
+                      <li class="active">Informacje ogólne</li>
                       <li><a href="?serverid={$id}&item=sysusers">Konta użytkowników</a></li>
                       <li><a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a></li>
+                      {elseif $smarty.get.item == "sysusers"}
+                      <li><a href="?serverid={$id}&item=info">Informacje ogólne</a></li>
+                      <li class="active">Konta użytkowników</li>
+                      <li><a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a></li>
+                      {elseif $smarty.get.item == "wwwsrv"}
+                      <li><a href="?serverid={$id}&item=info">Informacje ogólne</a></li>
+                      <li><a href="?serverid={$id}&item=sysusers">Konta użytkowników</a></li>
+                      <li class="active">Serwer WWW</li>
+                      {/if}
                     </ol>
                     <h3 class="page-header">
                       <img src="/images/server.png" width="70">Host: {$HostName}</h3>
