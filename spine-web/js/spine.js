@@ -380,7 +380,7 @@ $(document).ready(function() {
           show: false
         })
         .on('shown.bs.modal', function() {
-          $(this).attr("id", "edit-vhost-modal");
+          $(this).attr("id", "vhost-modal");
           $('#vhostEditForm')
             .show()
         })
@@ -576,5 +576,23 @@ $(document).ready(function() {
   });
   $('.apache-section').ready(function() {
     $(this).find('#wwwconfig').show();
-  })
+  });
+  $(document).on('click', '#new-vhost > button', function() {
+    var id = $(this).attr('data-id');
+    bootbox
+      .dialog({
+        title: '<strong>Nowa strona</strong>',
+        message: $('#addvhost'),
+        show: false
+      })
+      .on('shown.bs.modal', function() {
+        $(this).attr("id", "vhost-modal");
+        $('#addvhost')
+          .show()
+      })
+      .on('hide.bs.modal', function(e) {
+        $('#addvhost').hide().appendTo('body');
+      })
+      .modal('show');
+  });
 });

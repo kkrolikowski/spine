@@ -209,6 +209,146 @@
         </div>
       </div>
     </form>
+    <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost" style="display: none;">
+      <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+      <div class="form-group">
+          <div class="row">
+          <label for="servername" class="col-sm-2 control-label">ServerName</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="servername"
+            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            name="ServerName" placeholder="example.com"  required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2 enable-option">
+            <label class="checkbox-inline add-vhost-checkbox">
+              <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" id="serverAlias">
+        <div class="row">
+          <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="server-alias"
+            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            name="ServerAlias[]" placeholder="*.example.com" required disabled>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div >
+            <span class="glyphicon glyphicon-plus new-server-alias" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <label for="vhostOptSelect" class="col-sm-2 control-label">Opcje</label>
+          <div class="col-sm-8">
+            <select  multiple="multiple" class="form-control" id="vhostOptSelect" name="optname"
+              data-source="data/vhost_options.json"
+              data-title="opcje"
+              data-value='id'
+              data-text='vhostopt'>
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
+          <div class="col-sm-4">
+            <select class="form-control" id="wwwuser" name="account">
+              {foreach from=$wwwuser key=id item=user}
+              <option value="{$id}">{$user}</option>
+              {/foreach}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <label for="www_access_order" class="col-sm-2 control-label">Dostęp do strony</label>
+          <div class="col-sm-8">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
+                <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
+                  <input type="radio" id="orderallow" name="access_order" value="10" checked> Allow
+                </label>
+                <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
+                  <input type="radio" id="orderdeny" name="access_order" value="01"> Deny
+                </label>
+                <div class="pull-right" id="accessListsExpand">
+                  <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
+                    <span class="fa fa-angle-up" id="expandControl"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="panel-body" id="access-list-details" style="display: none;">
+                <div class="form-group">
+                  <div class="row col-sm-offset-2" id="accesslist">
+                    <div class="col-sm-4">
+                      <label class="radio-inline" id="allowfrom">
+                        <input type="radio" id="allow" name="allow[0]" value="1" checked> Allow
+                      </label>
+                      <label class="radio-inline">
+                        <input type="radio" id="deny" name="allow[0]" value="0"> Deny
+                      </label>
+                    </div>
+                    <label for="from" class="col-sm-2 control-label access-from-label">From</label>
+                    <div class="col-sm-5">
+                      <input type="text" class="form-control access-from-input" id="from" name="from[0]" value="all">
+                    </div>
+                    <div>
+                      <span class="glyphicon glyphicon-plus vhost-access vhost-access-add" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2 enable-option">
+            <label class="checkbox-inline add-vhost-checkbox">
+              <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
+          <div class="col-sm-4">
+            <textarea class="form-control" id="htaccess" name="htaccess" rows="5" disabled></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2" id="new-vhost-buttons">
+            <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
+            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
+          </div>
+        </div>
+      </div>
+    </form>
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 
@@ -677,7 +817,7 @@
                           <div role="tabpanel" class="tab-pane" id="wwwconfig">
                             <div class="row">
                               <div class="col-sm-4"><h3>Lista stron www</h3></div>
-                              <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="submit">Nowa strona</button></div>
+                              <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
                             </div>
                             <div class="col-sm-4">
                               {if isset($EmptySiteList)}
@@ -710,152 +850,6 @@
                                 </tbody>
                               </table>
                               {/if}
-                            </div>
-                          </div>
-                          <div role="tabpanel" class="tab-pane" id="wwwconfignew">
-                            <blockquote>
-                              <p class="lead"><em>Konfiguracja virtualhosta</em></p>
-                            </blockquote>
-                            <div class="col-sm-6" id="vhost-config">
-                              <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost">
-                                <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
-                                <div class="form-group">
-                                    <div class="row">
-                                    <label for="servername" class="col-sm-2 control-label">ServerName</label>
-                                    <div class="col-sm-4">
-                                      <input type="text" class="form-control" id="servername"
-                                      data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
-                                      name="ServerName" placeholder="example.com"  required>
-                                      <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                    </div>
-                                    <div class="col-sm-4">
-                                      <div class="help-block with-errors"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <div class="col-sm-offset-2 enable-option">
-                                      <label class="checkbox-inline">
-                                        <input type="checkbox" id="enable_server_alias" value="enable_server_alias"> <strong>Konfiguracja ServerAlias</strong>
-                                      </label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group" id="serverAlias">
-                                  <div class="row">
-                                    <label for="server-alias" class="col-sm-2 control-label">ServerAlias</label>
-                                    <div class="col-sm-4">
-                                      <input type="text" class="form-control" id="server-alias"
-                                      data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
-                                      name="ServerAlias[]" placeholder="*.example.com" required disabled>
-                                      <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                    </div>
-                                    <div >
-                                      <span class="glyphicon glyphicon-plus new-server-alias" aria-hidden="true"></span>
-                                    </div>
-                                    <div class="col-sm-4 col-sm-offset-6 server-alias-txt">
-                                      <div class="help-block with-errors"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <label for="vhostOptSelect" class="col-sm-2 control-label">Opcje</label>
-                                    <div class="col-sm-8">
-                                      <select  multiple="multiple" class="form-control" id="vhostOptSelect" name="optname"
-                                        data-source="data/vhost_options.json"
-                                        data-title="opcje"
-                                        data-value='id'
-                                        data-text='vhostopt'>
-                                      </select>
-                                    </div>
-                                    <div class="col-sm-4">
-                                      <div class="help-block with-errors"></div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <label for="wwwuser" class="col-sm-2 control-label">Konto</label>
-                                    <div class="col-sm-4">
-                                      <select class="form-control" id="wwwuser" name="account">
-                                        {foreach from=$wwwuser key=id item=user}
-                                        <option value="{$id}">{$user}</option>
-                                        {/foreach}
-                                      </select>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <label for="www_access_order" class="col-sm-2 control-label">Dostęp do strony</label>
-                                    <div class="col-sm-8">
-                                      <div class="panel panel-default">
-                                        <div class="panel-heading">
-                                          <i class="fa fa-shield fa-fw"></i> Polityka Dostępu
-                                          <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                            <input type="radio" id="orderallow" name="access_order" value="10" checked> Allow
-                                          </label>
-                                          <label class="radio-inline default-vhost-access" style="margin-top: -5px;">
-                                            <input type="radio" id="orderdeny" name="access_order" value="01"> Deny
-                                          </label>
-                                          <div class="pull-right" id="accessListsExpand">
-                                            <button type="button" class="btn btn-default btn-xs" id="access-expandBtn">
-                                              <span class="fa fa-angle-up" id="expandControl"></span>
-                                            </button>
-                                          </div>
-                                        </div>
-                                        <div class="panel-body" id="access-list-details" style="display: none;">
-                                          <div class="form-group">
-                                            <div class="row col-sm-offset-2" id="accesslist">
-                                              <div class="col-sm-4">
-                                                <label class="radio-inline" id="allowfrom">
-                                                  <input type="radio" id="allow" name="allow[0]" value="1" checked> Allow
-                                                </label>
-                                                <label class="radio-inline">
-                                                  <input type="radio" id="deny" name="allow[0]" value="0"> Deny
-                                                </label>
-                                              </div>
-                                              <label for="from" class="col-sm-2 control-label access-from-label">From</label>
-                                              <div class="col-sm-5">
-                                                <input type="text" class="form-control access-from-input" id="from" name="from[0]" value="all">
-                                              </div>
-                                              <div>
-                                                <span class="glyphicon glyphicon-plus vhost-access vhost-access-add" aria-hidden="true"></span>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <div class="col-sm-offset-2 enable-option">
-                                      <label class="checkbox-inline">
-                                        <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
-                                      </label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <label for="htaccess" class="col-sm-2 control-label">.htaccess</label>
-                                    <div class="col-sm-4">
-                                      <textarea class="form-control" id="htaccess" name="htaccess" rows="5" disabled></textarea>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="form-group">
-                                  <div class="row">
-                                    <div class="col-sm-offset-4">
-                                      <button type="submit" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </form>
                             </div>
                           </div>
                       </div>

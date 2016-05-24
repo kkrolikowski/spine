@@ -54,7 +54,7 @@
 .options-edit {
   margin-left: 19px;
 }
-#edit-vhost-modal > .modal-dialog {
+#vhost-modal > .modal-dialog {
   width: 40%;
 }
 #edit-wwwuser {
@@ -113,4 +113,10 @@
 #new-vhost {
   margin-top: 15px;
   margin-left: -139px;
+}
+.add-vhost-checkbox {
+  margin-left: -8px;
+}
+#new-vhost-buttons {
+  margin-left: 18.6%;
 }
