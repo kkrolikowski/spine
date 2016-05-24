@@ -454,7 +454,7 @@
                                        <li>
                                          <a href="?serverid={$id}&item=sysusers">Konta użytkowników</a>
                                        </li>
-                                       <li>
+                                       <li class="apache-section">
                                          <a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a>
                                        </li>
                                      </ul>
@@ -549,15 +549,15 @@
                     <ol class="breadcrumb">
                       {if $smarty.get.item == "info"}
                       <li class="active">Informacje ogólne</li>
-                      <li><a href="?serverid={$id}&item=sysusers">Konta użytkowników</a></li>
-                      <li><a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta użytkowników</a></li>
+                      <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
                       {elseif $smarty.get.item == "sysusers"}
-                      <li><a href="?serverid={$id}&item=info">Informacje ogólne</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li class="active">Konta użytkowników</li>
-                      <li><a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a></li>
+                      <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
                       {elseif $smarty.get.item == "wwwsrv"}
-                      <li><a href="?serverid={$id}&item=info">Informacje ogólne</a></li>
-                      <li><a href="?serverid={$id}&item=sysusers">Konta użytkowników</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta użytkowników</a></li>
                       <li class="active">Serwer WWW</li>
                       {/if}
                     </ol>
@@ -645,7 +645,7 @@
               <div>
                   <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
-                  <li role="presentation" class="active"><a href="#ogolne" aria-controls="ogolne" role="tab" data-toggle="tab">Ogólne</a></li>
+                  <li role="presentation" class="active" id="apache-config"><a href="#wwwconfig" aria-controls="ogolne" role="tab" data-toggle="tab">Strony WWW</a></li>
                   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Użytkownicy <span class="caret"></span></a>
                     <ul class="dropdown-menu">

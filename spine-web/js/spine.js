@@ -570,4 +570,11 @@ $(document).ready(function() {
   $(document).on('click', '.vhost-access-del', function() {
     $(this).closest('.access-rule').remove();
   });
+  $('#apache-config a').on('click', function(e) {
+    e.preventDefault();
+    $('#wwwconfig').show();
+  });
+  $('.apache-section').ready(function() {
+    $(this).find('#wwwconfig').show();
+  })
 });
