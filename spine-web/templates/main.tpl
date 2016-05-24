@@ -796,9 +796,6 @@
                   <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                      <li role="presentation"><a href="#wwwconfig" aria-controls="wwwconfig" role="tab" data-toggle="tab">Strony WWW</a></li>
-                      <li role="presentation"><a href="#wwwconfignew" aria-controls="sysusers" role="tab" data-toggle="tab">Nowa strona</a></li>
-                      <li role="separator" class="divider"></li>
                       <li role="presentation"><a href="#wwwAccounts" aria-controls="wwwAccounts" role="tab" data-toggle="tab">Konta WWW</a></li>
                       <li role="presentation"><a href="#wwwNewAccount" aria-controls="wwwNewAccount" role="tab" data-toggle="tab">Nowe Konto WWW</a></li>
                     </ul>
