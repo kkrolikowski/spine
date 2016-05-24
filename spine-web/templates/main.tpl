@@ -675,12 +675,15 @@
                           </div>
 
                           <div role="tabpanel" class="tab-pane" id="wwwconfig">
-                            <h3>Lista stron www</h3>
+                            <div class="row">
+                              <div class="col-sm-4"><h3>Lista stron www</h3></div>
+                              <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="submit">Nowa strona</button></div>
+                            </div>
                             <div class="col-sm-4">
                               {if isset($EmptySiteList)}
                               <h5>Brak danych</h5>
                               {else}
-                              <table class="table table-hover">
+                              <table class="table table-hover" id="vhost-table">
                                 <thead>
                                   <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
                                 </thead>
