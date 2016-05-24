@@ -592,7 +592,7 @@
                                          <a href="?serverid={$id}&item=info">Informacje</a>
                                        </li>
                                        <li>
-                                         <a href="?serverid={$id}&item=sysusers">Konta użytkowników</a>
+                                         <a href="?serverid={$id}&item=sysusers">Konta systemowe</a>
                                        </li>
                                        <li class="apache-section">
                                          <a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a>
@@ -689,15 +689,15 @@
                     <ol class="breadcrumb">
                       {if $smarty.get.item == "info"}
                       <li class="active">Informacje ogólne</li>
-                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta użytkowników</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
                       {elseif $smarty.get.item == "sysusers"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
-                      <li class="active">Konta użytkowników</li>
+                      <li class="active">Konta systemowe</li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
                       {elseif $smarty.get.item == "wwwsrv"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
-                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta użytkowników</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="active">Serwer WWW</li>
                       {/if}
                     </ol>
@@ -787,17 +787,10 @@
                 <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation" class="active" id="apache-config"><a href="#wwwconfig" aria-controls="ogolne" role="tab" data-toggle="tab">Strony WWW</a></li>
                   <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Użytkownicy <span class="caret"></span></a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#sysusers">Użytkownicy</a>
                     <ul class="dropdown-menu">
                       <li role="presentation"><a href="#sysusers" aria-controls="sysusers" role="tab" data-toggle="tab">Lista</a></li>
                       <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowy użytkownik</a></li>
-                    </ul>
-                  </li>
-                  <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Serwer WWW <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                      <li role="presentation"><a href="#wwwAccounts" aria-controls="wwwAccounts" role="tab" data-toggle="tab">Konta WWW</a></li>
-                      <li role="presentation"><a href="#wwwNewAccount" aria-controls="wwwNewAccount" role="tab" data-toggle="tab">Nowe Konto WWW</a></li>
                     </ul>
                   </li>
                 </ul>
