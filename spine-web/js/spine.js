@@ -575,7 +575,13 @@ $(document).ready(function() {
   });
   $('#apache-config a').on('click', function(e) {
     e.preventDefault();
+    $('#wwwusers').hide();
     $('#wwwconfig').show();
+  });
+  $('#www-users a').on('click', function(e) {
+    e.preventDefault();
+    $('#wwwconfig').hide();
+    $('#wwwusers').show();
   });
   $('.apache-section').ready(function() {
     $(this).find('#wwwconfig').show();

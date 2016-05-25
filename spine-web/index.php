@@ -91,6 +91,20 @@
         $spine->assign('websites', $apacheconf);
       }
 
+      // lista kont htaccess na danym serwerze
+      $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ". $_GET['serverid']);
+      $q->execute();
+      if($q->rowCount() == 0)
+        $spine->assign('EmptyUserList', 1);
+      else {
+        while ($r = $q->fetch()) {
+          $htusers[$r['id']] = array(
+            'login' => $r['login']
+          );
+        }
+        $spine->assign('htusers', $htusers);
+      }
+      
       // lista uzytkownikow na danym serwerze
       $q = $dbh->prepare("SELECT id, login FROM sysusers WHERE system_id = ". $_GET['serverid']);
       $q->execute();

@@ -786,62 +786,89 @@
                   <!-- Nav tabs -->
                 <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation" class="active" id="apache-config"><a href="#wwwconfig" aria-controls="ogolne" role="tab" data-toggle="tab">Strony WWW</a></li>
-                  <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#sysusers">Użytkownicy</a>
-                    <ul class="dropdown-menu">
-                      <li role="presentation"><a href="#sysusers" aria-controls="sysusers" role="tab" data-toggle="tab">Lista</a></li>
-                      <li role="presentation"><a href="#" aria-controls="sysusers" role="tab" data-toggle="tab">Nowy użytkownik</a></li>
-                    </ul>
-                  </li>
+                  <li role="presentation" id="www-users"><a href="#wwwusers" aria-controls="ogolne" role="tab" data-toggle="tab">Użytkownicy</a></li>
                 </ul>
 
               <!-- Tab panes -->
               <div class="row div-margin-top-10">
                   <div class="col-sm-12">
                       <div class="tab-content">
-                          <div role="tabpanel" class="tab-pane active" id="ogolne">
+                        <div role="tabpanel" class="tab-pane" id="wwwconfig">
+                          <div class="row">
+                            <div class="col-sm-4"><h3>Lista stron www</h3></div>
+                            <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
                           </div>
-                          <div role="tabpanel" class="tab-pane" id="sysusers">
+                          <div class="col-sm-4">
+                            {if isset($EmptySiteList)}
+                            <h5>Brak danych</h5>
+                            {else}
+                            <table class="table table-hover" id="vhost-table">
+                              <thead>
+                                <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
+                              </thead>
+                              <tbody>
+                                {foreach from=$websites key=id item=website}
+                                <tr>
+                                  <td>
+                                    <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
+                                  </td>
+                                  <td class="button-cell">
+                                    <div class="btn-group">
+                                      <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
+                                      <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
+                                      </ul>
+                                    </div>
+                                  </td>
+                                </tr>
+                                {/foreach}
+                              </tbody>
+                            </table>
+                            {/if}
                           </div>
-
-                          <div role="tabpanel" class="tab-pane" id="wwwconfig">
-                            <div class="row">
-                              <div class="col-sm-4"><h3>Lista stron www</h3></div>
-                              <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
-                            </div>
-                            <div class="col-sm-4">
-                              {if isset($EmptySiteList)}
-                              <h5>Brak danych</h5>
-                              {else}
-                              <table class="table table-hover" id="vhost-table">
-                                <thead>
-                                  <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
-                                </thead>
-                                <tbody>
-                                  {foreach from=$websites key=id item=website}
-                                  <tr>
-                                    <td>
-                                      <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
-                                    </td>
-                                    <td class="button-cell">
-                                      <div class="btn-group">
-                                        <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
-                                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                          <span class="caret"></span>
-                                          <span class="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                          <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
-                                        </ul>
-                                      </div>
-                                    </td>
-                                  </tr>
-                                  {/foreach}
-                                </tbody>
-                              </table>
-                              {/if}
-                            </div>
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="wwwusers">
+                          <div class="row">
+                            <div class="col-sm-4"><h3>Lista kont</h3></div>
+                            <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
                           </div>
+                          <div class="col-sm-4">
+                            {if isset($EmptyUserList)}
+                            <h5>Brak danych</h5>
+                            {else}
+                            <table class="table table-hover" id="vhost-table">
+                              <thead>
+                                <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
+                              </thead>
+                              <tbody>
+                                {foreach from=$htusers key=id item=login}
+                                <tr>
+                                  <td>
+                                    {$login}
+                                  </td>
+                                  <td class="button-cell">
+                                    <div class="btn-group">
+                                      <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
+                                      <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
+                                      </ul>
+                                    </div>
+                                  </td>
+                                </tr>
+                                {/foreach}
+                              </tbody>
+                            </table>
+                            {/if}
+                          </div>
+                        </div>
                       </div>
                   </div>
               </div>
