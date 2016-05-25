@@ -857,7 +857,7 @@
                         <div role="tabpanel" class="tab-pane" id="wwwconfig">
                           <div class="row">
                             <div class="col-sm-4"><h3>Lista stron www</h3></div>
-                            <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
+                            <div class="col-sm-4 new-item" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
                           </div>
                           <div class="col-sm-4">
                             {if isset($EmptySiteList)}
@@ -895,7 +895,7 @@
                         <div role="tabpanel" class="tab-pane" id="wwwusers">
                           <div class="row">
                             <div class="col-sm-4"><h3>Lista kont</h3></div>
-                            <div class="col-sm-4" id="new-htuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+                            <div class="col-sm-4 new-item" id="new-htuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
                           </div>
                           <div class="col-sm-4">
                             {if isset($EmptyUserList)}
