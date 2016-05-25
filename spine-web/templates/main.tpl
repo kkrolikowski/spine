@@ -353,6 +353,60 @@
       </div>
     </form>
     <!-- END: Nowy virtualhost -->
+    <!-- BEGIN: Nowe konto htaccess -->
+    <form role="form" class="form-horizontal" data-toggle="validator" id="new-htuser-form" style="display: none;">
+      <div class="form-group">
+          <div class="row">
+          <label for="login" class="col-sm-2 control-label">Login</label>
+          <div class="col-sm-4">
+            <input type="text" class="form-control" id="login"
+            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            name="login" required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+          <div class="row">
+          <label for="password" class="col-sm-2 control-label">Hasło</label>
+          <div class="col-sm-4">
+            <input type="password" class="form-control" id="password"
+            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            name="password" required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+          <div class="row">
+          <label for="confirm" class="col-sm-2 control-label">Powtórz</label>
+          <div class="col-sm-4">
+            <input type="password" class="form-control" id="confirm"
+            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            name="confirm" required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2" id="new-vhost-buttons">
+            <button type="button" class="btn btn-primary" id="addvhost-btn">Utwórz konto</button>
+            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- END: Nowe konto htaccess -->
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 

@@ -604,4 +604,21 @@ $(document).ready(function() {
       })
       .modal('show');
   });
+  $(document).on('click', '#new-htuser > button', function() {
+    var id = $(this).attr('data-id');
+    bootbox
+      .dialog({
+        title: '<strong>Nowe konto</strong>',
+        message: $('#new-htuser-form'),
+        show: false
+      })
+      .on('shown.bs.modal', function() {
+        $('#new-htuser-form')
+          .show()
+      })
+      .on('hide.bs.modal', function(e) {
+        $('#new-htuser-form').hide().appendTo('body');
+      })
+      .modal('show');
+  });
 });
