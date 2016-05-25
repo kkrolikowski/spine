@@ -77,6 +77,7 @@
 
 <body>
   <!-- BEGIN: Sekcja formularzy edycji danych -->
+    <!-- BEGIN: Edycja konfiguracji virtualhostow -->
     <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
       <input type="hidden" name="id" value="">
       <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
@@ -209,6 +210,8 @@
         </div>
       </div>
     </form>
+    <!-- END: Edycja konfiguracji virtualhostow -->
+    <!-- BEGIN: Nowy virtualhost -->
     <form role="form" class="form-horizontal" data-toggle="validator" id="addvhost" style="display: none;">
       <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
       <div class="form-group">
@@ -349,6 +352,7 @@
         </div>
       </div>
     </form>
+    <!-- END: Nowy virtualhost -->
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 
@@ -834,7 +838,7 @@
                         <div role="tabpanel" class="tab-pane" id="wwwusers">
                           <div class="row">
                             <div class="col-sm-4"><h3>Lista kont</h3></div>
-                            <div class="col-sm-4" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+                            <div class="col-sm-4" id="new-htuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
                           </div>
                           <div class="col-sm-4">
                             {if isset($EmptyUserList)}
