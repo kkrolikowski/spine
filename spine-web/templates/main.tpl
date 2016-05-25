@@ -48,7 +48,7 @@
 
     <!-- Form validator plugin -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
-    
+
     <!-- JQuery - easing -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
@@ -355,6 +355,7 @@
     <!-- END: Nowy virtualhost -->
     <!-- BEGIN: Nowe konto htaccess -->
     <form role="form" class="form-horizontal" data-toggle="validator" id="new-htuser-form" style="display: none;">
+      <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
       <div class="form-group">
           <div class="row">
           <label for="login" class="col-sm-2 control-label">Login</label>
@@ -902,7 +903,7 @@
                             {else}
                             <table class="table table-hover" id="vhost-table">
                               <thead>
-                                <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
+                                <th>Login</th><th class="button-cell">Akcja</th>
                               </thead>
                               <tbody>
                                 {foreach from=$htusers key=id item=login}

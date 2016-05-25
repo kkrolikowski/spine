@@ -59,6 +59,34 @@
     header('Content-Type: application/json');
     echo json_encode($json);
   }
+  if(isset($_GET['addhtuser'])) {
+    if($_POST['password'] == $_POST['confirm']) {
+      $secret = base64_encode(sha1($_POST['password'], true));
+      $pass = "{SHA}" . $secret;
+
+      $q = $dbh->prepare("INSERT INTO www_users(login,password,system_id) ".
+      "VALUES('".$_POST['login']."', '".$pass."', ".$_POST['serverid'].")");
+      $q->execute();
+
+      $q = $dbh->prepare("SELECT id FROM www_users WHERE login = '".$_POST['login']."'");
+      $q->execute();
+      $r = $q->fetch();
+      $id = $r['id'];
+
+      if(isset($id)) {
+        $q = $dbh->prepare("SELECT id, login FROM www_users WHERE id = ".$id);
+        $q->execute();
+        $r = $q->fetch();
+
+        $json = array(
+          'id' => $r['id'],
+          'login' =>$r['login']
+        );
+        header('Content-Type: application/json');
+        echo json_encode($json);
+      }
+    }
+  }
   if(isset($_GET['vhostid'])) {
     $q = $dbh->prepare("SELECT w.id, w.ServerName, w.ServerAlias, w.DocumentRoot, w.htaccess, su.login, ".
       "GROUP_CONCAT(DISTINCT wo.id SEPARATOR ' ') AS selected_optid, ".

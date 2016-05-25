@@ -622,3 +622,79 @@ $(document).ready(function() {
       .modal('show');
   });
 });
+$(document).on('click', '#addhtuser-btn', function(e) {
+  e.preventDefault();
+  var form = $('#new-htuser-form');
+  var serverid = form.find('[name="serverid"]').val();
+  $.ajax({
+    url: '/apache.php?addhtuser',
+    method: 'POST',
+    data: form.serializeArray(),
+    success: function() {
+      $.bootstrapGrowl(
+        'Użytkownik został dodany',
+        {
+          type: 'success',
+          align: 'center',
+          offset: { from: 'top', amount: 55},
+          width: 500
+        }
+      );
+    }
+}).success(function(response) {
+  var tr = $('#wwwusers').find('tr').last();
+  var div = $('#wwwusers > div');
+  $('.modal').hide();
+  $('.modal-backdrop').hide();
+  if(tr.length) {
+    tr.after(
+      '<tr>' +
+        '<td>' +
+          response.login +
+        '</td>' +
+        '<td class="button-cell">' +
+          '<div class="btn-group">' +
+            '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+            '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+              '<span class="caret"></span>' +
+              '<span class="sr-only">Toggle Dropdown</span>' +
+            '</button>' +
+            '<ul class="dropdown-menu">' +
+              '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+            '</ul>' +
+          '</div>' +
+        '</td>' +
+      '</tr>'
+    );
+  }
+  else {
+    div.find('h5').remove();
+    div.append(
+      '<table class="table table-hover">' +
+        '<thead>' +
+          '<th>Login</th><th class="button-cell">Akcja</th>' +
+        '</thead>' +
+        '<tbody>' +
+          '<tr>' +
+            '<td>' +
+              response.ServerName +
+            '</td>' +
+            '<td class="button-cell">' +
+              '<div class="btn-group">' +
+                '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+                '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                  '<span class="caret"></span>' +
+                  '<span class="sr-only">Toggle Dropdown</span>' +
+                '</button>' +
+                '<ul class="dropdown-menu">' +
+                  '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+                '</ul>' +
+              '</div>' +
+            '</td>' +
+          '</tr>' +
+        '</tbody>' +
+      '</table>'
+    );
+  }
+});
+});
