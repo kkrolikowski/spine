@@ -43,12 +43,12 @@
     <!-- Notification plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-growl/1.0.0/jquery.bootstrap-growl.min.js"></script>
 
-    <!-- Form validator plugin -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
-
     <!-- Bootbox - wyskakujace okienka -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
 
+    <!-- Form validator plugin -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.9.0/validator.min.js"></script>
+    
     <!-- JQuery - easing -->
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
 
@@ -374,7 +374,7 @@
           <label for="password" class="col-sm-2 control-label">Hasło</label>
           <div class="col-sm-4">
             <input type="password" class="form-control" id="password"
-            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            data-minlength="6" data-error="min. sześć znaków"
             name="password" required>
             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
           </div>
@@ -388,7 +388,9 @@
           <label for="confirm" class="col-sm-2 control-label">Powtórz</label>
           <div class="col-sm-4">
             <input type="password" class="form-control" id="confirm"
-            data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+            data-minlength="6" data-error="min. sześć znaków"
+            data-match="#password"
+            data-match-error="Hasło się nie zgadza"
             name="confirm" required>
             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
           </div>
@@ -400,7 +402,7 @@
       <div class="form-group">
         <div class="row">
           <div class="col-sm-offset-2" id="new-vhost-buttons">
-            <button type="button" class="btn btn-primary" id="addvhost-btn">Utwórz konto</button>
+            <button type="button" class="btn btn-primary" id="addhtuser-btn">Utwórz konto</button>
             <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
           </div>
         </div>

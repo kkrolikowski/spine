@@ -613,8 +613,8 @@ $(document).ready(function() {
         show: false
       })
       .on('shown.bs.modal', function() {
-        $('#new-htuser-form')
-          .show()
+        $('#new-htuser-form').show();
+        $('#new-htuser-form').validator();
       })
       .on('hide.bs.modal', function(e) {
         $('#new-htuser-form').hide().appendTo('body');
