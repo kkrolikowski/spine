@@ -420,7 +420,7 @@
             </label>
           </div>
         </div>
-      </div
+      </div>
       <div class="form-group">
         <div class="row">
           <label for="htusers" class="col-sm-2 control-label">Użytkownicy</label>
@@ -431,6 +431,14 @@
               data-value='id'
               data-text='login'>
             </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2" id="new-vhost-buttons">
+            <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
+            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
           </div>
         </div>
       </div>
