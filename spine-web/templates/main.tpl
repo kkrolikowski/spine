@@ -410,6 +410,32 @@
       </div>
     </form>
     <!-- END: Nowe konto htaccess -->
+    <!-- BEGIN: lista kont zabezpieczajacych dostep -->
+    <form id="vhost-security-form" method="post" class="form-horizontal" role="form" style="display: none;">
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2 enable-option">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="enable_password" value="enable_password"> <strong>Zabezpieczenie strony hasłem</strong>
+            </label>
+          </div>
+        </div>
+      </div
+      <div class="form-group">
+        <div class="row">
+          <label for="htusers" class="col-sm-2 control-label">Użytkownicy</label>
+          <div class="col-sm-8">
+            <select  multiple="multiple" class="form-control" id="htusers" name="htusers"
+              data-source="data/htpasswd.json"
+              data-title="htusers"
+              data-value='id'
+              data-text='login'>
+            </select>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- END: lista kont zabezpieczajacych dostep -->
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 
@@ -863,7 +889,7 @@
                             {if isset($EmptySiteList)}
                             <h5>Brak danych</h5>
                             {else}
-                            <table class="table table-hover" id="vhost-table">
+                            <table class="table table-hover" id="vhost-table" data-id="{$smarty.get.serverid}">
                               <thead>
                                 <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
                               </thead>

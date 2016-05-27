@@ -95,9 +95,10 @@ $(document).ready(function() {
     $(document).on('click', '.glyphicon-minus', function() {
       $(this).closest('#serverAliasPlus, #sa-group-new, .access-rule').remove();
     });
-    $(document).on('click', '#enable_htaccess, #edit_enable_htaccess', function() {
-      $('#htaccess, #htaccess-field').attr('disabled', ! this.checked);
+    $(document).on('click', '#enable_htaccess, #edit_enable_htaccess, #enable_password', function() {
+      $('#htaccess, #htaccess-field, #dual-list-box-htusers select, #dual-list-box-htusers button').attr('disabled', ! this.checked);
     });
+    $('#htusers').DualListBox();
     $('#vhostOptSelect').DualListBox();
     $('#vhostOptEdit').DualListBox();
     $(document).on('click', '#addvhost-btn', function(e) {
@@ -621,80 +622,107 @@ $(document).ready(function() {
       })
       .modal('show');
   });
-});
-$(document).on('click', '#addhtuser-btn', function(e) {
-  e.preventDefault();
-  var form = $('#new-htuser-form');
-  var serverid = form.find('[name="serverid"]').val();
-  $.ajax({
-    url: '/apache.php?addhtuser',
-    method: 'POST',
-    data: form.serializeArray(),
-    success: function() {
-      $.bootstrapGrowl(
-        'Użytkownik został dodany',
-        {
-          type: 'success',
-          align: 'center',
-          offset: { from: 'top', amount: 55},
-          width: 500
-        }
+  $(document).on('click', '#addhtuser-btn', function(e) {
+    e.preventDefault();
+    var form = $('#new-htuser-form');
+    var serverid = form.find('[name="serverid"]').val();
+    $.ajax({
+      url: '/apache.php?addhtuser',
+      method: 'POST',
+      data: form.serializeArray(),
+      success: function() {
+        $.bootstrapGrowl(
+          'Użytkownik został dodany',
+          {
+            type: 'success',
+            align: 'center',
+            offset: { from: 'top', amount: 55},
+            width: 500
+          }
+        );
+      }
+  }).success(function(response) {
+    var tr = $('#wwwusers').find('tr').last();
+    var div = $('#wwwusers > div');
+    $('.modal').hide();
+    $('.modal-backdrop').hide();
+    if(tr.length) {
+      tr.after(
+        '<tr>' +
+          '<td>' +
+            response.login +
+          '</td>' +
+          '<td class="button-cell">' +
+            '<div class="btn-group">' +
+              '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+              '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                '<span class="caret"></span>' +
+                '<span class="sr-only">Toggle Dropdown</span>' +
+              '</button>' +
+              '<ul class="dropdown-menu">' +
+                '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+                '<li><a href="#" data-id="'+ response.id +'" class="add-password-access">Zabezpiecz hasłem</a></li>' +
+              '</ul>' +
+            '</div>' +
+          '</td>' +
+        '</tr>'
       );
     }
-}).success(function(response) {
-  var tr = $('#wwwusers').find('tr').last();
-  var div = $('#wwwusers > div');
-  $('.modal').hide();
-  $('.modal-backdrop').hide();
-  if(tr.length) {
-    tr.after(
-      '<tr>' +
-        '<td>' +
-          response.login +
-        '</td>' +
-        '<td class="button-cell">' +
-          '<div class="btn-group">' +
-            '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
-            '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-              '<span class="caret"></span>' +
-              '<span class="sr-only">Toggle Dropdown</span>' +
-            '</button>' +
-            '<ul class="dropdown-menu">' +
-              '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
-            '</ul>' +
-          '</div>' +
-        '</td>' +
-      '</tr>'
-    );
-  }
-  else {
-    div.find('h5').remove();
-    div.append(
-      '<table class="table table-hover">' +
-        '<thead>' +
-          '<th>Login</th><th class="button-cell">Akcja</th>' +
-        '</thead>' +
-        '<tbody>' +
-          '<tr>' +
-            '<td>' +
-              response.ServerName +
-            '</td>' +
-            '<td class="button-cell">' +
-              '<div class="btn-group">' +
-                '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
-                '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                  '<span class="caret"></span>' +
-                  '<span class="sr-only">Toggle Dropdown</span>' +
-                '</button>' +
-                '<ul class="dropdown-menu">' +
-                  '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
-                '</ul>' +
-              '</div>' +
-            '</td>' +
-          '</tr>' +
-        '</tbody>' +
-      '</table>'
-    );
-  }
-});
+    else {
+      div.find('h5').remove();
+      div.append(
+        '<table class="table table-hover">' +
+          '<thead>' +
+            '<th>Login</th><th class="button-cell">Akcja</th>' +
+          '</thead>' +
+          '<tbody>' +
+            '<tr>' +
+              '<td>' +
+                response.ServerName +
+              '</td>' +
+              '<td class="button-cell">' +
+                '<div class="btn-group">' +
+                  '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+                  '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                    '<span class="caret"></span>' +
+                    '<span class="sr-only">Toggle Dropdown</span>' +
+                  '</button>' +
+                  '<ul class="dropdown-menu">' +
+                    '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+                    '<li><a href="#" data-id="'+ response.id +'" class="add-password-access">Zabezpiecz hasłem</a></li>' +
+                  '</ul>' +
+                '</div>' +
+              '</td>' +
+            '</tr>' +
+          '</tbody>' +
+        '</table>'
+      );
+    }
+    });
+  });
+  $(document).on('click', '.add-password-access', function(e) {
+    e.preventDefault();
+    var id = $('#vhost-table').attr('data-id');
+    var vhostid = $(this).attr('data-id');
+    $.ajax({
+      url: "/apache.php?serverid=" + id,
+      method: "POST",
+      data: {vhostid}
+    });
+    $("#dual-list-box-htusers select, #dual-list-box-htusers button").attr("disabled", true);
+    bootbox
+      .dialog({
+        title: '<strong>Dostęp do strony</strong>',
+        message: $('#vhost-security-form'),
+        show: false
+      })
+      .on('shown.bs.modal', function() {
+        $(this).attr("id", "vhost-modal");
+        $('#vhost-security-form').show();
+      })
+      .on('hide.bs.modal', function(e) {
+        $('#vhost-security-form').hide().appendTo('body');
+      })
+      .modal('show');
+  });
 });
