@@ -588,6 +588,10 @@ $(document).ready(function() {
   });
   $(document).on('click', '#new-vhost > button', function() {
     var id = $(this).attr('data-id');
+    $('.select-htusers').multiselect({
+      nonSelectedText: 'Wybierz konta '
+    });
+    $('[title="Wybierz konta "]').parent().attr("id", "div-htusers");
     bootbox
       .dialog({
         title: '<strong>Nowa strona</strong>',

@@ -334,6 +334,28 @@
         <div class="row">
           <div class="col-sm-offset-2 enable-option">
             <label class="checkbox-inline add-vhost-checkbox">
+              <input type="checkbox" id="password_enable" value="password_enable"> <strong>Zabezpieczenie hasłem</strong>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-4">
+          <select id="htusers-select" class="form-control select-htusers" multiple="multiple">
+            {if $htpasswd == "NaN"}
+             <option value="0">Brak kont</option>
+             {else}
+             {foreach from=$htpasswd key=id item=htuser}
+             <option value="{$id}">{$htuser}</option>
+             {/foreach}
+            {/if}
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2 enable-option">
+            <label class="checkbox-inline add-vhost-checkbox">
               <input type="checkbox" id="enable_htaccess" value="enable_htaccess"> <strong>Konfiguracja .htaccess</strong>
             </label>
           </div>

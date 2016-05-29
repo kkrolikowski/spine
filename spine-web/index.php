@@ -110,6 +110,19 @@
         $wwwuser[$r['id']] = $r['login'];
       }
       $spine->assign('wwwuser', $wwwuser);
+
+      // lista uzytkownikow z htpasswd
+      $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ". $_GET['serverid']);
+      $q->execute();
+      if($q->rowCount() > 0) {
+        while ($r = $q->fetch()) {
+          $htpasswd[$r['id']] = $r['login'];
+        }
+        $spine->assign('htpasswd', $htpasswd);
+      }
+      else {
+        $spine->assign('htpasswd', 'NaN');
+      }
   }
 
   $spine->display('main.tpl');
