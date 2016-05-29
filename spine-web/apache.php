@@ -163,18 +163,4 @@
     }
     updateConfigVersion($dbh, $_POST['serverid']);
   }
-  if(isset($_GET['serverid'])) {
-    $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ".$_GET['serverid']);
-    $q->execute();
-    $str = '[';
-    while($r = $q->fetch(PDO::FETCH_ASSOC)) {
-      $str .= (json_encode($r)) . ',';
-      echo $r['login'];
-    }
-    $json = substr($str, 0, -1);
-    $json .= ']';
-    $fd = fopen('data/htpasswd.json', 'w');
-    fwrite($fd, $json);
-    fclose($fd);
-  }
 ?>

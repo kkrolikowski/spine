@@ -98,7 +98,6 @@ $(document).ready(function() {
     $(document).on('click', '#enable_htaccess, #edit_enable_htaccess, #enable_password', function() {
       $('#htaccess, #htaccess-field, #dual-list-box-htusers select, #dual-list-box-htusers button').attr('disabled', ! this.checked);
     });
-    $('#htusers').DualListBox();
     $('#vhostOptSelect').DualListBox();
     $('#vhostOptEdit').DualListBox();
     $(document).on('click', '#addvhost-btn', function(e) {
@@ -399,8 +398,8 @@ $(document).ready(function() {
           $('#dual-list-box-optedit').find('select.selected > option').each(function() {
             var id = $(this).val();
             var text = $(this).text();
-            $('select.selected > option[value="'+ id +'"]').remove();
-            $('select.unselected').append($('<option>', {
+            $('#dual-list-box-optedit .selected > option[value="'+ id +'"]').remove();
+            $('#dual-list-box-optedit .unselected').append($('<option>', {
               value: id,
               text: text
             }));
@@ -512,11 +511,11 @@ $(document).ready(function() {
     $('#vhostEditForm')[0].reset();
     $('#sa').prop('disabled', true);
     $('#vhostEditForm').hide().appendTo('body');
-    $('#dual-list-box-optedit').find('select.selected > option').each(function() {
+    $('#dual-list-box-optedit select.selected > option').each(function() {
       var id = $(this).val();
       var text = $(this).text();
-      $('select.selected > option[value="'+ id +'"]').remove();
-      $('select.unselected').append($('<option>', {
+      $('#dual-list-box-optedit .selected > option[value="'+ id +'"]').remove();
+      $('#dual-list-box-optedit .unselected').append($('<option>', {
         value: id,
         text: text
       }));
@@ -699,30 +698,5 @@ $(document).ready(function() {
       );
     }
     });
-  });
-  $(document).on('click', '.add-password-access', function(e) {
-    e.preventDefault();
-    var id = $('#vhost-table').attr('data-id');
-    var vhostid = $(this).attr('data-id');
-    $.ajax({
-      url: "/apache.php?serverid=" + id,
-      method: "POST",
-      data: {vhostid}
-    });
-    $("#dual-list-box-htusers select, #dual-list-box-htusers button").attr("disabled", true);
-    bootbox
-      .dialog({
-        title: '<strong>Dostęp do strony</strong>',
-        message: $('#vhost-security-form'),
-        show: false
-      })
-      .on('shown.bs.modal', function() {
-        $(this).attr("id", "vhost-modal");
-        $('#vhost-security-form').show();
-      })
-      .on('hide.bs.modal', function(e) {
-        $('#vhost-security-form').hide().appendTo('body');
-      })
-      .modal('show');
   });
 });

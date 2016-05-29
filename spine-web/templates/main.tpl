@@ -70,6 +70,10 @@
       <link href="css/bi-style.css" rel="stylesheet" type="text/css" />
       <script src="js/jquery-barIndicator.js"></script>
 
+      <!-- Zabezpieczenie stron haslem -->
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
+
       <!-- Customowy skrypt strony i css -->
       <script src="js/spine.js"></script>
       <link href="/css/custom.css" rel="stylesheet">
@@ -410,40 +414,6 @@
       </div>
     </form>
     <!-- END: Nowe konto htaccess -->
-    <!-- BEGIN: lista kont zabezpieczajacych dostep -->
-    <form id="vhost-security-form" method="post" class="form-horizontal" role="form" style="display: none;">
-      <div class="form-group">
-        <div class="row">
-          <div class="col-sm-offset-2 enable-option">
-            <label class="checkbox-inline">
-              <input type="checkbox" id="enable_password" value="enable_password"> <strong>Zabezpieczenie strony hasłem</strong>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="row">
-          <label for="htusers" class="col-sm-2 control-label">Użytkownicy</label>
-          <div class="col-sm-8">
-            <select  multiple="multiple" class="form-control" id="htusers" name="htusers"
-              data-source="data/htpasswd.json"
-              data-title="htusers"
-              data-value='id'
-              data-text='login'>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="row">
-          <div class="col-sm-offset-2" id="new-vhost-buttons">
-            <button type="button" class="btn btn-primary" id="addvhost-btn">Zapisz konfigurację</button>
-            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
-          </div>
-        </div>
-      </div>
-    </form>
-    <!-- END: lista kont zabezpieczajacych dostep -->
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 
