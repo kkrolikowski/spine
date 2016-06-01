@@ -46,6 +46,18 @@
                           "VALUES('".$host."', ".$allow.", ".$vhostid.")");
       $q->execute();
     }
+    if(isset($_POST['htusers'])) {
+      foreach ($_POST['htusers'] as $userid) {
+        $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(".$userid.", ".$vhostid.", ".$_POST['serverid'].")");
+        $q->execute();
+      }
+      $htpasswdStatus = 1;
+    }
+    else {
+      $htpasswdStatus = 0;
+    }
+    $q = $dbh->prepare("UPDATE www SET htpasswd = ".$htpasswdStatus." WHERE id = ".$vhostid);
+    $q->execute();
     updateConfigVersion($dbh, $_POST['serverid']);
 
     $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $vhostid);

@@ -341,7 +341,7 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-4">
-          <select id="htusers-select" class="form-control select-htusers" multiple="multiple">
+          <select id="htusers-select" name="htusers" class="form-control select-htusers" multiple="multiple">
             {if $htpasswd == "NaN"}
              <option value="0">Brak kont</option>
              {else}

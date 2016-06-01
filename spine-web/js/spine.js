@@ -138,10 +138,14 @@ $(document).ready(function() {
         fromhost.push($(this).find('[name="from['+ idx +']"]').val());
         idx++;
       });
+      var htusers = [];
+      $('#htusers-select > option:checked').each(function() {
+        htusers.push($(this).val());
+      });
       $.ajax({
         url: '/apache.php?addvhost',
         method: 'POST',
-        data: {serverid, sn, sa, vhopts, account, htaccess, access_order, allow, fromhost},
+        data: {serverid, sn, sa, vhopts, account, htaccess, access_order, allow, fromhost, htusers},
         success: function() {
           $.bootstrapGrowl(
             'Konfiguracja apacza zapisana',
