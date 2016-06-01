@@ -95,8 +95,11 @@ $(document).ready(function() {
     $(document).on('click', '.glyphicon-minus', function() {
       $(this).closest('#serverAliasPlus, #sa-group-new, .access-rule').remove();
     });
-    $(document).on('click', '#enable_htaccess, #edit_enable_htaccess, #enable_password', function() {
-      $('#htaccess, #htaccess-field, #dual-list-box-htusers select, #dual-list-box-htusers button').attr('disabled', ! this.checked);
+    $(document).on('click', '#enable_htaccess, #edit_enable_htaccess', function() {
+      $('#htaccess, #htaccess-field').attr('disabled', ! this.checked);
+    });
+    $(document).on('click', '#password_enable', function() {
+      $('button[title="Wybierz konta "]').attr('disabled', ! this.checked);
     });
     $('#vhostOptSelect').DualListBox();
     $('#vhostOptEdit').DualListBox();
@@ -600,6 +603,12 @@ $(document).ready(function() {
       })
       .on('shown.bs.modal', function() {
         $(this).attr("id", "vhost-modal");
+        if($('#password_enable').is(':checked')) {
+          $('button[title="Wybierz konta "]').attr('disabled', false);
+        }
+        else {
+          $('button[title="Wybierz konta "]').attr('disabled', true);
+        }
         $('#addvhost')
           .show()
       })
