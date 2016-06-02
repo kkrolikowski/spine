@@ -659,7 +659,7 @@ $(document).ready(function() {
       }
   }).success(function(response) {
     var tr = $('#wwwusers').find('tr').last();
-    var div = $('#wwwusers > div');
+    var div = $('#wwwusers > div:nth-child(2)');
     $('.modal').hide();
     $('.modal-backdrop').hide();
     if(tr.length) {
@@ -677,7 +677,6 @@ $(document).ready(function() {
               '</button>' +
               '<ul class="dropdown-menu">' +
                 '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
-                '<li><a href="#" data-id="'+ response.id +'" class="add-password-access">Zabezpiecz hasłem</a></li>' +
               '</ul>' +
             '</div>' +
           '</td>' +
@@ -687,14 +686,14 @@ $(document).ready(function() {
     else {
       div.find('h5').remove();
       div.append(
-        '<table class="table table-hover">' +
+        '<table class="table table-hover" id="vhost-table">' +
           '<thead>' +
             '<th>Login</th><th class="button-cell">Akcja</th>' +
           '</thead>' +
           '<tbody>' +
             '<tr>' +
               '<td>' +
-                response.ServerName +
+                response.login +
               '</td>' +
               '<td class="button-cell">' +
                 '<div class="btn-group">' +
@@ -705,7 +704,6 @@ $(document).ready(function() {
                   '</button>' +
                   '<ul class="dropdown-menu">' +
                     '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
-                    '<li><a href="#" data-id="'+ response.id +'" class="add-password-access">Zabezpiecz hasłem</a></li>' +
                   '</ul>' +
                 '</div>' +
               '</td>' +
