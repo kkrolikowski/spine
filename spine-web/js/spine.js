@@ -598,6 +598,28 @@ $(document).ready(function() {
     $('.select-htusers').multiselect({
       nonSelectedText: 'Wybierz konta '
     });
+    $.ajax({
+      url: "/apache.php?htusers=" + id,
+      method: "GET",
+      success: function(response) {
+        var ul = $('#div-htusers').find('ul.dropdown-menu');
+        ul.find('li').each(function() {
+          $(this).remove();
+        });
+        var tabindex = 0;
+        $.each(response, function(id, user) {
+          ul.append(
+            '<li>' +
+            '<a tabindex="'+ tabindex +'">' +
+            '<label class="checkbox">' +
+            '<input type="checkbox" value="'+ id +'"> '+ user +
+            '</label>' +
+            '</a>' +
+            '</li>'
+          );
+        });
+      }
+    });
     $('[title="Wybierz konta "]').parent().attr("id", "div-htusers");
     bootbox
       .dialog({

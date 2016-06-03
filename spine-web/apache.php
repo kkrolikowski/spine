@@ -175,4 +175,13 @@
     }
     updateConfigVersion($dbh, $_POST['serverid']);
   }
+  if(isset($_GET['htusers'])) {
+    $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ".$_GET['htusers']);
+    $q->execute();
+    while ($r = $q->fetch()) {
+      $json[$r['id']] = $r['login'];
+    }
+    header('Content-Type: application/json');
+    echo json_encode($json);
+  }
 ?>
