@@ -54,6 +54,8 @@
       $htpasswdStatus = 1;
     }
     else {
+      $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(0, ".$vhostid.", ".$_POST['serverid'].")");
+      $q->execute();
       $htpasswdStatus = 0;
     }
     $q = $dbh->prepare("UPDATE www SET htpasswd = ".$htpasswdStatus." WHERE id = ".$vhostid);
@@ -104,12 +106,17 @@
       "GROUP_CONCAT(DISTINCT wo.id SEPARATOR ' ') AS selected_optid, ".
       "GROUP_CONCAT(DISTINCT wo.vhostopt SEPARATOR ' ') AS selected_options, ".
       "GROUP_CONCAT(DISTINCT CONCAT(wa.fromhost, ':', wa.access_permission) SEPARATOR ',') AS accesslist, " .
-      "w.access_order ".
+      "w.access_order, ".
+      "w.htpasswd, ".
+      "GROUP_CONCAT(DISTINCT wu.id SEPARATOR ' ') AS htuserid, ".
+      "GROUP_CONCAT(DISTINCT wu.login SEPARATOR ' ') AS htuser ".
       "FROM www w ".
         "JOIN sysusers su ON w.user_id = su.id ".
         "JOIN www_opts_selected wos ON w.id = wos.vhost_id ".
         "JOIN www_opts wo ON wo.id = wos.opt_id ".
         "JOIN www_access wa ON wa.vhost_id = w.id ".
+        "JOIN www_users_access wua ON wua.vhost_id = w.id ".
+		    "LEFT JOIN www_users wu ON wu.id = wua.user_id ".
       "WHERE w.id = ".$_GET['vhostid']);
     $q->execute();
     $r = $q->fetch();
@@ -119,6 +126,10 @@
     $opts = array_filter(explode(" ", $r['selected_options']));
     $optids = array_filter(explode(" ", $r['selected_optid']));
     $optsWithID = array_combine($optids, $opts);
+
+    $htuser = array_filter(explode(" ", $r['htuser']));
+    $htuserid = array_filter(explode(" ", $r['htuserid']));
+    $htusers = array_combine($htuserid, $htuser);
 
     $access = array_filter(explode(",", $r['accesslist']));
     $accessArr = array();
@@ -135,7 +146,9 @@
       'user' => $r['login'],
       'vhost_options' => $optsWithID,
       'access_order' => $r['access_order'],
-      'access_list' => $accessArr
+      'access_list' => $accessArr,
+      'htpasswd' => $r['htpasswd'],
+      'htusers' => $htusers
     );
     header('Content-Type: application/json');
     echo json_encode($json);

@@ -373,6 +373,27 @@ $(document).ready(function() {
           $('[name="from['+ idx +']"]').val(accessfrom);
           idx++;
         }
+        $('#edit-select-htusers').multiselect({
+          nonSelectedText: 'Wybierz konta ',
+          buttonClass: 'multiselect dropdown-toggle btn btn-default select-htusers-btn',
+          buttonContainer: '<div class="select-htusers-group" />'
+        });
+        if(response.htpasswd == 1) {
+          $('#edit_password_enable').attr('checked', true);
+          var selectedUsers = "";
+          $.each(response.htusers, function(id, htuser) {
+            $('.select-htusers-group input[type="checkbox"][value='+ id +']')
+            .prop("checked", true)
+            .closest('li').addClass("active");
+            selectedUsers += htuser + ", ";
+          });
+          selectedUsers = selectedUsers.slice(0, -2);
+          $('.select-htusers-btn').prop('title', selectedUsers);
+          $('.select-htusers-btn > span').text(selectedUsers);
+        }
+        else {
+          $('#edit_password_enable').attr('checked', false);
+        }
       });
       if(response.htaccess != "NaN") {
         $('#htaccess-row').find('[name="htaccess"]').text(response.htaccess).attr("disabled", false);
