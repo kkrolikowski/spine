@@ -163,11 +163,14 @@ $(document).ready(function() {
         }
     }).success(function(response) {
       var tr = $('#wwwconfig').find('tr').last();
-      var div = $('#wwwconfig > div');
+      var div = $('#wwwconfig > div:nth-child(2)');
       $('.modal').hide();
       $('.modal-backdrop').hide();
       $('#sa-group-new').remove();
       $('.access-rule').remove();
+      $('.multiselect').prop('title', 'Wybierz konta ');
+      $('.multiselect-container > li').removeClass("active");
+      $('.multiselect-selected-text').text("Wybierz konta ");
       $('.panel-body').hide();
       $('#expandControl').removeClass("fa-angle-down").addClass("fa-angle-up");
       if(tr.length) {
@@ -595,28 +598,21 @@ $(document).ready(function() {
   });
   $(document).on('click', '#new-vhost > button', function() {
     var id = $(this).attr('data-id');
-    $('.select-htusers').multiselect({
-      nonSelectedText: 'Wybierz konta '
-    });
     $.ajax({
       url: "/apache.php?htusers=" + id,
       method: "GET",
       success: function(response) {
-        var ul = $('#div-htusers').find('ul.dropdown-menu');
-        ul.find('li').each(function() {
+        var option = $('#htusers-select').find('option');
+        option.each(function() {
           $(this).remove();
         });
-        var tabindex = 0;
         $.each(response, function(id, user) {
-          ul.append(
-            '<li>' +
-            '<a tabindex="'+ tabindex +'">' +
-            '<label class="checkbox">' +
-            '<input type="checkbox" value="'+ id +'"> '+ user +
-            '</label>' +
-            '</a>' +
-            '</li>'
+          $('#htusers-select').append(
+            '<option value="'+ id +'">'+ user +'</option>'
           );
+        });
+        $('.select-htusers').multiselect({
+          nonSelectedText: 'Wybierz konta '
         });
       }
     });
