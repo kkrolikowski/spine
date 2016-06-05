@@ -190,7 +190,7 @@
       </div>
       <div class="form-group">
         <div class="row">
-          <div class="col-sm-offset-2 enable-option">
+          <div class="col-sm-offset-2 enable-htusers-option">
             <label class="checkbox-inline">
               <input type="checkbox" id="edit_password_enable" value="password_enable"> <strong>Zabezpieczenie hasłem</strong>
             </label>
