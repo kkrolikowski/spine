@@ -123,3 +123,9 @@
 #div-htusers {
   margin-left: -8px;
 }
+.add-htusers-group {
+  margin-left: -10px;
+}
+.add-htusers-group > ul {
+  margin-left: 4px;
+}

@@ -633,7 +633,8 @@ $(document).ready(function() {
           );
         });
         $('.select-htusers').multiselect({
-          nonSelectedText: 'Wybierz konta '
+          nonSelectedText: 'Wybierz konta ',
+          buttonContainer: '<div class="add-htusers-group" />'
         });
       }
     });
