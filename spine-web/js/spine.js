@@ -489,10 +489,14 @@ $(document).ready(function() {
       allow.push($(this).find('input[type="radio"]:checked').val());
       fromhost.push($(this).find('input[type="text"]').val());
     });
+    var htusers = [];
+    $('#edit-select-htusers > option:checked').each(function() {
+      htusers.push($(this).val());
+    });
     $.ajax({
       url: '/apache.php?edit=' + id,
       method: 'POST',
-      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost},
+      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htusers},
       success: function() {
         $.bootstrapGrowl(
           'Konfiguracja vhosta zapisana',
