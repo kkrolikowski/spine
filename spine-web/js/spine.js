@@ -376,10 +376,15 @@ $(document).ready(function() {
         $('#edit-select-htusers').multiselect({
           nonSelectedText: 'Wybierz konta ',
           buttonClass: 'multiselect dropdown-toggle btn btn-default select-htusers-btn',
-          buttonContainer: '<div class="select-htusers-group" />'
+          buttonContainer: '<div id="edit-htusers-div" class="select-htusers-group" />'
         });
         if(response.htpasswd == 1) {
           $('#edit_password_enable').attr('checked', true);
+          if($('#edit-htusers-div').hasClass("add-htusers-group")) {
+            $('#edit-htusers-div')
+            .removeClass("add-htusers-group")
+            .addClass("select-htusers-group");
+          }
           var selectedUsers = "";
           $.each(response.htusers, function(id, htuser) {
             $('.select-htusers-group input[type="checkbox"][value='+ id +']')
@@ -439,6 +444,9 @@ $(document).ready(function() {
           });
           $('.access-rule').remove();
           i = 0;
+          $('.multiselect').prop('title', 'Wybierz konta ');
+          $('.multiselect-container > li').removeClass("active");
+          $('.multiselect-selected-text').text("Wybierz konta ");
         })
         .modal('show');
     });
@@ -530,6 +538,9 @@ $(document).ready(function() {
       });
       $('.access-rule').remove();
       i = 0;
+      $('.multiselect').prop('title', 'Wybierz konta ');
+      $('.multiselect-container > li').removeClass("active");
+      $('.multiselect-selected-text').text("Wybierz konta ");
     });
   });
   $(document).on('click', '#edit-cancel', function() {
@@ -555,6 +566,9 @@ $(document).ready(function() {
     });
     $('.access-rule').remove();
     i = 0;
+    $('.multiselect').prop('title', 'Wybierz konta ');
+    $('.multiselect-container > li').removeClass("active");
+    $('.multiselect-selected-text').text("Wybierz konta ");
   });
   $(document).on('click', '#sa-arrow-btn', function() {
     if($('#sa-arrow').hasClass("fa-arrow-down")) {
@@ -632,10 +646,15 @@ $(document).ready(function() {
             '<option value="'+ id +'">'+ user +'</option>'
           );
         });
-        $('.select-htusers').multiselect({
+        $('#htusers-select').multiselect({
           nonSelectedText: 'Wybierz konta ',
-          buttonContainer: '<div class="add-htusers-group" />'
+          buttonContainer: '<div id="add-htusers-div" class="add-htusers-group" />'
         });
+        if($('#add-htusers-div').hasClass("select-htusers-group")) {
+          $('#add-htusers-div')
+          .removeClass("select-htusers-group")
+          .addClass("add-htusers-group");
+        }
       }
     });
     $('[title="Wybierz konta "]').parent().attr("id", "div-htusers");
