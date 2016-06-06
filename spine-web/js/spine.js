@@ -386,12 +386,16 @@ $(document).ready(function() {
             .addClass("select-htusers-group");
           }
           var selectedUsers = "";
+          var selectedUserIDs = [];
           $.each(response.htusers, function(id, htuser) {
             $('.select-htusers-group input[type="checkbox"][value='+ id +']')
             .prop("checked", true)
             .closest('li').addClass("active");
             selectedUsers += htuser + ", ";
+            selectedUserIDs.push(id);
           });
+          $('#edit-select-htusers').val(selectedUserIDs);
+          $('#edit-select-htusers').multiselect("refresh");
           selectedUsers = selectedUsers.slice(0, -2);
           $('.select-htusers-btn').prop('title', selectedUsers);
           $('.select-htusers-btn > span').text(selectedUsers);
