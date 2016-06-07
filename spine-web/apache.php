@@ -186,6 +186,13 @@
                         "VALUES('".$host."', ".$permission.", ".$_GET['edit'].")");
       $q->execute();
     }
+
+    $q = $dbh->prepare("DELETE FROM www_users_access WHERE vhost_id = ". $_GET['edit']. " AND server_id = ". $_POST['serverid']);
+    $q->execute();
+    foreach ($_POST['htusers'] as $htuser) {
+      $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(".$htuser.", ".$_GET['edit'].", ".$_POST['serverid'].")");
+      $q->execute();
+    }
     updateConfigVersion($dbh, $_POST['serverid']);
   }
   if(isset($_GET['htusers'])) {
