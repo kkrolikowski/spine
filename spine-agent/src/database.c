@@ -208,6 +208,8 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				hconfig.vhost[vhi].apacheOpts = readData(row[6]);
 				hconfig.vhost[vhi].vhost_access_list = readData(row[7]);
 				hconfig.vhost[vhi].vhost_access_order = readData(row[8]);
+				hconfig.vhost[vhi].password_access = atoi(row[9]);
+				hconfig.vhost[vhi].htusers = readData(row[10]);
 				vhi++;
 			}
 			hconfig.vhost_num = vhi;
