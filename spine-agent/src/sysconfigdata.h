@@ -23,14 +23,16 @@ typedef struct systeminfo {
 
 // konfiguracja serwera www
 typedef struct wwwdata {
-	char * ServerName;
-	char * ServerAlias;
-	char * DocumentRoot;
-	char * apacheOpts;
-	char * htaccess;
-	char * vhost_access_order;
-	char * vhost_access_list;
-	char * user;
+	char * ServerName;				// glowny adres witryny
+	char * ServerAlias;				// Dodatkowe adresy witryny
+	char * DocumentRoot;			// katalog witryny na serwerze
+	char * apacheOpts;				// opcje katalogu
+	char * htaccess;				// definicja pliku htaccess
+	char * vhost_access_order;		// kolejnosc przetwarzania regol dostepu
+	char * vhost_access_list;		// lista hostow skad mozna laczyc sie z witryna
+	int password_access;			// czy witryna ma byc zabezpieczona haslem
+	char * htusers;					// lista kont, ktora ma dostep do witryny
+	char * user;					// wlasciciel witryny
 } wwwdata;
 
 // struktura, ktora bedzie przechowywac wskazniki
