@@ -472,6 +472,7 @@ char * apacheConfigPackage(hostconfig data) {
 	char * vhostdata = NULL; 	// zawartosc vhosta
 	char * metainfo = NULL;		// dane pomocnicze
 	char * configstr = NULL;	// string przechowujacy odczytana konfiguracje
+	char * authbasic = NULL;	// flaga okreslajaca, czy jest wlaczone haslo na witrynie
 
 	// bufor na dane konfiguracyjne
 	char buff[PACKAGE_SIZE];
@@ -483,6 +484,7 @@ char * apacheConfigPackage(hostconfig data) {
 	for(vidx = 0; vidx < data.vhost_num; vidx++) {
 
 		numstr = int2String(vidx);
+		authbasic = int2String(data.vhost[vidx].password_access);
 		metainfo = mkString("vhost_", numstr, NULL);
 		strcat(buff, metainfo);
 
@@ -494,11 +496,13 @@ char * apacheConfigPackage(hostconfig data) {
 				",VhostAccessOrder:", data.vhost[vidx].vhost_access_order,
 				",VhostAccessList:", data.vhost[vidx].vhost_access_list,
 				",htaccess:", data.vhost[vidx].htaccess,
+				",authbasic:", authbasic,
 				",user:", data.vhost[vidx].user, "},", NULL);
 		strcat(buff, vhostdata);
 
 		free(vhostdata);
 		free(numstr);
+		free(authbasic);
 		free(metainfo);
 	}
 

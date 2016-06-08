@@ -201,6 +201,7 @@ hostconfig ParseConfigData(char * json) {
 	char * config_pos = NULL;
 	char * vheader = NULL;
 	char * index = NULL;
+	char * authbasic = NULL;
 	conf.datatype = jsonVal(json, "datatype");
 	conf.confVer = atoi(jsonVal(json, "config_ver"));
 	conf.vhost_num = atoi(jsonVal(json, "vhost_num"));
@@ -216,7 +217,10 @@ hostconfig ParseConfigData(char * json) {
 		conf.vhost[i].vhost_access_order = jsonVal(config_pos, "VhostAccessOrder");
 		conf.vhost[i].vhost_access_list = jsonVal(config_pos, "VhostAccessList");
 		conf.vhost[i].htaccess = jsonVal(config_pos, "htaccess");
+		authbasic = jsonVal(config_pos, "authbasic");
+		conf.vhost[i].password_access = atoi(authbasic);
 		conf.vhost[i].user = jsonVal(config_pos, "user");
+		free(authbasic);
 	}
 
 	//free(config_pos);
@@ -254,6 +258,7 @@ char * linuxDistro(void) {
 int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	char * configDir = NULL;			// sciezka do katalogu konfiguracyjnego apacza
 	char * configDir2 = NULL;			// Ubuntu only. sciezka do katalogu sites-enabled
+	char * apacheAuthDir = NULL;		// sciezka do katalogu z uzytkownikami i grupami apacza
 	char * logsDir = NULL;				// sciezka do logow apacza
 	char * path = NULL;					// pelna sciezka do pliku konfiguracyjnego vhosta
 	char * path2 = NULL;				// symlink do sites-enabled (Ubuntu only)
@@ -266,10 +271,12 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	int i;
 
 	if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
+		apacheAuthDir = "/etc/httpd/auth/";
 		configDir = "/etc/httpd/conf.d/";
 		logsDir = "/var/log/httpd";
 	}
 	else if(!strcmp(distro, "Ubuntu")) {
+		apacheAuthDir = "/etc/apache2/auth/";
 		configDir = "/etc/apache2/sites-available/";
 		configDir2 = "/etc/apache2/sites-enabled/";
 		logsDir = "/var/log/apache2";
@@ -301,6 +308,14 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		if(!strcmp(distro, "Ubuntu"))
 			fprintf(vhost, "\t\tRequire all granted\n");
 		fprintf(vhost, "\t</Directory>\n\n");
+		if(vhosts[i].password_access) {
+			fprintf(vhost, "\t<Location />\n");
+			fprintf(vhost, "\t\tAuthType Basic\n");
+			fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
+			fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
+			fprintf(vhost, "\t\tRequire group %s\n", vhosts[i].ServerName);
+			fprintf(vhost, "\t</Location>\n");
+		}
 		fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "</VirtualHost>\n");
