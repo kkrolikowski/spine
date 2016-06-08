@@ -311,6 +311,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		if(vhosts[i].password_access) {
 			fprintf(vhost, "\t<Location />\n");
 			fprintf(vhost, "\t\tAuthType Basic\n");
+			fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
 			fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
 			fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
 			fprintf(vhost, "\t\tRequire group %s\n", vhosts[i].ServerName);
