@@ -532,6 +532,5 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 		free(vhost[i].apacheOpts);
 		free(vhost[i].vhost_access_list);
 		free(vhost[i].vhost_access_order);
-		free(vhost[i].htusers);
 	}
 }
