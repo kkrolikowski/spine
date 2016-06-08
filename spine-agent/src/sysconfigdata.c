@@ -271,12 +271,12 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	int i;
 
 	if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
-		apacheAuthDir = "/etc/httpd/auth/";
+		apacheAuthDir = "/etc/httpd/auth";
 		configDir = "/etc/httpd/conf.d/";
 		logsDir = "/var/log/httpd";
 	}
 	else if(!strcmp(distro, "Ubuntu")) {
-		apacheAuthDir = "/etc/apache2/auth/";
+		apacheAuthDir = "/etc/apache2/auth";
 		configDir = "/etc/apache2/sites-available/";
 		configDir2 = "/etc/apache2/sites-enabled/";
 		logsDir = "/var/log/apache2";
