@@ -116,7 +116,7 @@
         "JOIN www_opts_selected wos ON w.id = wos.vhost_id ".
         "JOIN www_opts wo ON wo.id = wos.opt_id ".
         "JOIN www_access wa ON wa.vhost_id = w.id ".
-        "JOIN www_users_access wua ON wua.vhost_id = w.id ".
+        "LEFT JOIN www_users_access wua ON wua.vhost_id = w.id ".
 		    "LEFT JOIN www_users wu ON wu.id = wua.user_id ".
       "WHERE w.id = ".$_GET['vhostid']);
     $q->execute();
