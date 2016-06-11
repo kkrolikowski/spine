@@ -246,6 +246,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
 			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
 			writeLog(lf, logentry);
+			free(clientResponse);
 			free(net.ipaddr);
 			close(net.sock);
 			sleep(5);
