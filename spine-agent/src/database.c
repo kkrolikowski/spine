@@ -30,17 +30,34 @@ MYSQL * dbConnect(dbconn cfg) {
 int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	systeminfo hostinfo;
 	char * logmessage = NULL;
+	char * uptime_s = NULL;
+	char * hdd_total_s = NULL;
+	char * hdd_free_s = NULL;
+	char * ram_total_s = NULL;
+	char * ram_free_s = NULL;
 
 	// odczytujemy informacje z jsona
 	InitSystemInformation(&hostinfo);
-	hostinfo.uptime = atol(jsonVal(stream, "uptime"));
+
+	uptime_s = jsonVal(stream, "uptime");
+	hostinfo.uptime = atol(uptime_s);
+
 	hostinfo.net_hwaddr = jsonVal(stream, "systemid");
 	hostinfo.hostname = jsonVal(stream, "hostname");
 	hostinfo.os = jsonVal(stream, "distro_name");
-	hostinfo.hdd_total = atol(jsonVal(stream, "hdd_total"));
-	hostinfo.hdd_free = atol(jsonVal(stream, "hdd_free"));
-	hostinfo.ram_total = atol(jsonVal(stream, "ram_total"));
-	hostinfo.ram_free = atol(jsonVal(stream, "ram_free"));
+
+	hdd_total_s = jsonVal(stream, "hdd_total");
+	hostinfo.hdd_total = atol(hdd_total_s);
+
+	hdd_free_s = jsonVal(stream, "hdd_free");
+	hostinfo.hdd_free = atol(hdd_free_s);
+
+	ram_total_s = jsonVal(stream, "ram_total");
+	hostinfo.ram_total = atol(ram_total_s);
+
+	ram_free_s = jsonVal(stream, "ram_free");
+	hostinfo.ram_free = atol(ram_free_s);
+
 	hostinfo.extip = jsonVal(stream, "ext_ip");
 	hostinfo.ip = clientip;
 
@@ -58,6 +75,12 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 			writeLog(lf, logmessage);
 		}
 	}
+	free(uptime_s);
+	free(hdd_total_s);
+	free(hdd_free_s);
+	free(ram_total_s);
+	free(ram_free_s);
+
 	ClearSystemInformation(&hostinfo);
 
 	return 1;
