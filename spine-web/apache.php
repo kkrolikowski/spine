@@ -170,7 +170,7 @@
       array_push($opts, $value);
     }
     $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $saClean ."', htaccess = '". $_POST['htaccess'].
-                        "', access_order = '".$_POST['access_order']."' WHERE id = ". $_GET['edit']);
+                        "', access_order = '".$_POST['access_order']."', htpasswd = ".$_POST['htpasswd']." WHERE id = ". $_GET['edit']);
     $q->execute();
 
     $q = $dbh->prepare("DELETE FROM www_opts_selected WHERE vhost_id = ". $_GET['edit']);

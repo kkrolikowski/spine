@@ -493,6 +493,10 @@ $(document).ready(function() {
       allow.push($(this).find('input[type="radio"]:checked').val());
       fromhost.push($(this).find('input[type="text"]').val());
     });
+    var htpasswd = 0;
+    if($('#edit_password_enable:checked').length) {
+      htpasswd = 1;
+    }
     var htusers = [];
     $('#edit-select-htusers > option:checked').each(function() {
       htusers.push($(this).val());
@@ -500,7 +504,7 @@ $(document).ready(function() {
     $.ajax({
       url: '/apache.php?edit=' + id,
       method: 'POST',
-      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htusers},
+      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htpasswd, htusers},
       success: function() {
         $.bootstrapGrowl(
           'Konfiguracja vhosta zapisana',
