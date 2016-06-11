@@ -157,15 +157,11 @@
   if(isset($_GET['edit'])) {
     $opts = array();
 
-    if($_POST['sa'][0] == "NaN") {
-      $sa = "NaN";
+    foreach ($_POST['sa'] as $value) {
+      $sa .= $value . " ";
     }
-    else {
-      foreach ($_POST['sa'] as $value) {
-        $sa .= $value . " ";
-      }
-      $saClean = substr($sa, 0, -1);
-    }
+    $saClean = substr($sa, 0, -1);
+
     foreach ($_POST['opts'] as $value) {
       array_push($opts, $value);
     }
