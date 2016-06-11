@@ -321,7 +321,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 			fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
 			fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
 			fprintf(vhost, "\t\tRequire group %s\n", vhosts[i].ServerName);
-			fprintf(vhost, "\t</Location>\n");
+			fprintf(vhost, "\t</Location>\n\n");
 		}
 		fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
 		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
