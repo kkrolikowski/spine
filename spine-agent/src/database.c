@@ -207,6 +207,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 	MYSQL_RES * res;
 	MYSQL_ROW row;
 	hostconfig hconfig;
+	long resnum = 0L;
 
 	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
 							"sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
@@ -222,6 +223,8 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 	int vhi = 0;			// index tablicy przechowujacej vhosty apacza
 	if(!mysql_query(dbh, query)) {
 		if((res = mysql_store_result(dbh)) != NULL) {
+			resnum = mysql_num_rows(res);
+			initConfigData(&hconfig, resnum);
 			while((row = mysql_fetch_row(res)) && vhi < VHOST_MAX) {
 				hconfig.vhost[vhi].ServerName = readData(row[0]);
 				hconfig.vhost[vhi].ServerAlias = readData(row[1]);

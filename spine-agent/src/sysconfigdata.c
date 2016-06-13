@@ -205,11 +205,14 @@ hostconfig ParseConfigData(char * json) {
 	char * confver_s = NULL;
 	char * vhostnum_s = NULL;
 
+	vhostnum_s = jsonVal(json, "vhost_num");
+	conf.vhost_num = atoi(vhostnum_s);
+
+	initConfigData(&conf, conf.vhost_num);
+
 	conf.datatype = jsonVal(json, "datatype");
 	confver_s = jsonVal(json, "config_ver");
 	conf.confVer = atoi(confver_s);
-	vhostnum_s = jsonVal(json, "vhost_num");
-	conf.vhost_num = atoi(vhostnum_s);
 
 	for(i = 0; i < conf.vhost_num; i++) {
 		index = int2String(i);

@@ -2,7 +2,7 @@
 #define SPINE_AGENT_SRC_NETWORK_H_
 
 #define CONN_QUEUE 10		// dlugosc kolejki polaczen do obsluzenia
-#define NET_BUFFER 1024		// bufor do wysylania oraz odbierania danych
+#define NET_BUFFER 10240	// bufor do wysylania oraz odbierania danych
 
 /*			STRUKTURY		*/
 

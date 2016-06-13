@@ -88,4 +88,9 @@ char * BuildConfigurationPackage(hostconfig data);
 // funkcja zwalnia pamiec pozostala po wczytaniu danych z bazy
 void clearVhostData(struct wwwdata vhost[], int n);
 
+// funkcja zwalnia pamiec po prztworzeniu struktury do stringa
+void clearConfigData(hostconfig * cfd);
+
+// funckja inicjue strukture hostconfig
+void initConfigData(hostconfig * cfd, long vhostnum);
 #endif /* SPINE_AGENT_CORE_H_ */
