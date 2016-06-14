@@ -420,6 +420,7 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 	if(createVhostConfig(os, cfg.vhost, cfg.vhost_num, lf)) {
 		createWebsiteDir(cfg.vhost, cfg.vhost_num);
 		createHtaccess(cfg.vhost, cfg.vhost_num);
+		createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);
 		reloadApache(os);
@@ -544,4 +545,40 @@ char * accessOrder(char * str) {
 	}
 
 	return order;
+}
+void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf) {
+	char * logmessage = NULL;
+	char * htgroupDir = NULL;
+	char * htgroupFilePath = NULL;
+
+	if(!strcmp(os, "Ubuntu"))
+		htgroupDir = "/etc/apache2/auth";
+	else if(!strcmp(os, "Centos"))
+		htgroupDir = "/etc/httpd/auth";
+	htgroupFilePath = mkString(htgroupDir, "/.htgroup", NULL);
+
+	if(mkdir(htgroupDir, 0755) < 0) {
+		if(errno != EEXIST) {
+			logmessage = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", htgroupDir, "\n", NULL);
+			writeLog(lf, logmessage);
+		}
+		else
+			createHtgroupFile(htgroupFilePath, vhosts, n);
+	}
+	else
+		createHtgroupFile(htgroupFilePath, vhosts, n);
+
+	free(htgroupFilePath);
+}
+void createHtgroupFile(char * path, wwwdata vhosts[], int n) {
+	int i;
+	FILE * htgroup;
+
+	if((htgroup = fopen(path, "w")) != NULL) {
+		for(i = 0; i < n; i++) {
+			if(vhosts[i].password_access == 1)
+				fprintf(htgroup, "%s: %s\n", vhosts[i].ServerName, vhosts[i].htusers);
+		}
+		fclose(htgroup);
+	}
 }

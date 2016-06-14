@@ -125,4 +125,8 @@ char * acl(char * str);
 // funkcja konfiguruje opcje order apacza na podstawie informacji z bazy
 char * accessOrder(char * str);
 
+// funkcja tworzy plik htgroup
+void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf);
+
+void createHtgroupFile(char * path, wwwdata vhosts[], int n);
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
