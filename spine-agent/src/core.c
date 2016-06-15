@@ -499,6 +499,7 @@ char * apacheConfigPackage(hostconfig data) {
 				",VhostAccessList:", data.vhost[vidx].vhost_access_list,
 				",htaccess:", data.vhost[vidx].htaccess,
 				",authbasic:", authbasic,
+				",htusers:", data.vhost[vidx].htusers,
 				",user:", data.vhost[vidx].user, "},", NULL);
 		strcat(buff, vhostdata);
 
@@ -537,6 +538,7 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 		free(vhost[i].apacheOpts);
 		free(vhost[i].vhost_access_list);
 		free(vhost[i].vhost_access_order);
+		free(vhost[i].htusers);
 	}
 }
 void clearConfigData(hostconfig * cfd) {
@@ -552,6 +554,7 @@ void clearConfigData(hostconfig * cfd) {
 		if(cfd->vhost[i].user != NULL) free(cfd->vhost[i].user);
 		if(cfd->vhost[i].vhost_access_list != NULL) free(cfd->vhost[i].vhost_access_list);
 		if(cfd->vhost[i].vhost_access_order != NULL) free(cfd->vhost[i].vhost_access_order);
+		if(cfd->vhost[i].htusers != NULL) free(cfd->vhost[i].htusers);
 	}
 	if(cfd->datatype != NULL) free(cfd->datatype);
 }

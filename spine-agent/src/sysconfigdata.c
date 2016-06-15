@@ -228,6 +228,7 @@ hostconfig ParseConfigData(char * json) {
 		authbasic = jsonVal(config_pos, "authbasic");
 		conf.vhost[i].password_access = atoi(authbasic);
 		conf.vhost[i].user = jsonVal(config_pos, "user");
+		conf.vhost[i].htusers = jsonVal(config_pos, "htusers");
 		free(authbasic);
 	}
 
