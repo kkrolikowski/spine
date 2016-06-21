@@ -280,15 +280,14 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 				configstring = BuildConfigurationPackage(configdata);
 				clifd = connector(net.ipaddr, 2016);
 				SendPackage(clifd, configstring);
+
+				logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
+				writeLog(lf, logentry);
+
 				close(clifd);
 				clearConfigData(&configdata);
 				free(configstring);
 				free(system_id);
-
-				//sendDataToClient(net.ipaddr);
-				// lub sendDataToClient(net.sock);
-				logentry = mkString("[INFO] (reciver) Jest gotowa nowa konfiguracja", NULL);
-				writeLog(lf, logentry);
 			}
 		}
 		close(net.sock);
@@ -321,6 +320,7 @@ char * BuildPackage(systeminfo * info) {
 
 	size_t package_len = strlen(package) + 1;
 	char * json = (char *) malloc(package_len * sizeof(char));
+	memset(json, '\0', package_len);
 	strncpy(json, package, package_len);
 
 	// czyscimy pozostalosci
@@ -363,6 +363,7 @@ char * jsonVal(const char * json, const char * pattern) {
 
 	len = strlen(tmp) + 1;
 	val = (char *) malloc(len * sizeof(char));
+	memset(val, '\0', len);
 	strcpy(val, tmp);
 
 	return val;
@@ -550,7 +551,6 @@ void clearConfigData(hostconfig * cfd) {
 		if(cfd->vhost[i].ServerName != NULL) free(cfd->vhost[i].ServerName);
 		if(cfd->vhost[i].apacheOpts != NULL) free(cfd->vhost[i].apacheOpts);
 		if(cfd->vhost[i].htaccess != NULL) free(cfd->vhost[i].htaccess);
-		if(cfd->vhost[i].htusers != NULL) free(cfd->vhost[i].htusers);
 		if(cfd->vhost[i].user != NULL) free(cfd->vhost[i].user);
 		if(cfd->vhost[i].vhost_access_list != NULL) free(cfd->vhost[i].vhost_access_list);
 		if(cfd->vhost[i].vhost_access_order != NULL) free(cfd->vhost[i].vhost_access_order);

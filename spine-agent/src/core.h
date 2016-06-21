@@ -4,7 +4,7 @@
 #include "database.h"
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
-#define PACKAGE_SIZE 4096 	// bufor dla informacji konfiguracyjnych
+#define PACKAGE_SIZE 10240 	// bufor dla informacji konfiguracyjnych
 #define PID_PATH "/var/run/spine-agent.pid"		// sciezka do pliku z pidem glownego procesu
 #define HEARTBEAT 5			// interwal czasu pomiedzy kolejnymi iteracjami wykonywania funkcji
 

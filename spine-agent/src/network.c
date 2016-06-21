@@ -71,6 +71,7 @@ netinfo clientConnection(int sockfd) {
 
 	ip_len = strlen(tmp) + 1;
 	net.ipaddr = (char * ) malloc(ip_len * sizeof(char));
+	memset(net.ipaddr, '\0', ip_len);
 	strcpy(net.ipaddr, tmp);
 
 	return net;

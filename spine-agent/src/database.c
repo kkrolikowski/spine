@@ -41,23 +41,17 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 
 	uptime_s = jsonVal(stream, "uptime");
 	hostinfo.uptime = atol(uptime_s);
-
 	hostinfo.net_hwaddr = jsonVal(stream, "systemid");
 	hostinfo.hostname = jsonVal(stream, "hostname");
 	hostinfo.os = jsonVal(stream, "distro_name");
-
 	hdd_total_s = jsonVal(stream, "hdd_total");
 	hostinfo.hdd_total = atol(hdd_total_s);
-
 	hdd_free_s = jsonVal(stream, "hdd_free");
 	hostinfo.hdd_free = atol(hdd_free_s);
-
 	ram_total_s = jsonVal(stream, "ram_total");
 	hostinfo.ram_total = atol(ram_total_s);
-
 	ram_free_s = jsonVal(stream, "ram_free");
 	hostinfo.ram_free = atol(ram_free_s);
-
 	hostinfo.extip = jsonVal(stream, "ext_ip");
 	hostinfo.ip = clientip;
 
@@ -225,6 +219,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 		if((res = mysql_store_result(dbh)) != NULL) {
 			resnum = mysql_num_rows(res);
 			initConfigData(&hconfig, resnum);
+			hconfig.vhost_num = (int) resnum;
 			while((row = mysql_fetch_row(res)) && vhi < VHOST_MAX) {
 				hconfig.vhost[vhi].ServerName = readData(row[0]);
 				hconfig.vhost[vhi].ServerAlias = readData(row[1]);
@@ -239,7 +234,6 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				hconfig.vhost[vhi].htusers = readData(row[10]);
 				vhi++;
 			}
-			hconfig.vhost_num = vhi;
 			mysql_free_result(res);
 		}
 	}
