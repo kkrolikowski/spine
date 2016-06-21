@@ -572,5 +572,6 @@ void initConfigData(hostconfig * cfd, long vhostnum) {
 		cfd->vhost[i].vhost_access_list = NULL;
 		cfd->vhost[i].vhost_access_order = NULL;
 	}
+	cfd->htpasswd = NULL;
 	cfd->datatype = NULL;
 }
