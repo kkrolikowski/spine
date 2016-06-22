@@ -35,12 +35,17 @@ typedef struct wwwdata {
 	char * user;					// wlasciciel witryny
 } wwwdata;
 
+typedef struct htpasswdData {
+	char * entry;
+	struct htpasswdData * next;
+} htpasswdData;
+
 // struktura, ktora bedzie przechowywac wskazniki
 // do poszczegolnych elementow pakietu.
 typedef struct hosconfig {
 	struct wwwdata vhost[VHOST_MAX];	// definicja vhostow
 	int vhost_num;						// liczba skonfigurowanych vhostow
-	char ** htpasswd;					// zawartosc pliku htpasswd
+	htpasswdData * htpasswd;			// zawartosc pliku htpasswd
 	int confVer;						// wersja konfiguracji
 	char * datatype;					// typ konfiguracji
 } hostconfig;

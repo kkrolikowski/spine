@@ -93,4 +93,10 @@ void clearConfigData(hostconfig * cfd);
 
 // funckja inicjue strukture hostconfig
 void initConfigData(hostconfig * cfd, long vhostnum);
+
+// funkcja tworzy string na podstawie listy elementow
+char * readHtpasswdData(htpasswdData * htuser);
+
+// funkcja czysci elementy listy elementow
+void clearHtpasswdData(htpasswdData * htpasswd);
 #endif /* SPINE_AGENT_CORE_H_ */

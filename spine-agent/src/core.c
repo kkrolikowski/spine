@@ -278,6 +278,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 				system_id = jsonVal(clientResponse, "systemid");
 				configdata = ReadWWWConfiguration(system_id);
 				configstring = BuildConfigurationPackage(configdata);
+				logentry = mkString("{DBG} ", configstring, NULL);
+				writeLog(lf, logentry);
 				clifd = connector(net.ipaddr, 2016);
 				SendPackage(clifd, configstring);
 
@@ -455,6 +457,9 @@ char * BuildConfigurationPackage(hostconfig data) {
 	tmp = apacheConfigPackage(data);
 	strcat(buff, tmp);
 	free(tmp);
+	tmp = readHtpasswdData(data.htpasswd);
+	strcat(buff, tmp);
+	free(tmp);
 	strcat(buff, "config_ver:");
 	strcat(buff, s_config_ver);
 	strcat(buff, "}]");
@@ -574,4 +579,45 @@ void initConfigData(hostconfig * cfd, long vhostnum) {
 	}
 	cfd->htpasswd = NULL;
 	cfd->datatype = NULL;
+}
+char * readHtpasswdData(htpasswdData * htpasswd) {
+	char * str = NULL;				// string wynikowy
+	htpasswdData * pos = NULL;		// aktualna pozycja na liscie
+	char * prefix = "htpasswd:";	// prefix listy
+	size_t len = strlen(prefix);	// rozmiar obszaru pamieci
+
+	// obliczamy ile bajtow zajmuja wszystkie elementy z listy
+	pos = htpasswd;
+	while(pos != NULL) {
+		len += strlen(pos->entry);
+		len++;
+		pos = pos->next;
+	}
+	len += 1;
+	// przygotowujemy pamiec, ktora przechowa string wynikowy
+	str = (char *) malloc(len * sizeof(char));
+	memset(str, '\0', len);
+
+	// wypelniamy pamiec danymi
+	strcpy(str, prefix);
+	pos = htpasswd;
+	while(pos != NULL) {
+		strcat(str, pos->entry);
+		strcat(str, "#");
+		pos = pos->next;
+	}
+	clearHtpasswdData(htpasswd);
+	str[strlen(str) - 1] = ',';
+
+	return str;
+}
+void clearHtpasswdData(htpasswdData * htpasswd) {
+	htpasswdData * curr = NULL;
+
+	while(htpasswd != NULL) {
+		curr = htpasswd;
+		htpasswd = htpasswd->next;
+		free(curr->entry);
+		free(curr);
+	}
 }

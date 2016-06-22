@@ -203,6 +203,11 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 	hostconfig hconfig;
 	long resnum = 0L;
 
+	size_t len = 0;
+	htpasswdData * head = NULL;
+	htpasswdData * curr = NULL;
+	htpasswdData * prev = NULL;
+
 	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
 							"sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
 							"GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
@@ -241,6 +246,27 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 
 	query = mkString("SELECT CONCAT(login, ': ', password) AS htpasswd FROM www_users WHERE system_id = (SELECT id FROM sysinfo WHERE system_id = '",
 					hostid, "')", NULL);
+	if(!mysql_query(dbh, query)) {
+		if((res = mysql_store_result(dbh)) != NULL) {
+			while((row = mysql_fetch_row(res))) {
+				len = strlen(row[0]) + 1;
+				curr = (htpasswdData *) malloc(sizeof(htpasswdData));
+				curr->entry = (char *) malloc(len * sizeof(char));
+				memset(curr->entry, '\0', len);
+				strcpy(curr->entry, row[0]);
+				curr->next = NULL;
+
+				if(head == NULL)
+					head = curr;
+				else
+					prev->next = curr;
+				prev = curr;
+			}
+		}
+		hconfig.htpasswd = head;
+		mysql_free_result(res);
+	}
+	free(query);
 	return hconfig;
 }
 char * readData(char * input) {
