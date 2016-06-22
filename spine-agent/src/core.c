@@ -583,8 +583,15 @@ void initConfigData(hostconfig * cfd, long vhostnum) {
 char * readHtpasswdData(htpasswdData * htpasswd) {
 	char * str = NULL;				// string wynikowy
 	htpasswdData * pos = NULL;		// aktualna pozycja na liscie
+
 	char * prefix = "htpasswd:";	// prefix listy
 	size_t len = strlen(prefix);	// rozmiar obszaru pamieci
+
+	char * htpasswd_count_prefix = "htpasswd_count:";
+	len += strlen(htpasswd_count_prefix);
+
+	char * htpasswd_count = int2String(htpasswd->count);
+	len += strlen(htpasswd_count);
 
 	// obliczamy ile bajtow zajmuja wszystkie elementy z listy
 	pos = htpasswd;
@@ -593,7 +600,7 @@ char * readHtpasswdData(htpasswdData * htpasswd) {
 		len++;
 		pos = pos->next;
 	}
-	len += 1;
+	len += 2;
 	// przygotowujemy pamiec, ktora przechowa string wynikowy
 	str = (char *) malloc(len * sizeof(char));
 	memset(str, '\0', len);
@@ -608,6 +615,12 @@ char * readHtpasswdData(htpasswdData * htpasswd) {
 	}
 	clearHtpasswdData(htpasswd);
 	str[strlen(str) - 1] = ',';
+
+	strcat(str, htpasswd_count_prefix);
+	strcat(str, htpasswd_count);
+	str[strlen(str)] = ',';
+
+	free(htpasswd_count);
 
 	return str;
 }

@@ -37,6 +37,7 @@ typedef struct wwwdata {
 
 typedef struct htpasswdData {
 	char * entry;
+	int count;
 	struct htpasswdData * next;
 } htpasswdData;
 

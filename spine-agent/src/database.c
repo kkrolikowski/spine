@@ -248,7 +248,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 					hostid, "')", NULL);
 	if(!mysql_query(dbh, query)) {
 		if((res = mysql_store_result(dbh)) != NULL) {
-			if(mysql_num_rows(res) > 0) {
+			if((resnum = mysql_num_rows(res)) > 0) {
 				while((row = mysql_fetch_row(res))) {
 					len = strlen(row[0]) + 1;
 					curr = (htpasswdData *) malloc(sizeof(htpasswdData));
@@ -263,6 +263,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 						prev->next = curr;
 					prev = curr;
 				}
+				head->count = (int) resnum;
 			}
 			else {
 				len = strlen("NaN") + 1;
@@ -272,6 +273,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				strcpy(curr->entry, "NaN");
 				curr->next = NULL;
 				head = curr;
+				head->count = 0;
 			}
 		}
 		hconfig.htpasswd = head;
