@@ -47,6 +47,7 @@ typedef struct hosconfig {
 	struct wwwdata vhost[VHOST_MAX];	// definicja vhostow
 	int vhost_num;						// liczba skonfigurowanych vhostow
 	htpasswdData * htpasswd;			// zawartosc pliku htpasswd
+	int htusers_count;					// liczba kont htpasswd
 	int confVer;						// wersja konfiguracji
 	char * datatype;					// typ konfiguracji
 } hostconfig;

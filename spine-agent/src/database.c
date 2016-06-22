@@ -263,7 +263,6 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 						prev->next = curr;
 					prev = curr;
 				}
-				head->count = (int) resnum;
 			}
 			else {
 				len = strlen("NaN") + 1;
@@ -273,8 +272,8 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				strcpy(curr->entry, "NaN");
 				curr->next = NULL;
 				head = curr;
-				head->count = 0;
 			}
+			hconfig.htusers_count = (int) resnum;
 		}
 		hconfig.htpasswd = head;
 		mysql_free_result(res);

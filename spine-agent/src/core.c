@@ -452,6 +452,7 @@ char * BuildConfigurationPackage(hostconfig data) {
 
 	// string zawierajacy numer wersji konfiguracji
 	char * s_config_ver = int2String(data.confVer);
+	char * s_htusers_count = int2String(data.htusers_count);
 
 	strcpy(buff, "[");
 	tmp = apacheConfigPackage(data);
@@ -460,7 +461,9 @@ char * BuildConfigurationPackage(hostconfig data) {
 	tmp = readHtpasswdData(data.htpasswd);
 	strcat(buff, tmp);
 	free(tmp);
-	strcat(buff, "config_ver:");
+	strcat(buff, "htpasswd_count:");
+	strcat(buff, s_htusers_count);
+	strcat(buff, ",config_ver:");
 	strcat(buff, s_config_ver);
 	strcat(buff, "}]");
 
@@ -470,6 +473,7 @@ char * BuildConfigurationPackage(hostconfig data) {
 	strncpy(tmp, buff, len);
 
 	free(s_config_ver);
+	free(s_htusers_count);
 
 	return tmp;
 }
@@ -587,12 +591,6 @@ char * readHtpasswdData(htpasswdData * htpasswd) {
 	char * prefix = "htpasswd:";	// prefix listy
 	size_t len = strlen(prefix);	// rozmiar obszaru pamieci
 
-	char * htpasswd_count_prefix = "htpasswd_count:";
-	len += strlen(htpasswd_count_prefix);
-
-	char * htpasswd_count = int2String(htpasswd->count);
-	len += strlen(htpasswd_count);
-
 	// obliczamy ile bajtow zajmuja wszystkie elementy z listy
 	pos = htpasswd;
 	while(pos != NULL) {
@@ -615,12 +613,6 @@ char * readHtpasswdData(htpasswdData * htpasswd) {
 	}
 	clearHtpasswdData(htpasswd);
 	str[strlen(str) - 1] = ',';
-
-	strcat(str, htpasswd_count_prefix);
-	strcat(str, htpasswd_count);
-	str[strlen(str)] = ',';
-
-	free(htpasswd_count);
 
 	return str;
 }
