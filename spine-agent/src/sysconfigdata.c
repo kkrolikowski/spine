@@ -205,12 +205,13 @@ hostconfig ParseConfigData(char * json) {
 	char * confver_s = NULL;
 	char * vhostnum_s = NULL;
 	char * htusers_count_s = NULL;
+	char * htpasswd_s = NULL;
 
 	vhostnum_s = jsonVal(json, "vhost_num");
 	conf.vhost_num = atoi(vhostnum_s);
 
 	htusers_count_s = jsonVal(json, "htpasswd_count");
-	conf.htusers_count = htusers_count_s;
+	conf.htusers_count = atoi(htusers_count_s);
 
 	initConfigData(&conf, conf.vhost_num);
 
@@ -235,7 +236,11 @@ hostconfig ParseConfigData(char * json) {
 		conf.vhost[i].htusers = jsonVal(config_pos, "htusers");
 		free(authbasic);
 	}
-
+	if(conf.htusers_count > 0) {
+		htpasswd_s = jsonVal(json, "htpasswd");
+		conf.htpasswd = parseHtpasswdData(htpasswd_s);
+		free(htpasswd_s);
+	}
 	free(confver_s);
 	free(vhostnum_s);
 	free(htusers_count_s);
@@ -587,4 +592,51 @@ void createHtgroupFile(char * path, wwwdata vhosts[], int n) {
 		}
 		fclose(htgroup);
 	}
+}
+htpasswdData * parseHtpasswdData(char * stream) {
+	htpasswdData * head = NULL;
+	htpasswdData * curr = NULL;
+	htpasswdData * prev = NULL;
+	char buff[256];
+	size_t buff_len = 0;
+	int i = 0;
+
+	memset(buff, '\0', 256);
+
+	while(*stream) {
+		if(*stream == '#') {
+			buff_len = strlen(buff) + 1;
+			curr = (htpasswdData *) malloc(sizeof(htpasswdData));
+			curr->entry = (char *) malloc(buff_len * sizeof(char));
+			memset(curr->entry, '\0', buff_len);
+			strncpy(curr->entry, buff, buff_len);
+			curr->next = NULL;
+
+			if(head == NULL)
+				head = curr;
+			else
+				prev->next = curr;
+			prev = curr;
+
+			memset(buff, '\0', 256);
+			i = 0;
+			stream++;
+		}
+		buff[i] = *stream;
+		stream++; i++;
+	}
+	buff_len = strlen(buff) + 1;
+	curr = (htpasswdData *) malloc(sizeof(htpasswdData));
+	curr->entry = (char *) malloc(buff_len * sizeof(char));
+	memset(curr->entry, '\0', buff_len);
+	strncpy(curr->entry, buff, buff_len);
+	curr->next = NULL;
+
+	if(head == NULL)
+		head = curr;
+	else
+		prev->next = curr;
+	prev = curr;
+
+	return head;
 }

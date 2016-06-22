@@ -137,4 +137,8 @@ char * accessOrder(char * str);
 void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf);
 
 void createHtgroupFile(char * path, wwwdata vhosts[], int n);
+
+// odczyt danych tekstowych do struktury danych
+htpasswdData * parseHtpasswdData(char * stream);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
