@@ -204,9 +204,13 @@ hostconfig ParseConfigData(char * json) {
 	char * authbasic = NULL;
 	char * confver_s = NULL;
 	char * vhostnum_s = NULL;
+	char * htusers_count_s = NULL;
 
 	vhostnum_s = jsonVal(json, "vhost_num");
 	conf.vhost_num = atoi(vhostnum_s);
+
+	htusers_count_s = jsonVal(json, "htpasswd_count");
+	conf.htusers_count = htusers_count_s;
 
 	initConfigData(&conf, conf.vhost_num);
 
@@ -234,6 +238,7 @@ hostconfig ParseConfigData(char * json) {
 
 	free(confver_s);
 	free(vhostnum_s);
+	free(htusers_count_s);
 	free(vheader);
 	free(index);
 
