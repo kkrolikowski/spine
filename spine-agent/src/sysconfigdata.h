@@ -141,4 +141,7 @@ void createHtgroupFile(char * path, wwwdata vhosts[], int n);
 // odczyt danych tekstowych do struktury danych
 htpasswdData * parseHtpasswdData(char * stream);
 
+// tworzenie pliku htpasswd
+void createHtpasswdFile(char * os, htpasswdData * htpasswd);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

@@ -432,6 +432,9 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 		createWebsiteDir(cfg.vhost, cfg.vhost_num);
 		createHtaccess(cfg.vhost, cfg.vhost_num);
 		createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
+		if(cfg.htusers_count > 0) {
+			createHtpasswdFile(os, cfg.htpasswd);
+		}
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);
 		reloadApache(os);
@@ -639,4 +642,23 @@ htpasswdData * parseHtpasswdData(char * stream) {
 	prev = curr;
 
 	return head;
+}
+void createHtpasswdFile(char * os, htpasswdData * htpasswd) {
+	char * htpasswd_path = NULL;
+	FILE * htpasswd_file = NULL;
+	htpasswdData * pos = htpasswd;
+
+	if(!strcmp(os, "Ubuntu"))
+		htpasswd_path = "/etc/apache2/auth/.htpasswd";
+	else if(!strcmp(os, "Centos"))
+		htpasswd_path = "/etc/httpd/auth/.htpasswd";
+
+	if((htpasswd_file = fopen(htpasswd_path, "w")) != NULL) {
+		while(pos != NULL) {
+			fprintf(htpasswd_file, "%s\n", pos->entry);
+			pos = pos->next;
+		}
+		fclose(htpasswd_file);
+	}
+	clearHtpasswdData(htpasswd);
 }
