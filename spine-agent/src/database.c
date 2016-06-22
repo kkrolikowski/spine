@@ -244,7 +244,7 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 	}
 	free(query);
 
-	query = mkString("SELECT CONCAT(login, ': ', password) AS htpasswd FROM www_users WHERE system_id = (SELECT id FROM sysinfo WHERE system_id = '",
+	query = mkString("SELECT CONCAT(login, ':', password) AS htpasswd FROM www_users WHERE system_id = (SELECT id FROM sysinfo WHERE system_id = '",
 					hostid, "')", NULL);
 	if(!mysql_query(dbh, query)) {
 		if((res = mysql_store_result(dbh)) != NULL) {
