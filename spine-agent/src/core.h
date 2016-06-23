@@ -2,6 +2,7 @@
 #define SPINE_AGENT_CORE_H_
 #include "sysconfigdata.h"
 #include "database.h"
+#include "apache.h"
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
 #define PACKAGE_SIZE 10240 	// bufor dla informacji konfiguracyjnych
@@ -79,24 +80,7 @@ char * jsonVal(const char * json, const char * pattern);
 // funkcja sprawdza czy trzeba wyslac konfiguracje do klienta
 int clientNeedUpdate(char * clientData);
 
-// funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
-char * apacheConfigPackage(hostconfig data);
-
 // funkcja kumuluje konfigi w jednego jsona
 char * BuildConfigurationPackage(hostconfig data);
 
-// funkcja zwalnia pamiec pozostala po wczytaniu danych z bazy
-void clearVhostData(struct wwwdata vhost[], int n);
-
-// funkcja zwalnia pamiec po prztworzeniu struktury do stringa
-void clearConfigData(hostconfig * cfd);
-
-// funckja inicjue strukture hostconfig
-void initConfigData(hostconfig * cfd, long vhostnum);
-
-// funkcja tworzy string na podstawie listy elementow
-char * readHtpasswdData(htpasswdData * htuser);
-
-// funkcja czysci elementy listy elementow
-void clearHtpasswdData(htpasswdData * htpasswd);
 #endif /* SPINE_AGENT_CORE_H_ */

@@ -1,8 +1,9 @@
 #ifndef SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
+#include "apache.h"
+#include "commondata.h"
 
 #define VERSION_FILE "/var/spool/spine-agent.dat"
-#define VHOST_MAX 200		// limit vhostow na serwerze
 
 /*			DANE			*/
 
@@ -20,36 +21,6 @@ typedef struct systeminfo {
 	char * extip;
 	int config_version;
 } systeminfo;
-
-// konfiguracja serwera www
-typedef struct wwwdata {
-	char * ServerName;				// glowny adres witryny
-	char * ServerAlias;				// Dodatkowe adresy witryny
-	char * DocumentRoot;			// katalog witryny na serwerze
-	char * apacheOpts;				// opcje katalogu
-	char * htaccess;				// definicja pliku htaccess
-	char * vhost_access_order;		// kolejnosc przetwarzania regol dostepu
-	char * vhost_access_list;		// lista hostow skad mozna laczyc sie z witryna
-	int password_access;			// czy witryna ma byc zabezpieczona haslem
-	char * htusers;					// lista kont, ktora ma dostep do witryny
-	char * user;					// wlasciciel witryny
-} wwwdata;
-
-typedef struct htpasswdData {
-	char * entry;
-	struct htpasswdData * next;
-} htpasswdData;
-
-// struktura, ktora bedzie przechowywac wskazniki
-// do poszczegolnych elementow pakietu.
-typedef struct hosconfig {
-	struct wwwdata vhost[VHOST_MAX];	// definicja vhostow
-	int vhost_num;						// liczba skonfigurowanych vhostow
-	htpasswdData * htpasswd;			// zawartosc pliku htpasswd
-	int htusers_count;					// liczba kont htpasswd
-	int confVer;						// wersja konfiguracji
-	char * datatype;					// typ konfiguracji
-} hostconfig;
 
 /*			FUNKCJE			*/
 
@@ -103,44 +74,7 @@ hostconfig ParseConfigData(char * json);
 // funkcja zwraca nazwe dystrybucji Linuksa
 char * linuxDistro(void);
 
-// funkcja tworzy pliki z konfiguracja virtualek apacza. Polozenie
-// plikow jest uzaleznione od dystrybucji linuksa
-int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf);
-
-// funkcja tworzy Katalogi w ktorych beda znajdowac sie strony www
-void createWebsiteDir(wwwdata vhosts[], int n);
-
 // funkcja tworzy strukture katalogow na podstawie podanej sciezki
 void mkdirtree(char * path);
-
-// ogolna funkcja do konfiguracji apacza
-void apacheSetup(hostconfig cfg, char * os, FILE * lf);
-
-// funkcja wywoluje skrypt do przeladowania konfiguracji apacza
-void reloadApache(char * os);
-
-// funkcja tworzy pliki htaccess w katalogach stron www jesli wartosc htaccess jest rozna
-// od NaN
-void createHtaccess(wwwdata vhosts[], int n);
-
-// funckcja generuje pojedynczy wpis w configu apacza Deny from xxx lub Allow from xxx
-char * apache_accesslist_entry(char * str);
-
-// funckcja zwraca kompletny fragment konfiguracji allow/deny apacza
-char * acl(char * str);
-
-// funkcja konfiguruje opcje order apacza na podstawie informacji z bazy
-char * accessOrder(char * str);
-
-// funkcja tworzy plik htgroup
-void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf);
-
-void createHtgroupFile(char * path, wwwdata vhosts[], int n);
-
-// odczyt danych tekstowych do struktury danych
-htpasswdData * parseHtpasswdData(char * stream);
-
-// tworzenie pliku htpasswd
-void createHtpasswdFile(char * os, htpasswdData * htpasswd);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
