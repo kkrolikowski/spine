@@ -783,6 +783,9 @@ $(document).ready(function() {
         '</table>'
       );
     }
+    $('#edit-select-htusers').append(
+      '<option value="'+ response.id +'">'+ response.login +'</option>'
+    );
     });
   });
 });
