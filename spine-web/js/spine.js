@@ -650,22 +650,30 @@ $(document).ready(function() {
       method: "GET",
       success: function(response) {
         var option = $('#htusers-select').find('option');
-        option.each(function() {
-          $(this).remove();
-        });
-        $.each(response, function(id, user) {
-          $('#htusers-select').append(
-            '<option value="'+ id +'">'+ user +'</option>'
-          );
-        });
-        $('#htusers-select').multiselect({
-          nonSelectedText: 'Wybierz konta ',
-          buttonContainer: '<div id="add-htusers-div" class="add-htusers-group" />'
-        });
-        if($('#add-htusers-div').hasClass("select-htusers-group")) {
-          $('#add-htusers-div')
-          .removeClass("select-htusers-group")
-          .addClass("add-htusers-group");
+        if(option.length) {
+          option.each(function() {
+            $(this).remove();
+          });
+        }
+        if(response) {
+          $.each(response, function(id, user) {
+            $('#htusers-select').append(
+              '<option value="'+ id +'">'+ user +'</option>'
+            );
+          });
+          $('#htusers-select').multiselect({
+            nonSelectedText: 'Wybierz konta ',
+            buttonContainer: '<div id="add-htusers-div" class="add-htusers-group" />'
+          });
+          if($('#add-htusers-div').hasClass("select-htusers-group")) {
+            $('#add-htusers-div')
+            .removeClass("select-htusers-group")
+            .addClass("add-htusers-group");
+          }
+        }
+        else {
+          $('#password_enable').attr('disabled', true);
+          $('#htusers-select').parent().hide();
         }
       }
     });
