@@ -160,6 +160,17 @@ $(document).ready(function() {
           $('select.selected > option').each(function() {
             $(this).appendTo('select.unselected');
           });
+        },
+        error: function(xhr) {
+          $.bootstrapGrowl(
+            xhr.getResponseHeader('X-Message'),
+            {
+              type: 'danger',
+              align: 'center',
+              offset: { from: 'top', amount: 55},
+              width: 500
+            }
+          );
         }
     }).success(function(response) {
       var tr = $('#wwwconfig').find('tr').last();

@@ -5,74 +5,84 @@
 
   if(isset($_GET['addvhost'])) {
 
-    // sklejamy poszczegolne domeny w jeden string
-    foreach ($_POST['sa'] as $value) {
-      $ServerALias .= $value . " ";
-    }
-    $ServerAliasClean = substr($ServerALias, 0, -1);
-
-    $htaccess = $_POST['htaccess'];
-
-    // Konfiguracja DocumentRoot w zaleznosci od konta
-    $q = $dbh->prepare("SELECT login FROM sysusers WHERE id = ". $_POST['account']);
+    // sprawdzamy czy istnieje juz taki ServerName
+    $q = $dbh->prepare("SELECT count(*) AS n FROM www WHERE ServerName = '".$_POST['sn']."' AND system_id = ".$_POST['serverid']);
     $q->execute();
     $r = $q->fetch();
-    if($r['login'] == "root") {
-      $DocumentRoot = "/var/www/". $_POST['sn'] ."/htdocs";
+    if($r['n'] > 0) {
+      $message = "X-Message: Witryna ". $_POST['sn'] ." jest juz dodana do bazy.";
+      header($message, true, 406);
     }
     else {
-      $DocumentRoot = "/home/" .$r['login']. "/public_html/". $_POST['sn'];
-    }
+      // sklejamy poszczegolne domeny w jeden string
+      foreach ($_POST['sa'] as $value) {
+        $ServerALias .= $value . " ";
+      }
+      $ServerAliasClean = substr($ServerALias, 0, -1);
 
-    $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status, access_order) VALUES('".
-    $_POST['sn']. "', '". $ServerAliasClean . "', '". $DocumentRoot. "', '". $htaccess. "', ". $_POST['account'].
-    ", ". $_POST['serverid'] .", 'A', '".$_POST['access_order']."')");
-    $q->execute();
+      $htaccess = $_POST['htaccess'];
 
-    // ustalamy ID vhosta
-    $q = $dbh->prepare("SELECT id FROM www WHERE ServerName = '".$_POST['sn']."'");
-    $q->execute();
-    $r = $q->fetch();
-    $vhostid = $r['id'];
-
-    // opcje, ktore zostaly wybrane
-    foreach ($_POST['vhopts'] as $opt) {
-      $q = $dbh->prepare("INSERT INTO www_opts_selected(vhost_id,opt_id) VALUES(".$vhostid.", ".$opt.")");
+      // Konfiguracja DocumentRoot w zaleznosci od konta
+      $q = $dbh->prepare("SELECT login FROM sysusers WHERE id = ". $_POST['account']);
       $q->execute();
-    }
+      $r = $q->fetch();
+      if($r['login'] == "root") {
+        $DocumentRoot = "/var/www/". $_POST['sn'] ."/htdocs";
+      }
+      else {
+        $DocumentRoot = "/home/" .$r['login']. "/public_html/". $_POST['sn'];
+      }
 
-    $vhostAccess = array_combine($_POST['fromhost'], $_POST['allow']);
-    foreach ($vhostAccess as $host => $allow) {
-      $q = $dbh->prepare("INSERT INTO www_access(fromhost,access_permission, vhost_id) " .
-                          "VALUES('".$host."', ".$allow.", ".$vhostid.")");
+      $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status, access_order) VALUES('".
+      $_POST['sn']. "', '". $ServerAliasClean . "', '". $DocumentRoot. "', '". $htaccess. "', ". $_POST['account'].
+      ", ". $_POST['serverid'] .", 'A', '".$_POST['access_order']."')");
       $q->execute();
-    }
-    if(isset($_POST['htusers'])) {
-      foreach ($_POST['htusers'] as $userid) {
-        $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(".$userid.", ".$vhostid.", ".$_POST['serverid'].")");
+
+      // ustalamy ID vhosta
+      $q = $dbh->prepare("SELECT id FROM www WHERE ServerName = '".$_POST['sn']."'");
+      $q->execute();
+      $r = $q->fetch();
+      $vhostid = $r['id'];
+
+      // opcje, ktore zostaly wybrane
+      foreach ($_POST['vhopts'] as $opt) {
+        $q = $dbh->prepare("INSERT INTO www_opts_selected(vhost_id,opt_id) VALUES(".$vhostid.", ".$opt.")");
         $q->execute();
       }
-      $htpasswdStatus = 1;
-    }
-    else {
-      $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(0, ".$vhostid.", ".$_POST['serverid'].")");
+
+      $vhostAccess = array_combine($_POST['fromhost'], $_POST['allow']);
+      foreach ($vhostAccess as $host => $allow) {
+        $q = $dbh->prepare("INSERT INTO www_access(fromhost,access_permission, vhost_id) " .
+                            "VALUES('".$host."', ".$allow.", ".$vhostid.")");
+        $q->execute();
+      }
+      if(isset($_POST['htusers'])) {
+        foreach ($_POST['htusers'] as $userid) {
+          $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(".$userid.", ".$vhostid.", ".$_POST['serverid'].")");
+          $q->execute();
+        }
+        $htpasswdStatus = 1;
+      }
+      else {
+        $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(0, ".$vhostid.", ".$_POST['serverid'].")");
+        $q->execute();
+        $htpasswdStatus = 0;
+      }
+      $q = $dbh->prepare("UPDATE www SET htpasswd = ".$htpasswdStatus." WHERE id = ".$vhostid);
       $q->execute();
-      $htpasswdStatus = 0;
+      updateConfigVersion($dbh, $_POST['serverid']);
+
+      $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $vhostid);
+      $q->execute();
+      $r = $q->fetch();
+
+      $json = array(
+        'id' => $vhostid,
+        'ServerName' => $r['ServerName']
+      );
+      header('Content-Type: application/json');
+      echo json_encode($json);
     }
-    $q = $dbh->prepare("UPDATE www SET htpasswd = ".$htpasswdStatus." WHERE id = ".$vhostid);
-    $q->execute();
-    updateConfigVersion($dbh, $_POST['serverid']);
-
-    $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $vhostid);
-    $q->execute();
-    $r = $q->fetch();
-
-    $json = array(
-      'id' => $vhostid,
-      'ServerName' => $r['ServerName']
-    );
-    header('Content-Type: application/json');
-    echo json_encode($json);
   }
   if(isset($_GET['addhtuser'])) {
     if($_POST['password'] == $_POST['confirm']) {
