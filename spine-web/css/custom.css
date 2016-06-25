@@ -132,3 +132,6 @@
 .select-htusers-group {
   margin-left: 23px;
 }
+.select-htusers-group > ul {
+  margin-left: 37px;
+}
