@@ -6,11 +6,9 @@
   if(isset($_GET['addvhost'])) {
 
     // sprawdzamy czy istnieje juz taki ServerName
-    $q = $dbh->prepare("SELECT count(*) AS n FROM www WHERE ServerName = '".$_POST['sn']."' AND system_id = ".$_POST['serverid']);
-    $q->execute();
-    $r = $q->fetch();
-    if($r['n'] > 0) {
-      $message = "X-Message: Witryna ". $_POST['sn'] ." jest juz dodana do bazy.";
+    $result = "NaN";
+    if(($result = HostExist($dbh, $_POST['sn'], $_POST['sa'], $_POST['serverid'])) != "NaN") {
+      $message = "X-Message: Witryna ". $result ." jest juz dodana do bazy.";
       header($message, true, 406);
     }
     else {

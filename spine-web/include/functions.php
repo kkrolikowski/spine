@@ -46,4 +46,49 @@ function vhostOptionFile($dbh) {
   fwrite($fd, $json);
   fclose($fd);
 }
+function checkHost($dbh, $name, $server_id) {
+  $status = "NaN";
+  $q = $dbh->prepare("SELECT count(*) AS n FROM www WHERE ServerName = '".$name."' AND system_id = ".$server_id);
+  $q->execute();
+  $r = $q->fetch();
+
+  if($r['n'] > 0) {
+    $status = $name;
+  }
+  else {
+    $q = $dbh->prepare("SELECT count(*) AS n FROM www WHERE ServerAlias like '%".$name."' AND system_id = ".$server_id);
+    $q->execute();
+    $r = $q->fetch();
+
+    if($r['n'] > 0) {
+      $status = $name;
+    }
+    else {
+      $status = "NaN";
+    }
+  }
+
+  return $status;
+}
+function checkServerName($dbh, $sname, $sid) {
+  return checkHost($dbh, $sname, $sid);
+}
+function checkServerAlias($dbh, $saname, $sid) {
+  $status = "NaN";
+  foreach ($saname as $host) {
+    if(($status = checkHost($dbh, $host, $sid)) != "NaN")
+      return $status;
+    }
+    return $status;
+}
+function HostExist($dbh, $sname, $saname, $sid) {
+  if(checkServerName($dbh, $sname, $sid) != "NaN")
+    return $sname;
+  else if($saname != "NaN") {
+    if(($saname_item = checkServerAlias($dbh, $saname, $sid)) != "NaN")
+      return $saname_item;
+    else
+      return "NaN";
+  }
+}
 ?>
