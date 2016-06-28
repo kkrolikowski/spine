@@ -746,6 +746,17 @@ $(document).ready(function() {
             width: 500
           }
         );
+      },
+      error: function(xhr) {
+        $.bootstrapGrowl(
+          xhr.getResponseHeader('X-Message'),
+          {
+            type: 'danger',
+            align: 'center',
+            offset: { from: 'top', amount: 55},
+            width: 500
+          }
+        );
       }
   }).success(function(response) {
     var tr = $('#wwwusers').find('tr').last();

@@ -91,4 +91,11 @@ function HostExist($dbh, $sname, $saname, $sid) {
       return "NaN";
   }
 }
+function htuserExist($dbh, $htuser, $sid) {
+  $q = $dbh->prepare("SELECT count(*) as n FROM www_users WHERE login = '".$htuser."' AND system_id = ".$sid);
+  $q->execute();
+  $r = $q->fetch();
+
+  return $r['n'];
+}
 ?>
