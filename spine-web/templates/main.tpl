@@ -930,7 +930,6 @@
                                       </button>
                                       <ul class="dropdown-menu">
                                         <li><a href="#" data-id="{$id}" class="edit-apache-conf">Edytuj</a></li>
-                                        <li><a href="#" data-id="{$id}" class="add-password-access">Zabezpiecz hasłem</a></li>
                                       </ul>
                                     </div>
                                   </td>
