@@ -771,7 +771,7 @@ $(document).ready(function() {
           '</td>' +
           '<td class="button-cell">' +
             '<div class="btn-group">' +
-              '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+              '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'">Usuń</button>' +
               '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                 '<span class="caret"></span>' +
                 '<span class="sr-only">Toggle Dropdown</span>' +
@@ -798,7 +798,7 @@ $(document).ready(function() {
               '</td>' +
               '<td class="button-cell">' +
                 '<div class="btn-group">' +
-                  '<button type="button" class="btn btn-danger" data-id="'+ response.id +'">Usuń</button>' +
+                  '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'">Usuń</button>' +
                   '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                     '<span class="caret"></span>' +
                     '<span class="sr-only">Toggle Dropdown</span>' +
@@ -816,6 +816,19 @@ $(document).ready(function() {
     $('#edit-select-htusers').append(
       '<option value="'+ response.id +'">'+ response.login +'</option>'
     );
+    });
+  });
+  $(document).on('click', '.rmuser', function() {
+    var tr = $(this).closest('tr');
+    var login = tr.find('td').first().html();
+    var message = "Czy na pewno chcesz usunac " + login + "?";
+    alertify.confirm(message, function(e) {
+      if(e) {
+        // kasujemy
+      }
+      else {
+        // nie kasujemy
+      }
     });
   });
 });

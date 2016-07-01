@@ -74,6 +74,11 @@
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
 
+      <!-- Potwierdzanie akcji -->
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.core.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/alertify.js/0.3.11/alertify.default.min.css">
+
       <!-- Customowy skrypt strony i css -->
       <script src="js/spine.js"></script>
       <link href="/css/custom.css" rel="stylesheet">
@@ -961,7 +966,7 @@
                                   </td>
                                   <td class="button-cell">
                                     <div class="btn-group">
-                                      <button type="button" class="btn btn-danger" data-id="{$id}">Usuń</button>
+                                      <button type="button" class="btn btn-danger rmuser" data-id="{$id}">Usuń</button>
                                       <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="caret"></span>
                                         <span class="sr-only">Toggle Dropdown</span>
