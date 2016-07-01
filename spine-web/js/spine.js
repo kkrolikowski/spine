@@ -824,7 +824,7 @@ $(document).ready(function() {
     var message = "Czy na pewno chcesz usunac " + login + "?";
     alertify.confirm(message, function(e) {
       if(e) {
-        // kasujemy
+        tr.remove();
       }
       else {
         // nie kasujemy
