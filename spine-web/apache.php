@@ -98,13 +98,14 @@
         $id = $r['id'];
 
         if(isset($id)) {
-          $q = $dbh->prepare("SELECT id, login FROM www_users WHERE id = ".$id);
+          $q = $dbh->prepare("SELECT id, login, system_id FROM www_users WHERE id = ".$id);
           $q->execute();
           $r = $q->fetch();
 
           $json = array(
             'id' => $r['id'],
-            'login' =>$r['login']
+            'login' => $r['login'],
+            'serverid' => $r['system_id']
           );
           header('Content-Type: application/json');
           echo json_encode($json);
@@ -221,5 +222,7 @@
     $q->execute();
     $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
     $q->execute();
+    
+    updateConfigVersion($dbh, $_POST['serverid']);
   }
 ?>

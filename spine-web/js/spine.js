@@ -771,7 +771,7 @@ $(document).ready(function() {
           '</td>' +
           '<td class="button-cell">' +
             '<div class="btn-group">' +
-              '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'">Usuń</button>' +
+              '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'" data-serverid="'+ response.serverid +'">Usuń</button>' +
               '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                 '<span class="caret"></span>' +
                 '<span class="sr-only">Toggle Dropdown</span>' +
@@ -798,7 +798,7 @@ $(document).ready(function() {
               '</td>' +
               '<td class="button-cell">' +
                 '<div class="btn-group">' +
-                  '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'">Usuń</button>' +
+                  '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'" data-serverid="'+ response.serverid +'">Usuń</button>' +
                   '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                     '<span class="caret"></span>' +
                     '<span class="sr-only">Toggle Dropdown</span>' +
@@ -820,6 +820,7 @@ $(document).ready(function() {
   });
   $(document).on('click', '.rmuser', function() {
     var id = $(this).attr('data-id');
+    var serverid = $(this).attr('data-serverid');
     var tr = $(this).closest('tr');
     var login = tr.find('td').first().html();
     var message = "Czy na pewno chcesz usunac " + login + "?";
@@ -831,7 +832,8 @@ $(document).ready(function() {
         $('#htusers-select option[value="'+ id +'"]').remove();
         $.ajax({
           url: "/apache.php?rmuser=" + id,
-          method: "GET"
+          method: "POST",
+          data: {serverid}
         });
       }
       else {

@@ -966,7 +966,7 @@
                                   </td>
                                   <td class="button-cell">
                                     <div class="btn-group">
-                                      <button type="button" class="btn btn-danger rmuser" data-id="{$id}">Usuń</button>
+                                      <button type="button" class="btn btn-danger rmuser" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
                                       <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="caret"></span>
                                         <span class="sr-only">Toggle Dropdown</span>
