@@ -777,7 +777,7 @@ $(document).ready(function() {
                 '<span class="sr-only">Toggle Dropdown</span>' +
               '</button>' +
               '<ul class="dropdown-menu">' +
-                '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+                '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Zmień hasło</a></li>' +
               '</ul>' +
             '</div>' +
           '</td>' +
@@ -804,7 +804,7 @@ $(document).ready(function() {
                     '<span class="sr-only">Toggle Dropdown</span>' +
                   '</button>' +
                   '<ul class="dropdown-menu">' +
-                    '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Edytuj</a></li>' +
+                    '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Zmień hasło</a></li>' +
                   '</ul>' +
                 '</div>' +
               '</td>' +
