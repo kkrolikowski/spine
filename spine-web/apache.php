@@ -216,4 +216,10 @@
     header('Content-Type: application/json');
     echo json_encode($json);
   }
+  if(isset($_GET['rmuser'])) {
+    $q = $dbh->prepare("DELETE FROM www_users_access WHERE user_id = ".$_GET['rmuser']);
+    $q->execute();
+    $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
+    $q->execute();
+  }
 ?>

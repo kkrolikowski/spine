@@ -819,12 +819,20 @@ $(document).ready(function() {
     });
   });
   $(document).on('click', '.rmuser', function() {
+    var id = $(this).attr('data-id');
     var tr = $(this).closest('tr');
     var login = tr.find('td').first().html();
     var message = "Czy na pewno chcesz usunac " + login + "?";
     alertify.confirm(message, function(e) {
       if(e) {
         tr.remove();
+        $('#edit-select-htusers option[value="'+ id +'"]').remove();
+        $('#edit-select-htusers').multiselect('rebuild');
+        $('#htusers-select option[value="'+ id +'"]').remove();
+        $.ajax({
+          url: "/apache.php?rmuser=" + id,
+          method: "GET"
+        });
       }
       else {
         // nie kasujemy
