@@ -206,7 +206,7 @@
         <div class="col-sm-offset-2 col-sm-4">
           <select id="edit-select-htusers" name="htusers" class="form-control select-htusers" multiple="multiple">
             {if $htpasswd == "NaN"}
-             <option value="0">Brak kont</option>
+             <option value="0" disabled>Brak kont</option>
              {else}
              {foreach from=$htpasswd key=id item=htuser}
              <option value="{$id}">{$htuser}</option>

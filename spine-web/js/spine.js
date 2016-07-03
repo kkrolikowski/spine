@@ -813,9 +813,13 @@ $(document).ready(function() {
         '</table>'
       );
     }
+    if($('#edit-select-htusers option[value="0"]').text() === "Brak kont") {
+      $('#edit-select-htusers option[value="0"]').remove();
+    }
     $('#edit-select-htusers').append(
       '<option value="'+ response.id +'">'+ response.login +'</option>'
     );
+    $('#edit-select-htusers').multiselect('rebuild');
     });
   });
   $(document).on('click', '.rmuser', function() {
