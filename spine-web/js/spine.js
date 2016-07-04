@@ -98,7 +98,7 @@ $(document).ready(function() {
     $(document).on('click', '#enable_htaccess, #edit_enable_htaccess', function() {
       $('#htaccess, #htaccess-field').attr('disabled', ! this.checked);
     });
-    $(document).on('click', '#password_enable', function() {
+    $(document).on('click', '#password_enable, #edit_password_enable', function() {
       $('button[title="Wybierz konta "]').attr('disabled', ! this.checked);
     });
     $('#vhostOptSelect').DualListBox();
@@ -413,6 +413,7 @@ $(document).ready(function() {
         }
         else {
           $('#edit_password_enable').attr('checked', false);
+          $('button[title="Wybierz konta "]').attr('disabled', ! this.checked);
         }
       });
       if(response.htaccess != "NaN") {
