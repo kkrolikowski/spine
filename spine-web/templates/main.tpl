@@ -463,6 +463,48 @@
       </div>
     </form>
     <!-- END: Nowe konto htaccess -->
+    <!-- BEGIN: Zmiana hasla htaccess -->
+    <form role="form" class="form-horizontal" data-toggle="validator" id="change-htpassword-form" style="display: none;">
+      <div class="form-group">
+          <div class="row">
+          <label for="password" class="col-sm-2 control-label">Hasło</label>
+          <div class="col-sm-4">
+            <input type="password" class="form-control" id="password"
+            data-minlength="6" data-error="min. sześć znaków"
+            name="password" required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+          <div class="row">
+          <label for="confirm" class="col-sm-2 control-label">Powtórz</label>
+          <div class="col-sm-4">
+            <input type="password" class="form-control" id="confirm"
+            data-minlength="6" data-error="min. sześć znaków"
+            data-match="#password"
+            data-match-error="Hasło się nie zgadza"
+            name="confirm" required>
+            <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+          </div>
+          <div class="col-sm-4">
+            <div class="help-block with-errors"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="row">
+          <div class="col-sm-offset-2" id="new-vhost-buttons">
+            <button type="button" class="btn btn-primary" id="chpass-btn">Zmień hasło</button>
+            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- END: Zmiana hasla htaccess -->
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 
@@ -972,7 +1014,7 @@
                                         <span class="sr-only">Toggle Dropdown</span>
                                       </button>
                                       <ul class="dropdown-menu">
-                                        <li><a href="#" data-id="{$id}" class="edit-apache-conf">Zmień hasło</a></li>
+                                        <li><a href="#" data-id="{$id}" class="change-htpassword">Zmień hasło</a></li>
                                       </ul>
                                     </div>
                                   </td>

@@ -778,7 +778,7 @@ $(document).ready(function() {
                 '<span class="sr-only">Toggle Dropdown</span>' +
               '</button>' +
               '<ul class="dropdown-menu">' +
-                '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Zmień hasło</a></li>' +
+                '<li><a href="#" data-id="'+ response.id +'" class="change-htpassword">Zmień hasło</a></li>' +
               '</ul>' +
             '</div>' +
           '</td>' +
@@ -805,7 +805,7 @@ $(document).ready(function() {
                     '<span class="sr-only">Toggle Dropdown</span>' +
                   '</button>' +
                   '<ul class="dropdown-menu">' +
-                    '<li><a href="#" data-id="'+ response.id +'" class="edit-apache-conf">Zmień hasło</a></li>' +
+                    '<li><a href="#" data-id="'+ response.id +'" class="change-htpassword">Zmień hasło</a></li>' +
                   '</ul>' +
                 '</div>' +
               '</td>' +
@@ -845,5 +845,22 @@ $(document).ready(function() {
         // nie kasujemy
       }
     });
+  });
+  $(document).on('click', '.change-htpassword', function() {
+    var login = $(this).closest('tr').find('td').first().html();
+    bootbox
+      .dialog({
+        title: '<strong>Zmiana hasła konta '+ login +'</strong>',
+        message: $('#change-htpassword-form'),
+        show: false
+      })
+      .on('shown.bs.modal', function() {
+        $('#change-htpassword-form')
+          .show()
+      })
+      .on('hide.bs.modal', function(e) {
+        $('#change-htpassword-form').hide().appendTo('body');
+      })
+      .modal('show');
   });
 });
