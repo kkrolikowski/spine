@@ -502,26 +502,10 @@ $(document).ready(function() {
       method: 'POST',
       data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htpasswd, htusers},
       success: function() {
-        $.bootstrapGrowl(
-          'Konfiguracja vhosta zapisana',
-          {
-            type: 'success',
-            align: 'center',
-            offset: { from: 'top', amount: 55},
-            width: 500
-          }
-        );
+        alertify.success("Konfiguracja vhosta zapisana");
       },
       error: function() {
-        $.bootstrapGrowl(
-          'Blad aktualizaji konfiguracji',
-          {
-            type: 'danger',
-            align: 'center',
-            offset: { from: 'top', amount: 55},
-            width: 500
-          }
-        );
+        alertify.error("Błąd aktualizaji konfiguracji");
       }
     }).success(function() {
       $('.modal').hide();
