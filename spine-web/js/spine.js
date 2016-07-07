@@ -847,6 +847,7 @@ $(document).ready(function() {
     });
   });
   $(document).on('click', '.change-htpassword', function() {
+    var id = $(this).attr('data-id');
     var login = $(this).closest('tr').find('td').first().html();
     bootbox
       .dialog({
@@ -855,6 +856,9 @@ $(document).ready(function() {
         show: false
       })
       .on('shown.bs.modal', function() {
+        $('#change-htpassword-form').append(
+          '<input type="hidden" name="id" value="'+ id +'">'
+        );
         $('#change-htpassword-form')
           .show()
       })
@@ -862,5 +866,18 @@ $(document).ready(function() {
         $('#change-htpassword-form').hide().appendTo('body');
       })
       .modal('show');
+  });
+  $(document).on('click', '#chpass-btn', function(e) {
+    e.preventDefault();
+    $.ajax({
+      url: '/apache.php?chpass',
+      method: "POST",
+      data: $('#change-htpassword-form').serializeArray(),
+      success: function() {
+        alertify.success("Hasło zostało zmienione");
+        $('.modal').hide();
+        $('.modal-backdrop').hide();
+      }
+    });
   });
 });

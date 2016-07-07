@@ -222,7 +222,16 @@
     $q->execute();
     $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
     $q->execute();
-    
+
+    updateConfigVersion($dbh, $_POST['serverid']);
+  }
+  if(isset($_GET['chpass'])) {
+    $secret = base64_encode(sha1($_POST['password'], true));
+    $pass = "{SHA}" . $secret;
+
+    $q = $dbh->prepare("UPDATE www_users SET password = '".$pass."' WHERE id = ".$_POST['id']);
+    $q->execute();
+
     updateConfigVersion($dbh, $_POST['serverid']);
   }
 ?>

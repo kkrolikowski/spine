@@ -465,11 +465,12 @@
     <!-- END: Nowe konto htaccess -->
     <!-- BEGIN: Zmiana hasla htaccess -->
     <form role="form" class="form-horizontal" data-toggle="validator" id="change-htpassword-form" style="display: none;">
+      <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
       <div class="form-group">
           <div class="row">
-          <label for="password" class="col-sm-2 control-label">Hasło</label>
+          <label for="newpass" class="col-sm-2 control-label">Hasło</label>
           <div class="col-sm-4">
-            <input type="password" class="form-control" id="password"
+            <input type="password" class="form-control" id="newpass"
             data-minlength="6" data-error="min. sześć znaków"
             name="password" required>
             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
@@ -485,7 +486,7 @@
           <div class="col-sm-4">
             <input type="password" class="form-control" id="confirm"
             data-minlength="6" data-error="min. sześć znaków"
-            data-match="#password"
+            data-match="#newpass"
             data-match-error="Hasło się nie zgadza"
             name="confirm" required>
             <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
@@ -499,7 +500,7 @@
         <div class="row">
           <div class="col-sm-offset-2" id="new-vhost-buttons">
             <button type="button" class="btn btn-primary" id="chpass-btn">Zmień hasło</button>
-            <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
+            <button type="button" class="btn btn-default" id="chpass-cancel">Anuluj</button>
           </div>
         </div>
       </div>
