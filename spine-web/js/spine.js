@@ -147,30 +147,14 @@ $(document).ready(function() {
         method: 'POST',
         data: {serverid, sn, sa, vhopts, account, htaccess, access_order, allow, fromhost, htusers},
         success: function() {
-          $.bootstrapGrowl(
-            'Konfiguracja apacza zapisana',
-            {
-              type: 'success',
-              align: 'center',
-              offset: { from: 'top', amount: 55},
-              width: 500
-            }
-          );
+          alertify.success("Konfiguracja apacza zapisana");
           $('#addvhost')[0].reset();
           $('select.selected > option').each(function() {
             $(this).appendTo('select.unselected');
           });
         },
         error: function(xhr) {
-          $.bootstrapGrowl(
-            xhr.getResponseHeader('X-Message'),
-            {
-              type: 'danger',
-              align: 'center',
-              offset: { from: 'top', amount: 55},
-              width: 500
-            }
-          );
+          alertify.error(xhr.getResponseHeader('X-Message'));
         }
     }).success(function(response) {
       var tr = $('#wwwconfig').find('tr').last();
