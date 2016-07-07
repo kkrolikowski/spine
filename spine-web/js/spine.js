@@ -738,26 +738,10 @@ $(document).ready(function() {
       method: 'POST',
       data: form.serializeArray(),
       success: function() {
-        $.bootstrapGrowl(
-          'Użytkownik został dodany',
-          {
-            type: 'success',
-            align: 'center',
-            offset: { from: 'top', amount: 55},
-            width: 500
-          }
-        );
+        alertify.success("Użytkownik został dodany");
       },
       error: function(xhr) {
-        $.bootstrapGrowl(
-          xhr.getResponseHeader('X-Message'),
-          {
-            type: 'danger',
-            align: 'center',
-            offset: { from: 'top', amount: 55},
-            width: 500
-          }
-        );
+        alertify.error(xhr.getResponseHeader('X-Message'));
       }
   }).success(function(response) {
     var tr = $('#wwwusers').find('tr').last();
