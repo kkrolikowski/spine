@@ -201,15 +201,17 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-4">
-          <select id="edit-select-htusers" name="htusers" class="form-control select-htusers" multiple="multiple">
-            {if $htpasswd == "NaN"}
-             <option value="0" disabled>Brak kont</option>
-             {else}
-             {foreach from=$htpasswd key=id item=htuser}
-             <option value="{$id}">{$htuser}</option>
-             {/foreach}
-            {/if}
-          </select>
+          <div id="edit-select-htusers-div" class="select-htusers-group">
+            <select id="edit-select-htusers" name="htusers" class="form-control select-htusers" multiple="multiple">
+              {if $htpasswd == "NaN"}
+               <option value="0" disabled>Brak kont</option>
+               {else}
+               {foreach from=$htpasswd key=id item=htuser}
+               <option value="{$id}">{$htuser}</option>
+               {/foreach}
+              {/if}
+            </select>
+          </div>
         </div>
       </div>
       <div class="form-group">

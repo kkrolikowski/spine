@@ -130,8 +130,11 @@
   margin-left: 4px;
 }
 .select-htusers-group {
-  margin-left: 23px;
+  margin-left: 11px;
 }
 .select-htusers-group > ul {
   margin-left: 37px;
+}
+.btn-group {
+  margin-left: 12px;
 }

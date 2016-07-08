@@ -398,6 +398,7 @@ $(document).ready(function() {
         else {
           $('#edit_password_enable').attr('checked', false);
           $('button[title="Wybierz konta "]').attr('disabled', ! this.checked);
+          $('button[title="None selected"]').attr('disabled', ! this.checked);
         }
       });
       if(response.htaccess != "NaN") {
