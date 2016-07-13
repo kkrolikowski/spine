@@ -784,14 +784,20 @@ $(document).ready(function() {
     var message = "Czy na pewno chcesz usunac " + login + "?";
     alertify.confirm(message, function(e) {
       if(e) {
-        tr.remove();
-        $('#edit-select-htusers option[value="'+ id +'"]').remove();
-        $('#edit-select-htusers').multiselect('rebuild');
-        $('#htusers-select option[value="'+ id +'"]').remove();
         $.ajax({
           url: "/apache.php?rmuser=" + id,
           method: "POST",
-          data: {serverid}
+          data: {serverid},
+          success: function() {
+            alertify.success("Konto zostało sakasowane");
+            tr.remove();
+            $('#edit-select-htusers option[value="'+ id +'"]').remove();
+            $('#edit-select-htusers').multiselect('rebuild');
+            $('#htusers-select option[value="'+ id +'"]').remove();
+          },
+          error: function(xhr) {
+            alertify.error(xhr.getResponseHeader('X-Message'));
+          }
         });
       }
       else {

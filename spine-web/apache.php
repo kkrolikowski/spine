@@ -218,12 +218,27 @@
     echo json_encode($json);
   }
   if(isset($_GET['rmuser'])) {
-    $q = $dbh->prepare("DELETE FROM www_users_access WHERE user_id = ".$_GET['rmuser']);
-    $q->execute();
-    $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
-    $q->execute();
 
-    updateConfigVersion($dbh, $_POST['serverid']);
+    // sprawdzamy czy user nie jest uzywany w ktorejs witrynie
+    $q = $dbh->prepare("SELECT w.ServerName AS vhost, wu.login ".
+                      "FROM www w JOIN www_users_access wua ON w.id = wua.vhost_id JOIN www_users wu ON wu.id = wua.user_id WHERE wua.user_id = ".$_GET['rmuser']);
+    $q->execute();
+    if($q->rowCount() > 0) {
+      while ($r = $q->fetch()) {
+        $vhosts_raw .= $r['vhost'] . ", ";
+      }
+      $vhosts = substr($vhosts_raw, 0, -2);
+      $message = "X-Message: Konto " . $r['login']. " jest dodane do witryn: " . $vhosts;
+      header($message, true, 406);
+    }
+    else {
+      $q = $dbh->prepare("DELETE FROM www_users_access WHERE user_id = ".$_GET['rmuser']);
+      $q->execute();
+      $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
+      $q->execute();
+
+      updateConfigVersion($dbh, $_POST['serverid']);
+    }
   }
   if(isset($_GET['chpass'])) {
     $secret = base64_encode(sha1($_POST['password'], true));
