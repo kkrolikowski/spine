@@ -375,6 +375,7 @@ $(document).ready(function() {
         });
         if(response.htpasswd == 1) {
           $('#edit_password_enable').attr('checked', true);
+          $('.select-htusers-btn').attr('disabled', false);
           if($('#edit-htusers-div').hasClass("add-htusers-group")) {
             $('#edit-htusers-div')
             .removeClass("add-htusers-group")
