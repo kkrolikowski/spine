@@ -476,3 +476,13 @@ char * BuildConfigurationPackage(hostconfig data) {
 
 	return tmp;
 }
+int fileExist(char * path) {
+	FILE * fp = NULL;
+
+	if((fp = fopen(path, "r")) == NULL)
+		return 0;
+	else {
+		fclose(fp);
+		return 1;
+	}
+}

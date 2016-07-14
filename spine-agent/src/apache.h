@@ -61,4 +61,7 @@ void createWebsiteDir(wwwdata vhosts[], int n);
 // plikow jest uzaleznione od dystrybucji linuksa
 int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf);
 
+// funkcja kasuje pliki .htpasswd i .htgroup jesli nie ma zadnych kont
+void clearAuthData(char * os);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */

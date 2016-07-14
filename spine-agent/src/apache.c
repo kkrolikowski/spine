@@ -384,6 +384,9 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 		if(cfg.htusers_count > 0) {
 			createHtpasswdFile(os, cfg.htpasswd);
 		}
+		else {
+			clearAuthData(os);
+		}
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
 		writeLog(lf, msg);
 		reloadApache(os);
@@ -529,4 +532,22 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 		return 1;
 	else
 		return 0;
+}
+void clearAuthData(char * os) {
+	char * htpasswd_path = NULL;
+	char * htgroup_path = NULL;
+
+	if(!strcmp(os, "Ubuntu")) {
+		htpasswd_path = "/etc/apache2/auth/.htpasswd";
+		htgroup_path = "/etc/apache2/auth/.htgroup";
+	}
+	else if(strstr(os, "Centos") != NULL) {
+		htpasswd_path = "/etc/httpd/auth/.htpasswd";
+		htgroup_path = "/etc/httpd/auth/.htgroup";
+	}
+
+	if(fileExist(htpasswd_path))
+		unlink(htpasswd_path);
+	if(fileExist(htgroup_path))
+		unlink(htgroup_path);
 }
