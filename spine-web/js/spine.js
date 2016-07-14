@@ -499,6 +499,9 @@ $(document).ready(function() {
     $('#edit-select-htusers > option:checked').each(function() {
       htusers.push($(this).val());
     });
+    if(htusers.length === 0) {
+      htpasswd = 0;
+    }
     $.ajax({
       url: '/apache.php?edit=' + id,
       method: 'POST',
