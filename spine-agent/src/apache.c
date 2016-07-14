@@ -164,7 +164,7 @@ void createHtpasswdFile(char * os, htpasswdData * htpasswd) {
 
 	if(!strcmp(os, "Ubuntu"))
 		htpasswd_path = "/etc/apache2/auth/.htpasswd";
-	else if(!strcmp(os, "Centos"))
+	else if(strstr(os, "Centos") != NULL)
 		htpasswd_path = "/etc/httpd/auth/.htpasswd";
 
 	if((htpasswd_file = fopen(htpasswd_path, "w")) != NULL) {
@@ -242,7 +242,7 @@ void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf) {
 
 	if(!strcmp(os, "Ubuntu"))
 		htgroupDir = "/etc/apache2/auth";
-	else if(!strcmp(os, "Centos"))
+	else if(strstr(os, "Centos") != NULL)
 		htgroupDir = "/etc/httpd/auth";
 	htgroupFilePath = mkString(htgroupDir, "/.htgroup", NULL);
 
