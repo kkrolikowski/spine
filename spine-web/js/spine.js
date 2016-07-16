@@ -100,6 +100,7 @@ $(document).ready(function() {
     });
     $(document).on('click', '#password_enable, #edit_password_enable', function() {
       $('button[title="Wybierz konta "]').attr('disabled', ! this.checked);
+      $('button[title="None selected"]').attr('disabled', ! this.checked);
     });
     $('#vhostOptSelect').DualListBox();
     $('#vhostOptEdit').DualListBox();
