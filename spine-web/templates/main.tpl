@@ -960,13 +960,20 @@
                             {else}
                             <table class="table table-hover" id="vhost-table" data-id="{$smarty.get.serverid}">
                               <thead>
-                                <th>Nazwa Strony</th><th class="button-cell">Akcja</th>
+                                <th>Nazwa Strony</th><th>Status</th><th class="button-cell">Akcja</th>
                               </thead>
                               <tbody>
                                 {foreach from=$websites key=id item=website}
                                 <tr>
                                   <td>
                                     <a href="http://{$website.ServerName}/" target="_blank">{$website.ServerName}</a>
+                                  </td>
+                                  <td>
+                                    {if $website.password == 1}
+                                    <i class="fa fa-lock"></i>
+                                    {else}
+                                    <i class="fa fa-globe"></i>
+                                    {/if}
                                   </td>
                                   <td class="button-cell">
                                     <div class="btn-group">

@@ -78,14 +78,15 @@
       $spine->assign('sysuser', $sysuser);
 
       // lista stron WWW na danym serwerze
-      $q = $dbh->prepare("SELECT id, ServerName FROM www WHERE system_id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT id, ServerName,htpasswd FROM www WHERE system_id = ". $_GET['serverid']);
       $q->execute();
       if($q->rowCount() == 0)
         $spine->assign('EmptySiteList', 1);
       else {
         while ($r = $q->fetch()) {
           $apacheconf[$r['id']] = array(
-            'ServerName' => $r['ServerName']
+            'ServerName' => $r['ServerName'],
+            'password' => $r['htpasswd']
           );
         }
         $spine->assign('websites', $apacheconf);
