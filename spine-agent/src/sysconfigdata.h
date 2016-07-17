@@ -31,7 +31,7 @@ unsigned long getuptime(void);
 
 // funkcja zwraca 1 jesli udalo sie odczytac chociaz jeden
 // parametr z systemu
-int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int n);
+int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int n, FILE * lf);
 
 // funkcja inicjuje strukture przechowujaca dane systemowe
 void InitSystemInformation(systeminfo * sys);

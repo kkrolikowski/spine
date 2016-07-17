@@ -112,9 +112,10 @@ char * getHostname() {
 
 	return hostname;
 }
-int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int n) {
+int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int n, FILE * lf) {
 	int status = 0;
 	int i;
+	char * logentry = NULL;
 
 	for(i = 0; i < n; i++) {
 		switch(i) {
@@ -138,6 +139,8 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 		status = 1;
 	}
 	else {
+		logentry = mkString("[WARNING] Problem z odczytem danych z IP API, pobieram informacje z cache'a", NULL);
+		writeLog(lf, logentry);
 		sys->extip = readIPCache();
 		status = 1;
 	}

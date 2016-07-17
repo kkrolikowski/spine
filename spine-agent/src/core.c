@@ -398,7 +398,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 		if(!strcmp(mode, "client")) {
 			// pobieramy informacje na temat systemu
 			InitSystemInformation(&osinfo);
-			if(!getSystemInformation(&osinfo, SysInfo, 5)) {
+			if(!getSystemInformation(&osinfo, SysInfo, 5, lf)) {
 				logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
 				writeLog(lf, logentry);
 			}
