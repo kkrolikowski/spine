@@ -133,8 +133,14 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 		status = 1;
 	if((sys->os = linuxDistro()) != NULL)
 		status = 1;
-	if((sys->extip = getExternalIP()) != NULL)
+	if((sys->extip = getExternalIP()) != NULL) {
+		writeIPCache(sys->extip);
 		status = 1;
+	}
+	else {
+		sys->extip = readIPCache();
+		status = 1;
+	}
 
 	return status;
 }
@@ -290,4 +296,34 @@ void mkdirtree(char * path) {
     i++; p++;
   }
   mkdir(buff, 0755);
+}
+char * readIPCache(void) {
+	FILE * cache;
+	char * extip = NULL;
+	size_t len = 0;
+	char buff[16];
+
+	memset(buff, '\0', 16);
+	if((cache = fopen(IPAPI_CACHE, "r")) == NULL)
+		return NULL;
+	if(fscanf(cache, "%s", buff) < 1)
+		return NULL;
+	fclose(cache);
+
+	len = strlen(buff) + 1;
+	extip = (char *) malloc(len * sizeof(char));
+	memset(extip, '\0', len);
+	strncpy(extip, buff, len);
+
+	return extip;
+}
+int writeIPCache(char * extip) {
+	FILE * cache;
+
+	if((cache = fopen(IPAPI_CACHE, "w")) == NULL)
+		return -1;
+	fprintf(cache, "%s", extip);
+	fclose(cache);
+
+	return 1;
 }

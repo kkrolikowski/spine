@@ -5,6 +5,7 @@
 
 #define SPOOL_DIR "/var/spool/spine"
 #define VERSION_FILE "/var/spool/spine/spine-agent.dat"
+#define IPAPI_CACHE "/var/spool/spine/ipcache.dat"
 
 /*			DANE			*/
 
@@ -77,5 +78,12 @@ char * linuxDistro(void);
 
 // funkcja tworzy strukture katalogow na podstawie podanej sciezki
 void mkdirtree(char * path);
+
+// funkcja odczytujaca aktualna wartosc IP z cache'a
+// w przypadku bledu odczytu zwraca NULL
+char * readIPCache(void);
+
+// funkcja zapisuje aktualny adres IP w pliku
+int writeIPCache(char * extip);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
