@@ -70,13 +70,17 @@
       $q->execute();
       updateConfigVersion($dbh, $_POST['serverid']);
 
-      $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $vhostid);
+      $vhostAccess = vhostAccessLevel($dbh, $vhostid);
+
+      $q = $dbh->prepare("SELECT ServerName,htpasswd FROM www WHERE id = ". $vhostid);
       $q->execute();
       $r = $q->fetch();
 
       $json = array(
         'id' => $vhostid,
-        'ServerName' => $r['ServerName']
+        'ServerName' => $r['ServerName'],
+        'password_protection' => $r['htpasswd'],
+        'vhostAccess' => $vhostAccess
       );
       header('Content-Type: application/json');
       echo json_encode($json);

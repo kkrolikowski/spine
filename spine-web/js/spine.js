@@ -158,6 +158,15 @@ $(document).ready(function() {
           alertify.error(xhr.getResponseHeader('X-Message'));
         }
     }).success(function(response) {
+      var icon;
+      switch(response.vhostAccess) {
+        case 0 : icon = 'fa-ban'; break;
+        case 1 : icon = 'fa-globe'; break;
+        default : icon = 'fa-shield';
+      }
+      if(response.password_protection == 1) {
+        icon = 'fa-lock';
+      }
       var tr = $('#wwwconfig').find('tr').last();
       var div = $('#wwwconfig > div:nth-child(2)');
       $('.modal').hide();
@@ -174,6 +183,9 @@ $(document).ready(function() {
           '<tr>' +
             '<td>' +
               '<a href="http://'+ response.ServerName +'/" target="_blank">'+ response.ServerName +'</a>' +
+            '</td>' +
+            '<td>' +
+            '<i class="fa '+ icon +'"></i>' +
             '</td>' +
             '<td class="button-cell">' +
               '<div class="btn-group">' +
@@ -195,12 +207,15 @@ $(document).ready(function() {
         div.append(
           '<table class="table table-hover">' +
             '<thead>' +
-              '<th>Nazwa Strony</th><th class="button-cell">Akcja</th>' +
+              '<th>Nazwa Strony</th><th>Status</th><th class="button-cell">Akcja</th>' +
             '</thead>' +
             '<tbody>' +
               '<tr>' +
                 '<td>' +
                   '<a href="http://'+ response.ServerName +'/" target="_blank">'+ response.ServerName +'</a>' +
+                '</td>' +
+                '<td>' +
+                '<i class="fa '+ icon +'"></i>' +
                 '</td>' +
                 '<td class="button-cell">' +
                   '<div class="btn-group">' +
