@@ -3,7 +3,8 @@
 #include "apache.h"
 #include "commondata.h"
 
-#define VERSION_FILE "/var/spool/spine-agent.dat"
+#define SPOOL_DIR "/var/spool/spine"
+#define VERSION_FILE "/var/spool/spine/spine-agent.dat"
 
 /*			DANE			*/
 

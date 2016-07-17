@@ -167,6 +167,8 @@ int readLocalConfigVersion(void) {
 	int ver = 0;
 	FILE * vf;
 
+	if(access(SPOOL_DIR, F_OK) < 0)
+		mkdir(SPOOL_DIR, 0755);
 	if((vf = fopen(VERSION_FILE, "r")) == NULL) {
 		if((vf = fopen(VERSION_FILE, "w")) == NULL)
 			return -1;
@@ -186,6 +188,8 @@ int readLocalConfigVersion(void) {
 int writeLocalConfigVersion(int ver) {
 	FILE * vf;
 
+	if(access(SPOOL_DIR, F_OK) < 0)
+		mkdir(SPOOL_DIR, 0755);
 	if((vf = fopen(VERSION_FILE, "w")) == NULL)
 		return 0;
 	fwrite(&ver, sizeof(ver), 1, vf);
