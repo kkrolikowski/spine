@@ -98,4 +98,14 @@ function htuserExist($dbh, $htuser, $sid) {
 
   return $r['n'];
 }
+function vhostAccessLevel($dbh, $vhost_id) {
+  $level = 0;
+  $q = $dbh->prepare("SELECT access_permission FROM www_access WHERE vhost_id = ".$vhost_id);
+  $q->execute();
+  while ($r = $q->fetch()) {
+    if($r['access_permission'] == 1)
+      $level++;
+  }
+  return $level;
+}
 ?>

@@ -971,6 +971,10 @@
                                   <td>
                                     {if $website.password == 1}
                                     <i class="fa fa-lock"></i>
+                                    {elseif $website.access_type == 0}
+                                    <i class="fa fa-ban"></i>
+                                    {elseif $website.access_type > 1}
+                                    <i class="fa fa-shield"></i>
                                     {else}
                                     <i class="fa fa-globe"></i>
                                     {/if}

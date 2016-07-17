@@ -84,9 +84,11 @@
         $spine->assign('EmptySiteList', 1);
       else {
         while ($r = $q->fetch()) {
+          $access_type = vhostAccessLevel($dbh, $r['id']);
           $apacheconf[$r['id']] = array(
             'ServerName' => $r['ServerName'],
-            'password' => $r['htpasswd']
+            'password' => $r['htpasswd'],
+            'access_type' => $access_type
           );
         }
         $spine->assign('websites', $apacheconf);
