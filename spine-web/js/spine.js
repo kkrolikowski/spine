@@ -522,7 +522,18 @@ $(document).ready(function() {
       url: '/apache.php?edit=' + id,
       method: 'POST',
       data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htpasswd, htusers},
-      success: function() {
+      success: function(response) {
+        var tdIcon = $('#vhost-table').find('td:contains("'+ response.ServerName +'")').closest('td').next();
+        var icon;
+        switch(response.vhostAccess) {
+          case 0 : icon = 'fa-ban'; break;
+          case 1 : icon = 'fa-globe'; break;
+          default : icon = 'fa-shield';
+        }
+        if(response.password_protection == 1) {
+          icon = 'fa-lock';
+        }
+        tdIcon.empty().append('<i class="fa '+ icon +'"></i>');
         alertify.success("Konfiguracja vhosta zapisana");
       },
       error: function() {

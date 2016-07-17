@@ -211,6 +211,22 @@
       $q->execute();
     }
     updateConfigVersion($dbh, $_POST['serverid']);
+
+    $vhostid = $_GET['edit'];
+    $vhostAccess = vhostAccessLevel($dbh, $vhostid);
+
+    $q = $dbh->prepare("SELECT ServerName,htpasswd FROM www WHERE id = ". $vhostid);
+    $q->execute();
+    $r = $q->fetch();
+
+    $json = array(
+      'id' => $vhostid,
+      'ServerName' => $r['ServerName'],
+      'password_protection' => $r['htpasswd'],
+      'vhostAccess' => $vhostAccess
+    );
+    header('Content-Type: application/json');
+    echo json_encode($json);
   }
   if(isset($_GET['htusers'])) {
     $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ".$_GET['htusers']);
