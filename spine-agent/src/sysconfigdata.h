@@ -86,4 +86,7 @@ char * readIPCache(void);
 // funkcja zapisuje aktualny adres IP w pliku
 int writeIPCache(char * extip);
 
+// funkcja kasuje katalog wraz z zawartoscia
+void purgeDir(char * name);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

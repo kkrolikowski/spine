@@ -11,6 +11,7 @@
 #include <net/if.h>
 #include <unistd.h>
 #include <limits.h>
+#include <dirent.h>
 #include "core.h"
 #include "sysconfigdata.h"
 #include "network.h"
@@ -329,4 +330,32 @@ int writeIPCache(char * extip) {
 	fclose(cache);
 
 	return 1;
+}
+void purgeDir(char * name) {
+	DIR * d;
+	struct dirent * entry;
+	const int pathlen = 256;
+	char buff[pathlen];
+
+	memset(buff, '\0', pathlen);
+	strcpy(buff, name);
+
+	d = opendir(name);
+	while((entry = readdir(d)) != NULL) {
+		if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+			continue;
+		if(entry->d_type == 4) {
+			strcat(buff, entry->d_name);
+			strcat(buff, "/");
+			purgeDir(buff);
+		}
+		else {
+			strcat(buff, entry->d_name);
+			unlink(buff);
+		}
+		memset(buff, '\0', pathlen);
+		strcpy(buff, name);
+	}
+	closedir(d);
+	rmdir(name);
 }
