@@ -269,4 +269,13 @@
 
     updateConfigVersion($dbh, $_POST['serverid']);
   }
+  if(isset($_GET['vhid'])) {
+    $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $_GET['vhid']);
+    $q->execute();
+    $r = $q->fetch();
+
+    $json = array('vhost' => $r['ServerName']);
+    header('Content-Type: application/json');
+    echo json_encode($json);
+  }
 ?>
