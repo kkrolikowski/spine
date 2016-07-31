@@ -63,6 +63,8 @@ void clearConfigData(hostconfig * cfd) {
 		if(cfd->vhost[i].vhost_access_list != NULL) free(cfd->vhost[i].vhost_access_list);
 		if(cfd->vhost[i].vhost_access_order != NULL) free(cfd->vhost[i].vhost_access_order);
 		if(cfd->vhost[i].htusers != NULL) free(cfd->vhost[i].htusers);
+		if(cfd->vhost[i].status != NULL) free(cfd->vhost[i].status);
+		if(cfd->vhost[i].purgedir != NULL) free(cfd->vhost[i].purgedir);
 	}
 	if(cfd->datatype != NULL) free(cfd->datatype);
 }
