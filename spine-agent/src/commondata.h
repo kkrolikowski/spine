@@ -16,8 +16,8 @@ typedef struct wwwdata {
 	int password_access;			// czy witryna ma byc zabezpieczona haslem
 	char * htusers;					// lista kont, ktora ma dostep do witryny
 	char * user;					// wlasciciel witryny
-	char status;					// flaga: A - vhost aktywny, D - do skasowania
-	char purgedir;					// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
+	char * status;					// flaga: A - vhost aktywny, D - do skasowania
+	char * purgedir;					// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
 } wwwdata;
 
 typedef struct htpasswdData {
