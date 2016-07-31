@@ -872,15 +872,41 @@ $(document).ready(function() {
   });
   $(document).on('click', '.rmvhost', function() {
     var id = $(this).attr('data-id');
+    var tr = $(this).closest('tr');
     $.ajax({
       url: "/apache.php?vhid=" + id,
       method: "GET"
     }).success(function(response) {
         var text = '<div>Czy na pewno chcesz skasować konfigurację dla '+ response.vhost +'?</div>' +
-                    '<div class="checkbox">' +
+                    '<div class="checkbox alert alert-danger" id="div-vhost-del-alert">' +
                       '<label id="purgedata-field"><input type="checkbox" id="purgedata"> Skasuj pliki strony</label>' +
                     '</div>';
-        alertify.confirm(text);
+        alertify.confirm(text, function(e) {
+          var rmdir;
+          if($('#purgedata').is(':checked')) {
+            rmdir = 'Y'
+          }
+          else {
+            rmdir = 'N'
+          }
+          if(e) {
+            $.ajax({
+              url: "/apache.php?vhdel=" + id,
+              method: "POST",
+              data: {id, rmdir},
+              success: function() {
+                alertify.success("Witryna została skasowana");
+                tr.remove();
+              },
+              error: function(xhr) {
+                alertify.error(xhr.getResponseHeader('X-Message'));
+              }
+            });
+          }
+          else {
+            // nie kasujemy
+          }
+        });
     });
   });
 });

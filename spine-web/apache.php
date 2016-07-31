@@ -278,4 +278,8 @@
     header('Content-Type: application/json');
     echo json_encode($json);
   }
+  if(isset($_GET['vhdel'])) {
+    $q = $dbh->prepare("UPDATE www SET status = 'D', purgedir = '".$_POST['rmdir']."' WHERE id = ".$_GET['vhdel']);
+    $q->execute();
+  }
 ?>
