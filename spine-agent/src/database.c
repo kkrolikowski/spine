@@ -237,8 +237,8 @@ hostconfig ReadWWWConfiguration(char * hostid) {
 				hconfig.vhost[vhi].vhost_access_order = readData(row[8]);
 				hconfig.vhost[vhi].password_access = atoi(row[9]);
 				hconfig.vhost[vhi].htusers = readData(row[10]);
-				hconfig.vhost[vhi].status = readData(row[11]);
-				hconfig.vhost[vhi].purgedir = readData(row[12]);
+				hconfig.vhost[vhi].status = atoi(row[11]);
+				hconfig.vhost[vhi].purgedir = atoi(row[12]);
 				vhi++;
 			}
 			mysql_free_result(res);

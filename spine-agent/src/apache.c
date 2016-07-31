@@ -131,6 +131,8 @@ char * apacheConfigPackage(hostconfig data) {
 				",htaccess:", data.vhost[vidx].htaccess,
 				",authbasic:", authbasic,
 				",htusers:", data.vhost[vidx].htusers,
+				",vhoststatus:", data.vhost[vidx].status,
+				",purgedir:", data.vhost[vidx].purgedir,
 				",user:", data.vhost[vidx].user, "},", NULL);
 		strcat(buff, vhostdata);
 
