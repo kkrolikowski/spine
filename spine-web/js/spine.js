@@ -872,6 +872,7 @@ $(document).ready(function() {
   });
   $(document).on('click', '.rmvhost', function() {
     var id = $(this).attr('data-id');
+    var serverid = $(this).attr('data-serverid');
     var tr = $(this).closest('tr');
     $.ajax({
       url: "/apache.php?vhid=" + id,
@@ -893,7 +894,7 @@ $(document).ready(function() {
             $.ajax({
               url: "/apache.php?vhdel=" + id,
               method: "POST",
-              data: {id, rmdir},
+              data: {id, serverid, rmdir},
               success: function() {
                 alertify.success("Witryna została skasowana");
                 tr.remove();
