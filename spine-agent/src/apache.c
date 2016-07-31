@@ -79,6 +79,8 @@ void initConfigData(hostconfig * cfd, long vhostnum) {
 		cfd->vhost[i].user = NULL;
 		cfd->vhost[i].vhost_access_list = NULL;
 		cfd->vhost[i].vhost_access_order = NULL;
+		cfd->vhost[i].purgedir = NULL;
+		cfd->vhost[i].status = NULL;
 	}
 	cfd->htpasswd = NULL;
 	cfd->datatype = NULL;
@@ -96,6 +98,8 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 		free(vhost[i].vhost_access_list);
 		free(vhost[i].vhost_access_order);
 		free(vhost[i].htusers);
+		free(vhost[i].purgedir);
+		free(vhost[i].status);
 	}
 }
 char * apacheConfigPackage(hostconfig data) {
