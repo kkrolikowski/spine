@@ -460,67 +460,69 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 	}
 
 	for(i = 0; i < n; i++) {
-		path = mkString(configDir, vhosts[i].ServerName, ".conf", NULL);
-		path2 = mkString(configDir2, vhosts[i].ServerName, ".conf", NULL);
-		if(!access(path, F_OK))
-			vhostExist = 1;
-		if((vhost = fopen(path, "w")) == NULL) {
-			logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
+		if(!strcmp(vhosts[i].status, "A")) {
+			path = mkString(configDir, vhosts[i].ServerName, ".conf", NULL);
+			path2 = mkString(configDir2, vhosts[i].ServerName, ".conf", NULL);
+			if(!access(path, F_OK))
+				vhostExist = 1;
+			if((vhost = fopen(path, "w")) == NULL) {
+				logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
+				writeLog(lf, logentry);
+				continue;
+			}
+			counter++;
+			acl_order = accessOrder(vhosts[i].vhost_access_order);
+			acl_entry = acl(vhosts[i].vhost_access_list);
+			fprintf(vhost, "<VirtualHost *:80>\n");
+			fprintf(vhost, "\tServerName %s\n", vhosts[i].ServerName);
+			if(strcmp(vhosts[i].ServerAlias, "NaN"))
+				fprintf(vhost, "\tServerAlias %s\n", vhosts[i].ServerAlias);
+			fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhosts[i].DocumentRoot);
+			fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
+			fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
+			fprintf(vhost, "\t\tAllowOverride All\n");
+			fprintf(vhost, "\t\tOrder %s\n", acl_order);
+			fprintf(vhost, "%s\n", acl_entry);
+			if(!strcmp(distro, "Ubuntu"))
+				fprintf(vhost, "\t\tRequire all granted\n");
+			fprintf(vhost, "\t</Directory>\n\n");
+			if(vhosts[i].password_access) {
+				fprintf(vhost, "\t<Location />\n");
+				fprintf(vhost, "\t\tAuthType Basic\n");
+				fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
+				fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
+				fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
+				fprintf(vhost, "\t\tRequire group %s\n", vhosts[i].ServerName);
+				fprintf(vhost, "\t</Location>\n\n");
+			}
+			fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
+			fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
+			fprintf(vhost, "</VirtualHost>\n");
+			fclose(vhost);
+			free(acl_order);
+			free(acl_entry);
+			if(vhostExist)
+				logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhosts[i].ServerName, " zostala zaktualizowana", NULL);
+			else
+				logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhosts[i].ServerName, NULL);
 			writeLog(lf, logentry);
-			continue;
-		}
-		counter++;
-		acl_order = accessOrder(vhosts[i].vhost_access_order);
-		acl_entry = acl(vhosts[i].vhost_access_list);
-		fprintf(vhost, "<VirtualHost *:80>\n");
-		fprintf(vhost, "\tServerName %s\n", vhosts[i].ServerName);
-		if(strcmp(vhosts[i].ServerAlias, "NaN"))
-			fprintf(vhost, "\tServerAlias %s\n", vhosts[i].ServerAlias);
-		fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhosts[i].DocumentRoot);
-		fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
-		fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
-		fprintf(vhost, "\t\tAllowOverride All\n");
-		fprintf(vhost, "\t\tOrder %s\n", acl_order);
-		fprintf(vhost, "%s\n", acl_entry);
-		if(!strcmp(distro, "Ubuntu"))
-			fprintf(vhost, "\t\tRequire all granted\n");
-		fprintf(vhost, "\t</Directory>\n\n");
-		if(vhosts[i].password_access) {
-			fprintf(vhost, "\t<Location />\n");
-			fprintf(vhost, "\t\tAuthType Basic\n");
-			fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
-			fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
-			fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
-			fprintf(vhost, "\t\tRequire group %s\n", vhosts[i].ServerName);
-			fprintf(vhost, "\t</Location>\n\n");
-		}
-		fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
-		fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
-		fprintf(vhost, "</VirtualHost>\n");
-		fclose(vhost);
-		free(acl_order);
-		free(acl_entry);
-		if(vhostExist)
-			logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhosts[i].ServerName, " zostala zaktualizowana", NULL);
-		else
-			logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhosts[i].ServerName, NULL);
-		writeLog(lf, logentry);
-		if(!strcmp(distro, "Ubuntu"))
-			if(access(path2, F_OK) < 0) {
-				if(errno == ENOENT) {
-					if(symlink(path, path2)) {
-						if(errno == EEXIST)
-							logentry = mkString("[WARNING] (reciver) Vhost: ", vhosts[i].ServerName, " byl juz aktywny", NULL);
-						else
-							logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
-						writeLog(lf, logentry);
+			if(!strcmp(distro, "Ubuntu"))
+				if(access(path2, F_OK) < 0) {
+					if(errno == ENOENT) {
+						if(symlink(path, path2)) {
+							if(errno == EEXIST)
+								logentry = mkString("[WARNING] (reciver) Vhost: ", vhosts[i].ServerName, " byl juz aktywny", NULL);
+							else
+								logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
+							writeLog(lf, logentry);
+						}
 					}
 				}
-			}
 
-		vhostExist = 0;
-		free(path);
-		free(path2);
+			vhostExist = 0;
+			free(path);
+			free(path2);
+		}
 	}
 
 	/* weryfikujemy rezultat zakladania plikow

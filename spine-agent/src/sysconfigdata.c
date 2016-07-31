@@ -246,6 +246,8 @@ hostconfig ParseConfigData(char * json) {
 		conf.vhost[i].password_access = atoi(authbasic);
 		conf.vhost[i].user = jsonVal(config_pos, "user");
 		conf.vhost[i].htusers = jsonVal(config_pos, "htusers");
+		conf.vhost[i].status = jsonVal(config_pos, "vhoststatus");
+		conf.vhost[i].purgedir = jsonVal(config_pos, "purgedir");
 		free(authbasic);
 	}
 	if(conf.htusers_count > 0) {

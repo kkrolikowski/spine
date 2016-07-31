@@ -279,8 +279,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 				system_id = jsonVal(clientResponse, "systemid");
 				configdata = ReadWWWConfiguration(system_id);
 				configstring = BuildConfigurationPackage(configdata);
-				logentry = mkString("{DBG} ", configstring, NULL);
-				writeLog(lf, logentry);
 				clifd = connector(net.ipaddr, 2016);
 				SendPackage(clifd, configstring);
 
