@@ -403,6 +403,10 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 		msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
 		writeLog(lf, msg);
 	}
+	if(removeVhost(os, cfg.vhost, cfg.vhost_num)) {
+		msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
+		writeLog(lf, msg);
+	}
 }
 void createHtaccess(wwwdata vhosts[], int n) {
 	FILE * htaccess;
@@ -529,6 +533,8 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
 			free(path);
 			free(path2);
 		}
+		else if(!strcmp(vhosts[i].status, "D"))
+			counter++;
 	}
 
 	/* weryfikujemy rezultat zakladania plikow
@@ -560,4 +566,38 @@ void clearAuthData(char * os) {
 		unlink(htpasswd_path);
 	if(fileExist(htgroup_path))
 		unlink(htgroup_path);
+}
+int removeVhost(char * os, wwwdata vhosts[], int vhostCount) {
+	int count = 0;
+	int i;
+	char * vhostConfig = NULL;
+	char * vhostConfigSymlink = NULL;
+	char * vhostDir = NULL;
+
+	for(i = 0; i < vhostCount; i++) {
+		vhostDir = mkString("/var/www/", vhosts[i].ServerName, "/", NULL);
+		if(!strcmp(os, "Ubuntu")) {
+			vhostConfig = mkString("/etc/apache2/sites-available/", vhosts[i].ServerName, ".conf", NULL);
+			vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", vhosts[i].ServerName, ".conf", NULL);
+		}
+		else if(strstr(os, "Centos") != NULL) {
+			vhostConfig = mkString("/etc/httpd/conf.d/", vhosts[i].ServerName, ".conf", NULL);
+		}
+		if(!strcmp(vhosts[i].status, "D")) {
+			if(vhostConfig != NULL) {
+				unlink(vhostConfig);
+				count++;
+			}
+			if(vhostConfigSymlink != NULL)
+				unlink(vhostConfigSymlink);
+		}
+		if(!strcmp(vhosts[i].purgedir, "Y"))
+			purgeDir(vhostDir);
+
+		if(vhostConfig != NULL) free(vhostConfig);
+		if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
+		if(vhostDir != NULL) free(vhostDir);
+	}
+
+	return count;
 }

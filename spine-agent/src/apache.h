@@ -64,4 +64,7 @@ int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf);
 // funkcja kasuje pliki .htpasswd i .htgroup jesli nie ma zadnych kont
 void clearAuthData(char * os);
 
+// funkcja kasuje konfiguracje oraz zawartosc stron www. Zwraca liczbe skasowanych witryn
+int removeVhost(char * os, wwwdata vhosts[], int vhostCount);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */
