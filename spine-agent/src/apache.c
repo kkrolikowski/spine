@@ -406,6 +406,7 @@ void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
 	if(removeVhost(os, cfg.vhost, cfg.vhost_num)) {
 		msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
 		writeLog(lf, msg);
+		reloadApache(os);
 	}
 }
 void createHtaccess(wwwdata vhosts[], int n) {
