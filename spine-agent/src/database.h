@@ -56,4 +56,7 @@ hostconfig ReadWWWConfiguration(char * hostid);
 // funkcja zwraca ID rekordu z bazy zawierajacego okreslony mac-adres serwera
 int getDBHostID(char * hwaddr);
 
+// funkcja czysci konfiguracje vhosta w bazie danych
+void cleanWWWConfiguration(char * hostid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

@@ -278,6 +278,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			if(clientNeedUpdate(clientResponse)) {
 				system_id = jsonVal(clientResponse, "systemid");
 				configdata = ReadWWWConfiguration(system_id);
+				cleanWWWConfiguration(system_id);
 				configstring = BuildConfigurationPackage(configdata);
 				clifd = connector(net.ipaddr, 2016);
 				SendPackage(clifd, configstring);
