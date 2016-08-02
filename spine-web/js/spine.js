@@ -205,7 +205,7 @@ $(document).ready(function() {
       else {
         div.find('h5').remove();
         div.append(
-          '<table class="table table-hover">' +
+          '<table class="table table-hover" id="vhost-table">' +
             '<thead>' +
               '<th>Nazwa Strony</th><th>Status</th><th class="button-cell">Akcja</th>' +
             '</thead>' +
@@ -772,7 +772,7 @@ $(document).ready(function() {
     else {
       div.find('h5').remove();
       div.append(
-        '<table class="table table-hover" id="vhost-table">' +
+        '<table class="table table-hover">' +
           '<thead>' +
             '<th>Login</th><th class="button-cell">Akcja</th>' +
           '</thead>' +
