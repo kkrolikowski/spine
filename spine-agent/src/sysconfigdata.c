@@ -336,6 +336,7 @@ int writeIPCache(char * extip) {
 void purgeDir(char * name) {
 	DIR * d;
 	struct dirent * entry;
+	struct stat st;
 	const int pathlen = 256;
 	char buff[pathlen];
 
@@ -343,18 +344,19 @@ void purgeDir(char * name) {
 	strcpy(buff, name);
 
 	d = opendir(name);
+	stat(buff, &st);
 	while((entry = readdir(d)) != NULL) {
 		if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
 			continue;
-		if(entry->d_type == 4) {
-			strcat(buff, entry->d_name);
+		strcat(buff, entry->d_name);
+		stat(buff, &st);
+		if(S_ISDIR(st.st_mode)) {
 			strcat(buff, "/");
 			purgeDir(buff);
 		}
-		else {
-			strcat(buff, entry->d_name);
+		else
 			unlink(buff);
-		}
+
 		memset(buff, '\0', pathlen);
 		strcpy(buff, name);
 	}
