@@ -177,7 +177,7 @@ int insertItem(systeminfo * info) {
 
 	char * query = mkString("INSERT INTO sysinfo(ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver, seen) VALUES('",
 			info->ip, "', '", info->extip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
-			", '", info->net_hwaddr, "', ", curr_time_s,", 0)", NULL);
+			", '", info->net_hwaddr, "', 0, ", curr_time_s, ")", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;
