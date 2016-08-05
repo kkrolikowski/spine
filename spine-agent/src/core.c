@@ -305,6 +305,7 @@ char * BuildPackage(systeminfo * info) {
 	char * s_hdd_free = ulong2String(info->hdd_free);
 	char * s_ram_free = ulong2String(info->ram_free);
 	char * s_ram_total = ulong2String(info->ram_total);
+	char * s_curr_time = ulong2String(info->curr_time);
 	char * s_config_ver = int2String(info->config_version);
 
 	char * package = mkString(
@@ -317,6 +318,7 @@ char * BuildPackage(systeminfo * info) {
 			"ram_free:", s_ram_free, ",",
 			"ext_ip:", info->extip, ",",
 			"config_ver:", s_config_ver, ",",
+			"curr_time:", s_curr_time, ",",
 			"systemid:", info->net_hwaddr, "}}]",
 	NULL);
 
@@ -330,6 +332,7 @@ char * BuildPackage(systeminfo * info) {
 	free(s_hdd_total);
 	free(s_hdd_free);
 	free(s_ram_total);
+	free(s_curr_time);
 	free(s_ram_free);
 	free(s_config_ver);
 	free(package);
@@ -379,7 +382,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	char * json = NULL;				// dane do przeslania
 
 	// wskazniki do funkcji pobierajacych dane liczbowe z systemu
-	unsigned long (*SysInfo[5])(void) = { getuptime, DiskSizeTotal, DiskSizeFree, ramFree, ramTotal };
+	unsigned long (*SysInfo[6])(void) = { getuptime, DiskSizeTotal, DiskSizeFree, ramFree, ramTotal, getCurrentTime };
 
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
@@ -399,7 +402,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 		if(!strcmp(mode, "client")) {
 			// pobieramy informacje na temat systemu
 			InitSystemInformation(&osinfo);
-			if(!getSystemInformation(&osinfo, SysInfo, 5, lf)) {
+			if(!getSystemInformation(&osinfo, SysInfo, 6, lf)) {
 				logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
 				writeLog(lf, logentry);
 			}

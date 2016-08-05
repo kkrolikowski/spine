@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <limits.h>
 #include <dirent.h>
+#include <time.h>
 #include "core.h"
 #include "sysconfigdata.h"
 #include "network.h"
@@ -125,6 +126,7 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 			case 2: sys->hdd_free = SysInfo[i](); status = 1; break;
 			case 3: sys->ram_free = SysInfo[i](); status = 1; break;
 			case 4: sys->ram_total = SysInfo[i](); status = 1; break;
+			case 5: sys->curr_time = SysInfo[i](); status = 1; break;
 		}
 	}
 	if((sys->net_hwaddr = getMacAddress()) != NULL)
@@ -154,6 +156,7 @@ void InitSystemInformation(systeminfo * sys) {
 	sys->hdd_total = 0L;
 	sys->ram_free = 0L;
 	sys->ram_total = 0L;
+	sys->curr_time = 0L;
 	sys->net_hwaddr = NULL;
 	sys->hostname = NULL;
 	sys->os = NULL;
@@ -167,6 +170,7 @@ void ClearSystemInformation(systeminfo * sys) {
 	sys->hdd_total = 0L;
 	sys->ram_free = 0L;
 	sys->ram_total = 0L;
+	sys->curr_time = 0L;
 	sys->config_version = 0;
 	free(sys->extip);
 	free(sys->net_hwaddr);
@@ -362,4 +366,7 @@ void purgeDir(char * name) {
 	}
 	closedir(d);
 	rmdir(name);
+}
+unsigned long getCurrentTime(void) {
+	return (unsigned long) time(NULL);
 }

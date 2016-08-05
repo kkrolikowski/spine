@@ -35,6 +35,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	char * hdd_free_s = NULL;
 	char * ram_total_s = NULL;
 	char * ram_free_s = NULL;
+	char * curr_time_s = NULL;
 
 	// odczytujemy informacje z jsona
 	InitSystemInformation(&hostinfo);
@@ -52,6 +53,8 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	hostinfo.ram_total = atol(ram_total_s);
 	ram_free_s = jsonVal(stream, "ram_free");
 	hostinfo.ram_free = atol(ram_free_s);
+	curr_time_s = jsonVal(stream, "curr_time");
+	hostinfo.curr_time = atol(curr_time_s);
 	hostinfo.extip = jsonVal(stream, "ext_ip");
 	hostinfo.ip = clientip;
 
@@ -74,6 +77,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	free(hdd_free_s);
 	free(ram_total_s);
 	free(ram_free_s);
+	free(curr_time_s);
 
 	ClearSystemInformation(&hostinfo);
 
@@ -129,6 +133,7 @@ int updateItem(systeminfo * info) {
 	char * hdd_free_s = ulong2String(info->hdd_free);
 	char * ram_total_s = ulong2String(info->ram_total);
 	char * ram_free_s = ulong2String(info->ram_free);
+	char * curr_time_s = ulong2String(info->curr_time);
 
 	char * query = mkString(
 			"UPDATE sysinfo SET uptime = ", uptime_s,
@@ -140,6 +145,7 @@ int updateItem(systeminfo * info) {
 			", hdd_free = ", hdd_free_s,
 			", ram_total = ", ram_total_s,
 			", ram_free = ", ram_free_s,
+			", seen = ", curr_time_s,
 			" WHERE system_id = '", info->net_hwaddr, "'", NULL);
 
 	if(!mysql_query(dbh, query))
@@ -151,6 +157,7 @@ int updateItem(systeminfo * info) {
 	free(hdd_free_s);
 	free(ram_total_s);
 	free(ram_free_s);
+	free(curr_time_s);
 
 	return status;
 }
@@ -165,11 +172,12 @@ int insertItem(systeminfo * info) {
 	char * hdd_free_s = ulong2String(info->hdd_free);
 	char * ram_total_s = ulong2String(info->ram_total);
 	char * ram_free_s = ulong2String(info->ram_free);
+	char * curr_time_s = ulong2String(info->curr_time);
 
 
-	char * query = mkString("INSERT INTO sysinfo(ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver) VALUES('",
+	char * query = mkString("INSERT INTO sysinfo(ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver, seen) VALUES('",
 			info->ip, "', '", info->extip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
-			", '", info->net_hwaddr, "', 0)", NULL);
+			", '", info->net_hwaddr, "', ", curr_time_s,", 0)", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;
@@ -180,6 +188,7 @@ int insertItem(systeminfo * info) {
 	free(hdd_free_s);
 	free(ram_total_s);
 	free(ram_free_s);
+	free(curr_time_s);
 
 	// sprawdzamy ID z jakim dodal sie do bazy serwer
 	sysid = getDBHostID(info->net_hwaddr);

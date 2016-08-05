@@ -16,6 +16,7 @@ typedef struct systeminfo {
 	unsigned long hdd_free;
 	unsigned long ram_total;
 	unsigned long ram_free;
+	unsigned long curr_time;
 	char * net_hwaddr;
 	char * hostname;
 	char * os;
@@ -88,5 +89,8 @@ int writeIPCache(char * extip);
 
 // funkcja kasuje katalog wraz z zawartoscia
 void purgeDir(char * name);
+
+// funkcja zwraca aktualny czas w sekundach (UNIX time)
+unsigned long getCurrentTime(void);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
