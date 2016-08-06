@@ -9,7 +9,7 @@
   $q->execute();
 
   while ($r = $q->fetch()) {
-    if(($now - $r['seen']) > 1)
+    if(($now - $r['seen']) > 5)
       array_push($dead, $r['hostname']);
   }
   if(count($dead) > 0) {
