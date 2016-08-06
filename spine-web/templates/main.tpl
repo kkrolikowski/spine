@@ -79,9 +79,11 @@
       <!-- Customowy skrypt strony i css -->
       <script src="js/spine.js"></script>
       <link href="/css/custom.css" rel="stylesheet">
+
+      <script src="js/monitoring.js"></script>
 </head>
 
-<body>
+<body onload="watch()">
   <!-- BEGIN: Sekcja formularzy edycji danych -->
     <!-- BEGIN: Edycja konfiguracji virtualhostow -->
     <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
