@@ -13,4 +13,4 @@ function getDeadHosts() {
     deadHosts = [];
   }
 }
-setInterval(function() { getDeadHosts()}, 5000);
+setInterval(function() { getDeadHosts()}, 3000);

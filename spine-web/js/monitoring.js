@@ -8,7 +8,7 @@ function watch() {
           var json = {};
           json = JSON.parse(event.data);
           for(var i = 0; i < json.length; i++) {
-              alertify.error(json[i]);
+              alertify.error("HOST: " + json[i] + " is down!");
           }
         }
     }
