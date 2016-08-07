@@ -112,4 +112,7 @@ function vhostAccessLevel($dbh, $vhost_id) {
     $level++;
   return $level;
 }
+function timestring($epoch) {
+  return date("Y-m-d H:i:s", $epoch);
+}
 ?>

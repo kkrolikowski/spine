@@ -1,5 +1,5 @@
 <?php
-
+  include_once './include/functions.php';
   $toGB = 1073741824;       // przelicznik z bajtow na GB
 
   function serverList($dbh) {
@@ -69,5 +69,21 @@
     $r = $q->fetch();
 
     return $r['websiteCount'];
+  }
+  function serverStatus($dbh) {
+    $q = $dbh->prepare("SELECT hostname,distro,uptime,seen,host_status FROM sysinfo");
+    $q->execute();
+    $sysStat = array();
+    while ($r = $q->fetch()) {
+      $uptimeString = secondsToTime($r['uptime']);
+      $lastSeen = timestring($r['seen']);
+      $sysStat[$r['hostname']][] = array(
+        'os' => $r['distro'],
+        'uptime' => $uptimeString,
+        'lastSeen' => $lastSeen,
+        'status' => $r['host_status']
+      );
+    }
+    return $sysStat;
   }
 ?>
