@@ -1178,10 +1178,12 @@
                     </div>
                     <div class="media-body">
                       <h4 class="media-heading"><strong>{$hostname}</strong></h4>
-                      <dl class="dl-horizontal">
-                        <dt>Ostatnio aktywny:</dt><dd>{$info.lastSeen}</dd>
-                        <dt>Uptime:</dt><dd>{$info.uptime}</dd>
-                      </dl>
+                      <div><strong>Ostatnio aktywny:</strong> {$info.lastSeen}</div>
+                      {if $info.status == "A"}
+                      <div><strong>Uptime:</strong> {$info.uptime} <span class="label label-success">Online</span></div>
+                      {elseif $info.status == "U"}
+                      <div><strong>Uptime:</strong> {$info.uptime} <span class="label label-danger">Offline</span></div>
+                      {/if}
                     </div>
                   </li>
                   {/foreach}
