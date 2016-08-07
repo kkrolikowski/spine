@@ -1160,6 +1160,33 @@
                   {/foreach}
                 </ul>
               </div>
+              {else}
+              <div class="col-sm-4 table-responsive">
+                <ul class="media-list">
+                  {foreach from=$allHostStatus key=hostname item=info}
+                  <li class="media">
+                    <div class="media-left">
+                      {if $info.os == "Ubuntu" and $info.status == "A"}
+                      <img class="media-object" src="/images/server-ubuntu_ok.png" width="50">
+                      {elseif $info.os == "Ubuntu" and $info.status == "U"}
+                      <img class="media-object" src="/images/server-ubuntu_error.png" width="50">
+                      {elseif ($info.os == "Centos6" || $info.os == "Centos7") and $info.status == "A"}
+                      <img class="media-object" src="/images/server-centos_ok.png" width="50">
+                      {elseif ($info.os == "Centos6" || $info.os == "Centos7") and $info.status == "U"}
+                      <img class="media-object" src="/images/server-centos_error.png" width="50">
+                      {/if}
+                    </div>
+                    <div class="media-body">
+                      <h4 class="media-heading"><strong>{$hostname}</strong></h4>
+                      <dl class="dl-horizontal">
+                        <dt>Ostatnio aktywny:</dt><dd>{$info.lastSeen}</dd>
+                        <dt>Uptime:</dt><dd>{$info.uptime}</dd>
+                      </dl>
+                    </div>
+                  </li>
+                  {/foreach}
+                </ul>
+              </div>
               {/if}
             </div>
             <!-- /.row -->

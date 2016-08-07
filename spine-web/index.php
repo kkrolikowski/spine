@@ -29,6 +29,10 @@
   $websiteCount = allWebsitesCount($dbh);
   $spine->assign('websiteCount', $websiteCount);
 
+  // status wszystkich hostow z z bazy
+  $allHostStatus = serverStatus($dbh);
+  $spine->assign('allHostStatus', $allHostStatus);
+
   // tworzymy jsona z opcjami konfiguracyjnymi apacza
   vhostOptionFile($dbh);
 

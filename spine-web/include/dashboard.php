@@ -77,7 +77,7 @@
     while ($r = $q->fetch()) {
       $uptimeString = secondsToTime($r['uptime']);
       $lastSeen = timestring($r['seen']);
-      $sysStat[$r['hostname']][] = array(
+      $sysStat[$r['hostname']] = array(
         'os' => $r['distro'],
         'uptime' => $uptimeString,
         'lastSeen' => $lastSeen,
