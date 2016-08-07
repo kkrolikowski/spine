@@ -1189,6 +1189,17 @@
                   {/foreach}
                 </ul>
               </div>
+              <div class="col-lg-4" id="alertBox">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    <i class="fa fa-bell fa-fw"></i> Alerty
+                  </div>
+                  <div class="panel-body" id="alertBox-body">
+                    <div class="list-group">
+                    </div>
+                  </div>
+                </div>
+              </div>
               {/if}
             </div>
             <!-- /.row -->
