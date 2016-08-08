@@ -519,7 +519,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.php"><img src="/images/spine-logo.png"></a>
+                <a class="navbar-brand" href="?dashboard"><img src="/images/spine-logo.png"></a>
             </div>
             <!-- /.navbar-header -->
 
@@ -737,7 +737,7 @@
                 <div class="sidebar-nav navbar-collapse">
                     <ul class="nav" id="side-menu">
                         <li>
-                            <a href="index.php"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
+                            <a href="?dashboard"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
                         </li>
                         <li>
                             <a href="#"><i class="fa fa-linux f-fw"></i> Serwery<span class="fa arrow"></span></a>
@@ -1061,7 +1061,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="/">
+                        <a href="?dashboard">
                             <div class="panel-footer">
                                 <span class="pull-left">View Details</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
@@ -1160,7 +1160,7 @@
                   {/foreach}
                 </ul>
               </div>
-              {else}
+              {elseif isset($smarty.get.dashboard)}
               <div class="col-sm-4 table-responsive">
                 <ul class="media-list">
                   {foreach from=$allHostStatus key=hostname item=info}
