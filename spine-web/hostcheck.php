@@ -5,12 +5,13 @@
   $now = time();
   $dead = array();
 
-  $q = $dbh->prepare("SELECT hostname, seen FROM sysinfo");
+  $q = $dbh->prepare("SELECT hostname, seen, distro FROM sysinfo");
   $q->execute();
 
   while ($r = $q->fetch()) {
     if(($now - $r['seen']) > 10) {
-      array_push($dead, $r['hostname']);
+      //array_push($dead, $r['hostname']);
+      $dead[$r['hostname']] = $r['distro'];
       $q2 = $dbh->prepare("UPDATE sysinfo SET host_status = 'U' WHERE hostname = '".$r['hostname']."'");
       $q2->execute();
     }
