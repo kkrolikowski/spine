@@ -1176,7 +1176,7 @@
                       <img class="media-object" src="/images/server-centos_error.png" width="50">
                       {/if}
                     </div>
-                    <div class="media-body">
+                    <div class="media-body hostList">
                       <h4 class="media-heading"><strong>{$hostname}</strong></h4>
                       <div><strong>Ostatnio aktywny:</strong> {$info.lastSeen}</div>
                       {if $info.status == "A"}
