@@ -14,10 +14,17 @@ function watch() {
                 '<span class="pull-right text-muted small"><em>4 minutes ago</em></span>' +
               '</a>'
             );
-            $(".hostList:has(strong:contains('"+ k +"'))")
-              .find('.label-success').removeClass('label-success')
-              .addClass('label-danger')
-              .html('Offline');
+            var div =   $(".hostList:has(strong:contains('"+ k +"'))");
+            div.find('.label-success').removeClass('label-success')
+            .addClass('label-danger')
+            .html('Offline');
+            if(v === "Ubuntu") {
+              var image = "/images/server-ubuntu_error.png";
+            }
+            else if (v === "Centos6" || v == "Centos7") {
+              var image = "/images/server-centos_error.png";
+            }
+            div.prev().find('img').attr('src', image);
           });
         }
     }
