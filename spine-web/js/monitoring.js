@@ -1,4 +1,5 @@
 var Monitoring;
+
 function watch() {
   if(typeof(Monitoring) == "undefined")
     Monitoring = new Worker("js/hostcheck.js");
@@ -8,12 +9,18 @@ function watch() {
           json = JSON.parse(event.data);
           $.each(json, function(k, v) {
             alertify.error("HOST: " + k + " is down!");
-            $('#alertBox-body > .list-group').append(
-              '<a href="#" class="list-group-item">' +
-                '<i class="fa fa-warning fa-fw"></i> Host: ' + k + ' is down.' +
-                '<span class="pull-right text-muted small"><em>'+ v.time +'</em></span>' +
-              '</a>'
-            );
+            if($("#alertBox-body > .list-group:has(a:contains('"+ k +"'))").length == 0) {
+              $('#alertBox-body > .list-group').append(
+                '<a href="#" class="list-group-item">' +
+                  '<i class="fa fa-warning fa-fw"></i> Host: ' + k + ' is down.' +
+                  '<span class="pull-right text-muted small"><em>'+ v.time +'</em></span>' +
+                '</a>'
+              );
+            }
+            else {
+              $("#alertBox-body > .list-group:has(a:contains('"+ k +"'))")
+                .find('.pull-right > em').html(v.time);
+            }
             var div =   $(".hostList:has(strong:contains('"+ k +"'))");
             div.find('.label-success').removeClass('label-success')
             .addClass('label-danger')
