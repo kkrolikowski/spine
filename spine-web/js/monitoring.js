@@ -6,7 +6,6 @@ function watch() {
         if(typeof(event.data) != "undefined") {
           var json = {};
           json = JSON.parse(event.data);
-          console.log(json);
           $.each(json, function(k, v) {
             alertify.error("HOST: " + k + " is down!");
             $('#alertBox-body > .list-group').append(
