@@ -11,17 +11,17 @@ function watch() {
             $('#alertBox-body > .list-group').append(
               '<a href="#" class="list-group-item">' +
                 '<i class="fa fa-warning fa-fw"></i> Host: ' + k + ' is down.' +
-                '<span class="pull-right text-muted small"><em>4 minutes ago</em></span>' +
+                '<span class="pull-right text-muted small"><em>'+ v.time +'</em></span>' +
               '</a>'
             );
             var div =   $(".hostList:has(strong:contains('"+ k +"'))");
             div.find('.label-success').removeClass('label-success')
             .addClass('label-danger')
             .html('Offline');
-            if(v === "Ubuntu") {
+            if(v.os === "Ubuntu") {
               var image = "/images/server-ubuntu_error.png";
             }
-            else if (v === "Centos6" || v == "Centos7") {
+            else if (v.os === "Centos6" || v.os == "Centos7") {
               var image = "/images/server-centos_error.png";
             }
             div.prev().find('img').attr('src', image);

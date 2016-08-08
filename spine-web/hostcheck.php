@@ -10,7 +10,11 @@
 
   while ($r = $q->fetch()) {
     if(($now - $r['seen']) > 10) {
-      $dead[$r['hostname']] = $r['distro'];
+      $tf = date("H:i:s d-m", $now);
+      $dead[$r['hostname']] = array(
+        'os' => $r['distro'],
+        'time' => $tf
+      );
       $q2 = $dbh->prepare("UPDATE sysinfo SET host_status = 'U' WHERE hostname = '".$r['hostname']."'");
       $q2->execute();
     }
