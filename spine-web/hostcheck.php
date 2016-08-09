@@ -17,6 +17,14 @@
       );
       $q2 = $dbh->prepare("UPDATE sysinfo SET host_status = 'U' WHERE hostname = '".$r['hostname']."'");
       $q2->execute();
+
+      $message = "Host ". $r['hostname']. " is down";
+      $q2 = $dbh->prepare("INSERT INTO log_host(message, state, `timestamp`) VALUES('".$message."', 'U', ".$now.")");
+      $q2->execute();
+
+      // czyscimy logi starsze niz ostatnie 24h
+      $q2 = $dbh->prepare("DELETE FROM log_host WHERE `timestamp` < ".$now." - 86400");
+      $q2->execute();
     }
     else {
       $q2 = $dbh->prepare("UPDATE sysinfo SET host_status = 'A' WHERE hostname = '".$r['hostname']."'");
