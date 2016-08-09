@@ -37,6 +37,6 @@
   }
   else {
     $message = "X-Message: all hosts are alive";
-    header($message, true, 406);
+    header($message, true, 206);
   }
 ?>
