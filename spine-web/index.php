@@ -58,7 +58,6 @@
         'status' => $r['host_status']
       );
 
-      $spine->assign('HostName', $r['hostname']);
       $spine->assign('basicInfo', $basicInfo);
       $sysinfo = array(
           'ip' => $r['ip'],
