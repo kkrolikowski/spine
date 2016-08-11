@@ -1153,7 +1153,7 @@
                       {/if}
                     </div>
                     <div class="media-body">
-                      <h4 class="media-heading"><strong>{$hostname}</strong></h4>
+                      <h4 class="media-heading"><strong><a href="?serverid={$info.serverid}&item=info">{$hostname}</a></strong></h4>
                         <div class="freeHDDbar">{$info.pfree}</div>
                     </div>
                   </li>
@@ -1177,7 +1177,7 @@
                       {/if}
                     </div>
                     <div class="media-body hostList">
-                      <h4 class="media-heading"><strong>{$hostname}</strong></h4>
+                      <h4 class="media-heading"><strong><a href="?serverid={$info.serverid}&item=info">{$hostname}</a></strong></h4>
                       <div><strong>Ostatnio aktywny:</strong> {$info.lastSeen}</div>
                       {if $info.status == "A"}
                       <div><strong>Uptime:</strong> {$info.uptime} <span class="label label-success">Online</span></div>

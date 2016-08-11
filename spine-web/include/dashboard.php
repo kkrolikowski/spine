@@ -31,13 +31,14 @@
   }
   function hddFreePerServer($dbh) {
     global $toGB;
-    $q = $dbh->prepare("SELECT hostname, distro, hdd_free, hdd_total FROM sysinfo");
+    $q = $dbh->prepare("SELECT id, hostname, distro, hdd_free, hdd_total FROM sysinfo");
     $q->execute();
 
     $SrvHDDFree = array();
     while ($r = $q->fetch()) {
       $percent_free = $r['hdd_free'] / $r['hdd_total'] * 100;
       $SrvHDDFree[$r['hostname']] = array(
+        'serverid' => $r['id'],
         'ostype' => $r['distro'],
         'pfree' => round($percent_free, 0)
       );
@@ -71,13 +72,14 @@
     return $r['websiteCount'];
   }
   function serverStatus($dbh) {
-    $q = $dbh->prepare("SELECT hostname,distro,uptime,seen,host_status FROM sysinfo");
+    $q = $dbh->prepare("SELECT id,hostname,distro,uptime,seen,host_status FROM sysinfo");
     $q->execute();
     $sysStat = array();
     while ($r = $q->fetch()) {
       $uptimeString = secondsToTime($r['uptime']);
       $lastSeen = timestring($r['seen']);
       $sysStat[$r['hostname']] = array(
+        'serverid' => $r['id'],
         'os' => $r['distro'],
         'uptime' => $uptimeString,
         'lastSeen' => $lastSeen,
