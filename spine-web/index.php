@@ -38,7 +38,7 @@
 
   if (isset($_GET['serverid'])) {
       // komplet informacji na temat systemu i zuzycia zasobow
-      $q = $dbh->prepare("SELECT ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, host_status FROM sysinfo WHERE id = ". $_GET['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -52,7 +52,14 @@
 
       $uptime = secondsToTime($r['uptime']);
 
+      $basicInfo = array(
+        'os' => $r['distro'],
+        'hostname' => $r['hostname'],
+        'status' => $r['host_status']
+      );
+
       $spine->assign('HostName', $r['hostname']);
+      $spine->assign('basicInfo', $basicInfo);
       $sysinfo = array(
           'ip' => $r['ip'],
           'ext_ip' => $r['ext_ip'],
@@ -65,7 +72,8 @@
           'hdd_free' => round($r['hdd_free'] / 1073741824, 2),
           'hdd_used' => round($hdd_used / 1073741824, 2),
           'ram_free' => round($r['ram_free'] / 1073741824, 2),
-          'ram_total' => round($r['ram_total'] / 1073741824, 2)
+          'ram_total' => round($r['ram_total'] / 1073741824, 2),
+          'status' => $r['host_status']
       );
       $spine->assign('sysinfo', $sysinfo);
 

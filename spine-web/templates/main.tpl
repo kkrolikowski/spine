@@ -860,7 +860,15 @@
                       {/if}
                     </ol>
                     <h3 class="page-header">
-                      <img src="/images/server.png" width="70">Host: {$HostName}</h3>
+                      {if $basicInfo.os == "Ubuntu" and $basicInfo.status == "A"}
+                      <img src="/images/server-ubuntu_ok.png" width="70">Host: {$basicInfo.hostname}</h3>
+                      {elseif $basicInfo.os == "Ubuntu" and $basicInfo.status == "U"}
+                      <img src="/images/server-ubuntu_error.png" width="70">Host: {$basicInfo.hostname}</h3>
+                      {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "A"}
+                      <img src="/images/server-centos_ok.png" width="70">Host: {$basicInfo.hostname}</h3>
+                      {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "U"}
+                      <img src="/images/server-centos_error.png" width="70">Host: {$basicInfo.hostname}</h3>
+                      {/if}
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
@@ -882,6 +890,12 @@
                           <dt>Uptime</dt><dd>{$sysinfo.uptime}</dd>
                           <dt>RAM</dt><dd>{$sysinfo.ram_total} GB</dd>
                           <dt>System</dt><dd>{$sysinfo.system}</dd>
+                          <dt>Status</dt>
+                          {if $sysinfo.status == "U"}
+                          <dd><span class="label label-danger">Offline</span></dd>
+                          {elseif $sysinfo.status == "A"}
+                          <dd><span class="label label-success">Online</span></dd>
+                          {/if}
                         </dl>
                       </div>
                   </div>
