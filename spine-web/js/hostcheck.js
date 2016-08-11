@@ -1,16 +1,17 @@
-var deadHosts = new Array();
-function getDeadHosts() {
+var hostlist = new Array();
+
+function getHostStatus() {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if(xhttp.readyState == 4 && xhttp.status == 200) {
-      deadHosts.push(xhttp.responseText);
+      hostlist.push(xhttp.responseText);
     }
   };
   xhttp.open("GET", "/hostcheck.php", true);
   xhttp.send();
-  if(deadHosts.length) {
-    postMessage(deadHosts);
-    deadHosts = [];
+  if(hostlist.length) {
+    postMessage(hostlist);
+    hostlist = [];
   }
 }
-setInterval(function() { getDeadHosts()}, 3000);
+setInterval(function() { getHostStatus()}, 3000);
