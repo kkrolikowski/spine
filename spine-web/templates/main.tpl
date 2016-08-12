@@ -1223,9 +1223,9 @@
                     <tr class="danger">
                     {/if}
                     {if $entry.category == "host" and $entry.state == "U"}
-                      <td>Host {$entry.hostname} unavailable!</td>
+                      <td><i class="fa fa-frown-o"></i> Host {$entry.hostname} unavailable!</td>
                     {elseif $entry.category == "host" and $entry.state == "A"}
-                      <td>Host {$entry.hostname} UP!</td>
+                      <td><i class="fa fa-smile-o"></i> Host {$entry.hostname} UP!</td>
                     {/if}
                       <td>{$entry.category}</td>
                       <td>{$entry.hostname}</td>
