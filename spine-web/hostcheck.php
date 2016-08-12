@@ -25,10 +25,6 @@
           "VALUES('host', 'U', ".$now.", (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."'))");
         $q3->execute();
       }
-
-      // czyscimy logi starsze niz ostatnie 24h
-      $q2 = $dbh->prepare("DELETE FROM log_host WHERE `timestamp` < ".$now." - 86400");
-      $q2->execute();
     }
     else {
       $q2 = $dbh->prepare("SELECT host_status FROM sysinfo WHERE hostname = '".$r['hostname']."'");
