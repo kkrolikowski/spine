@@ -141,7 +141,7 @@
   if($_GET['show'] == "logs") {
     $q = $dbh->prepare(
     "SELECT log.id, log.category, log.state, log.timestamp, sys.hostname ".
-    "FROM log_host log JOIN sysinfo sys ON log.serverid = sys.id");
+    "FROM log_host log JOIN sysinfo sys ON log.serverid = sys.id ORDER BY timestamp DESC");
     $q->execute();
     $logs = array();
     while ($r = $q->fetch()) {
