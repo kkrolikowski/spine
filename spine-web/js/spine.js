@@ -910,4 +910,12 @@ $(document).ready(function() {
         });
     });
   });
+  $('#logs').DataTable({
+    "ordering": true,
+    "order": [[3, "desc"]],
+    "searching": true,
+    "scrollY": "400px",
+    "scrollCollapse": true,
+    "paging": false
+  });
 });

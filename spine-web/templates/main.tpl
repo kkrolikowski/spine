@@ -80,7 +80,13 @@
       <script src="js/spine.js"></script>
       <link href="/css/custom.css" rel="stylesheet">
 
+      <!-- Monitoring -->
       <script src="js/monitoring.js"></script>
+
+      <!-- Plugin do logow -->
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css">
+
 </head>
 
 <body onload="watch()">
@@ -1133,17 +1139,16 @@
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="col-xs-3">
-                                    <i class="fa fa-support fa-5x"></i>
+                                    <i class="fa fa-info-circle fa-5x"></i>
                                 </div>
                                 <div class="col-xs-9 text-right">
-                                    <div class="huge">13</div>
-                                    <div>Support Tickets!</div>
+                                    <div class="huge">Logi</div>
                                 </div>
                             </div>
                         </div>
-                        <a href="#">
+                        <a href="?show=logs">
                             <div class="panel-footer">
-                                <span class="pull-left">View Details</span>
+                                <span class="pull-left">Pokaż logi</span>
                                 <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
                                 <div class="clearfix"></div>
                             </div>
@@ -1202,6 +1207,33 @@
                   </li>
                   {/foreach}
                 </ul>
+              </div>
+              {elseif $smarty.get.show == "logs"}
+              <div class="col-sm-6 table-responsive">
+                <h3>Logi systemu</h3>
+                <table id="logs" class="table display">
+                  <thead>
+                    <th>Informacja</th><th>Kategoria</th><th>Host</th><th>Timestamp</th>
+                  </thead>
+                  <tbody>
+                    {foreach from=$Logs key=id item=entry}
+                    {if $entry.state == "A"}
+                    <tr class="success">
+                    {elseif $entry.state == "U"}
+                    <tr class="danger">
+                    {/if}
+                    {if $entry.category == "host" and $entry.state == "U"}
+                      <td>Host {$entry.hostname} unavailable!</td>
+                    {elseif $entry.category == "host" and $entry.state == "A"}
+                      <td>Host {$entry.hostname} UP!</td>
+                    {/if}
+                      <td>{$entry.category}</td>
+                      <td>{$entry.hostname}</td>
+                      <td>{$entry.timestamp}</td>
+                    </tr>
+                    {/foreach}
+                  </tbody>
+                </table>
               </div>
               {/if}
             </div>

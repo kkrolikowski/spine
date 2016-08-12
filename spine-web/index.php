@@ -138,6 +138,21 @@
         $spine->assign('htpasswd', 'NaN');
       }
   }
-
+  if($_GET['show'] == "logs") {
+    $q = $dbh->prepare(
+    "SELECT log.id, log.category, log.state, log.timestamp, sys.hostname ".
+    "FROM log_host log JOIN sysinfo sys ON log.serverid = sys.id");
+    $q->execute();
+    $logs = array();
+    while ($r = $q->fetch()) {
+      $logs[$r['id']] = array(
+        'hostname' => $r['hostname'],
+        'category' => $r['category'],
+        'state' => $r['state'],
+        'timestamp' => date("H:i:s d-m", $r['timestamp'])
+      );
+    }
+    $spine->assign('Logs', $logs);
+  }
   $spine->display('main.tpl');
 ?>
