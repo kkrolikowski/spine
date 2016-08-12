@@ -7,7 +7,7 @@ function getHostStatus() {
       hostlist.push(xhttp.responseText);
     }
   };
-  xhttp.open("GET", "/hostcheck.php", true);
+  xhttp.open("GET", "/hostcheck.php?getinfo", true);
   xhttp.send();
   if(hostlist.length) {
     postMessage(hostlist);
