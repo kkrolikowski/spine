@@ -87,6 +87,10 @@
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/js/jquery.dataTables.min.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.12/css/dataTables.bootstrap.min.css">
 
+      <!-- Wlaczanie / wylaczanie monitorowania hosta -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css">
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js"></script>
+
 </head>
 
 <body onload="watch()">
@@ -902,6 +906,7 @@
                           {elseif $sysinfo.status == "A"}
                           <dd><span class="label label-success">Online</span></dd>
                           {/if}
+                          <dt>Monitoring</dt><dd><input type="checkbox" name="monitoring" checked></dd>
                         </dl>
                       </div>
                   </div>

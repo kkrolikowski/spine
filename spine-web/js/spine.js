@@ -918,4 +918,7 @@ $(document).ready(function() {
     "scrollCollapse": true,
     "paging": false
   });
+  $("[name='monitoring']").bootstrapSwitch({
+    "size": "mini"
+  });
 });
