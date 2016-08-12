@@ -874,10 +874,14 @@
                       <img src="/images/server-ubuntu_ok.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {elseif $basicInfo.os == "Ubuntu" and $basicInfo.status == "U"}
                       <img src="/images/server-ubuntu_error.png" width="70">Host: {$basicInfo.hostname}</h3>
+                      {elseif $basicInfo.os == "Ubuntu" and $basicInfo.status == "S"}
+                      <img src="/images/server-ubuntu_warning.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "A"}
                       <img src="/images/server-centos_ok.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "U"}
                       <img src="/images/server-centos_error.png" width="70">Host: {$basicInfo.hostname}</h3>
+                      {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "S"}
+                      <img src="/images/server-centos_warning.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {/if}
                     {else}
                     <h3 class="page-header">Dashboard</h3>
@@ -905,8 +909,14 @@
                           <dd><span class="label label-danger">Offline</span></dd>
                           {elseif $sysinfo.status == "A"}
                           <dd><span class="label label-success">Online</span></dd>
+                          {elseif $sysinfo.status == "S"}
+                          <dd><span class="label label-warning">Not monitored</span></dd>
                           {/if}
-                          <dt>Monitoring</dt><dd><input type="checkbox" name="monitoring" checked></dd>
+                          {if $sysinfo.status == "S"}
+                          <dt>Monitoring</dt><dd><input type="checkbox" name="monitoring" data-serverid="{$smarty.get.serverid}"></dd>
+                          {else}
+                          <dt>Monitoring</dt><dd><input type="checkbox" name="monitoring" checked data-serverid="{$smarty.get.serverid}"></dd>
+                          {/if}
                         </dl>
                       </div>
                   </div>
@@ -1194,10 +1204,14 @@
                       <img class="media-object" src="/images/server-ubuntu_ok.png" width="50">
                       {elseif $info.os == "Ubuntu" and $info.status == "U"}
                       <img class="media-object" src="/images/server-ubuntu_error.png" width="50">
+                      {elseif $info.os == "Ubuntu" and $info.status == "S"}
+                      <img class="media-object" src="/images/server-ubuntu_warning.png" width="50">
                       {elseif ($info.os == "Centos6" || $info.os == "Centos7") and $info.status == "A"}
                       <img class="media-object" src="/images/server-centos_ok.png" width="50">
                       {elseif ($info.os == "Centos6" || $info.os == "Centos7") and $info.status == "U"}
                       <img class="media-object" src="/images/server-centos_error.png" width="50">
+                      {elseif ($info.os == "Centos6" || $info.os == "Centos7") and $info.status == "S"}
+                      <img class="media-object" src="/images/server-centos_warning.png" width="50">
                       {/if}
                     </div>
                     <div class="media-body hostList">
@@ -1207,6 +1221,8 @@
                       <div><strong>Uptime:</strong> {$info.uptime} <span class="label label-success">Online</span></div>
                       {elseif $info.status == "U"}
                       <div><strong>Uptime:</strong> {$info.uptime} <span class="label label-danger">Offline</span></div>
+                      {elseif $info.status == "S"}
+                      <div><strong>Uptime:</strong> {$info.uptime} <span class="label label-warning">Not monitored</span></div>
                       {/if}
                     </div>
                   </li>

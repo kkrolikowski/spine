@@ -912,7 +912,6 @@ $(document).ready(function() {
   });
   $('#logs').DataTable({
     "ordering": true,
-    "order": [[3, "desc"]],
     "searching": true,
     "scrollY": "400px",
     "scrollCollapse": true,
@@ -921,4 +920,40 @@ $(document).ready(function() {
   $("[name='monitoring']").bootstrapSwitch({
     "size": "mini"
   });
+  $('input[name="monitoring"]').on('switchChange.bootstrapSwitch', function(event, state) {
+    var serverid = $('input[name="monitoring"]').attr('data-serverid');
+    $.ajax({
+      url: "/hostcheck.php?monitor=" + serverid,
+      method: "POST",
+      data: {state}
+    }).success(function(xhr) {
+      var span = $('.bootstrap-switch').parentsUntil('.panel-body').find('span.label');
+      if(xhr.os == "Ubuntu" && state == false) {
+        var image = "/images/server-ubuntu_warning.png";
+      }
+      else if((xhr.os == "Centos6" && state == false) || (xhr.os == "Centos7" && state == false)) {
+        var image = "/images/server-ubuntu_warning.png";
+      }
+      else if (xhr.os == "Ubuntu" && state == true) {
+        var image = "/images/server-ubuntu_ok.png";
+      }
+      else if((xhr.os == "Centos6" && state == true) || (xhr.os == "Centos7" && state == true)) {
+        var image = "/images/server-ubuntu_ok.png";
+      }
+      if(state == false) {
+        if (span.hasClass("label-success")) {
+          span.removeClass("label-success").addClass("label-warning");
+        }
+        else if (span.hasClass("label-danger")) {
+          span.removeClass("label-danger").addClass("label-warning");
+        }
+        span.text("Not monitored");
+      }
+      else {
+        span.removeClass("label-warning").addClass("label-success");
+        span.text("Online");
+      }
+      $('.page-header').find('img').attr('src', image);
+    });
+  })
 });
