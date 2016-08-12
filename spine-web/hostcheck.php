@@ -14,11 +14,17 @@
       $q2 = $dbh->prepare("UPDATE sysinfo SET host_status = 'U' WHERE hostname = '".$r['hostname']."'");
       $q2->execute();
 
-      $message = "Host ". $r['hostname']. " is down";
-      $q2 = $dbh->prepare(
-        "INSERT INTO log_host(category, state, `timestamp`, serverid) ".
-        "VALUES('host', 'U', ".$now.", (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."'))");
+      $q2 = $dbh->prepare("SELECT timestamp FROM log_host WHERE serverid = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."') ".
+                          "AND state = 'U' ORDER BY timestamp DESC LIMIT 1");
       $q2->execute();
+      $r2 = $q2->fetch();
+      if($q2->rowCount() == 0 || ($now - $r2['timestamp']) > 60) {
+        $message = "Host ". $r['hostname']. " is down";
+        $q3 = $dbh->prepare(
+          "INSERT INTO log_host(category, state, `timestamp`, serverid) ".
+          "VALUES('host', 'U', ".$now.", (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."'))");
+        $q3->execute();
+      }
 
       // czyscimy logi starsze niz ostatnie 24h
       $q2 = $dbh->prepare("DELETE FROM log_host WHERE `timestamp` < ".$now." - 86400");
