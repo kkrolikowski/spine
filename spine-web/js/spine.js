@@ -911,7 +911,7 @@ $(document).ready(function() {
     });
   });
   $('#logs').DataTable({
-    "ordering": true,
+    "ordering": false,
     "searching": true,
     "scrollY": "400px",
     "scrollCollapse": true,
