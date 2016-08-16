@@ -932,13 +932,13 @@ $(document).ready(function() {
         var image = "/images/server-ubuntu_warning.png";
       }
       else if((xhr.os == "Centos6" && state == false) || (xhr.os == "Centos7" && state == false)) {
-        var image = "/images/server-ubuntu_warning.png";
+        var image = "/images/server-centos_warning.png";
       }
       else if (xhr.os == "Ubuntu" && state == true) {
         var image = "/images/server-ubuntu_ok.png";
       }
       else if((xhr.os == "Centos6" && state == true) || (xhr.os == "Centos7" && state == true)) {
-        var image = "/images/server-ubuntu_ok.png";
+        var image = "/images/server-centos_ok.png";
       }
       if(state == false) {
         if (span.hasClass("label-success")) {
