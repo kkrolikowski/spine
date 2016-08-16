@@ -61,13 +61,20 @@
     echo json_encode($hostlist);
   }
   if(isset($_GET['monitor'])) {
+    $now = time();
     if ($_POST['state'] == 'true') {
       $query = "UPDATE sysinfo SET host_status = 'A' WHERE id = ". $_GET['monitor'];
+      $loginsert = "INSERT INTO log_host(category, state, timestamp, serverid) ".
+                  "VALUES ('host', 'M', ".$now.", ".$_GET['monitor'].")";
     }
     else {
       $query = "UPDATE sysinfo SET host_status = 'S' WHERE id = ". $_GET['monitor'];
+      $loginsert = "INSERT INTO log_host(category, state, timestamp, serverid) ".
+                  "VALUES ('host', 'S', ".$now.", ".$_GET['monitor'].")";
     }
     $q = $dbh->prepare($query);
+    $q->execute();
+    $q = $dbh->prepare($loginsert);
     $q->execute();
 
     $q = $dbh->prepare("SELECT distro FROM sysinfo WHERE id = ". $_GET['monitor']);

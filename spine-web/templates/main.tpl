@@ -1242,11 +1242,19 @@
                     <tr class="success">
                     {elseif $entry.state == "U"}
                     <tr class="danger">
+                    {elseif $entry.state == "S"}
+                    <tr class="warning">
+                    {elseif $entry.state == "M"}
+                    <tr class="info">
                     {/if}
                     {if $entry.category == "host" and $entry.state == "U"}
                       <td><i class="fa fa-frown-o"></i> Host {$entry.hostname} unavailable!</td>
                     {elseif $entry.category == "host" and $entry.state == "A"}
                       <td><i class="fa fa-smile-o"></i> Host {$entry.hostname} UP!</td>
+                    {elseif $entry.category == "host" and $entry.state == "S"}
+                      <td><i class="fa fa-exclamation-triangle"></i> Monitoring disabled on host {$entry.hostname}</td>
+                    {elseif $entry.category == "host" and $entry.state == "M"}
+                      <td><i class="fa fa-info-circle"></i> Monitoring enabled on host {$entry.hostname}</td>
                     {/if}
                       <td>{$entry.category}</td>
                       <td>{$entry.hostname}</td>
