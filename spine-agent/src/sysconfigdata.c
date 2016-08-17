@@ -16,6 +16,7 @@
 #include "core.h"
 #include "sysconfigdata.h"
 #include "network.h"
+#include "monitoring.h"
 
 unsigned long getuptime(void) {
 	struct sysinfo sys;
