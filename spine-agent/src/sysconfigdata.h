@@ -7,12 +7,6 @@
 #define VERSION_FILE "/var/spool/spine/spine-agent.dat"
 #define IPAPI_CACHE "/var/spool/spine/ipcache.dat"
 
-/*			DANE			*/
-
-typedef struct services {
-	int apache_status;
-} services;
-
 // podstawowe informacje o systemie
 typedef struct systeminfo {
 	unsigned long uptime;
@@ -27,7 +21,6 @@ typedef struct systeminfo {
 	char * ip;
 	char * extip;
 	int config_version;
-	services service;
 } systeminfo;
 
 /*			FUNKCJE			*/

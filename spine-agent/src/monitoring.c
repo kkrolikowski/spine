@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "monitoring.h"
 #include "network.h"
 #include "core.h"
 
@@ -49,4 +50,7 @@ int apacheAlive(void) {
 	free(http_req);
 	close(http_fd);
 	return 1;
+}
+void getServiceStatus(monitoring * srvdata, int (*check[])(void)) {
+	srvdata->apache_status = check[0]();
 }

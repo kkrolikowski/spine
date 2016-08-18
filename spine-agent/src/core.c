@@ -12,6 +12,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 #include "apache.h"
+#include "monitoring.h"
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -299,7 +300,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	}
 	close(netiffd);		// konczymy  nasluch
 }
-char * BuildPackage(systeminfo * info) {
+char * BuildPackage(systeminfo * info, monitoring * s_state) {
 	char * s_uptime = long2String(info->uptime);
 	char * s_hdd_total = ulong2String(info->hdd_total);
 	char * s_hdd_free = ulong2String(info->hdd_free);
@@ -307,9 +308,21 @@ char * BuildPackage(systeminfo * info) {
 	char * s_ram_total = ulong2String(info->ram_total);
 	char * s_curr_time = ulong2String(info->curr_time);
 	char * s_config_ver = int2String(info->config_version);
+	char * state_ok = "OK";
+	char * state_err = "ERR";
+	char * httpd_state = NULL;
+
+	if(s_state->apache_status == 1)
+		httpd_state = state_ok;
+	else
+		httpd_state = state_err;
 
 	char * package = mkString(
-			"[{datatype:sysinfo,package:{uptime:", s_uptime, ",",
+			"[{datatype:sysinfo,package:{",
+			"monitoring:{",
+			"httpd_status:", httpd_state,
+			"},"
+			"uptime:", s_uptime, ",",
 			"hostname:", info->hostname, ",",
 			"distro_name:", info->os, ",",
 			"hdd_total:", s_hdd_total, ",",
@@ -377,12 +390,16 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;
 	char * logentry = NULL;
 	systeminfo osinfo;				// informacje na temat serwera
+	monitoring s_state;				// status dzialania uslug na serwerze
 	char buff[NET_BUFFER];			// bufor, ktory sluzy do przeslania danych przez siec
 	memset(buff, '\0', NET_BUFFER);
 	char * json = NULL;				// dane do przeslania
 
 	// wskazniki do funkcji pobierajacych dane liczbowe z systemu
 	unsigned long (*SysInfo[6])(void) = { getuptime, DiskSizeTotal, DiskSizeFree, ramFree, ramTotal, getCurrentTime };
+
+	// wskazniki do funkcji weryfikujacych dzialanie uslug w systemie.
+	int (*check[])(void) = { apacheAlive };
 
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
@@ -406,7 +423,9 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 				logentry = mkString("[WARNING] (sender) Blad pobierania informacji z systemu", NULL);
 				writeLog(lf, logentry);
 			}
-			json = BuildPackage(&osinfo);		// budujemy jsona z danymi
+			// sprawdzamy stan dzialania uslug
+			getServiceStatus(&s_state, check);
+			json = BuildPackage(&osinfo, &s_state);		// budujemy jsona z danymi
 			// sprawdzamy, czy serwer jest gotowy
 			if(!waitForHEllo(confd)) {
 				logentry = mkString("[WARNING] (sender) Serwer nie jest gotowy, ponawiam probe...", NULL);
