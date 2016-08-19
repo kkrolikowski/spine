@@ -320,7 +320,7 @@ char * BuildPackage(systeminfo * info, monitoring * s_state) {
 	char * package = mkString(
 			"[{datatype:sysinfo,package:{",
 			"monitoring:{",
-			"httpd_status:", httpd_state,
+			"httpd:", httpd_state,
 			"},"
 			"uptime:", s_uptime, ",",
 			"hostname:", info->hostname, ",",
