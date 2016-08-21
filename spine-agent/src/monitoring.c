@@ -40,7 +40,7 @@ int apacheAlive(void) {
 	}
 
 	// sprawdzamy kod odpowiedzi apacza
-	if(strstr(buff, "HTTP/1.1 200 OK") == NULL) {
+	if((strstr(buff, "HTTP/1.1 200 OK") == NULL) && (strstr(buff, "HTTP/1.1 403 Forbidden") == NULL)) {
 		close(http_fd);
 		free(http_req);
 		return 0;
