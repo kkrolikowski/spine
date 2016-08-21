@@ -6,6 +6,7 @@
 #include "core.h"
 #include "sysconfigdata.h"
 #include "database.h"
+#include "monitoring.h"
 
 void InitDBConnData(dbconn db) {
 	db.dbhost = NULL;
@@ -350,4 +351,84 @@ void cleanWWWConfiguration(char * hostid) {
 		}
 	}
 	free(query);
+}
+void updateServiceState(char * cliresp) {
+	char * systemid = jsonVal(cliresp, "systemid");		// mac-adres hosta
+	char * m_data = rawMonitoringData(cliresp);  		// surowe dane dot. monitoringu
+	int items = checks(m_data);					 		// liczba zarejestrowanych checkow
+	extern MYSQL * dbh;
+	int i;
+
+	// przygotowujemy tablice, ktora zostanie wypelniona danymi z checkow
+	kv chk_states[items];
+
+	InitCheckData(chk_states, items); 				// inicjumemy zmienne
+	// wypelniamy zadeklarowana tablice danymi
+	ReadRawMonitoringData(m_data, chk_states, items);
+
+	for(i = 0; i < items; i++) {
+		if(s_exist(chk_states[i].key, systemid) > 0)
+			s_update(chk_states[i].key, chk_states[i].val, systemid);
+		else if (s_exist(chk_states[i].key, systemid) == 0)
+			s_insert(chk_states[i].key, chk_states[i].val, systemid);
+	}
+
+	// czyscimy pamiec
+	free(systemid);
+	free(m_data);
+	ClearCheckData(chk_states, items);
+}
+int s_exist(char * s, char * systemid) {
+	extern MYSQL * dbh;
+	MYSQL_RES * res;
+	char * query = mkString("SELECT id FROM service_checks WHERE service = '", s, "' AND ",
+			"host_id = (SELECT id FROM sysinfo WHERE system_id = '", systemid, "')", NULL);
+
+	if(mysql_query(dbh, query)) {
+		free(query);
+		return -1;
+	}
+	if((res = mysql_store_result(dbh)) == NULL) {
+		free(query);
+		return -1;
+	}
+	if(mysql_num_rows(res) > 0) {
+		mysql_free_result(res);
+		free(query);
+		return 1;
+	}
+	else {
+		mysql_free_result(res);
+		free(query);
+		return 0;
+	}
+
+}
+int s_insert(char * srv, char * state, char * hostid) {
+	extern MYSQL * dbh;
+	char * insert = mkString("INSERT INTO service_checks(service, status, host_id)",
+			" VALUES('",srv, "', '",state,"', (SELECT id FROM sysinfo WHERE system_id = '",hostid,"'))", NULL);
+
+	if (mysql_query(dbh, insert)) {
+		free(insert);
+		return 0;
+	}
+	else {
+		free(insert);
+		return 1;
+	}
+}
+int s_update(char * srv, char * state, char * hostid) {
+	extern MYSQL * dbh;
+	char * update = mkString("UPDATE service_checks SET status = '", state, "' WHERE ",
+			" service = '",srv,"' AND host_id = (SELECT id FROM sysinfo WHERE system_id = '",hostid,"')", NULL);
+
+	if (mysql_query(dbh, update)) {
+		free(update);
+		return 0;
+	}
+	else {
+		free(update);
+		return 1;
+	}
 }

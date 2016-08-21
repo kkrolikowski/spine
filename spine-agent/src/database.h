@@ -59,4 +59,19 @@ int getDBHostID(char * hwaddr);
 // funkcja czysci konfiguracje vhosta w bazie danych
 void cleanWWWConfiguration(char * hostid);
 
+// funkcja sprawdza, czy usluga na danym hoscie zostala zarejestrowana
+// 0 - usluga nie zarejestrowana
+// 1 - usluga istnieje
+// -1 - wystapil blad bazy danych
+int s_exist(char * s, char * systemid);
+
+// funkcja wykonuje insert z nowym rekordem do bazy danych
+int s_insert(char * srv, char * state, char * hostid);
+
+// funkcja aktualizuje status uslug
+int s_update(char * srv, char * state, char * hostid);
+
+// funkcja aktualizuje status uslug
+void updateServiceState(char * cliresp);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

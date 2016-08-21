@@ -276,6 +276,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
 			updateHostInfo(net.ipaddr, clientResponse, lf);
+			updateServiceState(clientResponse);
 			if(clientNeedUpdate(clientResponse)) {
 				system_id = jsonVal(clientResponse, "systemid");
 				configdata = ReadWWWConfiguration(system_id);

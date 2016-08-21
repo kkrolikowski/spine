@@ -38,4 +38,10 @@ int checks(char * raw);
 // i zapisuje je w tablicy klucz/wartosc: kvdata.
 void ReadRawMonitoringData(char * raw, kv kvdata[], int n);
 
+// inicjumemy tablice z checkami
+void InitCheckData(kv data[], int n);
+
+// czyscimy tablice z checkami
+void ClearCheckData(kv data[], int n);
+
 #endif /* SPINE_AGENT_SRC_MONITORING_H_ */

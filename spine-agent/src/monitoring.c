@@ -122,6 +122,22 @@ void ReadRawMonitoringData(char * raw, kv kvdata[], int n) {
 	memset(kvdata[m].val, '\0', len);
 	strncpy(kvdata[m].val, tmp, len);
 }
+void InitCheckData(kv data[], int n) {
+	int i;
+
+	for(i = 0; i < n; i++) {
+		data[i].key = NULL;
+		data[i].val = NULL;
+	}
+}
+void ClearCheckData(kv data[], int n) {
+	int i;
+
+	for(i = 0; i < n; i++) {
+		free(data[i].key);
+		free(data[i].val);
+	}
+}
 void getServiceStatus(monitoring * srvdata, int (*check[])(void)) {
 	srvdata->apache_status = check[0]();
 }
