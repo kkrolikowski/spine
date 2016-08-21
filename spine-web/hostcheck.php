@@ -12,7 +12,7 @@
     $q->execute();
 
     while ($r = $q->fetch()) {
-      if(($now - $r['seen']) > 10) {
+      if(($now - $r['seen']) > 20) {
         $q2 = $dbh->prepare("SELECT host_status FROM sysinfo WHERE hostname = '".$r['hostname']."'");
         $q2->execute();
         $r2 = $q2->fetch();
