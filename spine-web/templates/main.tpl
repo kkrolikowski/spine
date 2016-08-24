@@ -956,6 +956,15 @@
                   </div>
                 </div>
               </div>
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">Usługi systemowe</div>
+                    <div class="panel-body">
+                    </div>
+                  </div>
+                </div>
+              </div>
               {elseif $smarty.get.item == "sysusers"}
               <div class="row">
                 <h3>Lista kont użytkowników w systemie</h3>
