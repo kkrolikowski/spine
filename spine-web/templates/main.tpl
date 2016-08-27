@@ -961,6 +961,18 @@
                   <div class="panel panel-primary">
                     <div class="panel-heading">Usługi systemowe</div>
                     <div class="panel-body">
+                      {foreach from=$hostsrv key=sname item=state}
+                      <div class="row">
+                        <div class="col-sm-1"><strong>{$sname}</strong></div>
+                        <div class="col-sm-2">
+                          {if $state == "OK"}
+                          <img src="/images/led-on.png" class="srvstate">
+                          {else}
+                          <img src="/images/led-off.png" class="srvstate">
+                          {/if}
+                        </div>
+                      </div>
+                      {/foreach}
                     </div>
                   </div>
                 </div>

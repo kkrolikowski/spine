@@ -76,6 +76,13 @@
       );
       $spine->assign('sysinfo', $sysinfo);
 
+      // lista uslug i ich status na serwerze
+      $q = $dbh->prepare("SELECT service,status FROM service_checks WHERE host_id = ".$_GET['serverid']);
+      $q->execute();
+      while ($r = $q->fetch())
+        $services[$r['service']] = $r['status'];
+      $spine->assign('hostsrv', $services);
+
       // Lista kont uzytkownikow w systemie
       $q = $dbh->prepare("SELECT id, login, fullname, email FROM sysusers WHERE system_id = ". $_GET['serverid']);
       $q->execute();
