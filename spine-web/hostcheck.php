@@ -51,10 +51,15 @@
           $q3->execute();
         }
       }
+      $qm = $dbh->prepare("SELECT service, status FROM spine.service_checks WHERE id = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."')");
+      $qm->execute();
+      while ($rm = $qm->fetch())
+        $srv[$rm['service']] = $rm['status'];
       $hostlist[$r['hostname']] = array(
         'os' => $r['distro'],
         'time' => $tf,
-        'status' => $r['host_status']
+        'status' => $r['host_status'],
+        'services' => $srv
       );
     }
     header('Content-Type: application/json', true, 200);

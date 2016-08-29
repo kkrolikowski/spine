@@ -963,8 +963,8 @@
                     <div class="panel-body">
                       {foreach from=$hostsrv key=sname item=state}
                       <div class="row">
-                        <div class="col-sm-1"><strong>{$sname}</strong></div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-1 srv-name"><strong>{$sname}</strong></div>
+                        <div class="col-sm-2 srv-status">
                           {if $state == "OK"}
                           <img src="/images/led-on.png" class="srvstate">
                           {else}

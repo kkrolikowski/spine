@@ -57,6 +57,20 @@ function watch() {
               div.prev().find('img').attr('src', image);
               hostpageHeader.find('img').attr('src', image);
             }
+            $.each(v.services, function(srv, status) {
+              var d = $("dd:contains('"+ k +"')")
+                      .parentsUntil('#page-wrapper')
+                      .next()
+                      .find("strong:contains('"+ srv +"')")
+                      .parent();
+              if(status == "OK") {
+                var image = "/images/led-on.png";
+              }
+              else {
+                var image = "/images/led-off.png";
+              }
+              d.next().find('img').attr('src', image);
+            });
           });
         }
     }
