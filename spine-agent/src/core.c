@@ -328,7 +328,7 @@ char * BuildPackage(systeminfo * info, monitoring * s_state) {
 			"[{datatype:sysinfo,package:{",
 			"monitoring:{",
 			"httpd:", httpd_state,
-			"sshd:", sshd_state,
+			",sshd:", sshd_state,
 			"},"
 			"uptime:", s_uptime, ",",
 			"hostname:", info->hostname, ",",
