@@ -51,6 +51,33 @@ int apacheAlive(void) {
 	close(http_fd);
 	return 1;
 }
+int sshdAlive(void) {
+	// przygotowujemy bufor
+	const int SIZE = 256;
+	char buff[SIZE];
+	memset(buff, '\0', SIZE);
+
+	// nawiazujemy polaczenie z apaczem
+	int sshdfd = connector("localhost", 22);
+	if(sshdfd < 0)
+		return 0;
+
+	// pobieramy odpowiedz
+	if(read(sshdfd, buff, SIZE) < 0) {
+		close(sshdfd);
+		return 0;
+	}
+
+	// sprawdzamy odpowiedz sshd
+	if((strstr(buff, "OpenSSH") == NULL)) {
+		close(sshdfd);
+		return 0;
+	}
+
+	// czynnosci koncowe
+	close(sshdfd);
+	return 1;
+}
 char * rawMonitoringData(const char * clientResp) {
 
 	// przesuwamy sie na poczatek danych z monitoringu
@@ -140,4 +167,5 @@ void ClearCheckData(kv data[], int n) {
 }
 void getServiceStatus(monitoring * srvdata, int (*check[])(void)) {
 	srvdata->apache_status = check[0]();
+	srvdata->sshd_status  = check[1]();
 }

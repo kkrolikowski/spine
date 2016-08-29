@@ -6,6 +6,7 @@
 // informacje na temat stanu uslug na hostach
 typedef struct monitoring {
 	int apache_status;
+	int sshd_status;
 } monitoring;
 
 // prosta struktura klucz/wartosc.
@@ -21,6 +22,11 @@ typedef struct keyval {
 // 1 - apache dziala poprawnie
 // 0 - apache nie dziala
 int apacheAlive(void);
+
+// funkcja sprawdza czy dziala serwer ssh
+// 1 - ssh dziala poprawnie
+// 0 - ssh nie dziala
+int sshdAlive(void);
 
 // funkcja zbiera dane na temat monitoringu uslug.
 // wypelnie strukture srvdata danymi pochadzacymi z check

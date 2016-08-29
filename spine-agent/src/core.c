@@ -312,16 +312,23 @@ char * BuildPackage(systeminfo * info, monitoring * s_state) {
 	char * state_ok = "OK";
 	char * state_err = "ERR";
 	char * httpd_state = NULL;
+	char * sshd_state = NULL;
 
 	if(s_state->apache_status == 1)
 		httpd_state = state_ok;
 	else
 		httpd_state = state_err;
 
+	if(s_state->sshd_status == 1)
+		sshd_state = state_ok;
+	else
+		sshd_state = state_err;
+
 	char * package = mkString(
 			"[{datatype:sysinfo,package:{",
 			"monitoring:{",
 			"httpd:", httpd_state,
+			"sshd:", sshd_state,
 			"},"
 			"uptime:", s_uptime, ",",
 			"hostname:", info->hostname, ",",
@@ -400,7 +407,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	unsigned long (*SysInfo[6])(void) = { getuptime, DiskSizeTotal, DiskSizeFree, ramFree, ramTotal, getCurrentTime };
 
 	// wskazniki do funkcji weryfikujacych dzialanie uslug w systemie.
-	int (*check[])(void) = { apacheAlive };
+	int (*check[])(void) = { apacheAlive, sshdAlive };
 
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
