@@ -51,7 +51,7 @@
           $q3->execute();
         }
       }
-      $qm = $dbh->prepare("SELECT service, status FROM spine.service_checks WHERE id = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."')");
+      $qm = $dbh->prepare("SELECT service, status FROM service_checks WHERE host_id = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."')");
       $qm->execute();
       while ($rm = $qm->fetch())
         $srv[$rm['service']] = $rm['status'];
