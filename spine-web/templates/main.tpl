@@ -1276,6 +1276,8 @@
                       <td><i class="fa fa-exclamation-triangle"></i> Monitoring disabled on host {$entry.hostname}</td>
                     {elseif $entry.category == "host" and $entry.state == "M"}
                       <td><i class="fa fa-info-circle"></i> Monitoring enabled on host {$entry.hostname}</td>
+                    {elseif ($entry.category == "httpd" || $entry.category == "sshd") and $entry.state == "U"}
+                      <td><i class="fafa-frown-o"></i> Service {$entry.category} on host {$entry.hostname} is down!</td>
                     {/if}
                       <td>{$entry.category}</td>
                       <td>{$entry.hostname}</td>

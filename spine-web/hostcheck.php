@@ -21,12 +21,12 @@
           $q3 = $dbh->prepare("UPDATE sysinfo SET host_status = 'U' WHERE hostname = '".$r['hostname']."'");
           $q3->execute();
 
-          $q3 = $dbh->prepare("SELECT timestamp FROM log_host WHERE serverid = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."') ".
+          $q3 = $dbh->prepare("SELECT timestamp FROM log_host WHERE category = 'host' AND ".
+                              "serverid = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."') ".
                               "AND state = 'U' ORDER BY timestamp DESC LIMIT 1");
           $q3->execute();
           $r3 = $q3->fetch();
           if($q3->rowCount() == 0 || ($now - $r3['timestamp']) > 60) {
-            $message = "Host ". $r['hostname']. " is down";
             $q4 = $dbh->prepare(
               "INSERT INTO log_host(category, state, `timestamp`, serverid) ".
               "VALUES('host', 'U', ".$now.", (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."'))");
@@ -61,6 +61,20 @@
         'status' => $r['host_status'],
         'services' => $srv
       );
+      foreach ($srv as $sn => $st) {
+        if($st == "ERR") {
+          $qsl = $dbh->prepare("SELECT timestamp FROM log_host WHERE category = '".$sn."' AND ".
+                              "serverid = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."') ".
+                              "AND state = 'U' ORDER BY timestamp DESC LIMIT 1");
+          $qsl->execute();
+          $rsl = $qsl->fetch();
+          if($qsl->rowCount() == 0 || ($now - $rsl['timestamp']) > 60) {
+            $qs = $dbh->prepare("INSERT INTO log_host(category, state, `timestamp`, serverid) " .
+                                "VALUES('".$sn."', 'U', ".$now.", (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."'))");
+            $qs->execute();
+          }
+        }
+      }
     }
     header('Content-Type: application/json', true, 200);
     echo json_encode($hostlist);
