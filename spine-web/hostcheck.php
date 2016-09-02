@@ -74,6 +74,17 @@
             $qs->execute();
           }
         }
+        elseif ($st == "OK") {
+          $qs = $dbh->prepare("SELECT state FROM log_host WHERE category = '".$sn."' AND serverid = ".
+                              "(SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."') ORDER BY id DESC LIMIT 1");
+          $qs->execute();
+          $qsr = $qs->fetch();
+          if ($qsr['state'] == "U") {
+            $qsi = $dbh->prepare("INSERT INTO log_host(category, state, `timestamp`, serverid) ".
+                                "VALUES('".$sn."', 'A', ".$now.", (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."'))");
+            $qsi->execute();
+          }
+        }
       }
     }
     header('Content-Type: application/json', true, 200);
