@@ -74,4 +74,7 @@ int s_update(char * srv, char * state, char * hostid);
 // funkcja aktualizuje status uslug
 void updateServiceState(char * cliresp);
 
+// funkcja sluzy do aktualizacji tabelki z danymi na temat ruchu sieciowego
+void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char * hostid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

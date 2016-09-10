@@ -11,8 +11,8 @@ typedef struct monitoring {
 
 // statystyki interfejsu sieciowego
 typedef struct netifstats {
-   unsigned int bytes_in;
-   unsigned int bytes_out;
+   unsigned int bytes_in;       // liczba bajtow odebranych przez interfejs
+   unsigned int bytes_out;      // liczba bajtow wyslanych przez interfejs
 } netifstats;
 
 // prosta struktura klucz/wartosc.

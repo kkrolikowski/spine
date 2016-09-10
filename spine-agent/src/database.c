@@ -30,6 +30,7 @@ MYSQL * dbConnect(dbconn cfg) {
 }
 int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	systeminfo hostinfo;
+        netifstats netinfo;
 	char * logmessage = NULL;
 	char * uptime_s = NULL;
 	char * hdd_total_s = NULL;
@@ -37,6 +38,8 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	char * ram_total_s = NULL;
 	char * ram_free_s = NULL;
 	char * curr_time_s = NULL;
+        char * net_bytes_in_s = NULL;
+        char * net_bytes_out_s = NULL;
 
 	// odczytujemy informacje z jsona
 	InitSystemInformation(&hostinfo);
@@ -58,6 +61,12 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	hostinfo.curr_time = atol(curr_time_s);
 	hostinfo.extip = jsonVal(stream, "ext_ip");
 	hostinfo.ip = clientip;
+        
+        // wypelniamy dane dot. statystyk interfejsu sieciowego
+        net_bytes_in_s = jsonVal(stream, "eth_in");
+        netinfo.bytes_in = atoi(net_bytes_in_s);
+        net_bytes_out_s = jsonVal(stream, "eth_out");
+        netinfo.bytes_out = atoi(net_bytes_out_s);
 
 	// sprawdzam czy istnieje w bazie rekord z okreslonym systemid.
 	// Aktualizuje rekord jest tak. Jesli nie, dodaje nowy
@@ -73,12 +82,18 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 			writeLog(lf, logmessage);
 		}
 	}
+        
+        // uzupelniamy info na temat statystyk interfejsu sieciowego
+        insertNetworkData(net_bytes_in_s, net_bytes_out_s, curr_time_s, hostinfo.net_hwaddr);
+        
 	free(uptime_s);
 	free(hdd_total_s);
 	free(hdd_free_s);
 	free(ram_total_s);
 	free(ram_free_s);
 	free(curr_time_s);
+        free(net_bytes_in_s);
+        free(net_bytes_out_s);
 
 	ClearSystemInformation(&hostinfo);
 
@@ -431,4 +446,13 @@ int s_update(char * srv, char * state, char * hostid) {
 		free(update);
 		return 1;
 	}
+}
+void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char * hostid) {
+    extern MYSQL * dbh;
+    char * insert = mkString("INSERT INTO netif_stats(`in`, `out`, time_stamp, system_id) ",
+                             "VALUES(",bytes_in,", ",bytes_out,", ",time_stmp,", ",
+                             "(SELECT id FROM sysinfo WHERE system_id = '",hostid,"'))", NULL);
+    
+    mysql_query(dbh, insert);
+    free(insert);
 }
