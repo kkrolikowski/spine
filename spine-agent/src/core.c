@@ -301,7 +301,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	}
 	close(netiffd);		// konczymy  nasluch
 }
-char * BuildPackage(systeminfo * info, monitoring * s_state) {
+char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stats) {
 	char * s_uptime = long2String(info->uptime);
 	char * s_hdd_total = ulong2String(info->hdd_total);
 	char * s_hdd_free = ulong2String(info->hdd_free);
@@ -309,6 +309,8 @@ char * BuildPackage(systeminfo * info, monitoring * s_state) {
 	char * s_ram_total = ulong2String(info->ram_total);
 	char * s_curr_time = ulong2String(info->curr_time);
 	char * s_config_ver = int2String(info->config_version);
+        char * s_bytes_out = int2String(n_stats->bytes_out);
+        char * s_bytes_in = int2String(n_stats->bytes_in);
 	char * state_ok = "OK";
 	char * state_err = "ERR";
 	char * httpd_state = NULL;
@@ -338,6 +340,8 @@ char * BuildPackage(systeminfo * info, monitoring * s_state) {
 			"ram_total:", s_ram_total, ",",
 			"ram_free:", s_ram_free, ",",
 			"ext_ip:", info->extip, ",",
+                        "eth_out:", s_bytes_out, ",",
+                        "eth_in:", s_bytes_in, ",",
 			"config_ver:", s_config_ver, ",",
 			"curr_time:", s_curr_time, ",",
 			"systemid:", info->net_hwaddr, "}}]",
@@ -356,6 +360,8 @@ char * BuildPackage(systeminfo * info, monitoring * s_state) {
 	free(s_curr_time);
 	free(s_ram_free);
 	free(s_config_ver);
+        free(s_bytes_in);
+        free(s_bytes_out);
 	free(package);
 
 	return json;
@@ -399,6 +405,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	char * logentry = NULL;
 	systeminfo osinfo;				// informacje na temat serwera
 	monitoring s_state;				// status dzialania uslug na serwerze
+        netifstats netstats;                            // statystyki interfejsu sieciowego
 	char buff[NET_BUFFER];			// bufor, ktory sluzy do przeslania danych przez siec
 	memset(buff, '\0', NET_BUFFER);
 	char * json = NULL;				// dane do przeslania
@@ -433,7 +440,12 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 			}
 			// sprawdzamy stan dzialania uslug
 			getServiceStatus(&s_state, check);
-			json = BuildPackage(&osinfo, &s_state);		// budujemy jsona z danymi
+                        // statystyki interfejsu sieciowego
+                        if(!getNetifStats(&netstats)) {
+                            netstats.bytes_in = 0;
+                            netstats.bytes_out = 0;
+                        }
+			json = BuildPackage(&osinfo, &s_state, &netstats);		// budujemy jsona z danymi
 			// sprawdzamy, czy serwer jest gotowy
 			if(!waitForHEllo(confd)) {
 				logentry = mkString("[WARNING] (sender) Serwer nie jest gotowy, ponawiam probe...", NULL);

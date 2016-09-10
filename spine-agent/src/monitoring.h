@@ -9,6 +9,12 @@ typedef struct monitoring {
 	int sshd_status;
 } monitoring;
 
+// statystyki interfejsu sieciowego
+typedef struct netifstats {
+   unsigned int bytes_in;
+   unsigned int bytes_out;
+} netifstats;
+
 // prosta struktura klucz/wartosc.
 // przechowa dane dotyczace monitoringu
 typedef struct keyval {
@@ -49,5 +55,8 @@ void InitCheckData(kv data[], int n);
 
 // czyscimy tablice z checkami
 void ClearCheckData(kv data[], int n);
+
+// funkcja pobiera ilosc bajtow wyslanych oraz odebranych z interfejsu
+int getNetifStats(netifstats * ifstats);
 
 #endif /* SPINE_AGENT_SRC_MONITORING_H_ */

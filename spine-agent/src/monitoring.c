@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <linux/if_link.h>
+#include <ifaddrs.h>
 #include "monitoring.h"
 #include "network.h"
 #include "core.h"
@@ -168,4 +171,26 @@ void ClearCheckData(kv data[], int n) {
 void getServiceStatus(monitoring * srvdata, int (*check[])(void)) {
 	srvdata->apache_status = check[0]();
 	srvdata->sshd_status  = check[1]();
+}
+int getNetifStats(netifstats * ifstats) {
+    struct ifaddrs * netif, * netif_next;
+    struct rtnl_link_stats * stats;
+    int family;
+    char * msg = NULL;
+    
+    if(getifaddrs(&netif) == -1)
+        return 0;
+    netif_next = netif->ifa_next;            // omijamy loopback
+    family = netif_next->ifa_addr->sa_family;
+    if(netif_next->ifa_data != NULL && family == AF_PACKET) {
+        stats = netif_next->ifa_data;        // pobieramy statystyki
+        ifstats->bytes_in = stats->rx_bytes;
+        ifstats->bytes_out = stats->tx_bytes;
+        freeifaddrs(netif);
+        return 1;
+    }
+    else {
+        freeifaddrs(netif);
+        return 0;
+    }
 }
