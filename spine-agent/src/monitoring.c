@@ -176,7 +176,6 @@ int getNetifStats(netifstats * ifstats) {
     struct ifaddrs * netif, * netif_next;
     struct rtnl_link_stats * stats;
     int family;
-    char * msg = NULL;
     
     if(getifaddrs(&netif) == -1)
         return 0;
