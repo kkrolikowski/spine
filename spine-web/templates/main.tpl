@@ -985,7 +985,7 @@
                   <div class="panel panel-primary">
                     <div class="panel-heading">Utylizacja pasma</div>
                     <div class="panel-body" data-serverid="{$smarty.get.serverid}">
-                      <div id="traffic_{$smarty.get.serverid}" style="width: 800px; height: 200px"></div>
+                      <div id="traffic_{$smarty.get.serverid}" class="epoch category10 epoch-theme-default" style="width: 800px; height: 200px"></div>
                     </div>
                   </div>
                 </div>

@@ -92,7 +92,11 @@ function watch() {
           ]
         }
       ];
-      var mychart = $('#traffic_' + serverid).epoch({ type: 'time.line', data: myData });
+      var mychart = $('#traffic_' + serverid).epoch({
+        type: 'time.line',
+        data: myData,
+        axes: ['left', 'bottom']
+      });
       mychart.push([json]);
     }
   }
