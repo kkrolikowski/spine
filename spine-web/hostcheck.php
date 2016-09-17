@@ -116,13 +116,27 @@
     echo json_encode($json);
   }
   if (isset($_GET['netinfo'])) {
-    $q = $dbh->prepare("SELECT * FROM netif_stats WHERE system_id = ".$_GET['sid']." ORDER BY time_stamp DESC LIMIT 1");
+    $q = $dbh->prepare("SELECT * FROM netif_stats WHERE system_id = ".$_GET['sid']." ORDER BY time_stamp DESC LIMIT 2");
     $q->execute();
-    $r = $q->fetch();
+
+    $time_arr = array();
+    $out_arr = array();
+
+    while ($r = $q->fetch()) {
+      array_push($time_arr, $r['time_stamp']);
+      array_push($out_arr, $r['out']);
+    }
+
+    $sec = $time_arr[0] - $time_arr[1];
+    $bytes = $out_arr[0] - $out_arr[1];
+    if($sec != 0 && $bytes != 0)
+      $bytes_per_sec = $bytes / $sec;
+    else
+      $bytes_per_sec = 0;
 
     $json = array(
-      'time' => $r['time_stamp'],
-      'y' => $r['out']
+      'time' => $time_arr[0],
+      'y' => $bytes_per_sec
     );
 
     header('Content-Type: application/json', true, 200);
