@@ -955,5 +955,5 @@ $(document).ready(function() {
       }
       $('.page-header').find('img').attr('src', image);
     });
-  })
+  });
 });

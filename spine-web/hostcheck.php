@@ -115,4 +115,17 @@
     header('Content-Type: application/json', true, 200);
     echo json_encode($json);
   }
+  if (isset($_GET['netinfo'])) {
+    $q = $dbh->prepare("SELECT * FROM netif_stats WHERE system_id = ".$_GET['sid']." ORDER BY time_stamp DESC LIMIT 1");
+    $q->execute();
+    $r = $q->fetch();
+
+    $json = array(
+      'time' => $r['time_stamp'],
+      'y' => $r['out']
+    );
+
+    header('Content-Type: application/json', true, 200);
+    echo json_encode($json);
+  }
 ?>

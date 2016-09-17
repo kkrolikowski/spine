@@ -91,6 +91,11 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css">
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js"></script>
 
+      <!-- Wykresy utylizacji interfejsow sieciowych -->
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css" />
+
 </head>
 
 <body onload="watch()">
@@ -973,6 +978,14 @@
                         </div>
                       </div>
                       {/foreach}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-8">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">Utylizacja pasma</div>
+                    <div class="panel-body" data-serverid="{$smarty.get.serverid}">
+                      <div id="traffic_{$smarty.get.serverid}" style="width: 800px; height: 200px"></div>
                     </div>
                   </div>
                 </div>

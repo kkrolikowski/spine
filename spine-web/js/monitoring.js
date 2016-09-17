@@ -75,4 +75,25 @@ function watch() {
         }
     }
     Monitoring.postMessage("HI");
+  Netchart = new Worker("js/netstats.js");
+  var json = {};
+  var chartContainer = $('.panel-heading:contains("Utylizacja pasma")').next();
+  var serverid = chartContainer.attr('data-serverid');
+  Netchart.postMessage({"serverid": serverid});
+  Netchart.onmessage = function(event) {
+    if(typeof(event.data) != "undefined") {
+      json = JSON.parse(event.data);
+      var myData = [
+        {
+          label: "out",
+          values:
+          [
+            {time: json.time, y: json.y}
+          ]
+        }
+      ];
+      var mychart = $('#traffic_' + serverid).epoch({ type: 'time.line', data: myData });
+      mychart.push([json]);
+    }
+  }
 }
