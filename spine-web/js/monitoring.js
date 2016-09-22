@@ -82,22 +82,18 @@ function watch() {
   Netchart.postMessage({"serverid": serverid});
   Netchart.onmessage = function(event) {
     if(typeof(event.data) != "undefined") {
-      json = JSON.parse(event.data);
-      var myData = [
-        {
-          label: "out",
-          values:
-          [
-            {time: json.time, y: json.y}
-          ]
-        }
-      ];
+      var json = JSON.parse(event.data);
+
+      var traffic_in =  {label: "Incomming", values: []};
+      var traffic_out = {label: "Outgoing",  values: []};
+      traffic_in.values.push({time: json.time, y: json.in});
+      traffic_out.values.push({time: json.time, y: json.out});
       var mychart = $('#traffic_' + serverid).epoch({
         type: 'time.line',
-        data: myData,
+        data: [traffic_in, traffic_out],
         axes: ['left', 'bottom']
       });
-      mychart.push([json]);
+      mychart.push([traffic_in.values[0], traffic_out.values[0]]);
     }
   }
 }

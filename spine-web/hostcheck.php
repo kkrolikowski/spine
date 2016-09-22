@@ -121,25 +121,35 @@
 
     $time_arr = array();
     $out_arr = array();
+    $in_arr = array();
 
     while ($r = $q->fetch()) {
       array_push($time_arr, $r['time_stamp']);
       array_push($out_arr, $r['out']);
+      array_push($in_arr, $r['in']);
     }
 
     $sec = $time_arr[0] - $time_arr[1];
-    $bytes = $out_arr[0] - $out_arr[1];
-    if($sec != 0 && $bytes != 0)
-      $bytes_per_sec = $bytes / $sec;
-    else
-      $bytes_per_sec = 0;
+    $bytes_out = $out_arr[0] - $out_arr[1];
+    $bytes_in = $in_arr[0] - $in_arr[1];
 
-    $json = array(
-      'time' => $time_arr[0],
-      'y' => $bytes_per_sec
-    );
+    if($sec != 0 && $bytes_out != 0)
+      $bytes_out_per_sec = $bytes_out / $sec;
+    else
+      $bytes_out_per_sec = 0;
+
+    if($sec != 0 && $bytes_in != 0)
+      $bytes_in_per_sec = $bytes_in / $sec;
+    else
+      $bytes_in_per_sec = 0;
+
+      $json = array(
+        'time' => $time_arr[0],
+        'out' => $bytes_out_per_sec,
+        'in' => $bytes_in_per_sec
+      );
 
     header('Content-Type: application/json', true, 200);
-    echo json_encode($json);
+    echo json_encode($json, JSON_PRETTY_PRINT);
   }
 ?>
