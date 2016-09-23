@@ -931,30 +931,27 @@
                       <div class="panel-heading">Dysk / RAM</div>
                       <div class="panel-body">
                         <div class="row">
-                          <div class="col-sm-8">
-                            <center><strong>Filesystem: /</strong></center>
+                          <div class="col-sm-2 col-sm-offset-1">
+                            <center><strong>HDD Used</strong></center>
+                          </div>
+                          <div class="col-sm-2 col-sm-offset-2">
+                            <center><strong>RAM Used</strong></center>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-sm-4">
-                            <div id="diskusage_free" data="{$sysinfo.hdd_percentage_free}"></div>
+                            <div id="hddUsedGauge_{$smarty.get.serverid}" class="epoch gauge-small"></div>
                           </div>
                           <div class="col-sm-4">
-                            <div id="diskusage_used" data="{$sysinfo.hdd_percentage_used}"></div>
-                          </div>
-                          <div class="col-sm-4">
-                            <div id="ram_free" data="{$sysinfo.ram_percentage_free}"></div>
+                            <div id="ramUsedGauge_{$smarty.get.serverid}" class="epoch gauge-small"></div>
                           </div>
                         </div>
                         <div class="row">
                           <div class="col-sm-4">
-                            <center><strong>{$sysinfo.hdd_free} GB</strong></center>
+                            <center><strong>HDD Free: {$sysinfo.hdd_free} GB</strong></center>
                           </div>
                           <div class="col-sm-4">
-                            <center><strong>{$sysinfo.hdd_used} GB</strong></center>
-                          </div>
-                          <div class="col-sm-4">
-                            <center><strong>{$sysinfo.ram_free} GB</strong></center>
+                            <center><strong>RAM Free: {$sysinfo.ram_free} GB</strong></center>
                           </div>
                         </div>
                       </div>

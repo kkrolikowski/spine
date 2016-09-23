@@ -152,4 +152,27 @@
     header('Content-Type: application/json', true, 200);
     echo json_encode($json, JSON_PRETTY_PRINT);
   }
+  if(isset($_GET['sysinfo'])) {
+    $q = $dbh->prepare("SELECT hdd_total, hdd_free, ram_total, ram_free FROM sysinfo WHERE id = ".$_GET['sid']);
+    $q->execute();
+    $r = $q->fetch();
+
+    // procent uzycia dysku
+    $hdd_used = $r['hdd_total'] - $r['hdd_free'];
+    $hdd_used_percent = $hdd_used / $r['hdd_total'];
+
+    // procent uzycia ramu
+    $ram_used = $r['ram_total'] - $r['ram_free'];
+    $ram_used_percent = $ram_used / $r['ram_total'];
+
+    $json = array(
+      'ram_free' => round($r['ram_free'] / 1073741824, 2),
+      'ram_used' => $ram_used_percent,
+      'hdd_free' => round($r['hdd_free'] / 1073741824, 2),
+      'hdd_used' => $hdd_used_percent
+    );
+
+    header('Content-Type: application/json', true, 200);
+    echo json_encode($json);
+  }
 ?>

@@ -75,6 +75,8 @@ function watch() {
         }
     }
     Monitoring.postMessage("HI");
+
+// Obsluga dynamicznych wykresow pasma.
   Netchart = new Worker("js/netstats.js");
   var json = {};
   var chartContainer = $('.panel-heading:contains("Utylizacja pasma")').next();
@@ -110,4 +112,32 @@ function watch() {
         .html("Utylizacja pasma <strong>Download: " + inbound + " " + unit + ", Upload: " + outbound + " " + unit + "</strong>");
     }
   }
+  // Obsluga zegarow.
+    sysinfo = new Worker("js/sysstats.js");
+    var chartContainer = $('.panel-heading:contains("Utylizacja pasma")').next();
+    var serverid = chartContainer.attr('data-serverid');
+    sysinfo.postMessage({"serverid": serverid});
+    sysinfo.onmessage = function(event) {
+      if(typeof(event.data) != "undefined") {
+        var sysinfo_json = JSON.parse(event.data);
+
+        // HDD info
+        var hdd = $('#hddUsedGauge_' + serverid).epoch({
+          type: 'time.gauge',
+          value: sysinfo_json.hdd_used
+        });
+        hdd.update(sysinfo_json.hdd_used);
+        $('strong:contains("HDD Free")')
+          .html("HDD Free: " + sysinfo_json.hdd_free + " GB");
+
+        // RAM info
+        var ram = $('#ramUsedGauge_' + serverid).epoch({
+          type: 'time.gauge',
+          value: sysinfo_json.ram_used
+        });
+        ram.update(sysinfo_json.ram_used);
+        $('strong:contains("RAM Free")')
+          .html("RAM Free: " + sysinfo_json.ram_free + " GB")
+      }
+    }
 }
