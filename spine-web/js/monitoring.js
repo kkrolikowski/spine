@@ -94,6 +94,8 @@ function watch() {
         axes: ['left', 'bottom']
       });
       mychart.push([traffic_in.values[0], traffic_out.values[0]]);
+      $('.panel-heading:contains("Utylizacja pasma")')
+        .html("Utylizacja pasma <strong>Download: " + json.in + " B/s, Upload: " + json.out + " B/s</strong>");
     }
   }
 }
