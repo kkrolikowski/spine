@@ -342,6 +342,7 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 			"ext_ip:", info->extip, ",",
                         "eth_out:", s_bytes_out, ",",
                         "eth_in:", s_bytes_in, ",",
+                        "cpu:", info->cpu, ",",
 			"config_ver:", s_config_ver, ",",
 			"curr_time:", s_curr_time, ",",
 			"systemid:", info->net_hwaddr, "}}]",

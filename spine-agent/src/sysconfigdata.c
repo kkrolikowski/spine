@@ -149,7 +149,8 @@ int getSystemInformation(systeminfo * sys, unsigned long (*SysInfo[])(void), int
 		sys->extip = readIPCache();
 		status = 1;
 	}
-
+        sys->cpu = CPUusage();
+        
 	return status;
 }
 void InitSystemInformation(systeminfo * sys) {
@@ -164,6 +165,7 @@ void InitSystemInformation(systeminfo * sys) {
 	sys->os = NULL;
 	sys->ip = NULL;
 	sys->extip = NULL;
+        sys->cpu = NULL;
 	sys->config_version = 0;
 }
 void ClearSystemInformation(systeminfo * sys) {
@@ -178,6 +180,7 @@ void ClearSystemInformation(systeminfo * sys) {
 	free(sys->net_hwaddr);
 	free(sys->hostname);
 	free(sys->os);
+        free(sys->cpu);
 }
 int readLocalConfigVersion(void) {
 	int ver = 0;

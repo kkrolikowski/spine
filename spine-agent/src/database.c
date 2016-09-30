@@ -60,6 +60,7 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	curr_time_s = jsonVal(stream, "curr_time");
 	hostinfo.curr_time = atol(curr_time_s);
 	hostinfo.extip = jsonVal(stream, "ext_ip");
+        hostinfo.cpu = jsonVal(stream, "cpu");
 	hostinfo.ip = clientip;
         
         // wypelniamy dane dot. statystyk interfejsu sieciowego
@@ -162,6 +163,7 @@ int updateItem(systeminfo * info) {
 			", ram_total = ", ram_total_s,
 			", ram_free = ", ram_free_s,
 			", seen = ", curr_time_s,
+                        ", cpu_usage = ", info->cpu,
 			" WHERE system_id = '", info->net_hwaddr, "'", NULL);
 
 	if(!mysql_query(dbh, query))
@@ -191,9 +193,13 @@ int insertItem(systeminfo * info) {
 	char * curr_time_s = ulong2String(info->curr_time);
 
 
-	char * query = mkString("INSERT INTO sysinfo(ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, system_id, config_ver, seen, host_status) VALUES('",
-			info->ip, "', '", info->extip, "', '", info->hostname, "', '", info->os, "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, ", ", ram_free_s,
-			", '", info->net_hwaddr, "', 0, ", curr_time_s, ", 'A')", NULL);
+	char * query = mkString("INSERT INTO sysinfo",
+                                "(ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ",
+                                "ram_free, system_id, config_ver, seen, host_status, cpu_usage) VALUES('",
+                                info->ip, "', '", info->extip, "', '", info->hostname, "', '", info->os, 
+                                "', ", uptime_s, ", ", hdd_total_s, ", ", hdd_free_s, ", ", ram_total_s, 
+                                ", ", ram_free_s,", '", info->net_hwaddr, "', 0, ", curr_time_s, ", 'A', ",
+                                info->cpu,")", NULL);
 
 	if(!mysql_query(dbh, query))
 		status = 1;

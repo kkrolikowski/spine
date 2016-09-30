@@ -20,6 +20,7 @@ typedef struct systeminfo {
 	char * os;
 	char * ip;
 	char * extip;
+        char * cpu;
 	int config_version;
 } systeminfo;
 
