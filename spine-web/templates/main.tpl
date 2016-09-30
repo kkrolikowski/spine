@@ -968,7 +968,7 @@
                 </div>
               </div>
               <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-2">
                   <div class="panel panel-primary">
                     <div class="panel-heading">Usługi systemowe</div>
                     <div class="panel-body">
@@ -987,7 +987,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-8">
+                <div class="col-sm-7">
                   <div class="panel panel-primary">
                     <div class="panel-heading">Utylizacja pasma</div>
                     <div class="panel-body" data-serverid="{$smarty.get.serverid}">
