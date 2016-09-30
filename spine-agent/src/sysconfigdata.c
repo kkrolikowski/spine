@@ -13,6 +13,7 @@
 #include <limits.h>
 #include <dirent.h>
 #include <time.h>
+#include <glibtop/cpu.h>
 #include "core.h"
 #include "sysconfigdata.h"
 #include "network.h"
@@ -370,4 +371,32 @@ void purgeDir(char * name) {
 }
 unsigned long getCurrentTime(void) {
 	return (unsigned long) time(NULL);
+}
+char * CPUusage(void) {
+    // inicjujemy strukture i pobieramy wartosci na temat utylizacji cpu
+    glibtop_cpu cpu;
+    glibtop_get_cpu(&cpu);
+    
+    static int cpu_total_old = 0;   // zapamietujemy poprzednia wartosc calkowitej utylizacji CPU
+    static int cpu_idle_old = 0;    // zapamietujemy poprzednia wartosc bezczynnosci CPU    
+    
+    // obliczamy procentowa utylizacje CPU
+    int cpu_diff_total = cpu.total - cpu_total_old;
+    int cpu_diff_idle = cpu.idle - cpu_idle_old;
+    int usage = 100 * (cpu_diff_total - cpu_diff_idle) / cpu_diff_total;
+    
+    // przeksztalcamy wartosc liczbowa na string
+    char buff[4];
+    memset(buff, '\0', 4);
+    snprintf(buff, 4, "%d", usage);
+    size_t len = strlen(buff) + 1;
+    char * usage_s = malloc(len * sizeof(char));
+    memset(usage_s, '\0', len);
+    strncpy(usage_s, buff, len);
+
+    
+    cpu_total_old = cpu.total;
+    cpu_idle_old = cpu.idle;
+
+    return usage_s;
 }

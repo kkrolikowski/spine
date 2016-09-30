@@ -91,4 +91,7 @@ void purgeDir(char * name);
 // funkcja zwraca aktualny czas w sekundach (UNIX time)
 unsigned long getCurrentTime(void);
 
+// funkcja zwraca string zawierajacy procent utylizacji cpu
+char * CPUusage(void);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

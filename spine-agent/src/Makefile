@@ -1,7 +1,7 @@
 ## -*- Makefile -*-
 ##
 ## User: phobos
-## Time: 2016-09-09 23:52:56
+## Time: 2016-09-24 23:17:54
 ## Makefile created by Oracle Solaris Studio.
 ##
 ## This file is generated automatically.
@@ -22,7 +22,10 @@ all: $(TARGETDIR_spine)/spine
 
 ## Target: spine
 CPPFLAGS_spine = \
-	-I/usr/include/mysql
+	-I/usr/include/mysql \
+	-I/usr/include/libgtop-2.0 \
+	-I/usr/include/glib-2.0 \
+	-I/usr/lib/x86_64-linux-gnu/glib-2.0/include
 OBJS_spine =  \
 	$(TARGETDIR_spine)/apache.o \
 	$(TARGETDIR_spine)/core.o \
@@ -31,8 +34,8 @@ OBJS_spine =  \
 	$(TARGETDIR_spine)/monitoring.o \
 	$(TARGETDIR_spine)/network.o \
 	$(TARGETDIR_spine)/sysconfigdata.o
-USERLIBS_spine = /usr/lib/x86_64-linux-gnu/libmysqlclient.so $(SYSLIBS_spine) 
-DEPLIBS_spine =   
+USERLIBS_spine = /usr/lib/x86_64-linux-gnu/libmysqlclient.so /usr/lib/x86_64-linux-gnu/libgtop-2.0.so $(SYSLIBS_spine) 
+DEPLIBS_spine =
 LDLIBS_spine = $(USERLIBS_spine)
 
 
