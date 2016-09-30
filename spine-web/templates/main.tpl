@@ -960,7 +960,7 @@
                             <center><strong>RAM Free: {$sysinfo.ram_free} GB</strong></center>
                           </div>
                           <div class="col-sm-4">
-                            <center><strong>CPU Usage: {$sysinfo.cpu_usage} %</strong></center>
+                            <center><strong>CPU Usage: {math equation="($sysinfo.cpu_usage * 100)"} %</strong></center>
                           </div>
                         </div>
                       </div>
