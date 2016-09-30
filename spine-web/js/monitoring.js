@@ -138,6 +138,15 @@ function watch() {
         ram.update(sysinfo_json.ram_used);
         $('strong:contains("RAM Free")')
           .html("RAM Free: " + sysinfo_json.ram_free + " GB")
+
+        // CPU info
+        var ram = $('#CPUGauge_' + serverid).epoch({
+          type: 'time.gauge',
+          value: sysinfo_json.cpu_usage
+        });
+        ram.update(sysinfo_json.cpu_usage);
+        $('strong:contains("CPU Usage")')
+          .html("CPU Usage: " + sysinfo_json.ram_free + " %")
       }
     }
 }

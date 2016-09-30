@@ -932,10 +932,13 @@
                       <div class="panel-body">
                         <div class="row">
                           <div class="col-sm-2 col-sm-offset-1">
-                            <center><strong>HDD Used</strong></center>
+                            <center><strong>HDD Usage</strong></center>
                           </div>
                           <div class="col-sm-2 col-sm-offset-2">
-                            <center><strong>RAM Used</strong></center>
+                            <center><strong>RAM Usage</strong></center>
+                          </div>
+                          <div class="col-sm-2 col-sm-offset-2">
+                            <center><strong>CPU Usage</strong></center>
                           </div>
                         </div>
                         <div class="row">
@@ -945,6 +948,9 @@
                           <div class="col-sm-4">
                             <div id="ramUsedGauge_{$smarty.get.serverid}" class="epoch gauge-small"></div>
                           </div>
+                          <div class="col-sm-4">
+                            <div id="CPUGauge_{$smarty.get.serverid}" class="epoch gauge-small"></div>
+                          </div>
                         </div>
                         <div class="row">
                           <div class="col-sm-4">
@@ -952,6 +958,9 @@
                           </div>
                           <div class="col-sm-4">
                             <center><strong>RAM Free: {$sysinfo.ram_free} GB</strong></center>
+                          </div>
+                          <div class="col-sm-4">
+                            <center><strong>CPU Usage: {$sysinfo.cpu_usage} %</strong></center>
                           </div>
                         </div>
                       </div>

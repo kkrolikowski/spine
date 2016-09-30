@@ -38,7 +38,7 @@
 
   if (isset($_GET['serverid'])) {
       // komplet informacji na temat systemu i zuzycia zasobow
-      $q = $dbh->prepare("SELECT ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, host_status FROM sysinfo WHERE id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT ip, ext_ip, hostname, distro, uptime, hdd_total, hdd_free, ram_total, ram_free, host_status, cpu_usage FROM sysinfo WHERE id = ". $_GET['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -72,6 +72,7 @@
           'hdd_used' => round($hdd_used / 1073741824, 2),
           'ram_free' => round($r['ram_free'] / 1073741824, 2),
           'ram_total' => round($r['ram_total'] / 1073741824, 2),
+          'cpu_usage' => $r['cpu_usage'],
           'status' => $r['host_status']
       );
       $spine->assign('sysinfo', $sysinfo);
