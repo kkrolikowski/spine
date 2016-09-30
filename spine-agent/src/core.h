@@ -8,7 +8,7 @@
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
 #define PACKAGE_SIZE 10240 	// bufor dla informacji konfiguracyjnych
 #define PID_PATH "/var/run/spine-agent.pid"		// sciezka do pliku z pidem glownego procesu
-#define HEARTBEAT 5			// interwal czasu pomiedzy kolejnymi iteracjami wykonywania funkcji
+#define HEARTBEAT 3			// interwal czasu pomiedzy kolejnymi iteracjami wykonywania funkcji
 
 /* 			STRUKTURY		*/
 
