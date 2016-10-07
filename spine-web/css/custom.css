@@ -155,17 +155,27 @@
   height: 16px;
   margin-left: 10px;
 }
+.gauge-small {
+  margin-top: -10px;
+}
 .gauge-small label {
   display: block;
   text-align: center;
   position: relative;
-  top: 1px;
+  top: 130px;
+  left: 15%;
+}
+.gauge-small canvas {
+  margin-top: -20px;
 }
 #gauge-panel {
   margin-bottom: 10px;
 }
 .hdd-gauge {
   padding-right: 3px;
+}
+.hdd-gauge label {
+  left: 5%;
 }
 .ram-gauge {
   padding-left: 20px;

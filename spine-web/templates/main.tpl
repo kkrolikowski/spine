@@ -928,12 +928,12 @@
                 </div>
                 <div class="col-sm-5">
                   <div class="panel panel-primary">
-                      <div class="panel-heading">Dysk / RAM</div>
+                      <div class="panel-heading" id="gauge-heading">[HDD Free: {$sysinfo.hdd_free} GB] [RAM Free: {$sysinfo.ram_free} GB] [CPU Usage: {math equation="($sysinfo.cpu_usage * 100)"} %]</div>
                       <div class="panel-body" id="gauge-panel">
                         <div class="row">
-                          <div id="hddUsedGauge_{$smarty.get.serverid}" class="col-sm-4 epoch gauge-small hdd-gauge"><label>HDD Free: {$sysinfo.hdd_free} GB</label></div>
-                          <div id="ramUsedGauge_{$smarty.get.serverid}" class="col-sm-4 epoch gauge-small ram-gauge"><label>RAM Free: {$sysinfo.ram_free} GB</label></div>
-                          <div id="CPUGauge_{$smarty.get.serverid}" class="col-sm-4 epoch gauge-small cpu-gauge"><label>CPU Usage: {math equation="($sysinfo.cpu_usage * 100)"} %</label></div>
+                          <div id="hddUsedGauge_{$smarty.get.serverid}" class="col-sm-4 epoch gauge-small hdd-gauge"><label>HDD usage</label></div>
+                          <div id="ramUsedGauge_{$smarty.get.serverid}" class="col-sm-4 epoch gauge-small ram-gauge"><label>RAM usage</label></div>
+                          <div id="CPUGauge_{$smarty.get.serverid}" class="col-sm-4 epoch gauge-small cpu-gauge"><label>CPU usage</label></div>
                         </div>
                       </div>
                   </div>
