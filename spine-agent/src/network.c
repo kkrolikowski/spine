@@ -150,7 +150,7 @@ char * getExternalIP(void) {
 
 	char * request = mkString("GET /ip.php HTTP/1.1\n",
 							"Host: ", apihost, "\n\n", NULL);
-	char * lastHeader = "Content-Type: text/html";
+	char * lastHeader = "Content-Type:";
 
 	int apifd = connector(apihost, apiport);
 
@@ -170,7 +170,8 @@ char * getExternalIP(void) {
 	close(apifd);
 
 	strpos = strstr(buff, lastHeader);
-	strpos = strpos + strlen(lastHeader);
+        while(*strpos != '\n')
+            strpos++;
 	iplen = strlen(strpos);
 	extip = (char *) malloc(iplen * sizeof(char));
 	extip_pos = extip;
