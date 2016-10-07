@@ -155,3 +155,21 @@
   height: 16px;
   margin-left: 10px;
 }
+.gauge-small label {
+  display: block;
+  text-align: center;
+  position: relative;
+  top: 1px;
+}
+#gauge-panel {
+  margin-bottom: 10px;
+}
+.hdd-gauge {
+  padding-right: 3px;
+}
+.ram-gauge {
+  padding-left: 20px;
+}
+.cpu-gauge {
+  padding-left: 25px;
+}

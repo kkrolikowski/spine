@@ -127,7 +127,7 @@ function watch() {
           value: sysinfo_json.hdd_used
         });
         hdd.update(sysinfo_json.hdd_used);
-        $('strong:contains("HDD Free")')
+        $('label:contains("HDD Free")')
           .html("HDD Free: " + sysinfo_json.hdd_free + " GB");
 
         // RAM info
@@ -136,7 +136,7 @@ function watch() {
           value: sysinfo_json.ram_used
         });
         ram.update(sysinfo_json.ram_used);
-        $('strong:contains("RAM Free")')
+        $('label:contains("RAM Free")')
           .html("RAM Free: " + sysinfo_json.ram_free + " GB")
 
         // CPU info
@@ -145,7 +145,7 @@ function watch() {
           value: sysinfo_json.cpu_usage
         });
         cpu.update(sysinfo_json.cpu_usage);
-        $('strong:contains("CPU Usage:")')
+        $('label:contains("CPU Usage:")')
           .html("CPU Usage: " + (sysinfo_json.cpu_usage * 100) + " %")
       }
     }
