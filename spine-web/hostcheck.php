@@ -149,6 +149,10 @@
         'in' => $bytes_in_per_sec
       );
 
+    // kasujemy starsze niz doba wpisy
+    $q = $dbh->prepare("DELETE FROM netif_stats WHERE time_stamp < (UNIX_TIMESTAMP() - 86400)");
+    $q->execute();
+
     header('Content-Type: application/json', true, 200);
     echo json_encode($json, JSON_PRETTY_PRINT);
   }
