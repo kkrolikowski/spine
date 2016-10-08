@@ -62,7 +62,7 @@
         'services' => $srv
       );
       foreach ($srv as $sn => $st) {
-        if($st == "ERR") {
+        if($st == "ERR" && $hostlist[$r['hostname']]['status'] != 'S') {
           $qsl = $dbh->prepare("SELECT timestamp FROM log_host WHERE category = '".$sn."' AND ".
                               "serverid = (SELECT id FROM sysinfo WHERE hostname = '".$r['hostname']."') ".
                               "AND state = 'U' ORDER BY timestamp DESC LIMIT 1");
