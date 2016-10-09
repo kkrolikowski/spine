@@ -4,8 +4,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <fcntl.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/select.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "network.h"
@@ -31,27 +35,39 @@ int listener(int port) {
 	return sockfd;
 }
 int connector(char * host, int port) {
-	int sockfd;
-	struct sockaddr_in dsthost;
-	struct hostent * dstip;
+    int sockfd;
+    struct sockaddr_in dsthost;
+    struct hostent * dstip;
 
-	if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		return -1;
-	if((dstip = gethostbyname(host)) == NULL) {
-		close(sockfd);
-		return -2;
-	}
-	bzero((char *) &dsthost, sizeof(dsthost));
-	dsthost.sin_family = AF_INET;
-	bcopy((char *) dstip->h_addr_list[0], (char *) &dsthost.sin_addr.s_addr, dstip->h_length);
-	dsthost.sin_port = htons(port);
+    if((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+            return -1;
+    if((dstip = gethostbyname(host)) == NULL) {
+            close(sockfd);
+            return -2;
+    }
+    bzero((char *) &dsthost, sizeof(dsthost));
+    dsthost.sin_family = AF_INET;
+    bcopy((char *) dstip->h_addr_list[0], (char *) &dsthost.sin_addr.s_addr, dstip->h_length);
+    dsthost.sin_port = htons(port);
 
-	if(connect(sockfd, (struct sockaddr *) &dsthost, sizeof(dsthost)) < 0) {
-		close(sockfd);
-		return -3;
-	}
-
-	return sockfd;
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
+    if(connect(sockfd, (struct sockaddr *) &dsthost, sizeof(dsthost)) < 0) {
+        if(errno == EINPROGRESS) {
+            if(delay(sockfd, "connect", 3)) {
+                fcntl(sockfd, F_SETFL, O_SYNC);
+                return sockfd;
+            }
+            else {
+                close(sockfd);
+                return -4;
+            }
+        }
+        else {
+            close(sockfd);
+            return -4;
+        }   
+    }
+	
 }
 netinfo clientConnection(int sockfd) {
 	struct sockaddr_in client;
@@ -139,12 +155,17 @@ void initNetinfo(netinfo * net) {
 	net->sock = 0;
 }
 char * getExternalIP(void) {
-	char * extip = NULL;
+        // przetwarzanie stringu zawierajacego zewnetrzne IP
+        char * extip = NULL;
 	char * extip_pos = NULL;
 	char * strpos = NULL;
 	size_t iplen = 0;
+        
+        // polaczenie do API
 	char * apihost = "api.angrybits.pl";
 	int apiport = 80;
+        
+        // przygotowujemy bufor dla odpowiedzi z API
 	char buff[256];
 	memset(buff, '\0', 256);
 
@@ -164,8 +185,16 @@ char * getExternalIP(void) {
 		return NULL;
 
 	memset(buff, '\0', 256);
-	if(read(apifd, buff, 256) < 0)
-		return NULL;
+        if(delay(apifd, "read", 10)) {
+            if(read(apifd, buff, 256) < 0) {
+                close(apifd);
+                return NULL;
+            }
+        }
+        else {
+            close(apifd);
+            return NULL;
+        }
 
 	close(apifd);
 
@@ -184,4 +213,26 @@ char * getExternalIP(void) {
 		strpos++;
 	}
 	return extip;
+}
+int delay(int fd, const char * func, int delay_time) {
+    int state = 0;          // status polaczenia
+    // ustawiamy timeout na 3s
+    struct timeval timeout;
+    timeout.tv_sec = delay_time;
+    timeout.tv_usec = 0;
+    
+    // przygotowujemy deskryptory
+    fd_set fd_set;
+    FD_ZERO(&fd_set);
+    FD_SET(fd, &fd_set);
+    
+    if(!strcmp(func, "connect"))
+        state = select(fd + 1, NULL, &fd_set, NULL, &timeout);
+    else
+        state = select(fd + 1, &fd_set, NULL, NULL, &timeout);
+    
+    if(state > 0)
+        return 1;
+    else
+        return 0;
 }

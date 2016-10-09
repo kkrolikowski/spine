@@ -43,4 +43,8 @@ void initNetinfo(netinfo * net);
 // funkcja pobiera publiczny adres IP serwera korzystajac z
 // zewnetrznego api.
 char * getExternalIP(void);
+
+// funkcja ustawia timeout dla polaczen
+int delay(int fd, const char * func, int delay_time);
+
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */

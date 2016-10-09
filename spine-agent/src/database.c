@@ -86,8 +86,8 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
         
         // uzupelniamy info na temat statystyk interfejsu sieciowego
         insertNetworkData(net_bytes_in_s, net_bytes_out_s, curr_time_s, hostinfo.net_hwaddr);
-        
-	free(uptime_s);
+	
+        free(uptime_s);
 	free(hdd_total_s);
 	free(hdd_free_s);
 	free(ram_total_s);
