@@ -157,6 +157,7 @@
 }
 .gauge-small {
   margin-top: -10px;
+  margin-bottom: 20px;
 }
 .gauge-small label {
   display: block;
