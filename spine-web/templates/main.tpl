@@ -939,7 +939,7 @@
                   </div>
                 </div>
               </div>
-              <div class="row">
+              <div class="row-fluid">
                 <div class="col-sm-2">
                   <div class="panel panel-primary">
                     <div class="panel-heading">Usługi systemowe</div>
