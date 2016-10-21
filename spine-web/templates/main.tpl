@@ -970,8 +970,11 @@
               </div>
               {elseif $smarty.get.item == "sysusers"}
               <div class="row">
-                <h3>Lista kont użytkowników w systemie</h3>
-                <div class="col-sm-6">
+                <div class="col-sm-4" id="user_acc_header"><h3>Konta użytkowników</h3></div>
+                <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+              </div>
+              <div class="row">
+                <div class="col-sm-4">
                   <table class="table table-stripped">
                     <thead>
                       <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>

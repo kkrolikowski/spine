@@ -184,3 +184,11 @@
 .cpu-gauge {
   padding-left: 25px;
 }
+#user_acc_header {
+  margin-top: -10px;
+  padding-bottom: 40px;
+}
+#user_acc_btn {
+  margin-top: 16px;
+  margin-left: -130px;
+}
