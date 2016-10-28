@@ -57,7 +57,7 @@
 .options-edit {
   margin-left: 19px;
 }
-#vhost-modal > .modal-dialog {
+#vhost-modal > .modal-dialog, #addSysUser-modal > .modal-dialog {
   width: 40%;
 }
 #edit-wwwuser {
@@ -191,4 +191,7 @@
 #user_acc_btn {
   margin-top: 16px;
   margin-left: -130px;
+}
+.sys-account-form {
+  padding-top: 14px;
 }

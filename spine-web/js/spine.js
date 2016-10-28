@@ -956,4 +956,22 @@ $(document).ready(function() {
       $('.page-header').find('img').attr('src', image);
     });
   });
+  $(document).on('click', '#user_acc_btn > button', function() {
+    var id = $(this).attr('data-id');
+    bootbox
+      .dialog({
+        title: '<strong>Nowe konto</strong>',
+        message: $('#new-sysuser-form'),
+        show: false
+      })
+      .on('shown.bs.modal', function() {
+        $(this).attr("id", "addSysUser-modal");
+        $('#new-sysuser-form').show();
+        $('#new-sysuser-form').validator();
+      })
+      .on('hide.bs.modal', function(e) {
+        $('#new-sysuser-form').hide().appendTo('body');
+      })
+      .modal('show');
+  });
 });

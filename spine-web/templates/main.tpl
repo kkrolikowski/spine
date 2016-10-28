@@ -522,6 +522,93 @@
       </div>
     </form>
     <!-- END: Zmiana hasla htaccess -->
+    <!-- BEGIN: Nowe konto systemowe -->
+    <form data-toggle="validator" id="new-sysuser-form" style="display: none;">
+      <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+      <div class="panel panel-default">
+        <div class="panel-heading">Podstawowe informacje</div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="fullname" class="control-label">Imię i Nazwisko</label>
+                <input type="text" class="form-control" id="fullname"
+                data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                name="fullname" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="email" class="control-label">E-Mail</label>
+                <input type="text" class="form-control" id="email"
+                data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                name="email" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="login" class="control-label">Login</label>
+                <input type="text" class="form-control" id="login"
+                data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                name="login" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="password" class="control-label">Hasło</label>
+                <input type="password" class="form-control" id="userpass"
+                data-minlength="6" data-error="min. sześć znaków"
+                name="userpass" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="confirm" class="control-label">Powtórz</label>
+                <input type="password" class="form-control" id="confirm"
+                data-minlength="6" data-error="min. sześć znaków"
+                data-match="#userpass"
+                data-match-error="Hasło się nie zgadza"
+                name="confirm" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">Ustawienia zaawansowanane</div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="form-group">
+              <button type="button" class="btn btn-primary" id="addhtuser-btn">Utwórz konto</button>
+              <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- END: Nowe konto systemowe -->
     <div id="wrapper">
 <!-- END: Sekcja formularzy edycji danych -->
 
