@@ -974,4 +974,28 @@ $(document).ready(function() {
       })
       .modal('show');
   });
+  $(document).on('click', '#addsysuser-btn', function(e) {
+    e.preventDefault();
+    var form = $('#new-sysuser-form');
+    var serverid = form.find('[name="serverid"]').val();
+    $.ajax({
+      url: '/sysusers.php?add',
+      method: 'POST',
+      data: form.serializeArray(),
+      success: function() {
+        alertify.success("Użytkownik został dodany");
+      },
+      error: function(xhr) {
+        alertify.error(xhr.getResponseHeader('X-Message'));
+      }
+  }).success(function(response) {
+      $('.modal').hide();
+      $('.modal-backdrop').hide();
+      $('#users_table > tbody').append(
+        '<tr><td>'+ response.login +
+        '</td><td>'+ response.fullname +
+        '</td><td>'+ response.email +
+        '</td></tr>');
+    });
+  });
 });

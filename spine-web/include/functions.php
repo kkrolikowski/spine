@@ -115,4 +115,26 @@ function vhostAccessLevel($dbh, $vhost_id) {
 function timestring($epoch) {
   return date("Y-m-d H:i:s", $epoch);
 }
+function lastUID($dbh) {
+  $q = $dbh->prepare("SELECT id,uid FROM sysusers ORDER BY id DESC LIMIT 1");
+  $q->execute();
+  $r = $q->fetch();
+
+  return $r['uid'];
+}
+function sha512_pass($clearPass) {
+  $charArr = array('1','2','3','4','5','6','q','w','e','r','t','a','s',
+                  'd','f','g','z','x','c','v','b','7','8','9','0','-',
+                  'y','u','i','o','p','h','j','k','l','n','m',',','.','/',
+                  'Q','W','E','R','T','A','S','D','F','G','Z','X','C','V',
+                  'B','Y','U','I','O','P','H','J','K','L','N','?','!');
+
+  for ($i=0; $i < 8; $i++) {
+    $charIndex = rand(0, count($charArr));
+    $salt .= $charArr[$charIndex];
+  }
+
+  define('CRYPT_SHA512', 1);
+  return crypt($clearPass, "$6$".$salt);
+}
 ?>

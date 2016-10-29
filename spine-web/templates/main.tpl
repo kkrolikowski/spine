@@ -602,7 +602,7 @@
       <div class="row">
         <div class="col-xs-6">
           <div class="form-group">
-              <button type="button" class="btn btn-primary" id="addhtuser-btn">Utwórz konto</button>
+              <button type="button" class="btn btn-primary" id="addsysuser-btn">Utwórz konto</button>
               <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
           </div>
         </div>
@@ -1062,7 +1062,7 @@
               </div>
               <div class="row">
                 <div class="col-sm-4">
-                  <table class="table table-stripped">
+                  <table class="table table-stripped" id="users_table">
                     <thead>
                       <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
                     </thead>
