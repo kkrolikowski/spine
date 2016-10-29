@@ -195,3 +195,15 @@
 .sys-account-form {
   padding-top: 14px;
 }
+#expiration-group {
+  margin-top: 10px;
+}
+#expiration-group > div.col-xs-1 {
+  margin-right: -25px;
+}
+#expiration-group * label {
+  padding-left: 21px;
+}
+#expiration-group * input[type="checkbox"] {
+  margin-left: 21px;
+}

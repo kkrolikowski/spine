@@ -96,6 +96,11 @@
       <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css" />
 
+      <!-- Wybor daty expiracji konta -->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.css" />
+
+
 </head>
 
 <body onload="watch()">
@@ -592,8 +597,26 @@
         <div class="panel-heading">Ustawienia zaawansowanane</div>
         <div class="panel-body">
           <div class="row">
-            <div class="col-xs-6">
+            <div class="col-xs-3">
               <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" checked="true"> Konto aktywne
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-9">
+              <div class="form-group">
+                <div class="row" id="expiration-group">
+                  <div class="col-xs-1">
+                    <input type="checkbox">
+                  </div>
+                  <div class="col-xs-6">
+                    <label for="expiration" class="control-label">Expiracja</label>
+                    <input type="text" class="form-control" id="expiration">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
