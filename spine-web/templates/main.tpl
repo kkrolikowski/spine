@@ -595,28 +595,31 @@
       </div>
       <div class="panel panel-default">
         <div class="panel-heading">Ustawienia zaawansowanane</div>
-        <div class="panel-body">
+        <div class="panel-body" id="advanced_settings">
           <div class="row">
             <div class="col-xs-3">
               <div class="form-group">
                 <div class="checkbox">
                   <label>
-                    <input type="checkbox" checked="true"> Konto aktywne
+                    <input type="checkbox" checked="true" name="isActive"> Konto aktywne
                   </label>
                 </div>
               </div>
             </div>
-            <div class="col-xs-9">
+            <div class="col-xs-3">
               <div class="form-group">
-                <div class="row" id="expiration-group">
-                  <div class="col-xs-1">
-                    <input type="checkbox">
-                  </div>
-                  <div class="col-xs-6">
-                    <label for="expiration" class="control-label">Expiracja</label>
-                    <input type="text" class="form-control" id="expiration">
-                  </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="expEnable"> Expiracja
+                  </label>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-4">
+              <div class="form-group">
+                <input type="text" class="form-control" id="expiration">
               </div>
             </div>
           </div>
