@@ -97,8 +97,10 @@
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css" />
 
       <!-- Wybor daty expiracji konta -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.css" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.43/js/bootstrap-datetimepicker.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/locale/pl.js"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.43/css/bootstrap-datetimepicker.min.css" />
 
 
 </head>
@@ -619,7 +621,12 @@
           <div class="row">
             <div class="col-xs-4">
               <div class="form-group">
-                <input type="text" class="form-control" id="expiration" disabled="true" placeholder="dd/mm/yyy">
+                <div id="expiration" class="input-group date">
+                  <input placeholder="dd/mm/yyyy" type="text" class="form-control" disabled="true" />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
               </div>
             </div>
           </div>

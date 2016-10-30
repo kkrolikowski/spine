@@ -999,6 +999,10 @@ $(document).ready(function() {
     });
   });
   $(document).on('click', '[name="expEnable"]', function() {
-    $('#expiration').attr('disabled', ! this.checked);
+    $('#expiration > input').attr('disabled', ! this.checked);
+  });
+  $('#expiration').datetimepicker({
+    locale: 'pl-PL',
+    format: 'DD/MM/YYYY'
   });
 });
