@@ -998,4 +998,7 @@ $(document).ready(function() {
         '</td></tr>');
     });
   });
+  $(document).on('click', '[name="expEnable"]', function() {
+    $('#expiration').attr('disabled', ! this.checked);
+  });
 });
