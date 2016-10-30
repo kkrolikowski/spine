@@ -619,7 +619,7 @@
           <div class="row">
             <div class="col-xs-4">
               <div class="form-group">
-                <input type="text" class="form-control" id="expiration">
+                <input type="text" class="form-control" id="expiration" disabled="true" placeholder="dd/mm/yyy">
               </div>
             </div>
           </div>
