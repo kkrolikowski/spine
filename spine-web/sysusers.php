@@ -24,9 +24,23 @@
         $uid = $uid_last + 1;
       }
       $sha512 = sha512_pass($_POST['userpass']);
-      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,uid,gid) ".
+
+      if ($_POST['isActive'] == "on") {
+        $active = 1;
+      }
+      else {
+        $active = 0;
+      }
+      if ($_POST['expEnable'] == "on") {
+        $timeArr = explode("/", $_POST['expdate']);
+        $timeStr .= $timeArr[2] . "-" . $timeArr[1] . "-" . $timeArr[0];
+        $time = new DateTime($timeStr);
+        $unixtime = $time->format('U');
+      }
+      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,uid,gid,active,expiration) ".
                           "VALUES('".$_POST['login']."', '".$sha512."', '".$_POST['fullname'].
-                          "', '".$_POST['email']."', ".$_POST['serverid'].", ".$uid.", ".$uid.")");
+                          "', '".$_POST['email']."', ".$_POST['serverid'].", ".$uid.", ".$uid.
+                          ", ".$active.", ".$unixtime.")");
       $q->execute();
 
       $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."'");
