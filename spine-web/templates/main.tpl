@@ -622,7 +622,7 @@
             <div class="col-xs-4">
               <div class="form-group">
                 <div id="expiration" class="input-group date">
-                  <input placeholder="dd/mm/yyyy" type="text" class="form-control" name="expdate" disabled="true" />
+                  <input placeholder="dd/mm/yyyy" type="text" class="form-control" name="expdate" disabled="true" required/>
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
