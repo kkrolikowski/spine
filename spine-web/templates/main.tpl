@@ -617,6 +617,33 @@
                 </div>
               </div>
             </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="shell"> Powłoka systemu
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="sudo"> Administrator
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="sshkey"> Klucze ssh
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="row">
             <div class="col-xs-4">
@@ -627,6 +654,11 @@
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
                 </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group" id="sshkey">
+                <input type="text" placeholder="ssh public key" class="form-control" name="sshkey[0]" disabled="true" required />
               </div>
             </div>
           </div>

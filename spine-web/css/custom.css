@@ -198,3 +198,9 @@
 #advanced_settings > div > div + div {
   margin-left: -50px;
 }
+#advanced_settings > div + div > div + div {
+  margin-left: 20px;
+}
+#advanced_settings > div > div:nth-child(5n) > div {
+  margin-left: -17px;
+}

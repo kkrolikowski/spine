@@ -1001,6 +1001,9 @@ $(document).ready(function() {
   $(document).on('click', '[name="expEnable"]', function() {
     $('#expiration > input').attr('disabled', ! this.checked);
   });
+  $(document).on('click', '[name="sshkey"]', function() {
+    $('#sshkey > input').attr('disabled', ! this.checked);
+  });
   $('#expiration').datetimepicker({
     locale: 'pl-PL',
     format: 'DD/MM/YYYY'
