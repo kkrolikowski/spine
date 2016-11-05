@@ -204,3 +204,6 @@
 #advanced_settings > div > div:nth-child(5n) > div {
   margin-left: -17px;
 }
+#advanced_settings > div + div > div:nth-child(3n) {
+  margin-left: -20px;
+}

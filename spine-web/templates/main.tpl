@@ -661,6 +661,9 @@
                 <input type="text" placeholder="ssh public key" class="form-control" name="sshkey[0]" disabled="true" required />
               </div>
             </div>
+            <div class="col-xs-1">
+              <span class="glyphicon glyphicon-plus-sign"></span>
+            </div>
           </div>
         </div>
       </div>
