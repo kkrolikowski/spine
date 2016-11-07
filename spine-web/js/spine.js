@@ -1001,11 +1001,34 @@ $(document).ready(function() {
   $(document).on('click', '[name="expEnable"]', function() {
     $('#expiration > input').attr('disabled', ! this.checked);
   });
-  $(document).on('click', '[name="sshkey"]', function() {
+  $(document).on('click', '[name="sshkey_enable"]', function() {
     $('#sshkey > input').attr('disabled', ! this.checked);
   });
   $('#expiration').datetimepicker({
     locale: 'pl-PL',
     format: 'DD/MM/YYYY'
+  });
+  $(document).on('click', '[name="sshkey_enable"]', function() {
+    var plus = $('#advanced_settings').find('.glyphicon-plus');
+    var i = 0;
+    plus.on('click', function() {
+      if ($('[name="sshkey_enable"]').is(":checked")) {
+        i++;
+        $('#advanced_settings').append(
+          '<div class="row">' +
+            '<div class="col-xs-4">' +
+            '</div>' +
+            '<div class="col-xs-6">' +
+              '<div class="form-group" id="sshkey">' +
+                '<input type="text" placeholder="ssh public key" class="form-control" name="sshkey['+ i +']" required />' +
+              '</div>' +
+            '</div>' +
+            '<div class="col-xs-1">' +
+              '<span class="glyphicon glyphicon-minus"></span>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+    });
   });
 });

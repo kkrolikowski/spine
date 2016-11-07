@@ -639,7 +639,7 @@
               <div class="form-group">
                 <div class="checkbox">
                   <label>
-                    <input type="checkbox" name="sshkey"> Klucze ssh
+                    <input type="checkbox" name="sshkey_enable"> Klucze ssh
                   </label>
                 </div>
               </div>
@@ -662,7 +662,7 @@
               </div>
             </div>
             <div class="col-xs-1">
-              <span class="glyphicon glyphicon-plus-sign"></span>
+              <span class="glyphicon glyphicon-plus"></span>
             </div>
           </div>
         </div>
