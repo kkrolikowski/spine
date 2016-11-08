@@ -1035,4 +1035,7 @@ $(document).ready(function() {
       }
     });
   });
+  $(document).on('click', '#advanced_settings .glyphicon-minus', function() {
+    $(this).closest('.ssh-keys').remove();
+  });
 });
