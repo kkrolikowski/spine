@@ -1001,21 +1001,24 @@ $(document).ready(function() {
   $(document).on('click', '[name="expEnable"]', function() {
     $('#expiration > input').attr('disabled', ! this.checked);
   });
-  $(document).on('click', '[name="sshkey_enable"]', function() {
-    $('#sshkey > input').attr('disabled', ! this.checked);
-  });
   $('#expiration').datetimepicker({
     locale: 'pl-PL',
     format: 'DD/MM/YYYY'
   });
   $(document).on('click', '[name="sshkey_enable"]', function() {
     var plus = $('#advanced_settings').find('.glyphicon-plus');
-    var i = 0;
+    var i = 1;
+    $('#sshkey > input').attr('disabled', ! this.checked);
+    if (!this.checked) {
+      $('.ssh-keys').remove();
+      plus.unbind("click");
+      this.unbind("click");
+      i = 1;
+    }
     plus.on('click', function() {
       if ($('[name="sshkey_enable"]').is(":checked")) {
-        i++;
         $('#advanced_settings').append(
-          '<div class="row">' +
+          '<div class="row ssh-keys">' +
             '<div class="col-xs-4">' +
             '</div>' +
             '<div class="col-xs-6">' +
@@ -1028,6 +1031,7 @@ $(document).ready(function() {
             '</div>' +
           '</div>'
         );
+        i++;
       }
     });
   });
