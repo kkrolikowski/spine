@@ -1,6 +1,10 @@
 var Monitoring;
 
 function watch() {
+  var params = new URLSearchParams(window.location.search);
+  if(params.get("item") != "info")
+    return;
+    
   if(typeof(Monitoring) == "undefined")
     Monitoring = new Worker("js/hostcheck.js");
     Monitoring.onmessage = function(event) {
