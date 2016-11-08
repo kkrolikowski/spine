@@ -25,28 +25,35 @@
       }
       $sha512 = sha512_pass($_POST['userpass']);
 
-      if ($_POST['isActive'] == "on") {
-        $active = 1;
-      }
-      else {
-        $active = 0;
-      }
-      if ($_POST['expEnable'] == "on") {
+      isset($_POST['isActive'])         ? $active = 1 : $active = 0;
+      isset($_POST['shell'])            ? $shell  = 1 : $shell  = 0;
+      isset($_POST['sshkey_enable'])    ? $usekey = 1 : $usekey = 0;
+
+      if (isset($_POST['expEnable'])) {
         $timeArr = explode("/", $_POST['expdate']);
         $timeStr .= $timeArr[2] . "-" . $timeArr[1] . "-" . $timeArr[0];
         $time = new DateTime($timeStr);
-        $unixtime = $time->format('U');
+        $exptime = $time->format('U');
       }
-      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,uid,gid,active,expiration) ".
+      else {
+        $exptime = "Never";
+      }
+      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,uid,gid,active,expiration, shell, sshkeys) ".
                           "VALUES('".$_POST['login']."', '".$sha512."', '".$_POST['fullname'].
                           "', '".$_POST['email']."', ".$_POST['serverid'].", ".$uid.", ".$uid.
-                          ", ".$active.", ".$unixtime.")");
+                          ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.")");
       $q->execute();
 
       $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."'");
       $q->execute();
       $r = $q->fetch();
 
+      if($usekey) {
+        foreach ($_POST['sshkey'] as $sshkey) {
+          $q2 = $dbh->prepare("INSERT INTO sysusers_sshkeys(sshkey,user_id) VALUES('".$sshkey."', ".$r['id'].")");
+          $q2->execute();
+        }
+      }
       $json = array(
         'login' => $r['login'],
         'fullname' => $r['fullname'],
