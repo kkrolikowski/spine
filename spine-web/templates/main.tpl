@@ -549,8 +549,8 @@
             <div class="col-xs-6">
               <div class="form-group">
                 <label for="email" class="control-label">E-Mail</label>
-                <input type="text" class="form-control" id="email"
-                data-minlength="3" data-error="Wpisz co najmniej trzy znaki"
+                <input type="email" class="form-control" id="email"
+                data-error="Nieprawidłowy adres email"
                 name="email" required>
                 <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
                 <div class="help-block with-errors"></div>
