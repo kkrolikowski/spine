@@ -996,6 +996,9 @@ $(document).ready(function() {
         '</td><td>'+ response.fullname +
         '</td><td>'+ response.email +
         '</td></tr>');
+      $('#new-sysuser-form')[0].reset();
+      $('#new-sysuser-form').find('.has-success').removeClass('has-success');
+      $('#new-sysuser-form').find('.glyphicon-ok').removeClass('glyphicon-ok');
     });
   });
   $(document).on('click', '[name="expEnable"]', function() {
