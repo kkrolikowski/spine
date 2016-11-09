@@ -38,9 +38,12 @@
       else {
         $exptime = "Never";
       }
-      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,uid,gid,active,expiration, shell, sshkeys) ".
+      setlocale(LC_ALL, 'pl_PL.utf8');
+      $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname']);
+
+      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,gecos,uid,gid,active,expiration, shell, sshkeys) ".
                           "VALUES('".$_POST['login']."', '".$sha512."', '".$_POST['fullname'].
-                          "', '".$_POST['email']."', ".$_POST['serverid'].", ".$uid.", ".$uid.
+                          "', '".$_POST['email']."', ".$_POST['serverid'].", '".$gecos."', ".$uid.", ".$uid.
                           ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.")");
       $q->execute();
 
