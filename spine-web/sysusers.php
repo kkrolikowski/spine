@@ -57,6 +57,7 @@
           $q2->execute();
         }
       }
+      updateConfigVersion($dbh, $_POST['serverid']);
       $json = array(
         'login' => $r['login'],
         'fullname' => $r['fullname'],
