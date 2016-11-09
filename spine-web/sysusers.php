@@ -16,7 +16,7 @@
       // ustalamy nastepny wolny UID w systemie.
       // Jesli jest tylko konto roota, ustawiamy UID na 10000
       // w przeciwnym wypadku bierzemy nastepny wolny
-      $uid_last = lastUID($dbh);
+      $uid_last = lastUID($dbh, $_POST['serverid']);
       if ($uid_last == 0) {
         $uid = 10000;
       }

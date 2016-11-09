@@ -115,8 +115,8 @@ function vhostAccessLevel($dbh, $vhost_id) {
 function timestring($epoch) {
   return date("Y-m-d H:i:s", $epoch);
 }
-function lastUID($dbh) {
-  $q = $dbh->prepare("SELECT id,uid FROM sysusers ORDER BY id DESC LIMIT 1");
+function lastUID($dbh, $sysid) {
+  $q = $dbh->prepare("SELECT id,uid FROM sysusers WHERE system_id = $sysid ORDER BY id DESC LIMIT 1");
   $q->execute();
   $r = $q->fetch();
 
