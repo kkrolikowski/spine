@@ -974,10 +974,11 @@ $(document).ready(function() {
       })
       .modal('show');
   });
-  $(document).on('click', '#addsysuser-btn', function(e) {
+  $('#addsysuser-btn').validator('validate').on('click', function(e) {
     e.preventDefault();
     var form = $('#new-sysuser-form');
     var serverid = form.find('[name="serverid"]').val();
+    form.validator('validate');
     $.ajax({
       url: '/sysusers.php?add',
       method: 'POST',
