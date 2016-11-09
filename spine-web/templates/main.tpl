@@ -530,7 +530,7 @@
     </form>
     <!-- END: Zmiana hasla htaccess -->
     <!-- BEGIN: Nowe konto systemowe -->
-    <form data-toggle="validator" id="new-sysuser-form" style="display: none;">
+    <form data-toggle="validator" role="form" id="new-sysuser-form" style="display: none;">
       <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
       <div class="panel panel-default">
         <div class="panel-heading">Podstawowe informacje</div>
@@ -649,7 +649,9 @@
             <div class="col-xs-4">
               <div class="form-group">
                 <div id="expiration" class="input-group date">
-                  <input placeholder="dd/mm/yyyy" type="text" class="form-control" name="expdate" disabled="true" required/>
+                  <input placeholder="dd/mm/yyyy" type="text" class="form-control"
+                  data-minlength="3" data-error="Pole nie może być puste"
+                  name="expdate" disabled="true" />
                   <span class="input-group-addon">
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
@@ -658,7 +660,9 @@
             </div>
             <div class="col-xs-6">
               <div class="form-group" id="sshkey">
-                <input type="text" placeholder="ssh public key" class="form-control" name="sshkey[0]" disabled="true" required />
+                <input type="text" placeholder="ssh public key" class="form-control"
+                data-minlength="3" data-error="Pole nie może być puste"
+                name="sshkey[0]" disabled="true" />
               </div>
             </div>
             <div class="col-xs-1">
@@ -670,7 +674,7 @@
       <div class="row">
         <div class="col-xs-6">
           <div class="form-group">
-              <button type="button" class="btn btn-primary" id="addsysuser-btn">Utwórz konto</button>
+              <button type="submit" class="btn btn-primary" id="addsysuser-btn">Utwórz konto</button>
               <button type="button" class="btn btn-default" id="edit-cancel">Anuluj</button>
           </div>
         </div>
