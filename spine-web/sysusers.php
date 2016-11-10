@@ -47,7 +47,7 @@
                           ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."'");
+      $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
       $q->execute();
       $r = $q->fetch();
 
