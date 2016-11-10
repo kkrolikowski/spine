@@ -25,15 +25,35 @@ typedef struct htpasswdData {
 	struct htpasswdData * next;
 } htpasswdData;
 
+// struktura przechowujaca klucze ssh uzytkownika
+typedef struct sshkeys {
+    char * key;             // string z kluczem ssh
+    struct sshkeys * next;  // wskaznik do kolejnego klucza
+} sshkeys;
+
+// struktura przechowujaca wszystkie wlasciwosci konta uzytkownika w systemie
+typedef struct sysuser {
+    char * login;           // login uzytkownika
+    char * sha512;          // haslo zaszyfrowane algorytmem SHA-512
+    char * gecos;           // opis konta (GECOS)
+    int active;             // czy konto jest aktywne
+    int uidgid;             // UID oraz GID uzytkownika
+    int shellaccess;        // czy konto ma miec dostep do shella
+    int expiration;         // data expiracji konta (epoch + dni)
+    sshkeys * sshkey;       // wszystkie klucze ssh uzytkownika
+    struct sysuser * next;  // wskaznik do kolejnego konta
+} sysuser;
+
 // struktura, ktora bedzie przechowywac wskazniki
 // do poszczegolnych elementow pakietu.
 typedef struct hosconfig {
-	struct wwwdata vhost[VHOST_MAX];	// definicja vhostow
-	int vhost_num;						// liczba skonfigurowanych vhostow
-	htpasswdData * htpasswd;			// zawartosc pliku htpasswd
-	int htusers_count;					// liczba kont htpasswd
-	int confVer;						// wersja konfiguracji
-	char * datatype;					// typ konfiguracji
+	struct wwwdata vhost[VHOST_MAX];    // definicja vhostow
+	int vhost_num;                      // liczba skonfigurowanych vhostow
+	htpasswdData * htpasswd;            // zawartosc pliku htpasswd
+        sysuser * sysUsers;                 // konta uzytkownikow w systemie
+	int htusers_count;                  // liczba kont htpasswd
+	int confVer;                        // wersja konfiguracji
+	char * datatype;                    // typ konfiguracji
 } hostconfig;
 
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */
