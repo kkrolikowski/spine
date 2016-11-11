@@ -543,6 +543,7 @@ int getSystemAccounts(hostconfig * hc, char * systemid) {
     
     hc->sysUsers = head;        // podlaczamy dane dot. kont
     free(accountsInfo);
+    mysql_free_result(res);
     
     return dataStatus;
 }
