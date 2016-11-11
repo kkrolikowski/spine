@@ -7,6 +7,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 #include "monitoring.h"
+#include "sysusers.h"
 
 void InitDBConnData(dbconn db) {
 	db.dbhost = NULL;
@@ -461,4 +462,139 @@ void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char
     
     mysql_query(dbh, insert);
     free(insert);
+}
+int getSystemAccounts(hostconfig * hc, char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    int dataStatus = 1;         // status danych pobranych przez funkcje. 1 - sukces
+    size_t len = 0;             // podreczna zmienna do mierzenia stringow
+    
+    char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
+                                   "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",
+                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys FROM sysusers u LEFT JOIN ",
+                                   "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) WHERE u.login ",
+                                   "!= 'root' AND u.system_id = (SELECT id FROM sysinfo WHERE system_id = '",
+                                   systemid,"') GROUP BY u.id;", NULL);
+    sysUsersInit(hc->sysUsers);
+    
+    // inicjujemy liste laczona w ktorej znajda sie dane odczytane z bazy
+    sysuser * head = NULL;
+    sysuser * curr = NULL;
+    sysuser * prev = NULL;
+    
+    if(!mysql_query(dbh, accountsInfo)) {
+        if((res = mysql_store_result(dbh)) != NULL) {
+            while((row = mysql_fetch_row(res))) {               
+                // inicjujemy wezel
+                curr = (sysuser *) malloc(sizeof(sysuser));
+                
+                // zapisujemy w pamieci login uzytkownika
+                len = strlen(row[0]) + 1;
+                curr->login = (char *) malloc(len * sizeof(char));
+                memset(curr->login, '\0', len);
+                strncpy(curr->login, row[0], len);
+                
+                // zapisujemy w pamieci haslo uzytkownika
+                len = strlen(row[1]) + 1;
+                curr->sha512 = (char *) malloc(len * sizeof(char));
+                memset(curr->sha512, '\0', len);
+                strncpy(curr->sha512, row[1], len);
+                
+                // zapisujemy w pamieci GECOS
+                len = strlen(row[2]) + 1;
+                curr->gecos = (char *) malloc(len * sizeof(char));
+                memset(curr->gecos, '\0', len);
+                strncpy(curr->gecos, row[2], len);
+                
+                // zapisujemy w pamieci UID/GID uzytkownika
+                curr->uidgid = atoi(row[3]);
+                
+                // zapisujemy w pamieci informacje na temat statusu konta
+                curr->active = atoi(row[4]);
+                
+                // zapisujemy w pamieci informacje na temat expiracji konta
+                if(!strcmp(row[5], "Never"))
+                    curr->expiration = 0;
+                else
+                    curr->expiration = atoi(row[5]);
+                
+                // zapisujemy informacje, czy konto bedzie mialo dostep do shella
+                curr->shellaccess = atoi(row[6]);
+                
+                // dolaczamy wezel pamieci z kluczami ssh
+                curr->sshkey = readSSHkeys(row[7]);
+                
+                // tworzymy kolejny wezel
+                curr->next = NULL;
+                if(head == NULL)
+                    head = curr;
+                else
+                    prev->next = curr;
+                prev = curr;
+                
+            }
+        }
+        else
+            dataStatus = 0;
+    }
+    else
+        dataStatus = 0;
+    
+    hc->sysUsers = head;        // podlaczamy dane dot. kont
+    free(accountsInfo);
+    
+    return dataStatus;
+}
+sshkeys * readSSHkeys(char * str) {
+    char buff[1024];
+    memset(buff, '\0', 1024);
+    int i = 0;
+    size_t len = 0;
+
+    sshkeys * head = NULL;
+    sshkeys * curr = NULL;
+    sshkeys * prev = NULL;
+
+    while(*str) {
+        if(*str != ',') {
+            buff[i] = *str;
+        }
+        else {
+            buff[i] = '\0';
+            len = strlen(buff) + 1;
+            curr = (sshkeys * ) malloc(sizeof(sshkeys));
+            curr->key = (char *) malloc(len);
+            memset(curr->key, '\0', len);
+            strncpy(curr->key, buff, len);
+            curr->next = NULL;
+            if(head == NULL)
+                head = curr;
+            else
+                prev->next = curr;
+            prev = curr;
+            i = 0;
+            memset(buff, '\0', 1024);
+            str++;
+            continue;
+        }
+        i++; str++;
+    }
+    buff[i] = '\0';
+    len = strlen(buff) + 1;
+    curr = (sshkeys * ) malloc(sizeof(sshkeys));
+    curr->key = (char *) malloc(len);
+    memset(curr->key, '\0', len);
+    strncpy(curr->key, buff, len);
+    i = 0;
+    memset(buff, '\0', 1024);
+    curr->next = NULL;
+
+    if(head == NULL)
+        head = curr;
+    else
+        prev->next = curr;
+    prev = curr;
+
+    return head;
 }

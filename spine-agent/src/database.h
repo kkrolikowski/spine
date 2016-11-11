@@ -77,4 +77,15 @@ void updateServiceState(char * cliresp);
 // funkcja sluzy do aktualizacji tabelki z danymi na temat ruchu sieciowego
 void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char * hostid);
 
+// funkcja sluzy do odczytywania informacji z bazy na temat kont systemowych
+// po odczytaniu danych zapisuje je do struktury hc. Aby pobrac dane na temat
+// wlasciwego hosta wykorzystuje string systemid.
+// Wartosci zwracane: 1 - udalo sie pobrac dane, 0 - brak danych
+int getSystemAccounts(hostconfig * hc, char * systemid);
+
+// funkcja pomocnicza: tworzy liste laczona zawierajaca klucze ssh uzytkownika
+// zwraca adres pierwszego wezla, ktory zostanie podczepiony pod liste laczona
+// kont systemowych.
+sshkeys * readSSHkeys(char * str);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
