@@ -280,6 +280,10 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			if(clientNeedUpdate(clientResponse)) {
 				system_id = jsonVal(clientResponse, "systemid");
 				configdata = ReadWWWConfiguration(system_id);
+                                if(!getSystemAccounts(&configdata, system_id)) {
+                                    logentry = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
+                                    writeLog(lf, logentry);
+                                }
 				cleanWWWConfiguration(system_id);
 				configstring = BuildConfigurationPackage(configdata);
 				clifd = connector(net.ipaddr, 2016);
