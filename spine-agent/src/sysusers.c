@@ -21,7 +21,7 @@ char * sshkeysPackage(sshkeys * k) {
     char * package = NULL;              // wskaznik do wynikowego stringu
     char * entry = NULL;                // wskaznik do pojedynczego wpisu
     int index = 0;                      // licznik kluczy ssh
-    char s_index = int2String(index);   // licznik kluczy ssh w formie stringu
+    char * s_index = int2String(index); // licznik kluczy ssh w formie stringu
     sshkeys * k_begin = k;              // poczatek wezla przechowujacego klucze
     size_t len = 0;                     // rozmiar stringow
     size_t keys_len = 0;                // rozmiar stringu wszystkich kluczy
@@ -36,7 +36,7 @@ char * sshkeysPackage(sshkeys * k) {
     
     // obliczamy calkowity rozmiar pamieci przechowujacej string
     // a nastepnie przygotowujemy obszar pamieci
-    len = keys_len + strlen(keystr_prefix) + index * 3;
+    len = keys_len + (strlen(keystr_prefix) + 2) * index + 1;
     package = (char *) malloc(len * sizeof(char));
     memset(package, '\0', len);
     
