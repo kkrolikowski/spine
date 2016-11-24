@@ -119,6 +119,7 @@ char * sysusersPackage(sysuser * su) {
     }
     strncat(package, "}", 2);
     
+    cleanSysUsersData(su);
     return package;
 }                                               
                                                 
@@ -167,4 +168,28 @@ char * sshkeysPackage(sshkeys * k) {
         k_current = k_current->next;
     }
     return package;
+}
+void cleanSysUsersData(sysuser * su) {
+    sysuser * curr = su;
+    sysuser * next = NULL;
+    
+    free(su->gecos);
+    free(su->login);
+    free(su->sha512);
+    cleanSSHKeyData(su->sshkey);
+    
+    next = curr->next;
+    if(next != NULL)
+        cleanSysUsersData(next);
+    free(curr);
+}
+void cleanSSHKeyData(sshkeys * k) {
+    sshkeys * curr = k;
+    sshkeys * next = NULL;
+    
+    free(curr->key);
+    next = curr->next;
+    if(next != NULL)
+        cleanSSHKeyData(next);
+    free(curr);
 }
