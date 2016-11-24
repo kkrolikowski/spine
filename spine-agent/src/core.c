@@ -13,6 +13,7 @@
 #include "database.h"
 #include "apache.h"
 #include "monitoring.h"
+#include "sysusers.h"
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -279,7 +280,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			updateServiceState(clientResponse);
 			if(clientNeedUpdate(clientResponse)) {
 				system_id = jsonVal(clientResponse, "systemid");
-				configdata = ReadWWWConfiguration(system_id);
+                                configdata = ReadWWWConfiguration(system_id);
                                 if(!getSystemAccounts(&configdata, system_id)) {
                                     logentry = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
                                     writeLog(lf, logentry);
@@ -502,6 +503,10 @@ char * BuildConfigurationPackage(hostconfig data) {
 	char * s_htusers_count = int2String(data.htusers_count);
 
 	strcpy(buff, "[");
+        if((tmp = sysusersPackage(data.sysUsers)) != NULL) {
+            strcat(buff, tmp);
+            free(tmp);
+        }
 	tmp = apacheConfigPackage(data);
 	strcat(buff, tmp);
 	free(tmp);

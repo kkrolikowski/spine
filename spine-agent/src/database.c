@@ -475,8 +475,7 @@ int getSystemAccounts(hostconfig * hc, char * systemid) {
                                    "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys FROM sysusers u LEFT JOIN ",
                                    "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) WHERE u.login ",
                                    "!= 'root' AND u.system_id = (SELECT id FROM sysinfo WHERE system_id = '",
-                                   systemid,"') GROUP BY u.id;", NULL);
-    sysUsersInit(hc->sysUsers);
+                                   systemid,"') GROUP BY u.id", NULL);
     
     // inicjujemy liste laczona w ktorej znajda sie dane odczytane z bazy
     sysuser * head = NULL;
