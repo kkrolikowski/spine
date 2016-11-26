@@ -44,16 +44,41 @@ typedef struct sysuser {
     struct sysuser * next;  // wskaznik do kolejnego konta
 } sysuser;
 
+// nowe struktury danych opisujace konfiguracje serwera www
+
+// konfiguracja vhostow
+typedef struct vhostdata {
+    char * ServerName;          // glowny adres witryny
+    char * ServerAlias;		// Dodatkowe adresy witryny
+    char * DocumentRoot;	// katalog witryny na serwerze
+    char * apacheOpts;		// opcje katalogu
+    char * htaccess;		// definicja pliku htaccess
+    char * vhost_access_order;	// kolejnosc przetwarzania regol dostepu
+    char * vhost_access_list;	// lista hostow skad mozna laczyc sie z witryna
+    int password_access;	// czy witryna ma byc zabezpieczona haslem
+    char * htusers;		// lista kont, ktora ma dostep do witryny
+    char * user;		// wlasciciel witryny
+    char * status;		// flaga: A - vhost aktywny, D - do skasowania
+    char * purgedir;		// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
+    struct vhostdata * next;    // wskaznik do kolejnego vhosta
+} vhostdata;
+
+typedef struct httpdata {
+    vhostdata * vhost;          // vhosty apacza
+    htpasswdData * htpasswd;    // konta htpasswd
+} httpdata;
+
 // struktura, ktora bedzie przechowywac wskazniki
 // do poszczegolnych elementow pakietu.
-typedef struct hosconfig {
-	struct wwwdata vhost[VHOST_MAX];    // definicja vhostow
-	int vhost_num;                      // liczba skonfigurowanych vhostow
-	htpasswdData * htpasswd;            // zawartosc pliku htpasswd
-        sysuser * sysUsers;                 // konta uzytkownikow w systemie
-	int htusers_count;                  // liczba kont htpasswd
-	int confVer;                        // wersja konfiguracji
-	char * datatype;                    // typ konfiguracji
+typedef struct hostconfig {
+    struct wwwdata vhost[VHOST_MAX];    // definicja vhostow
+    int vhost_num;                      // liczba skonfigurowanych vhostow
+    htpasswdData * htpasswd;            // zawartosc pliku htpasswd
+    sysuser * sysUsers;                 // konta uzytkownikow w systemie
+    httpdata httpd;                     // konfiguracja serwera www
+    int htusers_count;                  // liczba kont htpasswd
+    int confVer;                        // wersja konfiguracji
+    char * datatype;                    // typ konfiguracji
 } hostconfig;
 
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */
