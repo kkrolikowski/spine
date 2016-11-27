@@ -226,7 +226,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	char * os = NULL;				// nazwa dystrubucji Linuksa
 	char * configstring = NULL;
 	netinfo net;					// struktura przechowujaca ip oraz socket klienta
-	hostconfig configdata;
+	hostconfig config;            // konfiguracja calego hosta
 
 	while(1) {
 		net = clientConnection(netiffd);
@@ -257,11 +257,11 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		}
 		if(!strcmp(mode, "client")) {
 			os = linuxDistro();
-			configdata = ParseConfigData(clientResponse);
-			if(readLocalConfigVersion() < configdata.confVer) {
-				if(!strcmp(configdata.datatype, "apache")) {
-					if(configdata.vhost_num > 0) {
-						apacheSetup(configdata, os, lf);
+			config = ParseConfigData(clientResponse);
+			if(readLocalConfigVersion() < config.confVer) {
+				if(!strcmp(config.datatype, "hostconfig")) {
+					if(config.vhost_num > 0) {
+						apacheSetup(config, os, lf);
 						if(writeLocalConfigVersion(configdata.confVer))
 							logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
 						else
@@ -280,7 +280,10 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			updateServiceState(clientResponse);
 			if(clientNeedUpdate(clientResponse)) {
 				system_id = jsonVal(clientResponse, "systemid");
-                                configdata = ReadWWWConfiguration(system_id);
+                                if(!ReadHostConfig(system_id, &config, lf)) {
+                                    logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
+                                    writeLog(lf, logentry);
+                                }
                                 if(!getSystemAccounts(&configdata, system_id)) {
                                     logentry = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
                                     writeLog(lf, logentry);
@@ -538,4 +541,15 @@ int fileExist(char * path) {
 		fclose(fp);
 		return 1;
 	}
+}
+int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
+    int status = 1;         // status funkcji: 1 - sukces, 0 - error
+    char * msg = NULL;      // wpis do logow
+    
+    if(!ReadWWWConfiguration(hostid, conf->httpd, lf)) {
+        msg = mkString("[ERROR] Nie powiodlo sie odczytanie danych apacza");
+        writeLog(lf, msg);
+        status = 0;
+    }
+    return status;
 }

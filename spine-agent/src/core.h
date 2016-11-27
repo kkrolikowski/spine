@@ -87,4 +87,7 @@ char * BuildConfigurationPackage(hostconfig data);
 // funkcja zwraca 1 jesli plik istnieje
 int fileExist(char * path);
 
+// funkcja sluzy do pobierania z bazy konfiguracji hostow
+int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf);
+
 #endif /* SPINE_AGENT_CORE_H_ */

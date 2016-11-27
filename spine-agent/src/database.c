@@ -228,92 +228,138 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
-hostconfig ReadWWWConfiguration(char * hostid) {
-	extern MYSQL * dbh;
-	MYSQL_RES * res;
-	MYSQL_ROW row;
-	hostconfig hconfig;
-	long resnum = 0L;
+int ReadWWWConfiguration(char * hostid, httpdata www, FILE * lf) {
+    int status = 1;         // 1 - sukces, 0 - fail
+    char * msg = NULL;      // komunikaty z logami
+    
+    if((www.htpasswd = ReadHtpasswdData(hostid)) == NULL) {
+        msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
+        writeLog(lf, msg);
+        status = 0;
+    }
+    if((www.vhost = ReadVhostData(hostid)) == NULL) {
+        msg = mkString("[ERROR] Blad pobierania vhostow apacza z bazy", NULL);
+        writeLog(lf, msg);
+        status = 0;
+    }
 
-	size_t len = 0;
-	htpasswdData * head = NULL;
-	htpasswdData * curr = NULL;
-	htpasswdData * prev = NULL;
+    return status;
+}
+htpasswdData * ReadHtpasswdData(char * hostid) {
+    // Zmienne umozliwiajace wyciaganie danych z bazy
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    
+    // zapytanie pobierajace liste kont htpasswd
+    char * query = mkString("SELECT CONCAT(login, ':', password) AS htpasswd FROM www_users WHERE system_id = ",
+                            "(SELECT id FROM sysinfo WHERE system_id = '", hostid, "')", NULL);
+    
+    // obsluga listy kont htpasswd
+    htpasswdData * head = NULL;
+    htpasswdData * curr = NULL;
+    htpasswdData * prev = NULL;
+    
+    size_t len = 0;     // zmienna pomocnicza do mierzenia wielkosci pamieci
+    
+    // pobieranie danych z bazy i utworzenie listy laczonej
+    if(!mysql_query(dbh, query)) {
+        if((res = mysql_store_result(dbh)) != NULL) {
+            if(mysql_num_rows(res) > 0) {
+                while((row = mysql_fetch_row(res))) {
+                    len = strlen(row[0]) + 1;
+                    curr = (htpasswdData *) malloc(sizeof(htpasswdData));
+                    curr->entry = (char *) malloc(len * sizeof(char));
+                    memset(curr->entry, '\0', len);
+                    strncpy(curr->entry, row[0], len);
+                    curr->next = NULL;
 
-	char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
-							"sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
-							"GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
-							"www.access_order, www.htpasswd AS password_access, case www.htpasswd WHEN 1 THEN GROUP_CONCAT(DISTINCT www_users.login ",
-							"SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
-							"sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
-							"www_opts ON www_opts.id = www_opts_selected.opt_id LEFT JOIN www_access ON www_access.vhost_id = www.id LEFT JOIN ",
-							"www_users_access ON (www_users_access.vhost_id = www.id AND www.htpasswd > 0) LEFT JOIN www_users ON ",
-							"(www_users.id = www_users_access.user_id AND www.htpasswd > 0) WHERE www.system_id = (SELECT id FROM ",
-							"sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
+                    if(head == NULL)
+                        head = curr;
+                    else
+                        prev->next = curr;
+                    prev = curr;
+                }
+            }
+            else {
+                len = strlen("NaN") + 1;
+                curr = (htpasswdData *) malloc(sizeof(htpasswdData));
+                curr->entry = (char *) malloc(len * sizeof(char));
+                memset(curr->entry, '\0', len);
+                strncpy(curr->entry, "NaN", len);
+                curr->next = NULL;
+                head = curr;
+            }
+        }
+        mysql_free_result(res);
+    }
+    
+    // czyszczenie pamieci
+    free(query);
+    
+    return head;
+}
+vhostData * ReadVhostData(char * hostid) {
+    // Zmienne umozliwiajace wyciaganie danych z bazy
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    
+    // zapytanie wyciagajace konfiguracje vhostow z bazy
+    char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
+                            "sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
+                            "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
+                            "www.access_order, www.htpasswd AS password_access, case www.htpasswd WHEN 1 THEN GROUP_CONCAT(DISTINCT www_users.login ",
+                            "SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
+                            "sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
+                            "www_opts ON www_opts.id = www_opts_selected.opt_id LEFT JOIN www_access ON www_access.vhost_id = www.id LEFT JOIN ",
+                            "www_users_access ON (www_users_access.vhost_id = www.id AND www.htpasswd > 0) LEFT JOIN www_users ON ",
+                            "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) WHERE www.system_id = (SELECT id FROM ",
+                            "sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
+    
+    // obsluga listy odczytanych vhostow
+    vhostData * head = NULL;
+    vhostData * curr = NULL;
+    vhostData * prev = NULL;
+    
+    // pobieranie danych z bazy i utworzenie listy laczonej
+    if(!mysql_query(dbh, query)) {
+        if((res = mysql_store_result(dbh)) != NULL) {
+            if(mysql_num_rows(res) > 0) {
+                while((row = mysql_fetch_row(res))) {
+                    curr = (vhostData *) malloc(sizeof(vhostData));
+    
+                    curr->ServerName            = readData(row[0]);
+                    curr->ServerAlias           = readData(row[1]);
+                    curr->DocumentRoot          = readData(row[2]);
+                    curr->htaccess              = readData(row[3]);
+                    curr->user                  = readData(row[4]);
+                    curr->version               = atoi(row[5]);
+                    curr->apacheOpts            = readData(row[6]);
+                    curr->vhost_access_list     = readData(row[7]);
+                    curr->vhost_access_order    = readData(row[8]);
+                    curr->password_access       = atoi(row[9]);
+                    curr->htusers               = readData(row[10]);
+                    curr->status                = readData(row[11]);
+                    curr->purgedir              = readData(row[12]);
+                    
+                    curr->next = NULL;
 
-	int vhi = 0;			// index tablicy przechowujacej vhosty apacza
-	if(!mysql_query(dbh, query)) {
-		if((res = mysql_store_result(dbh)) != NULL) {
-			resnum = mysql_num_rows(res);
-			initConfigData(&hconfig, resnum);
-			hconfig.vhost_num = (int) resnum;
-			while((row = mysql_fetch_row(res)) && vhi < VHOST_MAX) {
-				hconfig.vhost[vhi].ServerName = readData(row[0]);
-				hconfig.vhost[vhi].ServerAlias = readData(row[1]);
-				hconfig.vhost[vhi].DocumentRoot = readData(row[2]);
-				hconfig.vhost[vhi].htaccess = readData(row[3]);
-				hconfig.vhost[vhi].user = readData(row[4]);
-				hconfig.confVer = atoi(row[5]);
-				hconfig.vhost[vhi].apacheOpts = readData(row[6]);
-				hconfig.vhost[vhi].vhost_access_list = readData(row[7]);
-				hconfig.vhost[vhi].vhost_access_order = readData(row[8]);
-				hconfig.vhost[vhi].password_access = atoi(row[9]);
-				hconfig.vhost[vhi].htusers = readData(row[10]);
-				hconfig.vhost[vhi].status = readData(row[11]);
-				hconfig.vhost[vhi].purgedir = readData(row[12]);
-				vhi++;
-			}
-			mysql_free_result(res);
-		}
-	}
-	free(query);
-
-	query = mkString("SELECT CONCAT(login, ':', password) AS htpasswd FROM www_users WHERE system_id = (SELECT id FROM sysinfo WHERE system_id = '",
-					hostid, "')", NULL);
-	if(!mysql_query(dbh, query)) {
-		if((res = mysql_store_result(dbh)) != NULL) {
-			if((resnum = mysql_num_rows(res)) > 0) {
-				while((row = mysql_fetch_row(res))) {
-					len = strlen(row[0]) + 1;
-					curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-					curr->entry = (char *) malloc(len * sizeof(char));
-					memset(curr->entry, '\0', len);
-					strcpy(curr->entry, row[0]);
-					curr->next = NULL;
-
-					if(head == NULL)
-						head = curr;
-					else
-						prev->next = curr;
-					prev = curr;
-				}
-			}
-			else {
-				len = strlen("NaN") + 1;
-				curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-				curr->entry = (char *) malloc(len * sizeof(char));
-				memset(curr->entry, '\0', len);
-				strcpy(curr->entry, "NaN");
-				curr->next = NULL;
-				head = curr;
-			}
-			hconfig.htusers_count = (int) resnum;
-		}
-		hconfig.htpasswd = head;
-		mysql_free_result(res);
-	}
-	free(query);
-	return hconfig;
+                    if(head == NULL)
+                        head = curr;
+                    else
+                        prev->next = curr;
+                    prev = curr;
+                }
+            }
+        }
+        mysql_free_result(res);
+    }
+    
+    // czyszczenie pamieci
+    free(query);
+    
+    return head;
 }
 char * readData(char * input) {
 	size_t len = strlen(input) + 1;

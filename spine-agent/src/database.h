@@ -1,6 +1,7 @@
 #ifndef SPINE_AGENT_SRC_DATABASE_H_
 #define SPINE_AGENT_SRC_DATABASE_H_
 #include <mysql.h>
+#include "commondata.h"
 
 /*			STRUKTURY			*/
 
@@ -51,7 +52,13 @@ int checkDBConfigVer(char * systemid);
 char * readData(char * input);
 
 // funkcja wczytuje konfiguracje serwera www z bazy do pamieci.
-hostconfig ReadWWWConfiguration(char * hostid);
+int ReadWWWConfiguration(char * hostid, httpdata www, FILE * lf);
+
+// funkcja tworzy liste laczona zawierajaca konta htpasswd
+htpasswdData * ReadHtpasswdData(char * hostid);
+
+// funkcja tworzy liste laczona zawierajaca konfiguracje virtualhostow
+vhostData * ReadVhostData(char * hostid);
 
 // funkcja zwraca ID rekordu z bazy zawierajacego okreslony mac-adres serwera
 int getDBHostID(char * hwaddr);

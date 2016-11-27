@@ -30,12 +30,12 @@ typedef struct sysuser {
 
 // lista zawierajaca konta htpasswd
 typedef struct htpasswdData {
-	char * entry;                   // wpis w formie: login:skrothasla 
-	struct htpasswdData * next;     // nastepne konto na liscie
+    char * entry;                   // wpis w formie: login:skrothasla 
+    struct htpasswdData * next;     // nastepne konto na liscie
 } htpasswdData;
 
 // konfiguracja vhostow
-typedef struct vhostdata {
+typedef struct vhostData {
     char * ServerName;          // glowny adres witryny
     char * ServerAlias;		// Dodatkowe adresy witryny
     char * DocumentRoot;	// katalog witryny na serwerze
@@ -48,12 +48,13 @@ typedef struct vhostdata {
     char * user;		// wlasciciel witryny
     char * status;		// flaga: A - vhost aktywny, D - do skasowania
     char * purgedir;		// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
-    struct vhostdata * next;    // wskaznik do kolejnego vhosta
-} vhostdata;
+    int version;                // wersja konfiguracji
+    struct vhostData * next;    // wskaznik do kolejnego vhosta
+} vhostData;
 
 // ogolna struktura danych przechowujaca konfiguracje serwera www
 typedef struct httpdata {
-    vhostdata * vhost;          // vhosty apacza
+    vhostData * vhost;          // vhosty apacza
     htpasswdData * htpasswd;    // konta htpasswd
 } httpdata;
 
@@ -63,9 +64,10 @@ typedef struct httpdata {
 
 // struktura przechowujaca konfiguracje hosta
 typedef struct hostconfig {
-    sysuser * sysUsers;                 // konta uzytkownikow w systemie
-    httpdata httpd;                     // konfiguracja serwera www
-    int confVer;                        // wersja konfiguracji
+    sysuser * sysUsers;     // konta uzytkownikow w systemie
+    httpdata httpd;         // konfiguracja serwera www
+    char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
+    int confVer;            // wersja konfiguracji
 } hostconfig;
 
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */
