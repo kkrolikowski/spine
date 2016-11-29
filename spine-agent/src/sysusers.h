@@ -15,5 +15,9 @@ void cleanSSHKeyData(sshkeys * k);
 
 // funkcja zliczajaca wielkosc pakietu z kontami systemowymi
 int getSysUsersPackageSize(sysuser * su);
+
+// funkcja zlicza wielosc kluczy ssh
+int getSSHkeysPackageSize(sshkeys * ssh);
+
 #endif /* SYSUSERS_H */
 

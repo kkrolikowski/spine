@@ -199,7 +199,7 @@ int getSysUsersPackageSize(sysuser * su) {
     sysuser * pos = su;     // aktualna pozycja w pamieci
     char * tmp = NULL;      // tymczasowa zmienna do przechowania
                             // wartosci numerycznych w formie stringu
-    int userCount = 0;      // zliczanie liczby vhostow
+    int userCount = 0;      // zliczanie liczby userow
     
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "username:,", "password:,", "gecos:,", "expire:,",
@@ -235,10 +235,33 @@ int getSysUsersPackageSize(sysuser * su) {
         size += strlen(tmp);
         free(tmp);
         
+        // klucze ssh
+        size += getSSHkeysPackageSize(pos->sshkey);
+        
         userCount++;
         pos = pos->next;
     }
     size += keysize * userCount;
+    
+    return size;
+}
+int getSSHkeysPackageSize(sshkeys * ssh) {
+    int size = 0;
+    sshkeys * pos = ssh;
+    int entryCount = 0;
+    char * tmp = NULL;
+    
+    char * key = "sshkey_:,";
+    while(pos) {
+        tmp = int2String(entryCount);
+        size += strlen(tmp);
+        free(tmp);
+        size += strlen(pos->key);
+        
+        entryCount++;
+        pos = pos->next;
+    }
+    size += (strlen(key) * entryCount);
     
     return size;
 }
