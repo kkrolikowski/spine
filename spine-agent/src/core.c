@@ -276,31 +276,27 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
-			updateHostInfo(net.ipaddr, clientResponse, lf);
-			updateServiceState(clientResponse);
-			if(clientNeedUpdate(clientResponse)) {
-				system_id = jsonVal(clientResponse, "systemid");
-                                if(!ReadHostConfig(system_id, &config, lf)) {
-                                    logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
-                                    writeLog(lf, logentry);
-                                }
-                                if(!getSystemAccounts(&configdata, system_id)) {
-                                    logentry = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
-                                    writeLog(lf, logentry);
-                                }
-				cleanWWWConfiguration(system_id);
-				configstring = BuildConfigurationPackage(configdata);
-				clifd = connector(net.ipaddr, 2016);
-				SendPackage(clifd, configstring);
+                    updateHostInfo(net.ipaddr, clientResponse, lf);
+                    updateServiceState(clientResponse);
+                    if(clientNeedUpdate(clientResponse)) {
+                        system_id = jsonVal(clientResponse, "systemid");
+                        if(!ReadHostConfig(system_id, &config, lf)) {
+                            logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
+                            writeLog(lf, logentry);
+                        }
+                        cleanWWWConfiguration(system_id);
+                        configstring = BuildConfigurationPackage(&config);
+                        clifd = connector(net.ipaddr, 2016);
+                        SendPackage(clifd, configstring);
 
-				logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
-				writeLog(lf, logentry);
+                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
+                        writeLog(lf, logentry);
 
-				close(clifd);
-				clearConfigData(&configdata);
-				free(configstring);
-				free(system_id);
-			}
+                        close(clifd);
+                        clearConfigData(&configdata);
+                        free(configstring);
+                        free(system_id);
+                    }
 		}
 		close(net.sock);
 		free(net.ipaddr);
@@ -493,7 +489,7 @@ int clientNeedUpdate(char * clientData) {
 	else
 		return 0;
 }
-char * BuildConfigurationPackage(hostconfig data) {
+char * BuildConfigurationPackage(hostconfig * data) {
 	size_t len = 0;
 	char * tmp = NULL;
 
@@ -502,15 +498,15 @@ char * BuildConfigurationPackage(hostconfig data) {
 	memset(buff, '\0', PACKAGE_SIZE);
 
 	// string zawierajacy numer wersji konfiguracji
-	char * s_config_ver = int2String(data.confVer);
+	char * s_config_ver = int2String(data->confVer);
 	char * s_htusers_count = int2String(data.htusers_count);
 
 	strcpy(buff, "[");
-        if((tmp = sysusersPackage(data.sysUsers)) != NULL) {
+        if((tmp = sysusersPackage(data->sysUsers)) != NULL) {
             strcat(buff, tmp);
             free(tmp);
         }
-	tmp = apacheConfigPackage(data);
+	tmp = apacheConfigPackage(data->httpd);
 	strcat(buff, tmp);
 	free(tmp);
 	tmp = readHtpasswdData(data.htpasswd);
@@ -544,12 +540,17 @@ int fileExist(char * path) {
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
     int status = 1;         // status funkcji: 1 - sukces, 0 - error
-    char * msg = NULL;      // wpis do logow
+    char * msg = NULL;      // wpis do logow;
     
-    if(!ReadWWWConfiguration(hostid, conf->httpd, lf)) {
+    if(!ReadWWWConfiguration(hostid, conf, lf)) {
         msg = mkString("[ERROR] Nie powiodlo sie odczytanie danych apacza");
         writeLog(lf, msg);
         status = 0;
     }
+    if(!getSystemAccounts(conf, hostid)) {
+        msg = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
+        writeLog(lf, msg);
+    }
+    conf->confVer = conf->httpd->vhost->version;
     return status;
 }
