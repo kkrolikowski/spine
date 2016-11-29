@@ -608,6 +608,7 @@ int getApachedataSize(httpdata www) {
     int htpasswdPackageSize = getHtPasswdPackageSize(www->htpasswd);
     
     size = vhostPackageSize + htpasswdPackageSize;
+    size += strlen("datatype:apache,");
     
     return size;
 }
@@ -660,6 +661,16 @@ int getVhostPackageSize(vhostData * vhd) {
 }
 int getHtPasswdPackageSize(htpasswdData * htp) {
     int size = 0;
+    htpasswdData * pos = htp;
+    int entryCount = 0;
+    
+    char * key = "htpasswd:,";
+    while(pos) {
+        size += strlen(pos->entry);
+        entryCount++;
+        pos = pos->next;
+    }
+    size += strlen(key) + entryCount;
     
     return size;
 }

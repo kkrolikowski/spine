@@ -70,4 +70,7 @@ int removeVhost(char * os, wwwdata vhosts[], int vhostCount);
 // funckja zwraca wartosc pamieci potrzebna do przechowania danych vhostow
 int getVhostPackageSize(vhostData * vhd);
 
+// funkcja zwraca wartosc pamieci potrzebna do przechowania opcji z kontami htpasswd
+int getHtPasswdPackageSize(htpasswdData * htp);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */
