@@ -228,9 +228,10 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
-int ReadWWWConfiguration(char * hostid, httpdata www, FILE * lf) {
+int ReadWWWConfiguration(char * hostid, hostconfig * cf, FILE * lf) {
     int status = 1;         // 1 - sukces, 0 - fail
     char * msg = NULL;      // komunikaty z logami
+    httpdata www = cf->httpd;
     
     if((www.htpasswd = ReadHtpasswdData(hostid)) == NULL) {
         msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
@@ -362,12 +363,12 @@ vhostData * ReadVhostData(char * hostid) {
     return head;
 }
 char * readData(char * input) {
-	size_t len = strlen(input) + 1;
-	char * tmp = (char *) malloc(len * sizeof(char));
-	memset(tmp, '\0', len);
-	strcpy(tmp, input);
+    size_t len = strlen(input) + 1;
+    char * tmp = (char *) malloc(len * sizeof(char));
+    memset(tmp, '\0', len);
+    strncpy(tmp, input, len);
 
-	return tmp;
+    return tmp;
 }
 int getDBHostID(char * hwaddr) {
 	extern MYSQL * dbh;
@@ -534,29 +535,11 @@ int getSystemAccounts(hostconfig * hc, char * systemid) {
                 // inicjujemy wezel
                 curr = (sysuser *) malloc(sizeof(sysuser));
                 
-                // zapisujemy w pamieci login uzytkownika
-                len = strlen(row[0]) + 1;
-                curr->login = (char *) malloc(len * sizeof(char));
-                memset(curr->login, '\0', len);
-                strncpy(curr->login, row[0], len);
-                
-                // zapisujemy w pamieci haslo uzytkownika
-                len = strlen(row[1]) + 1;
-                curr->sha512 = (char *) malloc(len * sizeof(char));
-                memset(curr->sha512, '\0', len);
-                strncpy(curr->sha512, row[1], len);
-                
-                // zapisujemy w pamieci GECOS
-                len = strlen(row[2]) + 1;
-                curr->gecos = (char *) malloc(len * sizeof(char));
-                memset(curr->gecos, '\0', len);
-                strncpy(curr->gecos, row[2], len);
-                
-                // zapisujemy w pamieci UID/GID uzytkownika
-                curr->uidgid = atoi(row[3]);
-                
-                // zapisujemy w pamieci informacje na temat statusu konta
-                curr->active = atoi(row[4]);
+                curr->login     = readData(row[0]);     // login
+                curr->sha512    = readData(row[1]);     // haslo
+                curr->gecos     = readData(row[2]);     // GECOS
+                curr->uidgid    = atoi(row[3]);         // UID/GID usera
+                curr->active    = atoi(row[4]);         // status konta
                 
                 // zapisujemy w pamieci informacje na temat expiracji konta
                 if(!strcmp(row[5], "Never"))
