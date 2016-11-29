@@ -104,7 +104,7 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 		free(vhost[i].status);
 	}
 }
-char * apacheConfigPackage(hostconfig data) {
+char * apacheConfigPackage(httpdata www) {
 	int vidx;					// vhost index
 	size_t len = 0;				// liczba bajtow konfiguracji
 	char * numstr = NULL;		// string z liczby
@@ -601,4 +601,65 @@ int removeVhost(char * os, wwwdata vhosts[], int vhostCount) {
 	}
 
 	return count;
+}
+int getApachedataSize(httpdata www) {
+    int size = 0;
+    int vhostPackageSize = getVhostPackageSize(www->vhost);
+    int htpasswdPackageSize = getHtPasswdPackageSize(www->htpasswd);
+    
+    size = vhostPackageSize + htpasswdPackageSize;
+    
+    return size;
+}
+int getVhostPackageSize(vhostData * vhd) {
+    int size = 0;           // licznik bajtow
+    int keysize = 0;        // rozmiar kluczy w pakiecie
+    vhostData * pos = vhd;  // aktualna pozycja w pamieci
+    char * tmp = NULL;      // tymczasowa zmienna do przechowania
+                            // wartosci numerycznych w formie stringu
+    int vhostCount = 0;     // zliczanie liczby vhostow
+    
+    // nazwy kluczy w pakiecie;
+    const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
+                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,", 
+                            "vhost_:", "{},", NULL};
+    const char ** key = keys;
+    while(*key) {
+        keysize += strlen(*key);
+        key++;
+    }
+    
+    while(pos) {
+        // Dane tekstowe
+        size += strlen(pos->DocumentRoot);
+        size += strlen(pos->ServerAlias);
+        size += strlen(pos->ServerName);
+        size += strlen(pos->apacheOpts);
+        size += strlen(pos->htaccess);
+        size += strlen(pos->htusers);
+        size += strlen(pos->purgedir);
+        size += strlen(pos->status);
+        size += strlen(pos->user);
+        size += strlen(pos->vhost_access_list);
+        size += strlen(pos->vhost_access_order);
+        
+        // Dane numeryczne;
+        tmp = int2String(pos->password_access);
+        size += strlen(tmp);
+        free(tmp);
+        tmp = int2String(vhostCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        vhostCount++;
+        pos = pos->next;
+    }
+    size += keysize * vhostCount;
+    
+    return size;
+}
+int getHtPasswdPackageSize(htpasswdData * htp) {
+    int size = 0;
+    
+    return size;
 }

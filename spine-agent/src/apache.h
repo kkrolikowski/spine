@@ -67,4 +67,7 @@ void clearAuthData(char * os);
 // funkcja kasuje konfiguracje oraz zawartosc stron www. Zwraca liczbe skasowanych witryn
 int removeVhost(char * os, wwwdata vhosts[], int vhostCount);
 
+// funckja zwraca wartosc pamieci potrzebna do przechowania danych vhostow
+int getVhostPackageSize(vhostData * vhd);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */
