@@ -193,3 +193,52 @@ void cleanSSHKeyData(sshkeys * k) {
         cleanSSHKeyData(next);
     free(curr);
 }
+int getSysUsersPackageSize(sysuser * su) {
+    int size = 0;           // licznik bajtow
+    int keysize = 0;        // rozmiar kluczy w pakiecie
+    sysuser * pos = su;     // aktualna pozycja w pamieci
+    char * tmp = NULL;      // tymczasowa zmienna do przechowania
+                            // wartosci numerycznych w formie stringu
+    int userCount = 0;      // zliczanie liczby vhostow
+    
+    // nazwy kluczy w pakiecie;
+    const char * keys[] = { "username:,", "password:,", "gecos:,", "expire:,",
+                            "uidgid:,", "active:,", "purgedir:,", "shell:,",
+                            "user_:", "{},", NULL};
+    const char ** key = keys;
+    while(*key) {
+        keysize += strlen(*key);
+        key++;
+    }
+    
+    while(pos) {
+        // Dane tekstowe
+        size += strlen(pos->gecos);
+        size += strlen(pos->login);
+        size += strlen(pos->sha512);
+        
+        // Dane numeryczne;
+        tmp = int2String(pos->active);
+        size += strlen(tmp);
+        free(tmp);
+        tmp = int2String(pos->expiration);
+        size += strlen(tmp);
+        free(tmp);
+        tmp = int2String(pos->shellaccess);
+        size += strlen(tmp);
+        free(tmp);
+        tmp = int2String(pos->uidgid);
+        size += strlen(tmp);
+        free(tmp);
+        
+        tmp = int2String(userCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        userCount++;
+        pos = pos->next;
+    }
+    size += keysize * userCount;
+    
+    return size;
+}

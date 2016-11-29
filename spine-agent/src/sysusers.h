@@ -13,5 +13,7 @@ void cleanSysUsersData(sysuser * su);
 // czyszczenie pamieci zwiazanej z kluczami ssh userow
 void cleanSSHKeyData(sshkeys * k);
 
+// funkcja zliczajaca wielkosc pakietu z kontami systemowymi
+int getSysUsersPackageSize(sysuser * su);
 #endif /* SYSUSERS_H */
 
