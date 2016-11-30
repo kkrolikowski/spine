@@ -17,8 +17,6 @@ char * sysusersPackage(sysuser * su) {
     char * s_shell_val = NULL;          // flaga dostepu do shella w formie stringu
     sysuser * su_begin = su;            // poczatek wezla
     sysuser * su_curr = su;             // aktualnie przetwarzane konto
-    size_t package_keys_len = 0;        // rozmiar kluczy pakietu
-    size_t package_vals_len = 0;        // rozmiar wartosci kluczy w pakiecie
     size_t package_len = 0;             // calkowity rozmiar pakietu
     
     // klucze dla wartosci w pakiecie i inne stale elementy
@@ -36,46 +34,7 @@ char * sysusersPackage(sysuser * su) {
         return NULL;
     
     // obliczanie ilosci pamieci potrzebnej do przechowania pakietu
-    package_keys_len = strlen(s_user) + strlen(s_username) +
-            strlen(s_password) + strlen(s_gecos) + strlen(s_active) +
-            strlen(s_uidgid) + strlen(s_shell) + strlen(s_expire);
-    
-    while(su_curr) {
-        s_index = int2String(index);
-        package_vals_len += strlen(s_index);
-        if(s_index != NULL) free(s_index);
-        package_vals_len += strlen(su_curr->gecos);
-        package_vals_len += strlen(su_curr->login);
-        package_vals_len += strlen(su_curr->sha512);
-        
-        s_expval_val = int2String(su_curr->expiration);
-        package_vals_len += strlen(s_expval_val);
-        if(s_expval_val != NULL) free(s_expval_val);
-        
-        s_uidgid_val = int2String(su_curr->uidgid);
-        package_vals_len += strlen(s_uidgid_val);
-        if(s_uidgid_val != NULL) free(s_uidgid_val);
-        
-        s_active_val = int2String(su_curr->active);
-        package_vals_len += strlen(s_active_val);
-        if(s_active_val != NULL) free(s_active_val);
-        
-        s_shell_val = int2String(su_curr->shellaccess);
-        package_vals_len += strlen(s_shell_val);
-        if(s_shell_val != NULL) free(s_shell_val);
-        
-        keyentry = sshkeysPackage(su_curr->sshkey);
-        package_vals_len += strlen(keyentry);
-        if(keyentry != NULL) free(keyentry);
-        
-        index++;
-        su_curr = su_curr->next;
-    }
-    
-    // obliczamy potrzebna ilosc pamieci a nastepnie ja alokujemy 
-    package_len = package_vals_len +            // dlugosc wszystkich wartosci
-            index * (package_keys_len + 10) +    // dlugosc wszystkich kluczy + przecinek i klamry
-            strlen(header) + 2;                 // dlugosc naglowka (header) + klamra zamykajaca pakiet
+    package_len = getSysUsersPackageSize(su);
     package = (char *) malloc(package_len * sizeof(char));
     memset(package, '\0', package_len);
     
