@@ -9,36 +9,27 @@
 #include "core.h"
 
 char * readHtpasswdData(htpasswdData * htpasswd) {
-	char * str = NULL;				// string wynikowy
-	htpasswdData * pos = NULL;		// aktualna pozycja na liscie
+    char * str = NULL;			// string wynikowy
+    htpasswdData * pos = NULL;		// aktualna pozycja na liscie
+    char * prefix = "htpasswd:";	// prefix listy
+    size_t len = getHtPasswdPackageSize(htpasswd);	// rozmiar obszaru pamieci
 
-	char * prefix = "htpasswd:";	// prefix listy
-	size_t len = strlen(prefix);	// rozmiar obszaru pamieci
+    // przygotowujemy pamiec, ktora przechowa string wynikowy
+    str = (char *) malloc(len * sizeof(char));
+    memset(str, '\0', len);
 
-	// obliczamy ile bajtow zajmuja wszystkie elementy z listy
-	pos = htpasswd;
-	while(pos != NULL) {
-		len += strlen(pos->entry);
-		len++;
-		pos = pos->next;
-	}
-	len += 2;
-	// przygotowujemy pamiec, ktora przechowa string wynikowy
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
+    // wypelniamy pamiec danymi
+    strncpy(str, prefix, strlen(prefix) + 1);
+    pos = htpasswd;
+    while(pos != NULL) {
+        strncat(str, pos->entry, strlen(pos->entry) + 1);
+        strncat(str, "#", 2);
+        pos = pos->next;
+    }
+    clearHtpasswdData(htpasswd);
+    str[strlen(str) - 1] = ',';
 
-	// wypelniamy pamiec danymi
-	strcpy(str, prefix);
-	pos = htpasswd;
-	while(pos != NULL) {
-		strcat(str, pos->entry);
-		strcat(str, "#");
-		pos = pos->next;
-	}
-	clearHtpasswdData(htpasswd);
-	str[strlen(str) - 1] = ',';
-
-	return str;
+    return str;
 }
 void clearHtpasswdData(htpasswdData * htpasswd) {
 	htpasswdData * curr = NULL;
@@ -105,65 +96,63 @@ void clearVhostData(struct wwwdata vhost[], int n) {
 	}
 }
 char * apacheConfigPackage(httpdata www) {
-	int vidx;					// vhost index
-	size_t len = 0;				// liczba bajtow konfiguracji
+	int vidx;			// vhost index
+	size_t packageSize = 0;         // rozmiar pakietu
+        char * package = NULL;          // pakiet konfiguracyjny
 	char * numstr = NULL;		// string z liczby
-	char * vhostdata = NULL; 	// zawartosc vhosta
+	char * entry = NULL;            // zawartosc vhosta
 	char * metainfo = NULL;		// dane pomocnicze
-	char * configstr = NULL;	// string przechowujacy odczytana konfiguracje
 	char * authbasic = NULL;	// flaga okreslajaca, czy jest wlaczone haslo na witrynie
+        vhostData * vhpos = www->vhost; // wskaznik pomocniczny, ktory bedzie przemieszczal sie po wezle
+        
+        // naglowek pakietu danych
+        char * package_header = "{datatype:apache,";
 
-	// bufor na dane konfiguracyjne
-	char buff[PACKAGE_SIZE];
-	memset(buff, '\0', PACKAGE_SIZE);
-
-	strcpy(buff, "{datatype:apache,");		// definiujemy typ konfiguracji (apache)
-
-	// przetwarzamy dodane vhosty apacza
-	for(vidx = 0; vidx < data.vhost_num; vidx++) {
-
-		numstr = int2String(vidx);
-		authbasic = int2String(data.vhost[vidx].password_access);
-		metainfo = mkString("vhost_", numstr, NULL);
-		strcat(buff, metainfo);
-
-		vhostdata = mkString(
-				":{ServerName:", data.vhost[vidx].ServerName,
-				",ServerAlias:", data.vhost[vidx].ServerAlias,
-				",DocumentRoot:", data.vhost[vidx].DocumentRoot,
-				",ApacheOpts:", data.vhost[vidx].apacheOpts,
-				",VhostAccessOrder:", data.vhost[vidx].vhost_access_order,
-				",VhostAccessList:", data.vhost[vidx].vhost_access_list,
-				",htaccess:", data.vhost[vidx].htaccess,
-				",authbasic:", authbasic,
-				",htusers:", data.vhost[vidx].htusers,
-				",vhoststatus:", data.vhost[vidx].status,
-				",purgedir:", data.vhost[vidx].purgedir,
-				",user:", data.vhost[vidx].user, "},", NULL);
-		strcat(buff, vhostdata);
-
-		free(vhostdata);
-		free(numstr);
-		free(authbasic);
-		free(metainfo);
-	}
+        // zaalokowania pamieci dla calego pakietu
+        packageSize = getApachedataSize(www);
+        package = (char *) malloc(packageSize * sizeof(char));
+        memset(package, '\0', packageSize);
+        
+        // budujemy pakiet
+        strncpy(package, package_header, strlen(package_header)); // definiujemy typ konfiguracji (apache)
+        while(vhpos) {
+            numstr = int2String(vidx);
+            authbasic = int2String(vhpos->password_access);
+            entry = mkString(
+                            "vhost_", numstr, ":{",
+                            "ServerName:",       vhpos->ServerName,         ",",
+                            "ServerAlias:",      vhpos->ServerAlias,        ",",
+                            "DocumentRoot:",     vhpos->DocumentRoot,       ",",
+                            "ApacheOpts:",       vhpos->apacheOpts,         ",",
+                            "VhostAccessOrder:", vhpos->vhost_access_order, ",",
+                            "VhostAccessList:",  vhpos->vhost_access_list,  ",",
+                            "htaccess:",         vhpos->htaccess,           ",",
+                            "authbasic:",        authbasic,                 ",",
+                            "htusers:",          vhpos->htusers,            ",",
+                            "vhoststatus:",      vhpos->status,             ",",
+                            "purgedir:",         vhpos->purgedir,           ",",
+                            "user:",             vhpos->user,               "}",
+                            ",", NULL);
+            strncat(package, entry, strlen(entry) + 1);
+            
+            // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+            free(entry);
+            free(numstr);
+            free(authbasic);
+            vidx++;
+            vhpos = vhpos->next;
+        }
 
 	// dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-	numstr = int2String(data.vhost_num);
+	numstr = int2String(vidx);
 	metainfo = mkString("vhost_num:", numstr, ",", NULL);
-	strcat(buff, metainfo);
-
-	// kopiujemy zawartosc bufora do pamieci
-	len = strlen(buff) + 1;
-	configstr = (char *) malloc(len * sizeof(char));
-	memset(configstr, '\0', len);
-	strncpy(configstr, buff, len);
+	strncat(package, metainfo, strlen(metainfo) + 1);
 
 	// czyscimy niepotrzebne dane
 	free(numstr);
 	free(metainfo);
 
-	return configstr;
+	return package;
 }
 void createHtpasswdFile(char * os, htpasswdData * htpasswd) {
 	char * htpasswd_path = NULL;
@@ -608,7 +597,9 @@ int getApachedataSize(httpdata www) {
     int htpasswdPackageSize = getHtPasswdPackageSize(www->htpasswd);
     
     size = vhostPackageSize + htpasswdPackageSize;
-    size += strlen("datatype:apache,");
+    size += strlen("{datatype:apache,");
+    size += strlen("vhost_num:,");
+    size += strlen("htpasswd_count:,");
     
     return size;
 }
@@ -673,4 +664,24 @@ int getHtPasswdPackageSize(htpasswdData * htp) {
     size += strlen(key) + entryCount;
     
     return size;
+}
+int getVhostsCount(vhostData *vh) {
+    int sum  = 0;
+    vhostData * pos = vh;
+    
+    while(pos) {
+        sum++;
+        pos = pos->next;
+    }
+    return sum;
+}
+int getHTusersCount(htpasswdData * htp) {
+    int sum = 0;
+    htpasswdData * pos = htp;
+    
+    while(pos) {
+        sum++;
+        pos = pos->next;
+    }
+    return sum;
 }

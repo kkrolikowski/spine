@@ -22,7 +22,7 @@ void initConfigData(hostconfig * cfd, long vhostnum);
 void clearVhostData(struct wwwdata vhost[], int n);
 
 // funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
-char * apacheConfigPackage(hostconfig data);
+char * apacheConfigPackage(httpdata www);
 
 // tworzenie pliku htpasswd
 void createHtpasswdFile(char * os, htpasswdData * htpasswd);
@@ -72,5 +72,11 @@ int getVhostPackageSize(vhostData * vhd);
 
 // funkcja zwraca wartosc pamieci potrzebna do przechowania opcji z kontami htpasswd
 int getHtPasswdPackageSize(htpasswdData * htp);
+
+// funkcja zwraca liczbe vhostow apacza odczytanych z bazy;
+int getVhostsCount(vhostData *vh);
+
+// funkcja zwraca liczbe kont htpasswd odczytanych z bazy
+int getHTusersCount(htpasswdData * htp);
 
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */
