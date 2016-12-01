@@ -490,43 +490,68 @@ int clientNeedUpdate(char * clientData) {
 		return 0;
 }
 char * BuildConfigurationPackage(hostconfig * data) {
-	size_t len = 0;
-	char * tmp = NULL;
-
-	// bufor na dane konfiguracyjne
-	char buff[PACKAGE_SIZE];
-	memset(buff, '\0', PACKAGE_SIZE);
+        char * package = NULL;          // pelen pakiet danych
+        char * sysusers = NULL;         // konta uzytkownikow
+        char * vhosts = NULL;           // konfiguracja vhostow
+        char * htusers = NULL;          // konfiguracja htpasswd
+        int size = 0;                   // ilosc pamieci do zaalokowania
+        const int DataTypes = 2;        // liczba obszarow konfiguracji:
+                                        // - apache, sysusers
+        int vhost_count = 0;            // liczba odczytanych vhostow
+        int htusers_count = 0;          // liczba odczytanych kont htpasswd
+        char * k_config_ver = ",config_ver:";
+        char * k_vhost_num = "vhost_num:";
+        char * k_htpasswd_count = "htpasswd_count:";
+        char * dataType_braces = "{},";
 
 	// string zawierajacy numer wersji konfiguracji
 	char * s_config_ver = int2String(data->confVer);
-	char * s_htusers_count = int2String(data.htusers_count);
+        // odczytujemy liczbe vhostow i zamieniamy ja na string
+        vhost_count = getVhostsCount(data->httpd->vhost);
+        char * s_vhost_count = int2String(vhost_count);
+        // odczytujemy liczbe kont htpasswd i zamieniamy ja na string
+        htusers_count = getHTusersCount(data->httpd->htpasswd);
+        char * s_htusers_count = int2String(htusers_count);  
+        
+         // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
+        size = getSysUsersPackageSize(data->sysUsers);
+        size += getApachedataSize(data->httpd);
+        size += strlen(s_config_ver) + strlen(k_config_ver);
+        size += strlen(s_vhost_count) + strlen(k_vhost_num);
+        size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
+        size += (strlen(dataType_braces) * DataTypes) + strlen("[]") + 1; 
 
-	strcpy(buff, "[");
-        if((tmp = sysusersPackage(data->sysUsers)) != NULL) {
-            strcat(buff, tmp);
-            free(tmp);
-        }
-	tmp = apacheConfigPackage(data->httpd);
-	strcat(buff, tmp);
-	free(tmp);
-	tmp = readHtpasswdData(data.htpasswd);
-	strcat(buff, tmp);
-	free(tmp);
-	strcat(buff, "htpasswd_count:");
-	strcat(buff, s_htusers_count);
-	strcat(buff, ",config_ver:");
-	strcat(buff, s_config_ver);
-	strcat(buff, "}]");
+        // alokujemy cala potrzebna pamiec
+        package = (char *) malloc(size * sizeof(char));
+        memset(package, '\0', size);
+        
+        // odczytujemy poszczegolne sekcje konfiguracji
+        sysusers = sysusersPackage(data->sysUsers);
+        vhosts = apacheConfigPackage(data->httpd);
+        htusers = readHtpasswdData(data->httpd->htpasswd);
+        
+        // skladamy pakiet w calosc
+	strncpy(package, "[", 2);
+        strncat(package, sysusers, strlen(sysusers) + 1);
+        strncat(package, vhosts, strlen(vhosts) + 1);
+        strncat(package, k_vhost_num, strlen(k_vhost_num) + 1);
+        strncat(package, s_vhost_count, strlen(s_vhost_count) + 1);
+        strncat(package, htusers, strlen(htusers) + 1);
+	strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
+	strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
+	strncat(package, k_config_ver, strlen(k_config_ver) + 1);
+	strncat(package, s_config_ver, strlen(s_config_ver));
+	strncat(package, "}]", 3);
 
-	len = strlen(buff) + 1;
-	tmp = (char *) malloc(len + 1);
-	memset(tmp, '\0', len);
-	strncpy(tmp, buff, len);
-
+        // zwalniamy pamiec
 	free(s_config_ver);
 	free(s_htusers_count);
+        free(s_vhost_count);
+        free(htusers);
+        free(vhosts);
+        free(sysusers);
 
-	return tmp;
+	return package;
 }
 int fileExist(char * path) {
 	FILE * fp = NULL;
