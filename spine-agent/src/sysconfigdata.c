@@ -218,16 +218,26 @@ int writeLocalConfigVersion(int ver) {
 	return 1;
 }
 void ParseConfigData(char * json, hostconfig * conf) {
-    int i;                      // biezacy numer vhosta
-    char * config_pos = NULL;   // pozycja w stringu wzgledem vhost_(n)
-    char * vheader = NULL;      // tutaj bedzie naglowek vhost_(n)
-    char * index = NULL;        // biezacy numer vhosta w formie stringu
-    char * authbasic = NULL;    // wartosc tekstowa skladnika password_access
+    /*                 Dane ogolne                     */
     
     // przetwarzamy numer wersji konfiguracji
     char * confver_s = jsonVal(json, "config_ver");
     conf->confVer = atoi(confver_s);
     free(confver_s);
+    // przetwarzamy typ pakietu
+    conf->datatype = jsonVal(json, "datatype");
+    
+    /*                 Obszary konfiguracji            */
+    
+    // Serwer WWW
+    ParseConfigDataAPACHE(json, &conf->httpd);
+}
+void ParseConfigDataAPACHE(char * json, httpdata * www) {
+    int i;                      // biezacy numer vhosta
+    char * config_pos = NULL;   // pozycja w stringu wzgledem vhost_(n)
+    char * vheader = NULL;      // tutaj bedzie naglowek vhost_(n)
+    char * index = NULL;        // biezacy numer vhosta w formie stringu
+    char * authbasic = NULL;    // wartosc tekstowa skladnika password_access
     
     // przetwarzamy calkowita liczbe vhostow
     char * vhostnum_s = jsonVal(json, "vhost_num");
@@ -238,9 +248,6 @@ void ParseConfigData(char * json, hostconfig * conf) {
     char * htusers_count_s = jsonVal(json, "htpasswd_count");
     int htusersCount = atoi(htusers_count_s);
     free(htusers_count_s);
-    
-    // przetwarzamy typ pakietu
-    conf->datatype = jsonVal(json, "datatype");
     
     char * htpasswd_s = NULL;   // string przechowujacy dane htpasswd
 
@@ -283,12 +290,13 @@ void ParseConfigData(char * json, hostconfig * conf) {
     }
     if(htusersCount > 0) {
         htpasswd_s = jsonVal(json, "htpasswd");
-        conf->httpd->htpasswd = parseHtpasswdData(htpasswd_s);
+        www->htpasswd = parseHtpasswdData(htpasswd_s);
         free(htpasswd_s);
     }
     else
-        conf->httpd->htpasswd = NULL;
-
+        www->htpasswd = NULL;
+    
+    www->vhost = head;
 }
 char * linuxDistro(void) {
 	char buff[128];

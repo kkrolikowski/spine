@@ -95,4 +95,7 @@ unsigned long getCurrentTime(void);
 // funkcja zwraca string zawierajacy procent utylizacji cpu
 char * CPUusage(void);
 
+// funkcja wczytuje do pamieci dane konfiguracyjne apacza
+void ParseConfigDataAPACHE(char * json, httpdata * www);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
