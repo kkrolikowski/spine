@@ -180,7 +180,7 @@ char * ulong2String(unsigned long n) {
 	char * str = NULL;
 	size_t len = 0;
 
-	sprintf(tmp, "%ld", n);
+	sprintf(tmp, "%lu", n);
 	len = strlen(tmp) + 1;
 	str = (char *) malloc(len * sizeof(char));
 	memset(str, '\0', len);
@@ -257,7 +257,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		}
 		if(!strcmp(mode, "client")) {
                     os = linuxDistro();
-                    config = ParseConfigData(clientResponse);
+                    ParseConfigData(clientResponse, &config);
                     if(readLocalConfigVersion() < config.confVer) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.vhost_num > 0) {
