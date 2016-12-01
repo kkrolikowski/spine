@@ -581,7 +581,7 @@ int getApachedataSize(httpdata www) {
     int htpasswdPackageSize = getHtPasswdPackageSize(www->htpasswd);
     
     size = vhostPackageSize + htpasswdPackageSize;
-    size += strlen("{datatype:apache,");
+    size += strlen("{datatype:apache,}");
     size += strlen("vhost_num:,");
     size += strlen("htpasswd_count:,");
     
