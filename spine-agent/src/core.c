@@ -256,23 +256,23 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		if(!strcmp(mode, "client")) {
-			os = linuxDistro();
-			config = ParseConfigData(clientResponse);
-			if(readLocalConfigVersion() < config.confVer) {
-				if(!strcmp(config.datatype, "hostconfig")) {
-					if(config.vhost_num > 0) {
-						apacheSetup(config, os, lf);
-						if(writeLocalConfigVersion(configdata.confVer))
-							logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
-						else
-							logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
-						writeLog(lf, logentry);
+                    os = linuxDistro();
+                    config = ParseConfigData(clientResponse);
+                    if(readLocalConfigVersion() < config.confVer) {
+                        if(!strcmp(config.datatype, "hostconfig")) {
+                            if(config.vhost_num > 0) {
+                                apacheSetup(config, os, lf);
+                                if(writeLocalConfigVersion(configdata.confVer))
+                                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
+                                else
+                                        logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
+                                writeLog(lf, logentry);
 
-//	!!!!DO WYWALENIA!!!!			clearVhostData(configdata.vhost, configdata.vhost_num);
-					}
-				}
-			}
-			free(os);
+//	!!!!DO WYWALENIA!!!!	clearVhostData(configdata.vhost, configdata.vhost_num);
+                            }
+                        }
+                    }
+                    free(os);
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
