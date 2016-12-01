@@ -20,7 +20,7 @@ char * sysusersPackage(sysuser * su) {
     size_t package_len = 0;             // calkowity rozmiar pakietu
     
     // klucze dla wartosci w pakiecie i inne stale elementy
-    char * header = "{datatype:sysusers,";
+    char * header = "{scope:sysusers,";
     char * s_user = "user_";
     char * s_username = "username:";
     char * s_password = "password:";
@@ -201,7 +201,7 @@ int getSysUsersPackageSize(sysuser * su) {
         pos = pos->next;
     }
     size += keysize * userCount;
-    size += strlen("{datatype:sysusers,}");
+    size += strlen("{scope:sysusers,}");
     
     return size;
 }

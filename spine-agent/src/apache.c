@@ -89,7 +89,7 @@ char * apacheConfigPackage(httpdata www) {
         vhostData * vhpos = www->vhost; // wskaznik pomocniczny, ktory bedzie przemieszczal sie po wezle
         
         // naglowek pakietu danych
-        char * package_header = "{datatype:apache,";
+        char * package_header = "{scope:apache,";
 
         // zaalokowania pamieci dla calego pakietu
         packageSize = getApachedataSize(www);
@@ -581,7 +581,7 @@ int getApachedataSize(httpdata www) {
     int htpasswdPackageSize = getHtPasswdPackageSize(www->htpasswd);
     
     size = vhostPackageSize + htpasswdPackageSize;
-    size += strlen("{datatype:apache,}");
+    size += strlen("{scope:apache,}");
     size += strlen("vhost_num:,");
     size += strlen("htpasswd_count:,");
     

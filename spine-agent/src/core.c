@@ -519,7 +519,7 @@ char * BuildConfigurationPackage(hostconfig * data) {
         size += strlen(s_config_ver) + strlen(k_config_ver);
         size += strlen(s_vhost_count) + strlen(k_vhost_num);
         size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
-        size += (strlen(dataType_braces) * DataTypes) + strlen("[]") + 1; 
+        size += (strlen(dataType_braces) * DataTypes) + strlen("[datatype:hostconfig]") + 1; 
 
         // alokujemy cala potrzebna pamiec
         package = (char *) malloc(size * sizeof(char));
@@ -531,7 +531,7 @@ char * BuildConfigurationPackage(hostconfig * data) {
         htusers = readHtpasswdData(data->httpd->htpasswd);
         
         // skladamy pakiet w calosc
-	strncpy(package, "[", 2);
+	strncpy(package, "[datatype:hostconfig", 2);
         strncat(package, sysusers, strlen(sysusers) + 1);
         strncat(package, vhosts, strlen(vhosts) + 1);
         strncat(package, k_vhost_num, strlen(k_vhost_num) + 1);
