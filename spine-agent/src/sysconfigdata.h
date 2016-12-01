@@ -71,7 +71,7 @@ int writeLocalConfigVersion(int ver);
 int readLocalConfigVersion(void);
 
 // funkcja na podstawie danych z jsona wypelnia strukture konfiguracyjna
-hostconfig ParseConfigData(char * json);
+void ParseConfigData(char * json, hostconfig * conf);
 
 // funkcja zwraca nazwe dystrybucji Linuksa
 char * linuxDistro(void);

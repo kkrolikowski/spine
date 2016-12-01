@@ -18,6 +18,7 @@
 #include "sysconfigdata.h"
 #include "network.h"
 #include "monitoring.h"
+#include "commondata.h"
 
 unsigned long getuptime(void) {
 	struct sysinfo sys;
@@ -216,61 +217,78 @@ int writeLocalConfigVersion(int ver) {
 
 	return 1;
 }
-hostconfig ParseConfigData(char * json) {
-	int i;
-	hostconfig conf;
-	char * config_pos = NULL;
-	char * vheader = NULL;
-	char * index = NULL;
-	char * authbasic = NULL;
-	char * confver_s = NULL;
-	char * vhostnum_s = NULL;
-	char * htusers_count_s = NULL;
-	char * htpasswd_s = NULL;
+void ParseConfigData(char * json, hostconfig * conf) {
+    int i;                      // biezacy numer vhosta
+    char * config_pos = NULL;   // pozycja w stringu wzgledem vhost_(n)
+    char * vheader = NULL;      // tutaj bedzie naglowek vhost_(n)
+    char * index = NULL;        // biezacy numer vhosta w formie stringu
+    char * authbasic = NULL;    // wartosc tekstowa skladnika password_access
+    
+    // przetwarzamy numer wersji konfiguracji
+    char * confver_s = jsonVal(json, "config_ver");
+    conf->confVer = atoi(confver_s);
+    free(confver_s);
+    
+    // przetwarzamy calkowita liczbe vhostow
+    char * vhostnum_s = jsonVal(json, "vhost_num");
+    int vhostCount = atoi(vhostnum_s);
+    free(vhostnum_s);
+    
+    // przetwarzamy calkowita liczbe kont htpasswd
+    char * htusers_count_s = jsonVal(json, "htpasswd_count");
+    int htusersCount = atoi(htusers_count_s);
+    free(htusers_count_s);
+    
+    // przetwarzamy typ pakietu
+    conf->datatype = jsonVal(json, "datatype");
+    
+    char * htpasswd_s = NULL;   // string przechowujacy dane htpasswd
 
-	vhostnum_s = jsonVal(json, "vhost_num");
-	conf.vhost_num = atoi(vhostnum_s);
+    // inicjujemy liste laczona
+    vhostData * curr = NULL;
+    vhostData * prev = NULL;
+    vhostData * head = NULL;
+    
+    for(i = 0; i < vhostCount; i++) {
+        index = int2String(i);
+        vheader = mkString("vhost_", index, NULL);
+        config_pos = strstr(json, vheader);
+        authbasic = jsonVal(config_pos, "authbasic");
+        
+        curr = (vhostData *) malloc(sizeof(vhostData));
+        curr->ServerName            = jsonVal(config_pos, "ServerName");
+        curr->ServerAlias           = jsonVal(config_pos, "ServerAlias");
+        curr->DocumentRoot          = jsonVal(config_pos, "DocumentRoot");
+        curr->apacheOpts            = jsonVal(config_pos, "ApacheOpts");
+        curr->vhost_access_order    = jsonVal(config_pos, "VhostAccessOrder");
+        curr->vhost_access_list     = jsonVal(config_pos, "VhostAccessList");
+        curr->htaccess              = jsonVal(config_pos, "htaccess");
+        curr->password_access       = atoi(authbasic);
+        curr->user                  = jsonVal(config_pos, "user");
+        curr->htusers               = jsonVal(config_pos, "htusers");
+        curr->status                = jsonVal(config_pos, "vhoststatus");
+        curr->purgedir              = jsonVal(config_pos, "purgedir");
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+        
+        free(vheader);
+        free(authbasic);
+        free(index);
+        
+    }
+    if(htusersCount > 0) {
+        htpasswd_s = jsonVal(json, "htpasswd");
+        conf->httpd->htpasswd = parseHtpasswdData(htpasswd_s);
+        free(htpasswd_s);
+    }
+    else
+        conf->httpd->htpasswd = NULL;
 
-	htusers_count_s = jsonVal(json, "htpasswd_count");
-	conf.htusers_count = atoi(htusers_count_s);
-
-	initConfigData(&conf, conf.vhost_num);
-
-	conf.datatype = jsonVal(json, "datatype");
-	confver_s = jsonVal(json, "config_ver");
-	conf.confVer = atoi(confver_s);
-
-	for(i = 0; i < conf.vhost_num; i++) {
-		index = int2String(i);
-		vheader = mkString("vhost_", index, NULL);
-		config_pos = strstr(json, vheader);
-		conf.vhost[i].ServerName = jsonVal(config_pos, "ServerName");
-		conf.vhost[i].ServerAlias = jsonVal(config_pos, "ServerAlias");
-		conf.vhost[i].DocumentRoot = jsonVal(config_pos, "DocumentRoot");
-		conf.vhost[i].apacheOpts = jsonVal(config_pos, "ApacheOpts");
-		conf.vhost[i].vhost_access_order = jsonVal(config_pos, "VhostAccessOrder");
-		conf.vhost[i].vhost_access_list = jsonVal(config_pos, "VhostAccessList");
-		conf.vhost[i].htaccess = jsonVal(config_pos, "htaccess");
-		authbasic = jsonVal(config_pos, "authbasic");
-		conf.vhost[i].password_access = atoi(authbasic);
-		conf.vhost[i].user = jsonVal(config_pos, "user");
-		conf.vhost[i].htusers = jsonVal(config_pos, "htusers");
-		conf.vhost[i].status = jsonVal(config_pos, "vhoststatus");
-		conf.vhost[i].purgedir = jsonVal(config_pos, "purgedir");
-		free(authbasic);
-	}
-	if(conf.htusers_count > 0) {
-		htpasswd_s = jsonVal(json, "htpasswd");
-		conf.htpasswd = parseHtpasswdData(htpasswd_s);
-		free(htpasswd_s);
-	}
-	free(confver_s);
-	free(vhostnum_s);
-	free(htusers_count_s);
-	free(vheader);
-	free(index);
-
-	return conf;
 }
 char * linuxDistro(void) {
 	char buff[128];
