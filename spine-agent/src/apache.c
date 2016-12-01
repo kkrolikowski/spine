@@ -151,7 +151,8 @@ char * apacheConfigPackage(httpdata www) {
 	// czyscimy niepotrzebne dane
 	free(numstr);
 	free(metainfo);
-
+        cleanVhostData(www->vhost);
+        
 	return package;
 }
 void createHtpasswdFile(char * os, htpasswdData * htpasswd) {
@@ -684,4 +685,25 @@ int getHTusersCount(htpasswdData * htp) {
         pos = pos->next;
     }
     return sum;
+}
+void cleanVhostData(vhostData * vhd) {
+    vhostData * curr = vhd;
+    vhostData * next = NULL;
+    
+    free(curr->DocumentRoot);
+    free(curr->ServerAlias);
+    free(curr->ServerName);
+    free(curr->apacheOpts);
+    free(curr->htaccess);
+    free(curr->htusers);
+    free(curr->purgedir);
+    free(curr->status);
+    free(curr->user);
+    free(curr->vhost_access_list);
+    free(curr->vhost_access_order);
+    
+    next = curr->next;
+    if(next != NULL)
+        cleanVhostData(next);
+    free(curr);
 }

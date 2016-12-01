@@ -79,4 +79,7 @@ int getVhostsCount(vhostData *vh);
 // funkcja zwraca liczbe kont htpasswd odczytanych z bazy
 int getHTusersCount(htpasswdData * htp);
 
+// funkcja czysci dynamiczna lista konfiuracji vhostow
+void cleanVhostData(vhostData * vhd);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */
