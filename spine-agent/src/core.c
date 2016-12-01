@@ -268,7 +268,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 							logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
 						writeLog(lf, logentry);
 
-						clearVhostData(configdata.vhost, configdata.vhost_num);
+//	!!!!DO WYWALENIA!!!!			clearVhostData(configdata.vhost, configdata.vhost_num);
 					}
 				}
 			}
@@ -293,7 +293,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         writeLog(lf, logentry);
 
                         close(clifd);
-                        clearConfigData(&configdata);
                         free(configstring);
                         free(system_id);
                     }

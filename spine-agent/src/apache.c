@@ -41,24 +41,6 @@ void clearHtpasswdData(htpasswdData * htpasswd) {
 		free(curr);
 	}
 }
-void clearConfigData(hostconfig * cfd) {
-	int i;
-
-	for(i = 0; i < cfd->vhost_num; i++) {
-		if(cfd->vhost[i].DocumentRoot != NULL) free(cfd->vhost[i].DocumentRoot);
-		if(cfd->vhost[i].ServerAlias != NULL) free(cfd->vhost[i].ServerAlias);
-		if(cfd->vhost[i].ServerName != NULL) free(cfd->vhost[i].ServerName);
-		if(cfd->vhost[i].apacheOpts != NULL) free(cfd->vhost[i].apacheOpts);
-		if(cfd->vhost[i].htaccess != NULL) free(cfd->vhost[i].htaccess);
-		if(cfd->vhost[i].user != NULL) free(cfd->vhost[i].user);
-		if(cfd->vhost[i].vhost_access_list != NULL) free(cfd->vhost[i].vhost_access_list);
-		if(cfd->vhost[i].vhost_access_order != NULL) free(cfd->vhost[i].vhost_access_order);
-		if(cfd->vhost[i].htusers != NULL) free(cfd->vhost[i].htusers);
-		if(cfd->vhost[i].status != NULL) free(cfd->vhost[i].status);
-		if(cfd->vhost[i].purgedir != NULL) free(cfd->vhost[i].purgedir);
-	}
-	if(cfd->datatype != NULL) free(cfd->datatype);
-}
 void initConfigData(hostconfig * cfd, long vhostnum) {
 	int i = 0;
 

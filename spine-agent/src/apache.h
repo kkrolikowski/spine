@@ -12,9 +12,6 @@ char * readHtpasswdData(htpasswdData * htuser);
 // funkcja czysci elementy listy elementow
 void clearHtpasswdData(htpasswdData * htpasswd);
 
-// funkcja zwalnia pamiec po prztworzeniu struktury do stringa
-void clearConfigData(hostconfig * cfd);
-
 // funckja inicjue strukture hostconfig
 void initConfigData(hostconfig * cfd, long vhostnum);
 
