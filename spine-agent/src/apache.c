@@ -78,23 +78,6 @@ void initConfigData(hostconfig * cfd, long vhostnum) {
 	cfd->htpasswd = NULL;
 	cfd->datatype = NULL;
 }
-void clearVhostData(struct wwwdata vhost[], int n) {
-	int i;
-
-	for(i = 0; i < n; i++) {
-		free(vhost[i].DocumentRoot);
-		free(vhost[i].ServerAlias);
-		free(vhost[i].ServerName);
-		free(vhost[i].htaccess);
-		free(vhost[i].user);
-		free(vhost[i].apacheOpts);
-		free(vhost[i].vhost_access_list);
-		free(vhost[i].vhost_access_order);
-		free(vhost[i].htusers);
-		free(vhost[i].purgedir);
-		free(vhost[i].status);
-	}
-}
 char * apacheConfigPackage(httpdata www) {
 	int vidx;			// vhost index
 	size_t packageSize = 0;         // rozmiar pakietu

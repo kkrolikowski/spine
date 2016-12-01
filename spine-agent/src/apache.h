@@ -18,9 +18,6 @@ void clearConfigData(hostconfig * cfd);
 // funckja inicjue strukture hostconfig
 void initConfigData(hostconfig * cfd, long vhostnum);
 
-// funkcja zwalnia pamiec pozostala po wczytaniu danych z bazy
-void clearVhostData(struct wwwdata vhost[], int n);
-
 // funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
 char * apacheConfigPackage(httpdata www);
 
