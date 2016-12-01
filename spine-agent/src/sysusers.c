@@ -201,6 +201,7 @@ int getSysUsersPackageSize(sysuser * su) {
         pos = pos->next;
     }
     size += keysize * userCount;
+    size += strlen("datatype:sysusers,");
     
     return size;
 }
