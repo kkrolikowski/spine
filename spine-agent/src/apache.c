@@ -198,29 +198,29 @@ void createHtgroupFile(char * path, wwwdata vhosts[], int n) {
 		fclose(htgroup);
 	}
 }
-void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf) {
-	char * logmessage = NULL;
-	char * htgroupDir = NULL;
-	char * htgroupFilePath = NULL;
+void createHtgroupConfig(char * os, vhostData * vhd, FILE * lf) {
+    char * logmessage = NULL;
+    char * htgroupDir = NULL;
+    char * htgroupFilePath = NULL;
 
-	if(!strcmp(os, "Ubuntu"))
-		htgroupDir = "/etc/apache2/auth";
-	else if(strstr(os, "Centos") != NULL)
-		htgroupDir = "/etc/httpd/auth";
-	htgroupFilePath = mkString(htgroupDir, "/.htgroup", NULL);
+    if(!strcmp(os, "Ubuntu"))
+        htgroupDir = "/etc/apache2/auth";
+    else if(strstr(os, "Centos") != NULL)
+        htgroupDir = "/etc/httpd/auth";
+    htgroupFilePath = mkString(htgroupDir, "/.htgroup", NULL);
 
-	if(mkdir(htgroupDir, 0755) < 0) {
-		if(errno != EEXIST) {
-			logmessage = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", htgroupDir, "\n", NULL);
-			writeLog(lf, logmessage);
-		}
-		else
-			createHtgroupFile(htgroupFilePath, vhosts, n);
-	}
-	else
-		createHtgroupFile(htgroupFilePath, vhosts, n);
+    if(mkdir(htgroupDir, 0755) < 0) {
+        if(errno != EEXIST) {
+            logmessage = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", htgroupDir, "\n", NULL);
+            writeLog(lf, logmessage);
+        }
+        else
+            createHtgroupFile(htgroupFilePath, vhd);
+    }
+    else
+        createHtgroupFile(htgroupFilePath, vhd);
 
-	free(htgroupFilePath);
+    free(htgroupFilePath);
 }
 char * accessOrder(char * str) {
 	char * allow = "allow,deny";
@@ -343,7 +343,7 @@ void apacheSetup(httpdata www, char * os, FILE * lf) {
     if(createVhostConfig(os, www.vhost, lf)) {
         createWebsiteDir(www.vhost);
         createHtaccess(www.vhost);
-        createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
+        createHtgroupConfig(os, www.vhost, lf);
         if(cfg.htusers_count > 0) {
                 createHtpasswdFile(os, cfg.htpasswd);
         }

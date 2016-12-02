@@ -27,7 +27,7 @@ htpasswdData * parseHtpasswdData(char * stream);
 void createHtgroupFile(char * path, wwwdata vhosts[], int n);
 
 // funkcja tworzy plik htgroup
-void createHtgroupConfig(char * os, wwwdata vhosts[], int n, FILE * lf);
+void createHtgroupConfig(char * os, vhostData * vhd, FILE * lf);
 
 // funkcja konfiguruje opcje order apacza na podstawie informacji z bazy
 char * accessOrder(char * str);
