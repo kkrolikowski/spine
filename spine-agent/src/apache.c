@@ -342,7 +342,7 @@ void apacheSetup(httpdata www, char * os, FILE * lf) {
     char * msg = NULL;
     if(createVhostConfig(os, www.vhost, lf)) {
         createWebsiteDir(www.vhost);
-        createHtaccess(cfg.vhost, cfg.vhost_num);
+        createHtaccess(www.vhost);
         createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
         if(cfg.htusers_count > 0) {
                 createHtpasswdFile(os, cfg.htpasswd);
@@ -364,21 +364,22 @@ void apacheSetup(httpdata www, char * os, FILE * lf) {
         reloadApache(os);
     }
 }
-void createHtaccess(wwwdata vhosts[], int n) {
-	FILE * htaccess;
-	char * htaccessPath = NULL;
-	int i;
+void createHtaccess(vhostData * vhd) {
+    FILE * htaccess;
+    char * htaccessPath = NULL;
+    vhostData * curr = vhd;
+    
+    while(curr) {
+        htaccessPath = mkString(curr->DocumentRoot, "/.htaccess", NULL);
+        if(strcmp(curr->htaccess, "NaN")) {
+            if((htaccess = fopen(htaccessPath, "w")) != NULL)
+                fprintf(htaccess, "%s\n", curr->htaccess);
 
-	for(i = 0; i < n; i++) {
-		htaccessPath = mkString(vhosts[i].DocumentRoot, "/.htaccess", NULL);
-		if(strcmp(vhosts[i].htaccess, "NaN")) {
-			if((htaccess = fopen(htaccessPath, "w")) != NULL)
-				fprintf(htaccess, "%s\n", vhosts[i].htaccess);
-
-			fclose(htaccess);
-			free(htaccessPath);
-		}
-	}
+            fclose(htaccess);
+            free(htaccessPath);
+        }
+        curr = curr->next;
+    }
 }
 void createWebsiteDir(vhostData * vhd) {
     int i;

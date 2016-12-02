@@ -46,7 +46,7 @@ void apacheSetup(httpdata www, char * os, FILE * lf);
 
 // funkcja tworzy pliki htaccess w katalogach stron www jesli wartosc htaccess jest rozna
 // od NaN
-void createHtaccess(wwwdata vhosts[], int n);
+void createHtaccess(vhostData * vhd);
 
 // funkcja tworzy Katalogi w ktorych beda znajdowac sie strony www
 void createWebsiteDir(vhostData * vhd);
