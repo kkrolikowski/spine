@@ -528,7 +528,7 @@ char * BuildConfigurationPackage(hostconfig * data) {
         htusers = readHtpasswdData(data->httpd.htpasswd);
     
         // skladamy pakiet w calosc
-	strncpy(package, "[datatype:hostconfig", strlen("[datatype:hostconfig") + 1);
+	strncpy(package, "[datatype:hostconfig,", strlen("[datatype:hostconfig,") + 1);
         strncat(package, sysusers, strlen(sysusers) + 1);
         strncat(package, vhosts, strlen(vhosts) + 1);
         strncat(package, htusers, strlen(htusers) + 1);
