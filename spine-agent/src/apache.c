@@ -368,6 +368,7 @@ void apacheSetup(httpdata www, char * os, FILE * lf) {
         writeLog(lf, msg);
         reloadApache(os);
     }
+    cleanVhostData(www.vhost);
 }
 void createHtaccess(vhostData * vhd) {
     FILE * htaccess;
