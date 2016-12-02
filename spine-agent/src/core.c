@@ -504,10 +504,10 @@ char * BuildConfigurationPackage(hostconfig * data) {
 	// string zawierajacy numer wersji konfiguracji
 	char * s_config_ver = int2String(data->confVer);
         // odczytujemy liczbe vhostow i zamieniamy ja na string
-        vhost_count = getVhostsCount(data->httpd->vhost);
+        vhost_count = getVhostsCount(data->httpd.vhost);
         char * s_vhost_count = int2String(vhost_count);
         // odczytujemy liczbe kont htpasswd i zamieniamy ja na string
-        htusers_count = getHTusersCount(data->httpd->htpasswd);
+        htusers_count = getHTusersCount(data->httpd.htpasswd);
         char * s_htusers_count = int2String(htusers_count);  
         
          // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
@@ -525,7 +525,7 @@ char * BuildConfigurationPackage(hostconfig * data) {
         // odczytujemy poszczegolne sekcje konfiguracji
         sysusers = sysusersPackage(data->sysUsers);
         vhosts = apacheConfigPackage(data->httpd);
-        htusers = readHtpasswdData(data->httpd->htpasswd);
+        htusers = readHtpasswdData(data->httpd.htpasswd);
         
         // skladamy pakiet w calosc
 	strncpy(package, "[datatype:hostconfig", 2);
@@ -547,7 +547,9 @@ char * BuildConfigurationPackage(hostconfig * data) {
         free(htusers);
         free(vhosts);
         free(sysusers);
-
+        cleanVhostData(data->httpd.vhost);
+        clearHtpasswdData(data->httpd.htpasswd);
+        
 	return package;
 }
 int fileExist(char * path) {
@@ -564,7 +566,7 @@ int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
     int status = 1;         // status funkcji: 1 - sukces, 0 - error
     char * msg = NULL;      // wpis do logow;
     
-    if(!ReadWWWConfiguration(hostid, conf, lf)) {
+    if(!ReadWWWConfiguration(hostid, conf->httpd, lf)) {
         msg = mkString("[ERROR] Nie powiodlo sie odczytanie danych apacza");
         writeLog(lf, msg);
         status = 0;
@@ -573,6 +575,6 @@ int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
         msg = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
         writeLog(lf, msg);
     }
-    conf->confVer = conf->httpd->vhost->version;
+    conf->confVer = conf->httpd.vhost->version;
     return status;
 }

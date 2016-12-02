@@ -12,9 +12,6 @@ char * readHtpasswdData(htpasswdData * htuser);
 // funkcja czysci elementy listy elementow
 void clearHtpasswdData(htpasswdData * htpasswd);
 
-// funckja inicjue strukture hostconfig
-void initConfigData(hostconfig * cfd, long vhostnum);
-
 // funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
 char * apacheConfigPackage(httpdata www);
 
@@ -75,5 +72,7 @@ int getHTusersCount(htpasswdData * htp);
 
 // funkcja czysci dynamiczna lista konfiuracji vhostow
 void cleanVhostData(vhostData * vhd);
+
+int getApachedataSize(httpdata www);
 
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */

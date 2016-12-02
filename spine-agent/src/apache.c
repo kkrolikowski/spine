@@ -41,25 +41,6 @@ void clearHtpasswdData(htpasswdData * htpasswd) {
 		free(curr);
 	}
 }
-void initConfigData(hostconfig * cfd, long vhostnum) {
-	int i = 0;
-
-	for(i = 0; i < vhostnum; i++) {
-		cfd->vhost[i].DocumentRoot = NULL;
-		cfd->vhost[i].ServerAlias = NULL;
-		cfd->vhost[i].ServerName = NULL;
-		cfd->vhost[i].apacheOpts = NULL;
-		cfd->vhost[i].htaccess = NULL;
-		cfd->vhost[i].htusers = NULL;
-		cfd->vhost[i].user = NULL;
-		cfd->vhost[i].vhost_access_list = NULL;
-		cfd->vhost[i].vhost_access_order = NULL;
-		cfd->vhost[i].purgedir = NULL;
-		cfd->vhost[i].status = NULL;
-	}
-	cfd->htpasswd = NULL;
-	cfd->datatype = NULL;
-}
 char * apacheConfigPackage(httpdata www) {
 	int vidx;			// vhost index
 	size_t packageSize = 0;         // rozmiar pakietu
@@ -68,7 +49,7 @@ char * apacheConfigPackage(httpdata www) {
 	char * entry = NULL;            // zawartosc vhosta
 	char * metainfo = NULL;		// dane pomocnicze
 	char * authbasic = NULL;	// flaga okreslajaca, czy jest wlaczone haslo na witrynie
-        vhostData * vhpos = www->vhost; // wskaznik pomocniczny, ktory bedzie przemieszczal sie po wezle
+        vhostData * vhpos = www.vhost; // wskaznik pomocniczny, ktory bedzie przemieszczal sie po wezle
         
         // naglowek pakietu danych
         char * package_header = "{scope:apache,";
@@ -116,7 +97,7 @@ char * apacheConfigPackage(httpdata www) {
 	// czyscimy niepotrzebne dane
 	free(numstr);
 	free(metainfo);
-        cleanVhostData(www->vhost);
+        cleanVhostData(www.vhost);
         
 	return package;
 }
@@ -575,8 +556,8 @@ int removeVhost(char * os, vhostData * vhd) {
 }
 int getApachedataSize(httpdata www) {
     int size = 0;
-    int vhostPackageSize = getVhostPackageSize(www->vhost);
-    int htpasswdPackageSize = getHtPasswdPackageSize(www->htpasswd);
+    int vhostPackageSize = getVhostPackageSize(www.vhost);
+    int htpasswdPackageSize = getHtPasswdPackageSize(www.htpasswd);
     
     size = vhostPackageSize + htpasswdPackageSize;
     size += strlen("{scope:apache,}");
