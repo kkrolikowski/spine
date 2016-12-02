@@ -59,7 +59,7 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf);
 void clearAuthData(char * os);
 
 // funkcja kasuje konfiguracje oraz zawartosc stron www. Zwraca liczbe skasowanych witryn
-int removeVhost(char * os, wwwdata vhosts[], int vhostCount);
+int removeVhost(char * os, vhostData * vhd);
 
 // funckja zwraca wartosc pamieci potrzebna do przechowania danych vhostow
 int getVhostPackageSize(vhostData * vhd);

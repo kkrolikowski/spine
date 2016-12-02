@@ -343,15 +343,17 @@ void reloadApache(char * os) {
 }
 void apacheSetup(httpdata www, char * os, FILE * lf) {
     char * msg = NULL;
+    int htusersCount = getHTusersCount(www.htpasswd);
+    
     if(createVhostConfig(os, www.vhost, lf)) {
         createWebsiteDir(www.vhost);
         createHtaccess(www.vhost);
         createHtgroupConfig(os, www.vhost, lf);
-        if(cfg.htusers_count > 0) {
-                createHtpasswdFile(os, cfg.htpasswd);
+        if(htusersCount > 0) {
+            createHtpasswdFile(os, www.htpasswd);
         }
         else {
-                clearAuthData(os);
+            clearAuthData(os);
         }
         msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
         writeLog(lf, msg);
@@ -361,7 +363,7 @@ void apacheSetup(httpdata www, char * os, FILE * lf) {
         msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
         writeLog(lf, msg);
     }
-    if(removeVhost(os, cfg.vhost, cfg.vhost_num)) {
+    if(removeVhost(os, www.vhost)) {
         msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
         writeLog(lf, msg);
         reloadApache(os);
@@ -534,39 +536,41 @@ void clearAuthData(char * os) {
 	if(fileExist(htgroup_path))
 		unlink(htgroup_path);
 }
-int removeVhost(char * os, wwwdata vhosts[], int vhostCount) {
-	int count = 0;
-	int i;
-	char * vhostConfig = NULL;
-	char * vhostConfigSymlink = NULL;
-	char * vhostDir = NULL;
+int removeVhost(char * os, vhostData * vhd) {
+    int count = 0;
+    int i;
+    char * vhostConfig = NULL;
+    char * vhostConfigSymlink = NULL;
+    char * vhostDir = NULL;
+    vhostData * curr = vhd;
 
-	for(i = 0; i < vhostCount; i++) {
-		vhostDir = mkString("/var/www/", vhosts[i].ServerName, "/", NULL);
-		if(!strcmp(os, "Ubuntu")) {
-			vhostConfig = mkString("/etc/apache2/sites-available/", vhosts[i].ServerName, ".conf", NULL);
-			vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", vhosts[i].ServerName, ".conf", NULL);
-		}
-		else if(strstr(os, "Centos") != NULL) {
-			vhostConfig = mkString("/etc/httpd/conf.d/", vhosts[i].ServerName, ".conf", NULL);
-		}
-		if(!strcmp(vhosts[i].status, "D")) {
-			if(vhostConfig != NULL) {
-				unlink(vhostConfig);
-				count++;
-			}
-			if(vhostConfigSymlink != NULL)
-				unlink(vhostConfigSymlink);
-		}
-		if(!strcmp(vhosts[i].purgedir, "Y"))
-			purgeDir(vhostDir);
+    while(curr) {
+        vhostDir = mkString("/var/www/", curr->ServerName, "/", NULL);
+        if(!strcmp(os, "Ubuntu")) {
+            vhostConfig = mkString("/etc/apache2/sites-available/", curr->ServerName, ".conf", NULL);
+            vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", curr->ServerName, ".conf", NULL);
+        }
+        else if(strstr(os, "Centos") != NULL) {
+            vhostConfig = mkString("/etc/httpd/conf.d/", curr->ServerName, ".conf", NULL);
+        }
+        if(!strcmp(curr->status, "D")) {
+            if(vhostConfig != NULL) {
+                unlink(vhostConfig);
+                count++;
+            }
+            if(vhostConfigSymlink != NULL)
+                unlink(vhostConfigSymlink);
+        }
+        if(!strcmp(curr->purgedir, "Y"))
+            purgeDir(vhostDir);
 
-		if(vhostConfig != NULL) free(vhostConfig);
-		if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
-		if(vhostDir != NULL) free(vhostDir);
-	}
-
-	return count;
+        if(vhostConfig != NULL) free(vhostConfig);
+        if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
+        if(vhostDir != NULL) free(vhostDir);
+        
+        curr = curr->next;
+    }
+    return count;
 }
 int getApachedataSize(httpdata www) {
     int size = 0;
