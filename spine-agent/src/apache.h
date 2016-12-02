@@ -42,7 +42,7 @@ char * apache_accesslist_entry(char * str);
 void reloadApache(char * os);
 
 // ogolna funkcja do konfiguracji apacza
-void apacheSetup(hostconfig cfg, char * os, FILE * lf);
+void apacheSetup(httpdata www, char * os, FILE * lf);
 
 // funkcja tworzy pliki htaccess w katalogach stron www jesli wartosc htaccess jest rozna
 // od NaN
@@ -53,7 +53,7 @@ void createWebsiteDir(wwwdata vhosts[], int n);
 
 // funkcja tworzy pliki z konfiguracja virtualek apacza. Polozenie
 // plikow jest uzaleznione od dystrybucji linuksa
-int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf);
+int createVhostConfig(char * distro, vhostData * vhd, FILE * lf);
 
 // funkcja kasuje pliki .htpasswd i .htgroup jesli nie ma zadnych kont
 void clearAuthData(char * os);

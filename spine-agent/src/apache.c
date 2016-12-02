@@ -338,31 +338,31 @@ void reloadApache(char * os) {
 	else if(pid > 0)
 		wait(NULL);
 }
-void apacheSetup(hostconfig cfg, char * os, FILE * lf) {
-	char * msg = NULL;
-	if(createVhostConfig(os, cfg.vhost, cfg.vhost_num, lf)) {
-		createWebsiteDir(cfg.vhost, cfg.vhost_num);
-		createHtaccess(cfg.vhost, cfg.vhost_num);
-		createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
-		if(cfg.htusers_count > 0) {
-			createHtpasswdFile(os, cfg.htpasswd);
-		}
-		else {
-			clearAuthData(os);
-		}
-		msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
-		writeLog(lf, msg);
-		reloadApache(os);
-	}
-	else {
-		msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
-		writeLog(lf, msg);
-	}
-	if(removeVhost(os, cfg.vhost, cfg.vhost_num)) {
-		msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
-		writeLog(lf, msg);
-		reloadApache(os);
-	}
+void apacheSetup(httpdata www, char * os, FILE * lf) {
+    char * msg = NULL;
+    if(createVhostConfig(os, www.vhost, lf)) {
+        createWebsiteDir(cfg.vhost, cfg.vhost_num);
+        createHtaccess(cfg.vhost, cfg.vhost_num);
+        createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
+        if(cfg.htusers_count > 0) {
+                createHtpasswdFile(os, cfg.htpasswd);
+        }
+        else {
+                clearAuthData(os);
+        }
+        msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
+        writeLog(lf, msg);
+        reloadApache(os);
+    }
+    else {
+        msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
+        writeLog(lf, msg);
+    }
+    if(removeVhost(os, cfg.vhost, cfg.vhost_num)) {
+        msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
+        writeLog(lf, msg);
+        reloadApache(os);
+    }
 }
 void createHtaccess(wwwdata vhosts[], int n) {
 	FILE * htaccess;
@@ -398,112 +398,117 @@ void createWebsiteDir(wwwdata vhosts[], int n) {
 		free(dirpath);
 	}
 }
-int createVhostConfig(char * distro, wwwdata vhosts[], int n, FILE * lf) {
-	char * configDir = NULL;			// sciezka do katalogu konfiguracyjnego apacza
-	char * configDir2 = NULL;			// Ubuntu only. sciezka do katalogu sites-enabled
-	char * apacheAuthDir = NULL;		// sciezka do katalogu z uzytkownikami i grupami apacza
-	char * logsDir = NULL;				// sciezka do logow apacza
-	char * path = NULL;					// pelna sciezka do pliku konfiguracyjnego vhosta
-	char * path2 = NULL;				// symlink do sites-enabled (Ubuntu only)
-	char * logentry = NULL;				// komunikat do logu programu
-	char * acl_entry = NULL;			// kompletna lista konfiguracji dostepu
-	char * acl_order = NULL;			// kolejnosc przetwarzania listy dostepow
-	FILE * vhost;						// uchwyt pliku vhosta
-	int counter = 0;					// liczba stworzonych vhostow
-	int vhostExist = 0;					// ustawiamy 1 jesli plik juz istnial
-	int i;
+int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
+    vhostData * pos = vhd;              // aktualna pozycja w pamieci
+    char * configDir = NULL;            // sciezka do katalogu konfiguracyjnego apacza
+    char * configDir2 = NULL;           // Ubuntu only. sciezka do katalogu sites-enabled
+    char * apacheAuthDir = NULL;        // sciezka do katalogu z uzytkownikami i grupami apacza
+    char * logsDir = NULL;              // sciezka do logow apacza
+    char * path = NULL;                 // pelna sciezka do pliku konfiguracyjnego vhosta
+    char * path2 = NULL;                // symlink do sites-enabled (Ubuntu only)
+    char * logentry = NULL;             // komunikat do logu programu
+    char * acl_entry = NULL;            // kompletna lista konfiguracji dostepu
+    char * acl_order = NULL;            // kolejnosc przetwarzania listy dostepow
+    FILE * vhost;                       // uchwyt pliku vhosta
+    int counter = 0;                    // liczba stworzonych vhostow
+    int total = getVhostsCount(vhd);    // calkowita liczba vhostow 
+    int vhostExist = 0;                 // ustawiamy 1 jesli plik juz istnial
+    int i;
 
-	if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
-		apacheAuthDir = "/etc/httpd/auth";
-		configDir = "/etc/httpd/conf.d/";
-		logsDir = "/var/log/httpd";
-	}
-	else if(!strcmp(distro, "Ubuntu")) {
-		apacheAuthDir = "/etc/apache2/auth";
-		configDir = "/etc/apache2/sites-available/";
-		configDir2 = "/etc/apache2/sites-enabled/";
-		logsDir = "/var/log/apache2";
-	}
+    // ustawiamy odpowiednie sciezki w zaleznosci od systemu operacyjnego
+    if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
+        apacheAuthDir = "/etc/httpd/auth";
+        configDir = "/etc/httpd/conf.d/";
+        logsDir = "/var/log/httpd";
+    }
+    else if(!strcmp(distro, "Ubuntu")) {
+        apacheAuthDir = "/etc/apache2/auth";
+        configDir = "/etc/apache2/sites-available/";
+        configDir2 = "/etc/apache2/sites-enabled/";
+        logsDir = "/var/log/apache2";
+    }
 
-	for(i = 0; i < n; i++) {
-		if(!strcmp(vhosts[i].status, "A")) {
-			path = mkString(configDir, vhosts[i].ServerName, ".conf", NULL);
-			path2 = mkString(configDir2, vhosts[i].ServerName, ".conf", NULL);
-			if(!access(path, F_OK))
-				vhostExist = 1;
-			if((vhost = fopen(path, "w")) == NULL) {
-				logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
-				writeLog(lf, logentry);
-				continue;
-			}
-			counter++;
-			acl_order = accessOrder(vhosts[i].vhost_access_order);
-			acl_entry = acl(vhosts[i].vhost_access_list);
-			fprintf(vhost, "<VirtualHost *:80>\n");
-			fprintf(vhost, "\tServerName %s\n", vhosts[i].ServerName);
-			if(strcmp(vhosts[i].ServerAlias, "NaN"))
-				fprintf(vhost, "\tServerAlias %s\n", vhosts[i].ServerAlias);
-			fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhosts[i].DocumentRoot);
-			fprintf(vhost, "\t<Directory %s>\n", vhosts[i].DocumentRoot);
-			fprintf(vhost, "\t\tOptions %s\n", vhosts[i].apacheOpts);
-			fprintf(vhost, "\t\tAllowOverride All\n");
-			fprintf(vhost, "\t\tOrder %s\n", acl_order);
-			fprintf(vhost, "%s\n", acl_entry);
-			if(!strcmp(distro, "Ubuntu"))
-				fprintf(vhost, "\t\tRequire all granted\n");
-			fprintf(vhost, "\t</Directory>\n\n");
-			if(vhosts[i].password_access) {
-				fprintf(vhost, "\t<Location />\n");
-				fprintf(vhost, "\t\tAuthType Basic\n");
-				fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
-				fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
-				fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
-				fprintf(vhost, "\t\tRequire group %s\n", vhosts[i].ServerName);
-				fprintf(vhost, "\t</Location>\n\n");
-			}
-			fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhosts[i].ServerName);
-			fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhosts[i].ServerName);
-			fprintf(vhost, "</VirtualHost>\n");
-			fclose(vhost);
-			free(acl_order);
-			free(acl_entry);
-			if(vhostExist)
-				logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhosts[i].ServerName, " zostala zaktualizowana", NULL);
-			else
-				logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhosts[i].ServerName, NULL);
-			writeLog(lf, logentry);
-			if(!strcmp(distro, "Ubuntu"))
-				if(access(path2, F_OK) < 0) {
-					if(errno == ENOENT) {
-						if(symlink(path, path2)) {
-							if(errno == EEXIST)
-								logentry = mkString("[WARNING] (reciver) Vhost: ", vhosts[i].ServerName, " byl juz aktywny", NULL);
-							else
-								logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhosts[i].ServerName, NULL);
-							writeLog(lf, logentry);
-						}
-					}
-				}
+    while(pos) {
+        if(!strcmp(pos->status, "A")) {
+            path = mkString(configDir, pos->ServerName, ".conf", NULL);
+            path2 = mkString(configDir2, pos->ServerName, ".conf", NULL);
+            if(!access(path, F_OK))
+                vhostExist = 1;
+            if((vhost = fopen(path, "w")) == NULL) {
+                logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
+                writeLog(lf, logentry);
+                pos = pos->next;
+                continue;
+            }
+            counter++;
+            acl_order = accessOrder(pos->vhost_access_order);
+            acl_entry = acl(pos->vhost_access_list);
+            fprintf(vhost, "<VirtualHost *:80>\n");
+            fprintf(vhost, "\tServerName %s\n", pos->ServerName);
+            if(strcmp(pos->ServerAlias, "NaN"))
+                fprintf(vhost, "\tServerAlias %s\n", pos->ServerAlias);
+            fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", pos->DocumentRoot);
+            fprintf(vhost, "\t<Directory %s>\n", pos->DocumentRoot);
+            fprintf(vhost, "\t\tOptions %s\n", pos->apacheOpts);
+            fprintf(vhost, "\t\tAllowOverride All\n");
+            fprintf(vhost, "\t\tOrder %s\n", acl_order);
+            fprintf(vhost, "%s\n", acl_entry);
+            if(!strcmp(distro, "Ubuntu"))
+                fprintf(vhost, "\t\tRequire all granted\n");
+            fprintf(vhost, "\t</Directory>\n\n");
+            if(pos->password_access) {
+                fprintf(vhost, "\t<Location />\n");
+                fprintf(vhost, "\t\tAuthType Basic\n");
+                fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
+                fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
+                fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
+                fprintf(vhost, "\t\tRequire group %s\n", pos->ServerName);
+                fprintf(vhost, "\t</Location>\n\n");
+            }
+            fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, pos->ServerName);
+            fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, pos->ServerName);
+            fprintf(vhost, "</VirtualHost>\n");
+            fclose(vhost);
+            free(acl_order);
+            free(acl_entry);
+            if(vhostExist)
+                logentry = mkString("[INFO] (reciver) Konfiguracja dla ", pos->ServerName, " zostala zaktualizowana", NULL);
+            else
+                logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", pos->ServerName, NULL);
+            writeLog(lf, logentry);
+            if(!strcmp(distro, "Ubuntu"))
+                if(access(path2, F_OK) < 0) {
+                    if(errno == ENOENT) {
+                        if(symlink(path, path2)) {
+                            if(errno == EEXIST)
+                                logentry = mkString("[WARNING] (reciver) Vhost: ", pos->ServerName, " byl juz aktywny", NULL);
+                            else
+                                logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", pos->ServerName, NULL);
+                            writeLog(lf, logentry);
+                        }
+                    }
+                }
+            
+            vhostExist = 0;
+            free(path);
+            free(path2);
+        }
+        else if(!strcmp(pos->status, "D"))
+            counter++;
+        pos = pos->next;
+    }
 
-			vhostExist = 0;
-			free(path);
-			free(path2);
-		}
-		else if(!strcmp(vhosts[i].status, "D"))
-			counter++;
-	}
-
-	/* weryfikujemy rezultat zakladania plikow
-	 *  jesli nie udalo sie stworzyc zadnego: -1
-	 *  jesli udalo sie stworzyc wszystkie: 1
-	 *  jesli nie udalo sie stworzyc niektorych: 0
-	 */
-	if(counter == 0)
-		return -1;
-	else if(counter == n)
-		return 1;
-	else
-		return 0;
+    /* weryfikujemy rezultat zakladania plikow
+     *  jesli nie udalo sie stworzyc zadnego: -1
+     *  jesli udalo sie stworzyc wszystkie: 1
+     *  jesli nie udalo sie stworzyc niektorych: 0
+     */
+    if(counter == 0)
+        return -1;
+    else if(counter == total)
+        return 1;
+    else
+        return 0;
 }
 void clearAuthData(char * os) {
 	char * htpasswd_path = NULL;

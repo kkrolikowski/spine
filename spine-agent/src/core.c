@@ -260,9 +260,9 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     ParseConfigData(clientResponse, &config);
                     if(readLocalConfigVersion() < config.confVer) {
                         if(!strcmp(config.datatype, "hostconfig")) {
-                            if(config.vhost_num > 0) {
-                                apacheSetup(config, os, lf);
-                                if(writeLocalConfigVersion(configdata.confVer))
+                            if(config.httpd.vhost != NULL) {
+                                apacheSetup(config.httpd, os, lf);
+                                if(writeLocalConfigVersion(config.confVer))
                                         logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
                                 else
                                         logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
