@@ -186,17 +186,20 @@ htpasswdData * parseHtpasswdData(char * stream) {
 
 	return head;
 }
-void createHtgroupFile(char * path, wwwdata vhosts[], int n) {
-	int i;
-	FILE * htgroup;
+void createHtgroupFile(char * path, vhostData * vhd) {
+    int i;
+    FILE * htgroup;
+    vhostData * curr = vhd;
 
-	if((htgroup = fopen(path, "w")) != NULL) {
-		for(i = 0; i < n; i++) {
-			if(vhosts[i].password_access == 1)
-				fprintf(htgroup, "%s: %s\n", vhosts[i].ServerName, vhosts[i].htusers);
-		}
-		fclose(htgroup);
-	}
+    if((htgroup = fopen(path, "w")) != NULL) {
+        while(curr) {
+            if(curr->password_access == 1)
+                fprintf(htgroup, "%s: %s\n", curr->ServerName, curr->htusers);
+            
+            curr = curr->next;
+        }
+        fclose(htgroup);
+    }
 }
 void createHtgroupConfig(char * os, vhostData * vhd, FILE * lf) {
     char * logmessage = NULL;

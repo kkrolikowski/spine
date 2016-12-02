@@ -24,7 +24,7 @@ void createHtpasswdFile(char * os, htpasswdData * htpasswd);
 // odczyt danych tekstowych do struktury danych
 htpasswdData * parseHtpasswdData(char * stream);
 
-void createHtgroupFile(char * path, wwwdata vhosts[], int n);
+void createHtgroupFile(char * path, vhostData * vhd);
 
 // funkcja tworzy plik htgroup
 void createHtgroupConfig(char * os, vhostData * vhd, FILE * lf);
