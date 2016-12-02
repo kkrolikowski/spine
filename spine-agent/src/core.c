@@ -284,8 +284,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         }
                         cleanWWWConfiguration(system_id);
                         configstring = BuildConfigurationPackage(&config);
-                        logentry = mkString("{DBG} ", configstring, NULL);
-                        writeLog(lf, logentry);
                         clifd = connector(net.ipaddr, 2016);
                         SendPackage(clifd, configstring);
 
