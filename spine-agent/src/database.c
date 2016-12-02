@@ -228,10 +228,9 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
-int ReadWWWConfiguration(char * hostid, hostconfig * cf, FILE * lf) {
+int ReadWWWConfiguration(char * hostid, httpdata www, FILE * lf) {
     int status = 1;         // 1 - sukces, 0 - fail
     char * msg = NULL;      // komunikaty z logami
-    httpdata www = cf->httpd;
     
     if((www.htpasswd = ReadHtpasswdData(hostid)) == NULL) {
         msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
