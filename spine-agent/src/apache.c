@@ -341,7 +341,7 @@ void reloadApache(char * os) {
 void apacheSetup(httpdata www, char * os, FILE * lf) {
     char * msg = NULL;
     if(createVhostConfig(os, www.vhost, lf)) {
-        createWebsiteDir(cfg.vhost, cfg.vhost_num);
+        createWebsiteDir(www.vhost);
         createHtaccess(cfg.vhost, cfg.vhost_num);
         createHtgroupConfig(os, cfg.vhost, cfg.vhost_num, lf);
         if(cfg.htusers_count > 0) {
@@ -380,23 +380,25 @@ void createHtaccess(wwwdata vhosts[], int n) {
 		}
 	}
 }
-void createWebsiteDir(wwwdata vhosts[], int n) {
-	int i;
-	char * dirpath = NULL;
-	size_t len = 0;
-
-	for(i = 0; i < n; i++) {
-		len = strlen(vhosts[i].DocumentRoot) + 2;
-		dirpath = (char *) malloc(len * sizeof(char));
-		memset(dirpath, '\0', len);
-		strcpy(dirpath, vhosts[i].DocumentRoot);
-		strcat(dirpath, "/");
-		if(access(dirpath, F_OK) < 0) {
-			if(errno == ENOENT)
-				mkdirtree(vhosts[i].DocumentRoot);
-		}
-		free(dirpath);
-	}
+void createWebsiteDir(vhostData * vhd) {
+    int i;
+    vhostData * curr = vhd;
+    char * dirpath = NULL;
+    size_t len = 0;
+    
+    while(curr) {
+        len = strlen(curr->DocumentRoot) + 2;
+        dirpath = (char *) malloc(len * sizeof(char));
+        memset(dirpath, '\0', len);
+        strncpy(dirpath, curr->DocumentRoot, strlen(curr->DocumentRoot));
+        strncat(dirpath, "/", 2);
+        if(access(dirpath, F_OK) < 0) {
+            if(errno == ENOENT)
+                mkdirtree(curr->DocumentRoot);
+        }
+        free(dirpath);
+        curr = curr->next;
+    }
 }
 int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     vhostData * pos = vhd;              // aktualna pozycja w pamieci
