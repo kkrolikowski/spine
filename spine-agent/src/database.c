@@ -8,6 +8,7 @@
 #include "database.h"
 #include "monitoring.h"
 #include "sysusers.h"
+#include "commondata.h"
 
 void InitDBConnData(dbconn db) {
 	db.dbhost = NULL;
@@ -228,22 +229,16 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
-int ReadWWWConfiguration(char * hostid, httpdata www, FILE * lf) {
-    int status = 1;         // 1 - sukces, 0 - fail
+httpdata ReadWWWConfiguration(char * hostid, FILE * lf) {
     char * msg = NULL;      // komunikaty z logami
+    httpdata results;
     
-    if((www.htpasswd = ReadHtpasswdData(hostid)) == NULL) {
+    if((results.htpasswd = ReadHtpasswdData(hostid)) == NULL)
         msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
-        writeLog(lf, msg);
-        status = 0;
-    }
-    if((www.vhost = ReadVhostData(hostid)) == NULL) {
+    if((results.vhost = ReadVhostData(hostid)) == NULL)
         msg = mkString("[ERROR] Blad pobierania vhostow apacza z bazy", NULL);
-        writeLog(lf, msg);
-        status = 0;
-    }
-
-    return status;
+     
+    return results;
 }
 htpasswdData * ReadHtpasswdData(char * hostid) {
     // Zmienne umozliwiajace wyciaganie danych z bazy
@@ -514,7 +509,6 @@ int getSystemAccounts(hostconfig * hc, char * systemid) {
     MYSQL_RES * res;
     MYSQL_ROW row;
     int dataStatus = 1;         // status danych pobranych przez funkcje. 1 - sukces
-    size_t len = 0;             // podreczna zmienna do mierzenia stringow
     
     char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
                                    "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",

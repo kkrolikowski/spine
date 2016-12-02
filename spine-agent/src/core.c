@@ -284,6 +284,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         }
                         cleanWWWConfiguration(system_id);
                         configstring = BuildConfigurationPackage(&config);
+                        logentry = mkString("{DBG} ", configstring, NULL);
+                        writeLog(lf, logentry);
                         clifd = connector(net.ipaddr, 2016);
                         SendPackage(clifd, configstring);
 
@@ -497,7 +499,6 @@ char * BuildConfigurationPackage(hostconfig * data) {
         int vhost_count = 0;            // liczba odczytanych vhostow
         int htusers_count = 0;          // liczba odczytanych kont htpasswd
         char * k_config_ver = ",config_ver:";
-        char * k_vhost_num = "vhost_num:";
         char * k_htpasswd_count = "htpasswd_count:";
         char * dataType_braces = "{},";
 
@@ -514,7 +515,6 @@ char * BuildConfigurationPackage(hostconfig * data) {
         size = getSysUsersPackageSize(data->sysUsers);
         size += getApachedataSize(data->httpd);
         size += strlen(s_config_ver) + strlen(k_config_ver);
-        size += strlen(s_vhost_count) + strlen(k_vhost_num);
         size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
         size += (strlen(dataType_braces) * DataTypes) + strlen("[datatype:hostconfig]") + 1; 
 
@@ -523,16 +523,14 @@ char * BuildConfigurationPackage(hostconfig * data) {
         memset(package, '\0', size);
         
         // odczytujemy poszczegolne sekcje konfiguracji
-        sysusers = sysusersPackage(data->sysUsers);
-        vhosts = apacheConfigPackage(data->httpd);
+        sysusers = sysusersPackage(data->sysUsers);  
+        vhosts = apacheConfigPackage(data->httpd);   
         htusers = readHtpasswdData(data->httpd.htpasswd);
-        
+    
         // skladamy pakiet w calosc
-	strncpy(package, "[datatype:hostconfig", 2);
+	strncpy(package, "[datatype:hostconfig", strlen("[datatype:hostconfig") + 1);
         strncat(package, sysusers, strlen(sysusers) + 1);
         strncat(package, vhosts, strlen(vhosts) + 1);
-        strncat(package, k_vhost_num, strlen(k_vhost_num) + 1);
-        strncat(package, s_vhost_count, strlen(s_vhost_count) + 1);
         strncat(package, htusers, strlen(htusers) + 1);
 	strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
 	strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
@@ -547,8 +545,6 @@ char * BuildConfigurationPackage(hostconfig * data) {
         free(htusers);
         free(vhosts);
         free(sysusers);
-        cleanVhostData(data->httpd.vhost);
-        clearHtpasswdData(data->httpd.htpasswd);
         
 	return package;
 }
@@ -564,17 +560,14 @@ int fileExist(char * path) {
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
     int status = 1;         // status funkcji: 1 - sukces, 0 - error
-    char * msg = NULL;      // wpis do logow;
+    char * msg = NULL;      // wpis do logow
     
-    if(!ReadWWWConfiguration(hostid, conf->httpd, lf)) {
-        msg = mkString("[ERROR] Nie powiodlo sie odczytanie danych apacza");
-        writeLog(lf, msg);
-        status = 0;
-    }
+    conf->httpd = ReadWWWConfiguration(hostid, lf);
     if(!getSystemAccounts(conf, hostid)) {
         msg = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
         writeLog(lf, msg);
     }
     conf->confVer = conf->httpd.vhost->version;
+    
     return status;
 }

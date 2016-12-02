@@ -42,7 +42,7 @@ void clearHtpasswdData(htpasswdData * htpasswd) {
 	}
 }
 char * apacheConfigPackage(httpdata www) {
-	int vidx;			// vhost index
+	int vidx = 0;			// vhost index
 	size_t packageSize = 0;         // rozmiar pakietu
         char * package = NULL;          // pakiet konfiguracyjny
 	char * numstr = NULL;		// string z liczby
@@ -573,17 +573,17 @@ int getVhostPackageSize(vhostData * vhd) {
     char * tmp = NULL;      // tymczasowa zmienna do przechowania
                             // wartosci numerycznych w formie stringu
     int vhostCount = 0;     // zliczanie liczby vhostow
-    
+
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
-                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,", 
+                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
+                            "VhostAccessOrder:,", "VhostAccessList:,",
                             "vhost_:", "{},", NULL};
     const char ** key = keys;
     while(*key) {
         keysize += strlen(*key);
         key++;
     }
-    
     while(pos) {
         // Dane tekstowe
         size += strlen(pos->DocumentRoot);
@@ -597,7 +597,7 @@ int getVhostPackageSize(vhostData * vhd) {
         size += strlen(pos->user);
         size += strlen(pos->vhost_access_list);
         size += strlen(pos->vhost_access_order);
-        
+
         // Dane numeryczne;
         tmp = int2String(pos->password_access);
         size += strlen(tmp);
