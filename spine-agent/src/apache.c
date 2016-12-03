@@ -520,7 +520,6 @@ void clearAuthData(char * os) {
 }
 int removeVhost(char * os, vhostData * vhd) {
     int count = 0;
-    int i;
     char * vhostConfig = NULL;
     char * vhostConfigSymlink = NULL;
     char * vhostDir = NULL;
