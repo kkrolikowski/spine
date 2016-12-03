@@ -561,7 +561,7 @@ int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
     char * msg = NULL;      // wpis do logow
     
     conf->httpd = ReadWWWConfiguration(hostid, lf);
-    if(!getSystemAccounts(conf, hostid)) {
+    if((conf->sysUsers = getSystemAccounts(conf, hostid)) == NULL) {
         msg = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
         writeLog(lf, msg);
     }

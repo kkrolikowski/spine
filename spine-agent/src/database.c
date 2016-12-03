@@ -504,11 +504,10 @@ void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char
     mysql_query(dbh, insert);
     free(insert);
 }
-int getSystemAccounts(hostconfig * hc, char * systemid) {
+sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
     extern MYSQL * dbh;
     MYSQL_RES * res;
     MYSQL_ROW row;
-    int dataStatus = 1;         // status danych pobranych przez funkcje. 1 - sukces
     
     char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
                                    "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",
@@ -556,17 +555,11 @@ int getSystemAccounts(hostconfig * hc, char * systemid) {
                 
             }
         }
-        else
-            dataStatus = 0;
     }
-    else
-        dataStatus = 0;
-    
-    hc->sysUsers = head;        // podlaczamy dane dot. kont
     free(accountsInfo);
     mysql_free_result(res);
     
-    return dataStatus;
+    return head;
 }
 sshkeys * readSSHkeys(char * str) {
     char buff[1024];

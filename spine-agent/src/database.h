@@ -88,7 +88,7 @@ void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char
 // po odczytaniu danych zapisuje je do struktury hc. Aby pobrac dane na temat
 // wlasciwego hosta wykorzystuje string systemid.
 // Wartosci zwracane: 1 - udalo sie pobrac dane, 0 - brak danych
-int getSystemAccounts(hostconfig * hc, char * systemid);
+sysuser * getSystemAccounts(hostconfig * hc, char * systemid);
 
 // funkcja pomocnicza: tworzy liste laczona zawierajaca klucze ssh uzytkownika
 // zwraca adres pierwszego wezla, ktory zostanie podczepiony pod liste laczona
