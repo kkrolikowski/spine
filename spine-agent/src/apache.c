@@ -643,7 +643,9 @@ int getHTusersCount(htpasswdData * htp) {
     htpasswdData * pos = htp;
     
     while(pos) {
-        sum++;
+        // jesli entry nie jest NaN zwieksz licznik
+        if(strcmp(pos->entry, "NaN"))
+            sum++;
         pos = pos->next;
     }
     return sum;
