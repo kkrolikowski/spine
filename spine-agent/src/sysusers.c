@@ -298,7 +298,7 @@ int userExist(char * login) {
     if((fpasswd = fopen("/etc/passwd", "r")) == NULL)
         return -1;
     memset(buff, '\0', 256); 
-    while(fgets(buff, 256, fpasswd) != EOF) {
+    while(fgets(buff, 256, fpasswd) != NULL) {
         if(!strstr(buff, login)) {
             status = 1;
             break;
