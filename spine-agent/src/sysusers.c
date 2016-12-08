@@ -254,9 +254,9 @@ int writePasswd(sysuser * su) {
         return 0;
     
     if(su->shellaccess)
-        fprintf(passwd, "%s:x:%d:%d::/home/%s:/bin/bash", su->login, su->uidgid, su->uidgid, su->login);
+        fprintf(passwd, "%s:x:%d:%d:%s:/home/%s:/bin/bash", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
     else
-        fprintf(passwd, "%s:x:%d:%d::/home/%s:/bin/false", su->login, su->uidgid, su->uidgid, su->login);
+        fprintf(passwd, "%s:x:%d:%d:%s:/home/%s:/bin/false", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
     
     fclose(passwd);
     
