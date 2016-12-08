@@ -267,9 +267,9 @@ int writePasswd(sysuser * su) {
         return 0;
     
     if(su->shellaccess)
-        fprintf(passwd, "%s:x:%d:%d:%s:/home/%s:/bin/bash", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
+        fprintf(passwd, "%s:x:%d:%d:%s:/home/%s:/bin/bash\n", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
     else
-        fprintf(passwd, "%s:x:%d:%d:%s:/home/%s:/bin/false", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
+        fprintf(passwd, "%s:x:%d:%d:%s:/home/%s:/bin/false\n", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
     
     fclose(passwd);
     
@@ -288,10 +288,10 @@ int writeShadow(sysuser * su) {
     pass_change = now / 86400;
     if(su->expiration > 0) {
         h_exp = su->expiration / 86400;
-        fprintf(shadow, "%s:%s:%d:0:99999:7::%d:", su->login, su->sha512, pass_change, h_exp);
+        fprintf(shadow, "%s:%s:%d:0:99999:7::%d:\n", su->login, su->sha512, pass_change, h_exp);
     }
     else
-        fprintf(shadow, "%s:%s:%d:0:99999:7:::", su->login, su->sha512, pass_change);
+        fprintf(shadow, "%s:%s:%d:0:99999:7:::\n", su->login, su->sha512, pass_change);
     
     fclose(shadow);
     return 1;
@@ -302,7 +302,7 @@ int writeGroup(sysuser * su) {
     if((group = fopen("/etc/group", "a")) == NULL)
         return 0;
     
-    fprintf(group, "%s:x:%d:", su->login, su->uidgid);
+    fprintf(group, "%s:x:%d:\n", su->login, su->uidgid);
     
     fclose(group);
     return 1;
