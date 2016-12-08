@@ -98,4 +98,10 @@ char * CPUusage(void);
 // funkcja wczytuje do pamieci dane konfiguracyjne apacza
 void ParseConfigDataAPACHE(char * json, httpdata * www);
 
+// funckcja wczytuje do pamieci dane kont systemowych
+void ParseConfigDataSYSUSERS(char * json, sysuser * su);
+
+// funkcja zwraca liczbe wystapien tekstu w stringu
+int JSONsearchString(char * json, char * needle);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

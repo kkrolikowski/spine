@@ -231,6 +231,57 @@ void ParseConfigData(char * json, hostconfig * conf) {
     
     // Serwer WWW
     ParseConfigDataAPACHE(json, &conf->httpd);
+    // Konta systemowe
+    ParseConfigDataSYSUSERS(json, conf->sysUsers);
+}
+void ParseConfigDataSYSUSERS(char * json, sysuser * su) {
+    int i = 0;                                          // biezacy numer konta
+    char * config_pos = NULL;                           // pozycja wzgledem user_(n)
+    char * uheader = NULL;                              // tutaj znajdzie sie naglowek user_(n)
+    char * index = NULL;                                // biezacy numer konta w formie stringu
+    char * tmp = NULL;                                  // tymczasowe przechowanie stringu
+    int userCount = JSONsearchString(json, "user_");    // calkowita liczba kont w pakiecie
+    
+    // inicjalizacja danych do listy laczonej
+    sysuser * head = NULL;
+    sysuser * curr = NULL;
+    sysuser * prev = NULL;
+    
+    for(i = 0; i < userCount; i++) {
+        index = int2String(i);
+        uheader = mkString("user_", index, NULL);
+        config_pos = strstr(json, uheader);
+        
+        curr = (sysuser *) malloc(sizeof(sysuser));
+        
+        curr->gecos         = jsonVal(config_pos, "gecos");
+        curr->login         = jsonVal(config_pos, "username");
+        curr->sha512        = jsonVal(config_pos, "password:");
+        
+        tmp                 = jsonVal(config_pos, "active");
+        curr->active        = atoi(tmp);
+        free(tmp);
+        tmp                 = jsonVal(config_pos, "uidgid");
+        curr->uidgid        = atoi(tmp);
+        free(tmp);
+        tmp                 = jsonVal(config_pos, "shell");
+        curr->shellaccess   = atoi(tmp);
+        free(tmp);
+        tmp                 = jsonVal(config_pos, "expire");
+        curr->expiration    = atoi(tmp);
+        free(tmp);
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+        
+        free(index);
+        free(uheader);
+    }
+    su = head;   
 }
 void ParseConfigDataAPACHE(char * json, httpdata * www) {
     int i;                      // biezacy numer vhosta
@@ -428,4 +479,14 @@ char * CPUusage(void) {
     cpu_idle_old = cpu.idle;
 
     return usage_s;
+}
+int JSONsearchString(char * json, char * needle) {
+    char * pos = json;
+    int count = 0;
+    
+    while((pos = strstr(pos, needle)) != NULL) {
+        count++;
+        pos++;
+    }
+    return count;
 }
