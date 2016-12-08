@@ -19,6 +19,9 @@ int getSysUsersPackageSize(sysuser * su);
 // funkcja zlicza wielosc kluczy ssh
 int getSSHkeysPackageSize(sshkeys * ssh);
 
+// funkcja tworzy konta na podstawie danych z pakietu
+int createUserAccounts(sysuser * su, FILE * lf);
+
 // funkcja sprawdza czy w pliku passwd znajduje sie juz konto
 int userExist(char * login);
 
@@ -27,5 +30,9 @@ int writePasswd(sysuser * su);
 
 // funkcja zapisuje dane w pliku /etc/shadow
 int writeShadow(sysuser * su);
+
+// funkcja zapisuje dane w pliku /etc/group
+int writeGroup(sysuser * su);
+
 #endif /* SYSUSERS_H */
 

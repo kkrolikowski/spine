@@ -268,6 +268,9 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                         logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
                                 writeLog(lf, logentry);
                             }
+                            if(config.sysUsers != NULL) {
+                                createUserAccounts(config.sysUsers, lf);
+                            }
                         }
                     }
                     free(os);

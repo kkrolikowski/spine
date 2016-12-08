@@ -226,7 +226,7 @@ int getSSHkeysPackageSize(sshkeys * ssh) {
     
     return size;
 }
-int createAccount(sysuser * su, FILE * lf) {
+int createUserAccounts(sysuser * su, FILE * lf) {
     int status = 1;
     sysuser * curr = su;
     char * msg = NULL;
@@ -241,6 +241,12 @@ int createAccount(sysuser * su, FILE * lf) {
             }
             if(!writeShadow(curr)) {
                 msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/shadow", NULL);
+                writeLog(lf, msg);
+                curr = curr->next;
+                continue;
+            }
+            if(!writeGroup(curr)) {
+                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/group", NULL);
                 writeLog(lf, msg);
                 curr = curr->next;
                 continue;
@@ -288,6 +294,17 @@ int writeShadow(sysuser * su) {
         fprintf(shadow, "%s:%s:%d:0:99999:7:::", su->login, su->sha512, pass_change);
     
     fclose(shadow);
+    return 1;
+}
+int writeGroup(sysuser * su) {
+    FILE * group;
+    
+    if((group = fopen("/etc/group", "a")) == NULL)
+        return 0;
+    
+    fprintf(group, "%s:x:%d:", su->login, su->uidgid);
+    
+    fclose(group);
     return 1;
 }
 int userExist(char * login) {
