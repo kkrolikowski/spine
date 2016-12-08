@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "commondata.h"
 #include "sysusers.h"
 #include "core.h"
@@ -233,7 +234,13 @@ int createAccount(sysuser * su, FILE * lf) {
     while(curr) {
         if(userExist(curr->login)) {
             if(!writePasswd(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w passwd", NULL);
+                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
+                writeLog(lf, msg);
+                curr = curr->next;
+                continue;
+            }
+            if(!writeShadow(curr)) {
+                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/shadow", NULL);
                 writeLog(lf, msg);
                 curr = curr->next;
                 continue;
@@ -260,6 +267,27 @@ int writePasswd(sysuser * su) {
     
     fclose(passwd);
     
+    return 1;
+}
+int writeShadow(sysuser * su) {
+    FILE * shadow;
+    time_t now;
+    int pass_change = 0;
+    int h_exp = 0;
+    
+    if((shadow = fopen("/etc/shadow", "a")) == NULL)
+        return 0;
+    
+    now = time(NULL);
+    pass_change = now / 86400;
+    if(su->expiration > 0) {
+        h_exp = su->expiration / 86400;
+        fprintf(shadow, "%s:%s:%d:0:99999:7::%d:", su->login, su->sha512, pass_change, h_exp);
+    }
+    else
+        fprintf(shadow, "%s:%s:%d:0:99999:7:::", su->login, su->sha512, pass_change);
+    
+    fclose(shadow);
     return 1;
 }
 int userExist(char * login) {

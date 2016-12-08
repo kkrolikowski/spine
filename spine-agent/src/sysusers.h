@@ -21,5 +21,11 @@ int getSSHkeysPackageSize(sshkeys * ssh);
 
 // funkcja sprawdza czy w pliku passwd znajduje sie juz konto
 int userExist(sysuser * su, char * passwd);
+
+// funkcja zapisuje dane w pliku /etc/passwd
+int writePasswd(sysuser * su);
+
+// funkcja zapisuje dane w pliku /etc/shadow
+int writeShadow(sysuser * su);
 #endif /* SYSUSERS_H */
 
