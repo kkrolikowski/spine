@@ -19,5 +19,7 @@ int getSysUsersPackageSize(sysuser * su);
 // funkcja zlicza wielosc kluczy ssh
 int getSSHkeysPackageSize(sshkeys * ssh);
 
+// funkcja sprawdza czy w pliku passwd znajduje sie juz konto
+int userExist(sysuser * su, char * passwd);
 #endif /* SYSUSERS_H */
 

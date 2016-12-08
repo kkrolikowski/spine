@@ -225,3 +225,58 @@ int getSSHkeysPackageSize(sshkeys * ssh) {
     
     return size;
 }
+int createAccount(sysuser * su, FILE * lf) {
+    int status = 1;
+    sysuser * curr = su;
+    char * msg = NULL;
+    
+    while(curr) {
+        if(userExist(curr->login)) {
+            if(!writePasswd(curr)) {
+                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w passwd", NULL);
+                writeLog(lf, msg);
+                curr = curr->next;
+                continue;
+            }
+        }
+        else {
+            msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
+            writeLog(lf, msg);
+        }
+        curr = curr->next;
+    }
+    return status;
+}
+int writePasswd(sysuser * su) {
+    FILE * passwd;
+    
+    if((passwd = fopen("/etc/passwd", "a")) == NULL)
+        return 0;
+    
+    if(su->shellaccess)
+        fprintf(passwd, "%s:x:%d:%d::/home/%s:/bin/bash", su->login, su->uidgid, su->uidgid, su->login);
+    else
+        fprintf(passwd, "%s:x:%d:%d::/home/%s:/bin/false", su->login, su->uidgid, su->uidgid, su->login);
+    
+    fclose(passwd);
+    
+    return 1;
+}
+int userExist(char * login) {
+    FILE * fpasswd;
+    char buff[256];
+    int status = 0;
+    
+    if((fpasswd = fopen("/etc/passwd", "r")) == NULL)
+        return -1;
+    memset(buff, '\0', 256); 
+    while(fgets(buff, 256, fpasswd) != EOF) {
+        if(!strstr(buff, login)) {
+            status = 1;
+            break;
+        }
+        memset(buff, '\0', 256);
+    }
+    fclose(fpasswd);
+    return status;
+}
