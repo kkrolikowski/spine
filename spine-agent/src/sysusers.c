@@ -392,6 +392,14 @@ void recursiveCopy(sysuser * su, char * path, FILE * lf) {
         }
         else {
             copy(sourcePath, to);
+            if(chown(to, su->uidgid, su->uidgid)) {
+                msg = mkString("[WARNING] Zmiana wlasciciela ", to, " nie powiodla sie.", NULL);
+                writeLog(lf, msg);
+            }
+            if(chmod(to, 0644)) {
+                msg = mkString("[WARNING] Zmiana uprawnien do ", to, " nie powiodla sie.", NULL);
+                writeLog(lf, msg);
+            }
             memset(sourcePath, '\0', MaxPath);
         }
         memset(sourcePath, '\0', MaxPath);
