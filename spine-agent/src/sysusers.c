@@ -237,7 +237,7 @@ int createUserAccounts(sysuser * su, FILE * lf) {
     char * msg = NULL;
     
     while(curr) {
-        if(userExist(curr->login)) {
+        if(!userExist(curr->login)) {
             if(!writePasswd(curr)) {
                 msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
                 writeLog(lf, msg);
@@ -333,7 +333,7 @@ int userExist(char * login) {
         return -1;
     memset(buff, '\0', 256); 
     while(fgets(buff, 256, fpasswd) != NULL) {
-        if(!strstr(buff, login)) {
+        if(strstr(buff, login) != NULL) {
             status = 1;
             break;
         }
