@@ -47,7 +47,7 @@ void recursiveCopy(sysuser * su, char * path, FILE * lf);
 sshkeys * readSSHKeysFromPackage(char * str);
 
 // funkcja tworzy pliki authorized_keys
-int writeAuthorizedKeys(sshkeys * k, char * login, FILE * lf);
+int writeAuthorizedKeys(sysuser * su, FILE * lf);
 
 #endif /* SYSUSERS_H */
 

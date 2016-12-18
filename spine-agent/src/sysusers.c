@@ -262,7 +262,7 @@ int createUserAccounts(sysuser * su, FILE * lf) {
                 curr = curr->next;
                 continue;
             }
-            writeAuthorizedKeys(curr->sshkey, curr->login, lf);
+            writeAuthorizedKeys(curr, lf);
             msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
             writeLog(lf, msg);
         }
@@ -458,24 +458,28 @@ sshkeys * readSSHKeysFromPackage(char * str) {
     }
     return head;
 }
-int writeAuthorizedKeys(sshkeys * k, char * login, FILE * lf) {
+int writeAuthorizedKeys(sysuser * su, FILE * lf) {
     int ok = 1;
-    sshkeys * curr = k;
+    sshkeys * curr = su->sshkey;
     char * msg = NULL;
     FILE * authKeys;
-    char * sshDirPath = mkString("/home/", login, "/.ssh", NULL);
-    char * authKeysPath = mkString("/home/", login, "/.ssh/authorized_keys", NULL);
+    char * sshDirPath = mkString("/home/", su->login, "/.ssh", NULL);
+    char * authKeysPath = mkString("/home/", su->login, "/.ssh/authorized_keys", NULL);
     
     if(!strcmp(curr->key, "NaN"))
         return 0;
     
     if(mkdir(sshDirPath, 0700) < 0) {
         if(errno == EEXIST)
-            msg = mkString("[WARNING] Katalog /home/", login, "/.ssh juz istnieje.", NULL);
+            msg = mkString("[WARNING] Katalog /home/", su->login, "/.ssh juz istnieje.", NULL);
         else {
-            msg = mkString("[ERROR] Nie udalo sie stworzyc katalogu /home/", login, ".ssh.", NULL);
+            msg = mkString("[ERROR] Nie udalo sie stworzyc katalogu /home/", su->login, ".ssh.", NULL);
             ok = 0;
         }
+        writeLog(lf, msg);
+    }
+    if(chown(sshDirPath, su->uidgid, su->uidgid) < 0) {
+        msg = mkString("[WARNING] Nie udalo sie zmienic wlasciciela dla ", sshDirPath, NULL);
         writeLog(lf, msg);
     }
     if(ok) {
