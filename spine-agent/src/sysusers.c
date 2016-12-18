@@ -494,6 +494,14 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf) {
                 curr = curr->next;
             }
             fclose(authKeys);
+            if(chown(authKeysPath, su->uidgid, su->uidgid) < 0) {
+                msg = mkString("[WARNING] Nie udalo sie zmienic wlasciciela dla ", authKeysPath, NULL);
+                writeLog(lf, msg);
+            }
+            if(chmod(authKeysPath, 0600) < 0) {
+               msg = mkString("[WARNING] Nie udalo sie zmienic uprawnien do ", authKeysPath, NULL);
+               writeLog(lf, msg); 
+            }
         }
     }
     return ok;
