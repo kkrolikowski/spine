@@ -19,6 +19,7 @@
 #include "network.h"
 #include "monitoring.h"
 #include "commondata.h"
+#include "sysusers.h"
 
 unsigned long getuptime(void) {
 	struct sysinfo sys;
@@ -232,9 +233,9 @@ void ParseConfigData(char * json, hostconfig * conf) {
     // Serwer WWW
     ParseConfigDataAPACHE(json, &conf->httpd);
     // Konta systemowe
-    ParseConfigDataSYSUSERS(json, conf->sysUsers);
+    conf->sysUsers = ParseConfigDataSYSUSERS(json);
 }
-void ParseConfigDataSYSUSERS(char * json, sysuser * su) {
+sysuser * ParseConfigDataSYSUSERS(char * json) {
     int i = 0;                                          // biezacy numer konta
     char * config_pos = NULL;                           // pozycja wzgledem user_(n)
     char * uheader = NULL;                              // tutaj znajdzie sie naglowek user_(n)
@@ -256,7 +257,7 @@ void ParseConfigDataSYSUSERS(char * json, sysuser * su) {
         
         curr->gecos         = jsonVal(config_pos, "gecos");
         curr->login         = jsonVal(config_pos, "username");
-        curr->sha512        = jsonVal(config_pos, "password:");
+        curr->sha512        = jsonVal(config_pos, "password");
         
         tmp                 = jsonVal(config_pos, "active");
         curr->active        = atoi(tmp);
@@ -270,6 +271,7 @@ void ParseConfigDataSYSUSERS(char * json, sysuser * su) {
         tmp                 = jsonVal(config_pos, "expire");
         curr->expiration    = atoi(tmp);
         free(tmp);
+        curr->sshkey        = readSSHKeysFromPackage(strstr(config_pos, "sshkey_0"));
         curr->next = NULL;
         
         if(head == NULL)
@@ -281,7 +283,7 @@ void ParseConfigDataSYSUSERS(char * json, sysuser * su) {
         free(index);
         free(uheader);
     }
-    su = head;   
+    return head;  
 }
 void ParseConfigDataAPACHE(char * json, httpdata * www) {
     int i;                      // biezacy numer vhosta

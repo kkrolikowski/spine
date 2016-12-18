@@ -99,7 +99,7 @@ char * CPUusage(void);
 void ParseConfigDataAPACHE(char * json, httpdata * www);
 
 // funckcja wczytuje do pamieci dane kont systemowych
-void ParseConfigDataSYSUSERS(char * json, sysuser * su);
+sysuser * ParseConfigDataSYSUSERS(char * json);
 
 // funkcja zwraca liczbe wystapien tekstu w stringu
 int JSONsearchString(char * json, char * needle);

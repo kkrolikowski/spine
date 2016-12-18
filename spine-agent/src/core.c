@@ -14,6 +14,7 @@
 #include "apache.h"
 #include "monitoring.h"
 #include "sysusers.h"
+#include "commondata.h"
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -270,6 +271,11 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             }
                             if(config.sysUsers != NULL) {
                                 createUserAccounts(config.sysUsers, lf);
+                                cleanSysUsersData(config.sysUsers);
+                            }
+                            else {
+                                logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
+                                writeLog(lf, logentry);
                             }
                         }
                     }

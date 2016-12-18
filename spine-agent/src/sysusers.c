@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "commondata.h"
 #include "sysusers.h"
 #include "core.h"
@@ -133,10 +138,10 @@ void cleanSysUsersData(sysuser * su) {
     sysuser * curr = su;
     sysuser * next = NULL;
     
-    free(su->gecos);
-    free(su->login);
-    free(su->sha512);
-    cleanSSHKeyData(su->sshkey);
+    free(curr->gecos);
+    free(curr->login);
+    free(curr->sha512);
+    cleanSSHKeyData(curr->sshkey);
     
     next = curr->next;
     if(next != NULL)
@@ -251,6 +256,15 @@ int createUserAccounts(sysuser * su, FILE * lf) {
                 curr = curr->next;
                 continue;
             }
+            if(!createHomeDir(curr, lf)) {
+                msg = mkString("[WARNING] (reciver) Blad tworzenia katalogu domowego: /home/", curr->login, NULL);
+                writeLog(lf, msg);
+                curr = curr->next;
+                continue;
+            }
+            writeAuthorizedKeys(curr->sshkey, curr->login, lf);
+            msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
+            writeLog(lf, msg);
         }
         else {
             msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
@@ -324,4 +338,159 @@ int userExist(char * login) {
     }
     fclose(fpasswd);
     return status;
+}
+int createHomeDir(sysuser * su, FILE * lf) {
+    char * homedir = mkString("/home/", su->login, NULL);
+    char * skel = "/etc/skel/";
+    
+    if(!mkdir(homedir, 0711)) {
+        if(chown(homedir, (uid_t) su->uidgid, (gid_t) su->uidgid)) {
+            free(homedir);
+            return 0;
+        }
+        recursiveCopy(su, skel, lf);
+    }
+    free(homedir);
+    
+    return 1;
+}
+void recursiveCopy(sysuser * su, char * path, FILE * lf) {
+    DIR * d;
+    struct dirent * item;
+    struct stat itemType;
+    char * to = NULL;
+    const int MaxPath = 128;
+    char sourcePath[MaxPath];               // sciezka zrolowa    
+    static char relativePath[128];          // sciezka wzgledna do /home/user/
+    char oldRelPath[MaxPath];               // poprzednia wartosc sciezki wzglednej
+    char * msg = NULL;
+    
+    memset(oldRelPath, '\0', MaxPath);
+    memset(sourcePath, '\0', MaxPath);
+    strncpy(sourcePath, path, strlen(path));
+    d = opendir(path);
+    
+    while((item = readdir(d)) != NULL) {
+        if(!strcmp(item->d_name, ".") || !strcmp(item->d_name, ".."))
+            continue;
+        
+        strncat(sourcePath, item->d_name, strlen(item->d_name));
+        stat(sourcePath, &itemType);
+        if(relativePath[0] != '\0')
+            strncpy(oldRelPath, relativePath, strlen(relativePath));
+        strncat(relativePath, item->d_name, strlen(item->d_name));  
+        to = mkString("/home/", su->login, "/", relativePath, NULL);
+        if(S_ISDIR(itemType.st_mode)) {
+            mkdir(to, 0711); 
+            if(chown(to, su->uidgid, su->uidgid)) {
+                msg = mkString("[WARNING] Zmiana uprawnien do katalogu ", to, " nie powiodla sie.", NULL);
+                writeLog(lf, msg);
+            }
+            strncat(sourcePath, "/", 1);
+            strncat(relativePath, "/", 1);
+            recursiveCopy(su, sourcePath, lf);
+        }
+        else {
+            copy(sourcePath, to);
+            memset(sourcePath, '\0', MaxPath);
+        }
+        memset(sourcePath, '\0', MaxPath);
+        memset(relativePath, '\0', MaxPath);
+        strncpy(sourcePath, path, strlen(path));
+        strncpy(relativePath, oldRelPath, strlen(oldRelPath));
+        if(to != NULL) free(to);
+    }
+    closedir(d);
+}
+int copy(char * from, char * to) {
+   FILE * src;
+   FILE * dst;
+   char buff[512];
+   
+   if((src = fopen(from, "r")) == NULL)
+       return 0;
+   if((dst = fopen(to, "w")) == NULL)
+       return 0;
+   
+   memset(buff, '\0', 512);
+   while(fgets(buff, 512, src) != NULL) {
+       fputs(buff, dst);
+       memset(buff, '\0', 512);
+   }
+   
+   fclose(src);
+   fclose(dst);
+   return 1;
+}
+sshkeys * readSSHKeysFromPackage(char * str) {
+    char * pos = str;                       // aktualna pozycja w stringu
+    char * end = strstr(str, "},user_");    // adres konca przetwarzania
+    char * end2 = strstr(str, "}}{scope:"); // adres konca
+    int step = strlen("sshkey_:") + 1;      // dlugosc klucza
+    char buff[512];                         // bufor w ktorym przechowamy oczytany klucz ssh
+    int i = 0;                              // index bufora
+    
+    // lista kluczy ssh odczytanych z pakietu
+    sshkeys * head = NULL;
+    sshkeys * curr = NULL;
+    sshkeys * prev = NULL;
+    
+    memset(buff, '\0', 512);
+    while((pos = strstr(pos, "sshkey_")) != NULL && ((pos < end) || (pos < end2))) {
+        pos += step;
+        while(*pos != ',' && *pos != '}') {
+            buff[i] = *pos;
+            i++; pos++;
+        }
+        curr = malloc(sizeof(sshkeys));
+        curr->key = malloc((strlen(buff) + 1) * sizeof(char));
+        memset(curr->key, '\0', strlen(buff) + 1);
+        strncpy(curr->key, buff, strlen(buff));
+        memset(buff, '\0', 512);
+        i = 0;
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    return head;
+}
+int writeAuthorizedKeys(sshkeys * k, char * login, FILE * lf) {
+    int ok = 1;
+    sshkeys * curr = k;
+    char * msg = NULL;
+    FILE * authKeys;
+    char * sshDirPath = mkString("/home/", login, "/.ssh", NULL);
+    char * authKeysPath = mkString("/home/", login, "/.ssh/authorized_keys", NULL);
+    
+    if(!strcmp(curr->key, "NaN"))
+        return 0;
+    
+    if(mkdir(sshDirPath, 0700) < 0) {
+        if(errno == EEXIST)
+            msg = mkString("[WARNING] Katalog /home/", login, "/.ssh juz istnieje.", NULL);
+        else {
+            msg = mkString("[ERROR] Nie udalo sie stworzyc katalogu /home/", login, ".ssh.", NULL);
+            ok = 0;
+        }
+        writeLog(lf, msg);
+    }
+    if(ok) {
+        if((authKeys = fopen(authKeysPath, "w")) == NULL) {
+            msg = mkString("[ERROR] Blad tworzenia pliku ", authKeysPath, NULL);
+            writeLog(lf, msg);
+            ok = 0;
+        }
+        else {
+            while(curr) {
+                fprintf(authKeys, "%s\n", curr->key);
+                curr = curr->next;
+            }
+            fclose(authKeys);
+        }
+    }
+    return ok;
 }
