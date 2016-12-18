@@ -262,7 +262,10 @@ int createUserAccounts(sysuser * su, FILE * lf) {
                 curr = curr->next;
                 continue;
             }
-            writeAuthorizedKeys(curr, lf);
+            if(writeAuthorizedKeys(curr, lf)) {
+                msg = mkString("[INFO] (reciver) Klucze ssh dla ", curr->login, " zostaly zainstalowane", NULL);
+                writeLog(lf, msg);
+            }
             msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
             writeLog(lf, msg);
         }
