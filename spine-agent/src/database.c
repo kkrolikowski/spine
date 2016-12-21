@@ -237,7 +237,8 @@ httpdata ReadWWWConfiguration(char * hostid, FILE * lf) {
         msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
     if((results.vhost = ReadVhostData(hostid)) == NULL)
         msg = mkString("[ERROR] Blad pobierania vhostow apacza z bazy", NULL);
-     
+    writeLog(lf, msg);
+    
     return results;
 }
 htpasswdData * ReadHtpasswdData(char * hostid) {
@@ -295,6 +296,7 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     return head;
 }
 vhostData * ReadVhostData(char * hostid) {
+    char * NullStr = "NaN";
     // Zmienne umozliwiajace wyciaganie danych z bazy
     extern MYSQL * dbh;
     MYSQL_RES * res;
@@ -346,6 +348,30 @@ vhostData * ReadVhostData(char * hostid) {
                         prev->next = curr;
                     prev = curr;
                 }
+            }
+            else {
+                curr = (vhostData *) malloc(sizeof(vhostData));
+                
+                curr->ServerName            = readData(NullStr);
+                curr->ServerAlias           = readData(NullStr);
+                curr->DocumentRoot          = readData(NullStr);
+                curr->htaccess              = readData(NullStr);
+                curr->user                  = readData(NullStr);
+                curr->version               = -1;
+                curr->apacheOpts            = readData(NullStr);
+                curr->vhost_access_list     = readData(NullStr);
+                curr->vhost_access_order    = readData(NullStr);
+                curr->password_access       = -1;
+                curr->htusers               = readData(NullStr);
+                curr->status                = readData(NullStr);
+                curr->purgedir              = readData(NullStr);
+
+                curr->next = NULL;
+                if(head == NULL)
+                    head = curr;
+                else
+                    prev->next = curr;
+                prev = curr;
             }
         }
         mysql_free_result(res);
@@ -511,10 +537,10 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
     
     char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
                                    "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",
-                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys FROM sysusers u LEFT JOIN ",
-                                   "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) WHERE u.login ",
-                                   "!= 'root' AND u.system_id = (SELECT id FROM sysinfo WHERE system_id = '",
-                                   systemid,"') GROUP BY u.id", NULL);
+                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys, si.config_ver FROM sysusers u LEFT JOIN ",
+                                   "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) LEFT JOIN sysinfo si ",
+                                   "ON u.system_id = si.id WHERE u.login != 'root' AND u.system_id = ",
+                                   "(SELECT id FROM sysinfo WHERE system_id = '", systemid,"') GROUP BY u.id", NULL);
     
     // inicjujemy liste laczona w ktorej znajda sie dane odczytane z bazy
     sysuser * head = NULL;
@@ -544,6 +570,8 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
                 
                 // dolaczamy wezel pamieci z kluczami ssh
                 curr->sshkey = readSSHkeys(row[7]);
+                
+                hc->confVer = atoi(row[8]);
                 
                 // tworzymy kolejny wezel
                 curr->next = NULL;

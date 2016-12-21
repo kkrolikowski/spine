@@ -85,7 +85,8 @@ char * apacheConfigPackage(httpdata www) {
             free(entry);
             free(numstr);
             free(authbasic);
-            vidx++;
+            if(strcmp(vhpos->ServerName, "NaN"))
+                vidx++;
             vhpos = vhpos->next;
         }
 
@@ -632,7 +633,8 @@ int getVhostsCount(vhostData *vh) {
     vhostData * pos = vh;
     
     while(pos) {
-        sum++;
+        if(pos->version > 0)
+            sum++;
         pos = pos->next;
     }
     return sum;

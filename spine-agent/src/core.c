@@ -261,12 +261,10 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     ParseConfigData(clientResponse, &config);
                     if(readLocalConfigVersion() < config.confVer) {
                         if(!strcmp(config.datatype, "hostconfig")) {
-                            if(config.httpd.vhost != NULL) {
+                            if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
-                                if(writeLocalConfigVersion(config.confVer))
-                                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
-                                else
-                                        logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
+                            else {
+                                logentry = mkString("[WARNING] (reciver) Brak konfiguracji apacza", NULL);
                                 writeLog(lf, logentry);
                             }
                             if(config.sysUsers != NULL) {
@@ -277,6 +275,14 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
                                 writeLog(lf, logentry);
                             }
+                            if(writeLocalConfigVersion(config.confVer)) {
+                                logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
+                                writeLog(lf, logentry);
+                            }
+                            else {
+                                logentry = mkString("[WARNING] (reciver) blad aktualizacji wersji konfigruacji", NULL);
+                                writeLog(lf, logentry);
+                            }                           
                         }
                     }
                     free(os);
@@ -574,7 +580,8 @@ int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
         msg = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
         writeLog(lf, msg);
     }
-    conf->confVer = conf->httpd.vhost->version;
+    if(conf->httpd.vhost->version > 0)
+        conf->confVer = conf->httpd.vhost->version;
     
     return status;
 }
