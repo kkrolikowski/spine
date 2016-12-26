@@ -228,6 +228,9 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	char * configstring = NULL;
 	netinfo net;					// struktura przechowujaca ip oraz socket klienta
 	hostconfig config;            // konfiguracja calego hosta
+        ver * cfgver;                   // wersje poszczegolnych obszarow konfiguracji
+        char * clientver_str = NULL;    // wersja konfiguracji klienta (string)
+        int clientver = 0;              // wersja konfiguracji klienta
 
 	while(1) {
 		net = clientConnection(netiffd);
@@ -289,30 +292,37 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		}
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
+                    system_id = jsonVal(clientResponse, "systemid");
+                    clientver_str = jsonVal(clientResponse, "config_ver");
+                    clientver = atoi(clientver_str);
+                    
                     updateHostInfo(net.ipaddr, clientResponse, lf);
                     updateServiceState(clientResponse);
-                    if(clientNeedUpdate(clientResponse)) {
-                        system_id = jsonVal(clientResponse, "systemid");
-                        if(!ReadHostConfig(system_id, &config, lf)) {
-                            logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
-                            writeLog(lf, logentry);
-                        }
-                        cleanWWWConfiguration(system_id);
-                        configstring = BuildConfigurationPackage(&config);
-                        clifd = connector(net.ipaddr, 2016);
-                        SendPackage(clifd, configstring);
-
-                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
+                    if((cfgver = checkVersions(system_id)) == NULL) {
+                        logentry = mkString("[WARNING] Brak konfiguracji dla ", system_id, NULL);
                         writeLog(lf, logentry);
-
-                        close(clifd);
-                        free(configstring);
-                        free(system_id);
                     }
+                    
+                    if(!ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
+                        logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
+                        writeLog(lf, logentry);
+                    }
+                    cleanWWWConfiguration(system_id);
+                    configstring = BuildConfigurationPackage(&config);
+                    clifd = connector(net.ipaddr, 2016);
+                    SendPackage(clifd, configstring);
+
+                    logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
+                    writeLog(lf, logentry);
+
+                    close(clifd);
+                    free(configstring);
+                    free(system_id);
 		}
 		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
+                free(clientver_str);
 		free(clientResponse);
 	}
 	close(netiffd);		// konczymy  nasluch
@@ -571,17 +581,58 @@ int fileExist(char * path) {
 		return 1;
 	}
 }
-int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf) {
+int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
     int status = 1;         // status funkcji: 1 - sukces, 0 - error
     char * msg = NULL;      // wpis do logow
+    ver * curr = cfgver;
     
-    conf->httpd = ReadWWWConfiguration(hostid, lf);
-    if((conf->sysUsers = getSystemAccounts(conf, hostid)) == NULL) {
-        msg = mkString("[INFO] (reciver) Brak danych o uzytkownikach systemu", NULL);
-        writeLog(lf, msg);
+    while(curr) {
+        if(!strcmp(curr->scope, "apache") && curr->version > clientver)
+            conf->httpd = ReadWWWConfiguration(hostid, lf);
+        if(!strcmp(curr->scope, "sysusers") && curr->version > clientver)
+            conf->sysUsers = getSystemAccounts(conf, hostid);
+        curr = curr->next;
     }
-    if(conf->httpd.vhost->version > 0)
-        conf->confVer = conf->httpd.vhost->version;
     
     return status;
+}
+ver * checkVersions(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    
+    char * query = mkString("SELECT scope, version FROM configver WHERE systemid = '",
+                            "(SELECT id FROM sysinfo where system_id = '", systemid,"')", NULL);
+    
+    ver * head = NULL;
+    ver * curr = NULL;
+    ver * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    if(mysql_num_rows(res) == 0)
+        return NULL;
+    
+    while((row = mysql_fetch_row(res))) {
+        curr = malloc(sizeof(ver));
+        curr->scope     = readData(row[0]);
+        curr->version   = int2String(row[1]);
+        curr->next      = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
 }

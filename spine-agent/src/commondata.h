@@ -21,6 +21,7 @@ typedef struct sysuser {
     int shellaccess;        // czy konto ma miec dostep do shella
     int expiration;         // data expiracji konta (epoch + dni)
     sshkeys * sshkey;       // wszystkie klucze ssh uzytkownika
+    int version;            // wersja konfiguracji
     struct sysuser * next;  // wskaznik do kolejnego konta
 } sysuser;
 
@@ -56,6 +57,7 @@ typedef struct vhostData {
 typedef struct httpdata {
     vhostData * vhost;          // vhosty apacza
     htpasswdData * htpasswd;    // konta htpasswd
+    int version;                // wersja konfiguracji
 } httpdata;
 
 /****************************************************/

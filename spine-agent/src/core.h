@@ -21,6 +21,12 @@ typedef struct config_data {
 	dbconn dbinfo;	// namiary na baze danych
 } config_data;
 
+// wersje w poszczegolnych kategoriach
+typedef struct ver {
+    char * scope;       // obszar konfiguracyjny
+    int version;        // wersja konfiguracji
+    struct ver * next;  //  nastepny obszar konfugyracyjny
+} ver;
 
 /* 			FUNKCJE			*/
 
@@ -88,6 +94,9 @@ char * BuildConfigurationPackage(hostconfig * data);
 int fileExist(char * path);
 
 // funkcja sluzy do pobierania z bazy konfiguracji hostow
-int ReadHostConfig(char * hostid, hostconfig * conf, FILE * lf);
+int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf);
+
+// funkcja odczytuje wersje konfiguracji w poszczegolnych obszarach
+ver * checkVersions(char * systemid);
 
 #endif /* SPINE_AGENT_CORE_H_ */
