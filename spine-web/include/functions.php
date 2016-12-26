@@ -13,11 +13,17 @@
   return $version;
 }
 function checkConfigVer($dbh, $serverid) {
-  $q = $dbh->prepare("SELECT config_ver FROM sysinfo WHERE id = ". $serverid);
+  $versions = array();
+  $q = $dbh->prepare("SELECT version FROM configver WHERE id = ". $serverid);
   $q->execute();
-  $r = $q->fetch();
-
-  return $r['config_ver'];
+  if($q->rowCount > 0) {
+    while($r = $q->fetch()) {
+      array_push($versions, $r['version']);
+    }
+    return max($versions);
+  }
+  else
+    return 0;
 }
 function updateConfigVersion($dbh, $serverid) {
   $newVer = dayVersion();
