@@ -305,15 +305,15 @@ vhostData * ReadVhostData(char * hostid) {
     
     // zapytanie wyciagajace konfiguracje vhostow z bazy
     char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
-                            "sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
+                            "configver.version AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
                             "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
                             "www.access_order, www.htpasswd AS password_access, case www.htpasswd WHEN 1 THEN GROUP_CONCAT(DISTINCT www_users.login ",
                             "SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
                             "sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
                             "www_opts ON www_opts.id = www_opts_selected.opt_id LEFT JOIN www_access ON www_access.vhost_id = www.id LEFT JOIN ",
                             "www_users_access ON (www_users_access.vhost_id = www.id AND www.htpasswd > 0) LEFT JOIN www_users ON ",
-                            "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) WHERE www.system_id = (SELECT id FROM ",
-                            "sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
+                            "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) LEFT JOIN configver ON configver.systemid = sysinfo.id ",
+                            "WHERE www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
     
     // obsluga listy odczytanych vhostow
     vhostData * head = NULL;
