@@ -25,17 +25,20 @@ function checkConfigVer($dbh, $serverid) {
   else
     return 0;
 }
-function updateConfigVersion($dbh, $serverid) {
+function updateConfigVersion($dbh, $serverid, $scope) {
   $newVer = dayVersion();
   $oldVer = checkConfigVer($dbh, $serverid);
 
   if($newVer > $oldVer) {
-    $q = $dbh->prepare("UPDATE sysinfo SET config_ver = ".$newVer." WHERE id = ". $serverid);
+    if($oldVer == 0)
+      $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$newVer.", ".$serverid.")");
+    else
+      $q = $dbh->prepare("UPDATE configver SET version = ".$newVer. " WHERE scope = '".$scope."', AND systemid = ".$serverid);
     $q->execute();
   }
   else {
     $oldVer += 1;
-    $q = $dbh->prepare("UPDATE sysinfo SET config_ver = ".$oldVer." WHERE id = ". $serverid);
+    $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."', AND systemid = ".$serverid);
     $q->execute();
   }
 }

@@ -68,7 +68,7 @@
       }
       $q = $dbh->prepare("UPDATE www SET htpasswd = ".$htpasswdStatus." WHERE id = ".$vhostid);
       $q->execute();
-      updateConfigVersion($dbh, $_POST['serverid']);
+      updateConfigVersion($dbh, $_POST['serverid'], "apache");
 
       $vhostAccess = vhostAccessLevel($dbh, $vhostid);
 
