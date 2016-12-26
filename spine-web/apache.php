@@ -210,7 +210,7 @@
       $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(".$htuser.", ".$_GET['edit'].", ".$_POST['serverid'].")");
       $q->execute();
     }
-    updateConfigVersion($dbh, $_POST['serverid']);
+    updateConfigVersion($dbh, $_POST['serverid'], "apache");
 
     $vhostid = $_GET['edit'];
     $vhostAccess = vhostAccessLevel($dbh, $vhostid);
