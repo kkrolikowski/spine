@@ -16,7 +16,7 @@ function checkConfigVer($dbh, $serverid) {
   $versions = array();
   $q = $dbh->prepare("SELECT version FROM configver WHERE id = ". $serverid);
   $q->execute();
-  if($q->rowCount > 0) {
+  if($q->rowCount() > 0) {
     while($r = $q->fetch()) {
       array_push($versions, $r['version']);
     }
@@ -38,7 +38,7 @@ function updateConfigVersion($dbh, $serverid, $scope) {
   }
   else {
     $oldVer += 1;
-    $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."', AND systemid = ".$serverid);
+    $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
     $q->execute();
   }
 }
