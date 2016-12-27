@@ -41,10 +41,10 @@
       setlocale(LC_ALL, 'pl_PL.utf8');
       $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname']);
 
-      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,gecos,uid,gid,active,expiration, shell, sshkeys) ".
+      $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,gecos,uid,gid,active,expiration, shell, sshkeys, status) ".
                           "VALUES('".$_POST['login']."', '".$sha512."', '".$_POST['fullname'].
                           "', '".$_POST['email']."', ".$_POST['serverid'].", '".$gecos."', ".$uid.", ".$uid.
-                          ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.")");
+                          ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.", 'N')");
       $q->execute();
 
       $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
@@ -57,7 +57,7 @@
           $q2->execute();
         }
       }
-      updateConfigVersion($dbh, $_POST['serverid']);
+      updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
       $json = array(
         'login' => $r['login'],
         'fullname' => $r['fullname'],

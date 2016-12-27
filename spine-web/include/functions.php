@@ -12,9 +12,9 @@
 
   return $version;
 }
-function checkConfigVer($dbh, $serverid) {
+function checkConfigVer($dbh, $serverid, $scope) {
   $versions = array();
-  $q = $dbh->prepare("SELECT version FROM configver WHERE id = ". $serverid);
+  $q = $dbh->prepare("SELECT version FROM configver WHERE id = ". $serverid. " AND scope = '".$scope."'");
   $q->execute();
   if($q->rowCount() > 0) {
     while($r = $q->fetch()) {
@@ -27,7 +27,7 @@ function checkConfigVer($dbh, $serverid) {
 }
 function updateConfigVersion($dbh, $serverid, $scope) {
   $newVer = dayVersion();
-  $oldVer = checkConfigVer($dbh, $serverid);
+  $oldVer = checkConfigVer($dbh, $serverid, $scope);
 
   if($newVer > $oldVer) {
     if($oldVer == 0)
