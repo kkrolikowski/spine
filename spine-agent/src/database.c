@@ -538,7 +538,7 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
     
     char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
                                    "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",
-                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys, cv.version AS config_ver FROM sysusers u LEFT JOIN ",
+                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys, cv.version AS config_ver, u.status FROM sysusers u LEFT JOIN ",
                                    "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) LEFT JOIN sysinfo si ",
                                    "ON u.system_id = si.id LEFT JOIN configver cv ON (cv.systemid = si.id AND cv.scope = 'sysusers') ",
                                    "WHERE u.login != 'root' AND u.system_id = (SELECT id FROM sysinfo WHERE system_id = '", systemid,"') GROUP BY u.id", NULL);
@@ -572,7 +572,8 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
                 // dolaczamy wezel pamieci z kluczami ssh
                 curr->sshkey = readSSHkeys(row[7]);
                 
-                hc->confVer = atoi(row[8]);
+               curr->version = atoi(row[8]);
+               curr->status  = row[9];
                 
                 // tworzymy kolejny wezel
                 curr->next = NULL;
