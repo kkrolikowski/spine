@@ -235,9 +235,9 @@ httpdata ReadWWWConfiguration(char * hostid, FILE * lf) {
     httpdata results;
     
     if((results.htpasswd = ReadHtpasswdData(hostid)) == NULL)
-        msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
+        msg = mkString("[WARNING] Brak danych na temat userow apacza", NULL);
     if((results.vhost = ReadVhostData(hostid)) == NULL)
-        msg = mkString("[ERROR] Blad pobierania vhostow apacza z bazy", NULL);
+        msg = mkString("[WARNING] Brak danych na temat vhostow", NULL);
     writeLog(lf, msg);
     
     return results;
@@ -278,15 +278,6 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
                     prev = curr;
                 }
             }
-            else {
-                len = strlen("NaN") + 1;
-                curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-                curr->entry = (char *) malloc(len * sizeof(char));
-                memset(curr->entry, '\0', len);
-                strncpy(curr->entry, "NaN", len);
-                curr->next = NULL;
-                head = curr;
-            }
         }
         mysql_free_result(res);
     }
@@ -297,7 +288,6 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     return head;
 }
 vhostData * ReadVhostData(char * hostid) {
-    char * NullStr = "NaN";
     // Zmienne umozliwiajace wyciaganie danych z bazy
     extern MYSQL * dbh;
     MYSQL_RES * res;
@@ -349,30 +339,6 @@ vhostData * ReadVhostData(char * hostid) {
                         prev->next = curr;
                     prev = curr;
                 }
-            }
-            else {
-                curr = (vhostData *) malloc(sizeof(vhostData));
-                
-                curr->ServerName            = readData(NullStr);
-                curr->ServerAlias           = readData(NullStr);
-                curr->DocumentRoot          = readData(NullStr);
-                curr->htaccess              = readData(NullStr);
-                curr->user                  = readData(NullStr);
-                curr->version               = -1;
-                curr->apacheOpts            = readData(NullStr);
-                curr->vhost_access_list     = readData(NullStr);
-                curr->vhost_access_order    = readData(NullStr);
-                curr->password_access       = -1;
-                curr->htusers               = readData(NullStr);
-                curr->status                = readData(NullStr);
-                curr->purgedir              = readData(NullStr);
-
-                curr->next = NULL;
-                if(head == NULL)
-                    head = curr;
-                else
-                    prev->next = curr;
-                prev = curr;
             }
         }
         mysql_free_result(res);
@@ -573,7 +539,7 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
                 curr->sshkey = readSSHkeys(row[7]);
                 
                curr->version = atoi(row[8]);
-               curr->status  = row[9];
+               curr->status  = readData(row[9]);
                 
                 // tworzymy kolejny wezel
                 curr->next = NULL;

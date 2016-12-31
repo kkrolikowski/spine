@@ -22,7 +22,7 @@ typedef struct sysuser {
     int expiration;         // data expiracji konta (epoch + dni)
     sshkeys * sshkey;       // wszystkie klucze ssh uzytkownika
     int version;            // wersja konfiguracji
-    char status;            // status wpisu
+    char * status;          // status wpisu
     struct sysuser * next;  // wskaznik do kolejnego konta
 } sysuser;
 
