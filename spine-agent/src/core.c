@@ -516,29 +516,33 @@ char * BuildConfigurationPackage(hostconfig * data) {
         char * sysusers = NULL;         // konta uzytkownikow
         char * vhosts = NULL;           // konfiguracja vhostow
         char * htusers = NULL;          // konfiguracja htpasswd
+        char * s_vhost_count = NULL;    // liczba vhostow (string)
+        char * s_htusers_count = NULL;  // liczba kont htpasswd (string)
         int size = 0;                   // ilosc pamieci do zaalokowania
         const int DataTypes = 2;        // liczba obszarow konfiguracji:
                                         // - apache, sysusers
         int vhost_count = 0;            // liczba odczytanych vhostow
         int htusers_count = 0;          // liczba odczytanych kont htpasswd
-        char * k_config_ver = ",config_ver:";
         char * k_htpasswd_count = "htpasswd_count:";
         char * dataType_braces = "{},";
 
-	// string zawierajacy numer wersji konfiguracji
-	char * s_config_ver = int2String(data->confVer);
         // odczytujemy liczbe vhostow i zamieniamy ja na string
-        vhost_count = getVhostsCount(data->httpd.vhost);
-        char * s_vhost_count = int2String(vhost_count);
+        if(data->httpd.vhost != NULL) {
+            vhost_count = getVhostsCount(data->httpd.vhost);
+            s_vhost_count = int2String(vhost_count);
+        }
         // odczytujemy liczbe kont htpasswd i zamieniamy ja na string
-        htusers_count = getHTusersCount(data->httpd.htpasswd);
-        char * s_htusers_count = int2String(htusers_count);  
-        
-         // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
-        size = getSysUsersPackageSize(data->sysUsers);
-        size += getApachedataSize(data->httpd);
-        size += strlen(s_config_ver) + strlen(k_config_ver);
-        size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
+        if(data->httpd.htpasswd != NULL) {
+            htusers_count = getHTusersCount(data->httpd.htpasswd);
+            s_htusers_count = int2String(htusers_count); 
+        }   
+        // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
+        if(data->sysUsers != NULL)
+            size += getSysUsersPackageSize(data->sysUsers);
+        if(data->httpd.vhost != NULL || data->httpd.htpasswd != NULL)
+            size += getApachedataSize(data->httpd);
+        if(data->httpd.htpasswd != NULL)
+            size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
         size += (strlen(dataType_braces) * DataTypes) + strlen("[datatype:hostconfig]") + 1; 
 
         // alokujemy cala potrzebna pamiec
@@ -546,28 +550,33 @@ char * BuildConfigurationPackage(hostconfig * data) {
         memset(package, '\0', size);
         
         // odczytujemy poszczegolne sekcje konfiguracji
-        sysusers = sysusersPackage(data->sysUsers);  
-        vhosts = apacheConfigPackage(data->httpd);   
-        htusers = readHtpasswdData(data->httpd.htpasswd);
+        if(data->sysUsers != NULL)
+            sysusers = sysusersPackage(data->sysUsers);  
+        if(data->httpd.vhost != NULL)
+            vhosts = apacheConfigPackage(data->httpd);   
+        if(data->httpd.htpasswd != NULL)
+            htusers = readHtpasswdData(data->httpd.htpasswd);
     
         // skladamy pakiet w calosc
 	strncpy(package, "[datatype:hostconfig,", strlen("[datatype:hostconfig,") + 1);
-        strncat(package, sysusers, strlen(sysusers) + 1);
-        strncat(package, vhosts, strlen(vhosts) + 1);
-        strncat(package, htusers, strlen(htusers) + 1);
-	strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
-	strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
-	strncat(package, k_config_ver, strlen(k_config_ver) + 1);
-	strncat(package, s_config_ver, strlen(s_config_ver));
+        if(data->sysUsers != NULL)
+            strncat(package, sysusers, strlen(sysusers) + 1);
+        if(data->httpd.vhost != NULL)
+            strncat(package, vhosts, strlen(vhosts) + 1);
+        if(data->httpd.htpasswd != NULL)
+            strncat(package, htusers, strlen(htusers) + 1);
+	if(data->httpd.htpasswd != NULL) {
+            strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
+            strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
+        }
 	strncat(package, "}]", 3);
 
         // zwalniamy pamiec
-	free(s_config_ver);
-	free(s_htusers_count);
-        free(s_vhost_count);
-        free(htusers);
-        free(vhosts);
-        free(sysusers);
+	if(s_htusers_count != NULL)   free(s_htusers_count);
+        if(s_vhost_count != NULL)     free(s_vhost_count);
+        if(htusers != NULL)           free(htusers);
+        if(vhosts != NULL)            free(vhosts);
+        if(sysusers != NULL)          free(sysusers);
         
 	return package;
 }

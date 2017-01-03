@@ -21,6 +21,7 @@ char * sysusersPackage(sysuser * su) {
     char * s_uidgid_val = NULL;         // UID/GID w formie stringu
     char * s_active_val = NULL;         // flaga statusu konta w formie stringu
     char * s_shell_val = NULL;          // flaga dostepu do shella w formie stringu
+    char * s_cfgver = NULL;             // wersja konfiguracji (string)
     sysuser * su_begin = su;            // poczatek wezla
     sysuser * su_curr = su;             // aktualnie przetwarzane konto
     size_t package_len = 0;             // calkowity rozmiar pakietu
@@ -35,6 +36,7 @@ char * sysusersPackage(sysuser * su) {
     char * s_uidgid = "uidgid:";
     char * s_shell = "shell:";
     char * s_expire = "expire:";
+    char * s_version = "config_ver:";
     
     if(su == NULL)
         return NULL;
@@ -67,11 +69,14 @@ char * sysusersPackage(sysuser * su) {
                          s_shell, s_shell_val, ",",
                          keyentry, NULL);
         strncat(package, entry, strlen(entry) + 1);
-        if(su_curr->next == NULL)
-            strncat(package, "}", 2);
-        else
-            strncat(package, "},", 3);
+        strncat(package, "},", 3);
+        if(su_curr->next == NULL) {
+            s_cfgver = int2String(su_curr->version);
+            strncat(package, s_version, strlen(s_version));
+            strncat(package, s_cfgver, strlen(s_cfgver));
+        }
         
+        if(s_cfgver != NULL)     free(s_cfgver);
         if(keyentry != NULL)     free(keyentry);
         if(entry != NULL)        free(entry);
         if(s_index != NULL)      free(s_index);
@@ -200,6 +205,11 @@ int getSysUsersPackageSize(sysuser * su) {
         size += strlen(tmp);
         free(tmp);
         
+        if(pos->next == NULL) {
+            tmp = int2String(pos->version);
+            size += strlen(tmp);
+            free(tmp);
+        }
         // klucze ssh
         size += getSSHkeysPackageSize(pos->sshkey);
         
@@ -207,7 +217,7 @@ int getSysUsersPackageSize(sysuser * su) {
         pos = pos->next;
     }
     size += keysize * userCount;
-    size += strlen("{scope:sysusers,}");
+    size += strlen("{scope:sysusers,},config_ver:");
     
     return size;
 }

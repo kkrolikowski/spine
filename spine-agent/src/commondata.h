@@ -70,7 +70,6 @@ typedef struct hostconfig {
     sysuser * sysUsers;     // konta uzytkownikow w systemie
     httpdata httpd;         // konfiguracja serwera www
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
-    int confVer;            // wersja konfiguracji
 } hostconfig;
 
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */
