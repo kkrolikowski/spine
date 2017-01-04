@@ -264,7 +264,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     os = linuxDistro();
                     ParseConfigData(clientResponse, &config);
                     packagever = readPackageVersion(clientResponse);
-                    if(readLocalConfigVersion() < config.confVer) {
+                    if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
@@ -280,7 +280,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
                                 writeLog(lf, logentry);
                             }
-                            if(writeLocalConfigVersion(config.confVer)) {
+                            if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
                                 writeLog(lf, logentry);
                             }
