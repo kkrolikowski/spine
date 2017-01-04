@@ -303,6 +303,15 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     if((cfgver = checkVersions(system_id)) == NULL) {
                         logentry = mkString("[WARNING] Brak konfiguracji dla ", system_id, NULL);
                         writeLog(lf, logentry);
+                        
+                        // zwalniamy pamiec
+                        free(system_id);
+                        free(clientver_str);
+                        free(datatype);
+                        close(net.sock);
+                        free(net.ipaddr);
+                        free(clientResponse);
+                        continue;
                     }
                     
                     if(!ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
