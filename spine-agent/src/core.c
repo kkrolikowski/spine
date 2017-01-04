@@ -231,6 +231,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
         ver * cfgver;                   // wersje poszczegolnych obszarow konfiguracji
         char * clientver_str = NULL;    // wersja konfiguracji klienta (string)
         int clientver = 0;              // wersja konfiguracji klienta
+        int packagever = 0;             // wersja konfiguracji pochodzaca z pakietu danych
 
 	while(1) {
 		net = clientConnection(netiffd);
@@ -262,6 +263,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		if(!strcmp(mode, "client")) {
                     os = linuxDistro();
                     ParseConfigData(clientResponse, &config);
+                    packagever = readPackageVersion(clientResponse);
                     if(readLocalConfigVersion() < config.confVer) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
@@ -592,7 +594,6 @@ int fileExist(char * path) {
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
     int status = 1;         // status funkcji: 1 - sukces, 0 - error
-    char * msg = NULL;      // wpis do logow
     ver * curr = cfgver;
     
     while(curr) {
@@ -644,4 +645,47 @@ ver * checkVersions(char * systemid) {
     free(query);
     
     return head;
+}
+int readPackageVersion(char * str) {
+    char * pos = str;       // aktualna pozycja w stringu
+    char sver[11];          // string zawierajacy numer wersji
+    int i = 0;              // index bufora
+    int max = 0;            // liczba obszarow konfiguracyjnych
+    int ver = 0;            // numer wersji w formie liczbowej
+    int maxv = 0;           // wybieramy najwiekszy numer wersji w pakiecie
+    
+    // weryfikujemy ile jest wpisow z wersja konfiguracji
+    while((pos = strstr(pos, "config_ver:")) != NULL) {
+        max++;
+        pos++;
+    }
+    int vers[max];          // tablica przechowujaca odczytane wersje konfiguracji
+    int n = 0;              // index tablicy
+    
+    pos = str;              // wracamy na poczatek stringa
+    memset(sver, '\0', 11);
+    while((pos = strstr(pos, "config_ver:")) != NULL) {
+        pos = pos + strlen("config_ver:");
+        while(*pos != '}') {
+            sver[i] = *pos;
+            i++; pos++;
+        }
+        ver = atoi(sver);
+        vers[n] = ver;
+        n++;
+        i = 0;
+        memset(sver, '\0', 11);
+    }
+    maxv = maxver(vers, n);
+    return maxv;
+}
+int maxver(int vers[], int n) {
+    int max = vers[0];      // zakladamy, ze pierwszy jest najwiekszy
+    int i;
+    
+    for(i = 0; i < n; i++)
+        if(vers[i] > max)
+            max = vers[i];
+    
+    return max;
 }

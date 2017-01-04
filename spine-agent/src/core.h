@@ -99,4 +99,10 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
 // funkcja odczytuje wersje konfiguracji w poszczegolnych obszarach
 ver * checkVersions(char * systemid);
 
+// funkcja zwraca najwieksza wartosc w tablicy
+int maxver(int vers[], int n);
+
+// funkcja zwraca numer wersji, ktory zostanie zapisany przez klienta w pliku
+int readPackageVersion(char * str);
+
 #endif /* SPINE_AGENT_CORE_H_ */
