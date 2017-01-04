@@ -632,7 +632,7 @@ ver * checkVersions(char * systemid) {
     while((row = mysql_fetch_row(res))) {
         curr = malloc(sizeof(ver));
         curr->scope     = readData(row[0]);
-        curr->version   = int2String(row[1]);
+        curr->version   = atoi(row[1]);
         curr->next      = NULL;
         
         if(head == NULL)

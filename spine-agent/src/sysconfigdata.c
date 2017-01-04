@@ -219,8 +219,6 @@ int writeLocalConfigVersion(int ver) {
 	return 1;
 }
 void ParseConfigData(char * json, hostconfig * conf) {
-    char ** scope = {"apache", "sysusers"};
-    
     // inicjujemy zmienne, ktore przechowaja odebrana konfiguracje
     conf->datatype = NULL;
     conf->httpd.htpasswd = NULL;
