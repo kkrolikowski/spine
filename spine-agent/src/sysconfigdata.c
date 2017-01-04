@@ -219,21 +219,26 @@ int writeLocalConfigVersion(int ver) {
 	return 1;
 }
 void ParseConfigData(char * json, hostconfig * conf) {
-    /*                 Dane ogolne                     */
+    char ** scope = {"apache", "sysusers"};
     
-    // przetwarzamy numer wersji konfiguracji
-    char * confver_s = jsonVal(json, "config_ver");
-    conf->confVer = atoi(confver_s);
-    free(confver_s);
+    // inicjujemy zmienne, ktore przechowaja odebrana konfiguracje
+    conf->datatype = NULL;
+    conf->httpd.htpasswd = NULL;
+    conf->httpd.vhost = NULL;
+    conf->sysUsers = NULL;
+    char * pos = json;          // ustawiamy sie na poczatku pakietu
     // przetwarzamy typ pakietu
     conf->datatype = jsonVal(json, "datatype");
     
-    /*                 Obszary konfiguracji            */
+    while(*pos) {
+        if((pos = strstr(pos, "scope:sysusers")) != NULL)
+            conf->sysUsers = ParseConfigDataSYSUSERS(pos);
+        else if((pos = strstr(pos, "scope:apache")) != NULL)
+            ParseConfigDataAPACHE(json, &conf->httpd);
+        else
+            pos++;
+    }
     
-    // Serwer WWW
-    ParseConfigDataAPACHE(json, &conf->httpd);
-    // Konta systemowe
-    conf->sysUsers = ParseConfigDataSYSUSERS(json);
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
     int i = 0;                                          // biezacy numer konta
