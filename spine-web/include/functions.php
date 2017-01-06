@@ -12,9 +12,9 @@
 
   return $version;
 }
-function checkConfigVer($dbh, $serverid, $scope) {
+function checkConfigVer($dbh, $serverid) {
   $versions = array();
-  $q = $dbh->prepare("SELECT version FROM configver WHERE systemid = ". $serverid. " AND scope = '".$scope."'");
+  $q = $dbh->prepare("SELECT version FROM configver WHERE systemid = ". $serverid);
   $q->execute();
   if($q->rowCount() > 0) {
     while($r = $q->fetch()) {
@@ -27,7 +27,7 @@ function checkConfigVer($dbh, $serverid, $scope) {
 }
 function updateConfigVersion($dbh, $serverid, $scope) {
   $newVer = dayVersion();
-  $oldVer = checkConfigVer($dbh, $serverid, $scope);
+  $oldVer = checkConfigVer($dbh, $serverid);
 
   if($newVer > $oldVer) {
     if($oldVer == 0)
@@ -38,7 +38,13 @@ function updateConfigVersion($dbh, $serverid, $scope) {
   }
   else {
     $oldVer += 1;
-    $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
+    $q2 = $dbh->prepare("SELECT count(*) AS cnt FROM configver WHERE scope = '".$scope."'");
+    $q2->execute();
+    $r2 = $q2->fetch();
+    if($r2['cnt'] > 0)
+      $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
+    else
+      $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$oldVer.", ".$serverid.")");
     $q->execute();
   }
 }
