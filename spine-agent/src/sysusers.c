@@ -446,7 +446,7 @@ int copy(char * from, char * to) {
 sshkeys * readSSHKeysFromPackage(char * str) {
     char * pos = str;                       // aktualna pozycja w stringu
     char * end = strstr(str, "},user_");    // adres konca przetwarzania
-    char * end2 = strstr(str, "}}{scope:"); // adres konca
+    char * end2 = strstr(str, "},config_ver"); // adres konca
     int step = strlen("sshkey_:") + 1;      // dlugosc klucza
     char buff[512];                         // bufor w ktorym przechowamy oczytany klucz ssh
     int i = 0;                              // index bufora

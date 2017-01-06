@@ -314,20 +314,18 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         continue;
                     }
                     
-                    if(!ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
-                        logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
+                    if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
+                        configstring = BuildConfigurationPackage(&config);
+                        clifd = connector(net.ipaddr, 2016);
+                        SendPackage(clifd, configstring);
+
+                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
                         writeLog(lf, logentry);
+
+                        close(clifd);
+                        free(configstring);
                     }
-                    cleanWWWConfiguration(system_id);
-                    configstring = BuildConfigurationPackage(&config);
-                    clifd = connector(net.ipaddr, 2016);
-                    SendPackage(clifd, configstring);
-
-                    logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
-                    writeLog(lf, logentry);
-
-                    close(clifd);
-                    free(configstring);
+                    cleanWWWConfiguration(system_id);                
                     free(system_id);
 		}
 		close(net.sock);
@@ -602,14 +600,18 @@ int fileExist(char * path) {
 	}
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
-    int status = 1;         // status funkcji: 1 - sukces, 0 - error
+    int status = 0;         // status funkcji: 1 - sukces, 0 - error
     ver * curr = cfgver;
     
     while(curr) {
-        if(!strcmp(curr->scope, "apache") && curr->version > clientver)
+        if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
             conf->httpd = ReadWWWConfiguration(hostid, lf);
-        if(!strcmp(curr->scope, "sysusers") && curr->version > clientver)
+            status = 1;
+        }
+        if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
             conf->sysUsers = getSystemAccounts(conf, hostid);
+            status = 1;
+        }
         curr = curr->next;
     }
     
@@ -620,7 +622,7 @@ ver * checkVersions(char * systemid) {
     MYSQL_RES * res;
     MYSQL_ROW row;
     
-    char * query = mkString("SELECT scope, version FROM configver WHERE systemid = '",
+    char * query = mkString("SELECT scope, version FROM configver WHERE systemid = ",
                             "(SELECT id FROM sysinfo where system_id = '", systemid,"')", NULL);
     
     ver * head = NULL;
@@ -674,14 +676,11 @@ int readPackageVersion(char * str) {
     pos = str;              // wracamy na poczatek stringa
     memset(sver, '\0', 11);
     while((pos = strstr(pos, "config_ver:")) != NULL) {
-        pos = pos + strlen("config_ver:");
-        while(*pos != '}') {
-            sver[i] = *pos;
-            i++; pos++;
-        }
+        pos += strlen("config_ver:");
+        while(*pos != '}' && *pos != ',')
+            sver[i++] = *pos++;
         ver = atoi(sver);
-        vers[n] = ver;
-        n++;
+        vers[n++] = ver;
         i = 0;
         memset(sver, '\0', 11);
     }

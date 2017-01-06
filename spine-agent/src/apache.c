@@ -658,8 +658,7 @@ int getVhostsCount(vhostData *vh) {
     vhostData * pos = vh;
     
     while(pos) {
-        if(pos->version > 0)
-            sum++;
+        sum++;
         pos = pos->next;
     }
     return sum;

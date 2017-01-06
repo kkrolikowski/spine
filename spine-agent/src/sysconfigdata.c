@@ -226,16 +226,12 @@ void ParseConfigData(char * json, hostconfig * conf) {
     conf->sysUsers = NULL;
     char * pos = json;          // ustawiamy sie na poczatku pakietu
     // przetwarzamy typ pakietu
-    conf->datatype = jsonVal(json, "datatype");
+    conf->datatype = jsonVal(pos, "datatype");
     
-    while(*pos) {
-        if((pos = strstr(pos, "scope:sysusers")) != NULL)
-            conf->sysUsers = ParseConfigDataSYSUSERS(pos);
-        else if((pos = strstr(pos, "scope:apache")) != NULL)
-            ParseConfigDataAPACHE(json, &conf->httpd);
-        else
-            pos++;
-    }
+    if((pos = strstr(pos, "scope:sysusers")) != NULL)
+        conf->sysUsers = ParseConfigDataSYSUSERS(pos);
+    if((pos = strstr(pos, "scope:apache")) != NULL)
+        ParseConfigDataAPACHE(json, &conf->httpd);
     
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
