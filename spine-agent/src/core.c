@@ -301,9 +301,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     updateHostInfo(net.ipaddr, clientResponse, lf);
                     updateServiceState(clientResponse);
                     if((cfgver = checkVersions(system_id)) == NULL) {
-                        logentry = mkString("[WARNING] Brak konfiguracji dla ", system_id, NULL);
-                        writeLog(lf, logentry);
-                        
                         // zwalniamy pamiec
                         free(system_id);
                         free(clientver_str);
@@ -602,6 +599,11 @@ int fileExist(char * path) {
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
     int status = 0;         // status funkcji: 1 - sukces, 0 - error
     ver * curr = cfgver;
+    
+    // inicjujemy struktury
+    conf->httpd.htpasswd = NULL;
+    conf->httpd.vhost = NULL;
+    conf->sysUsers = NULL;
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
