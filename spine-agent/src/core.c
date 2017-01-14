@@ -266,13 +266,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     packagever = readPackageVersion(clientResponse);
                     if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
-                            if(config.httpd.vhost != NULL) {
+                            if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
-                                if(config.httpd.vhost != NULL)
-                                    cleanVhostData(config.httpd.vhost);
-                                if(config.httpd.htpasswd != NULL)
-                                    clearHtpasswdData(config.httpd.htpasswd);
-                            }
                             else {
                                 logentry = mkString("[WARNING] (reciver) Brak konfiguracji apacza", NULL);
                                 writeLog(lf, logentry);
