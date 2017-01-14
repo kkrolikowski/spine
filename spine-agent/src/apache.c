@@ -32,14 +32,15 @@ char * readHtpasswdData(htpasswdData * htpasswd) {
     return str;
 }
 void clearHtpasswdData(htpasswdData * htpasswd) {
-	htpasswdData * curr = NULL;
-
-	while(htpasswd != NULL) {
-		curr = htpasswd;
-		htpasswd = htpasswd->next;
-		free(curr->entry);
-		free(curr);
-	}
+    htpasswdData * curr = htpasswd;
+    htpasswdData * next = NULL;
+    
+    free(curr->entry);
+    
+    next = curr->next;
+    if(next != NULL)
+        clearHtpasswdData(next);
+    free(curr);
 }
 char * apacheConfigPackage(httpdata www) {
 	int vidx = 0;			// vhost index
