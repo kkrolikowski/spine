@@ -401,12 +401,13 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 }
 char * jsonVal(const char * json, const char * pattern) {
 	char * val = NULL;
+        char * val_pos = NULL;
 
 	size_t pattern_len = strlen(pattern);
-	const char * val_pos = strstr(json, pattern) + pattern_len + 1;
-
-	if(val_pos == NULL)
-		return NULL;
+        if((val_pos = strstr(json, pattern)) != NULL)
+            val_pos += (pattern_len + 1);
+        else
+            return NULL;
 
 	int i = 0;
 	size_t len = 0;
