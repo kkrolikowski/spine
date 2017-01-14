@@ -96,7 +96,7 @@ unsigned long getCurrentTime(void);
 char * CPUusage(void);
 
 // funkcja wczytuje do pamieci dane konfiguracyjne apacza
-void ParseConfigDataAPACHE(char * json, httpdata * www);
+httpdata ParseConfigDataAPACHE(char * json);
 
 // funckcja wczytuje do pamieci dane kont systemowych
 sysuser * ParseConfigDataSYSUSERS(char * json);
