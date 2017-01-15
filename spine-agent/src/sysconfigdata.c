@@ -273,6 +273,10 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
         tmp                 = jsonVal(config_pos, "expire");
         curr->expiration    = atoi(tmp);
         free(tmp);
+        tmp                 = jsonVal(config_pos, "sudo");
+        curr->sudo          = atoi(tmp);
+        free(tmp);
+        
         curr->sshkey        = readSSHKeysFromPackage(strstr(config_pos, "sshkey_0"));
         curr->next = NULL;
         

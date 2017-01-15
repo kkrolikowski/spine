@@ -49,5 +49,13 @@ sshkeys * readSSHKeysFromPackage(char * str);
 // funkcja tworzy pliki authorized_keys
 int writeAuthorizedKeys(sysuser * su, FILE * lf);
 
+// function modifies /etc/group file and updated it with given login
+// return 1 on success and 0 on failure
+int grantSuperUser(char * login);
+
+// function updated an entry of /etc/group file (buff) with given login
+// returns pointer to modified string
+char * updateGroup(char * buff, char * login);
+
 #endif /* SYSUSERS_H */
 
