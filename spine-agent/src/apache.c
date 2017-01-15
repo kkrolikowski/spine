@@ -32,14 +32,15 @@ char * readHtpasswdData(htpasswdData * htpasswd) {
     return str;
 }
 void clearHtpasswdData(htpasswdData * htpasswd) {
-	htpasswdData * curr = NULL;
-
-	while(htpasswd != NULL) {
-		curr = htpasswd;
-		htpasswd = htpasswd->next;
-		free(curr->entry);
-		free(curr);
-	}
+    htpasswdData * curr = htpasswd;
+    htpasswdData * next = NULL;
+    
+    free(curr->entry);
+    
+    next = curr->next;
+    if(next != NULL)
+        clearHtpasswdData(next);
+    free(curr);
 }
 char * apacheConfigPackage(httpdata www) {
 	int vidx = 0;			// vhost index
@@ -53,6 +54,11 @@ char * apacheConfigPackage(httpdata www) {
         
         // naglowek pakietu danych
         char * package_header = "{scope:apache,";
+        
+        // wersja konfiguracji apacza
+        char * k_config_ver = "config_ver:";
+        char * s_config_ver = NULL;
+        int config_ver = 0;
 
         // zaalokowania pamieci dla calego pakietu
         packageSize = getApachedataSize(www);
@@ -80,6 +86,10 @@ char * apacheConfigPackage(httpdata www) {
                             "user:",             vhpos->user,               "}",
                             ",", NULL);
             strncat(package, entry, strlen(entry) + 1);
+            if(vhpos->next == NULL) {
+                config_ver = vhpos->version;
+                s_config_ver = int2String(config_ver);
+            }
             
             // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
             free(entry);
@@ -94,10 +104,14 @@ char * apacheConfigPackage(httpdata www) {
 	numstr = int2String(vidx);
 	metainfo = mkString("vhost_num:", numstr, ",", NULL);
 	strncat(package, metainfo, strlen(metainfo) + 1);
+        strncat(package, k_config_ver, strlen(k_config_ver));
+        strncat(package, s_config_ver, strlen(s_config_ver));
+        strncat(package, ",", 1);
 
 	// czyscimy niepotrzebne dane
 	free(numstr);
 	free(metainfo);
+        free(s_config_ver);
         cleanVhostData(www.vhost);
         
 	return package;
@@ -556,9 +570,14 @@ int removeVhost(char * os, vhostData * vhd) {
 }
 int getApachedataSize(httpdata www) {
     int size = 0;
-    int vhostPackageSize = getVhostPackageSize(www.vhost);
-    int htpasswdPackageSize = getHtPasswdPackageSize(www.htpasswd);
+    int vhostPackageSize = 0;
+    int htpasswdPackageSize = 0;
     
+    if(www.vhost != NULL)
+        vhostPackageSize = getVhostPackageSize(www.vhost);
+    if(www.htpasswd != NULL)
+        htpasswdPackageSize = getHtPasswdPackageSize(www.htpasswd);
+        
     size = vhostPackageSize + htpasswdPackageSize;
     size += strlen("{scope:apache,}");
     size += strlen("vhost_num:,");
@@ -577,7 +596,7 @@ int getVhostPackageSize(vhostData * vhd) {
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
-                            "VhostAccessOrder:,", "VhostAccessList:,",
+                            "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
                             "vhost_:", "{},", NULL};
     const char ** key = keys;
     while(*key) {
@@ -602,10 +621,17 @@ int getVhostPackageSize(vhostData * vhd) {
         tmp = int2String(pos->password_access);
         size += strlen(tmp);
         free(tmp);
+        
         tmp = int2String(vhostCount);
         size += strlen(tmp);
         free(tmp);
         
+        if(pos->next == NULL) {
+            tmp = int2String(pos->version);
+            size += strlen(tmp);
+            free(tmp);
+        }
+                
         vhostCount++;
         pos = pos->next;
     }
@@ -633,8 +659,7 @@ int getVhostsCount(vhostData *vh) {
     vhostData * pos = vh;
     
     while(pos) {
-        if(pos->version > 0)
-            sum++;
+        sum++;
         pos = pos->next;
     }
     return sum;

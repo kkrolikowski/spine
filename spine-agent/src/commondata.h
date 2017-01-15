@@ -22,6 +22,7 @@ typedef struct sysuser {
     int expiration;         // data expiracji konta (epoch + dni)
     sshkeys * sshkey;       // wszystkie klucze ssh uzytkownika
     int version;            // wersja konfiguracji
+    char * status;          // status wpisu
     struct sysuser * next;  // wskaznik do kolejnego konta
 } sysuser;
 
@@ -69,7 +70,6 @@ typedef struct hostconfig {
     sysuser * sysUsers;     // konta uzytkownikow w systemie
     httpdata httpd;         // konfiguracja serwera www
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
-    int confVer;            // wersja konfiguracji
 } hostconfig;
 
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */

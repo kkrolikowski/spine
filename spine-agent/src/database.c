@@ -235,9 +235,9 @@ httpdata ReadWWWConfiguration(char * hostid, FILE * lf) {
     httpdata results;
     
     if((results.htpasswd = ReadHtpasswdData(hostid)) == NULL)
-        msg = mkString("[ERROR] Blad pobierania userow apacza z bazy", NULL);
+        msg = mkString("[WARNING] Brak danych na temat userow apacza", NULL);
     if((results.vhost = ReadVhostData(hostid)) == NULL)
-        msg = mkString("[ERROR] Blad pobierania vhostow apacza z bazy", NULL);
+        msg = mkString("[WARNING] Brak danych na temat vhostow", NULL);
     writeLog(lf, msg);
     
     return results;
@@ -278,15 +278,6 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
                     prev = curr;
                 }
             }
-            else {
-                len = strlen("NaN") + 1;
-                curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-                curr->entry = (char *) malloc(len * sizeof(char));
-                memset(curr->entry, '\0', len);
-                strncpy(curr->entry, "NaN", len);
-                curr->next = NULL;
-                head = curr;
-            }
         }
         mysql_free_result(res);
     }
@@ -297,7 +288,6 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     return head;
 }
 vhostData * ReadVhostData(char * hostid) {
-    char * NullStr = "NaN";
     // Zmienne umozliwiajace wyciaganie danych z bazy
     extern MYSQL * dbh;
     MYSQL_RES * res;
@@ -305,15 +295,15 @@ vhostData * ReadVhostData(char * hostid) {
     
     // zapytanie wyciagajace konfiguracje vhostow z bazy
     char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
-                            "sysinfo.config_ver AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
+                            "configver.version AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
                             "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
                             "www.access_order, www.htpasswd AS password_access, case www.htpasswd WHEN 1 THEN GROUP_CONCAT(DISTINCT www_users.login ",
                             "SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
                             "sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
                             "www_opts ON www_opts.id = www_opts_selected.opt_id LEFT JOIN www_access ON www_access.vhost_id = www.id LEFT JOIN ",
                             "www_users_access ON (www_users_access.vhost_id = www.id AND www.htpasswd > 0) LEFT JOIN www_users ON ",
-                            "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) WHERE www.system_id = (SELECT id FROM ",
-                            "sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
+                            "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) LEFT JOIN configver ON (configver.systemid = sysinfo.id AND ",
+                            "configver.scope = 'apache') WHERE www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
     
     // obsluga listy odczytanych vhostow
     vhostData * head = NULL;
@@ -349,30 +339,6 @@ vhostData * ReadVhostData(char * hostid) {
                         prev->next = curr;
                     prev = curr;
                 }
-            }
-            else {
-                curr = (vhostData *) malloc(sizeof(vhostData));
-                
-                curr->ServerName            = readData(NullStr);
-                curr->ServerAlias           = readData(NullStr);
-                curr->DocumentRoot          = readData(NullStr);
-                curr->htaccess              = readData(NullStr);
-                curr->user                  = readData(NullStr);
-                curr->version               = -1;
-                curr->apacheOpts            = readData(NullStr);
-                curr->vhost_access_list     = readData(NullStr);
-                curr->vhost_access_order    = readData(NullStr);
-                curr->password_access       = -1;
-                curr->htusers               = readData(NullStr);
-                curr->status                = readData(NullStr);
-                curr->purgedir              = readData(NullStr);
-
-                curr->next = NULL;
-                if(head == NULL)
-                    head = curr;
-                else
-                    prev->next = curr;
-                prev = curr;
             }
         }
         mysql_free_result(res);
@@ -538,10 +504,10 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
     
     char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
                                    "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",
-                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys, si.config_ver FROM sysusers u LEFT JOIN ",
+                                   "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys, cv.version AS config_ver, u.status FROM sysusers u LEFT JOIN ",
                                    "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) LEFT JOIN sysinfo si ",
-                                   "ON u.system_id = si.id WHERE u.login != 'root' AND u.system_id = ",
-                                   "(SELECT id FROM sysinfo WHERE system_id = '", systemid,"') GROUP BY u.id", NULL);
+                                   "ON u.system_id = si.id LEFT JOIN configver cv ON (cv.systemid = si.id AND cv.scope = 'sysusers') ",
+                                   "WHERE u.login != 'root' AND u.system_id = (SELECT id FROM sysinfo WHERE system_id = '", systemid,"') GROUP BY u.id", NULL);
     
     // inicjujemy liste laczona w ktorej znajda sie dane odczytane z bazy
     sysuser * head = NULL;
@@ -572,7 +538,8 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
                 // dolaczamy wezel pamieci z kluczami ssh
                 curr->sshkey = readSSHkeys(row[7]);
                 
-                hc->confVer = atoi(row[8]);
+               curr->version = atoi(row[8]);
+               curr->status  = readData(row[9]);
                 
                 // tworzymy kolejny wezel
                 curr->next = NULL;

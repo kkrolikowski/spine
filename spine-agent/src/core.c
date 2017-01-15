@@ -231,6 +231,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
         ver * cfgver;                   // wersje poszczegolnych obszarow konfiguracji
         char * clientver_str = NULL;    // wersja konfiguracji klienta (string)
         int clientver = 0;              // wersja konfiguracji klienta
+        int packagever = 0;             // wersja konfiguracji pochodzaca z pakietu danych
 
 	while(1) {
 		net = clientConnection(netiffd);
@@ -262,7 +263,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		if(!strcmp(mode, "client")) {
                     os = linuxDistro();
                     ParseConfigData(clientResponse, &config);
-                    if(readLocalConfigVersion() < config.confVer) {
+                    packagever = readPackageVersion(clientResponse);
+                    if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
@@ -278,7 +280,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
                                 writeLog(lf, logentry);
                             }
-                            if(writeLocalConfigVersion(config.confVer)) {
+                            if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
                                 writeLog(lf, logentry);
                             }
@@ -299,24 +301,28 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     updateHostInfo(net.ipaddr, clientResponse, lf);
                     updateServiceState(clientResponse);
                     if((cfgver = checkVersions(system_id)) == NULL) {
-                        logentry = mkString("[WARNING] Brak konfiguracji dla ", system_id, NULL);
-                        writeLog(lf, logentry);
+                        // zwalniamy pamiec
+                        free(system_id);
+                        free(clientver_str);
+                        free(datatype);
+                        close(net.sock);
+                        free(net.ipaddr);
+                        free(clientResponse);
+                        continue;
                     }
                     
-                    if(!ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
-                        logentry = mkString("[ERROR] Ogolny blad odczytu danych konfiguracyjnych!", NULL);
+                    if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
+                        configstring = BuildConfigurationPackage(&config);
+                        clifd = connector(net.ipaddr, 2016);
+                        SendPackage(clifd, configstring);
+
+                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
                         writeLog(lf, logentry);
+
+                        close(clifd);
+                        free(configstring);
                     }
-                    cleanWWWConfiguration(system_id);
-                    configstring = BuildConfigurationPackage(&config);
-                    clifd = connector(net.ipaddr, 2016);
-                    SendPackage(clifd, configstring);
-
-                    logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
-                    writeLog(lf, logentry);
-
-                    close(clifd);
-                    free(configstring);
+                    cleanWWWConfiguration(system_id);                
                     free(system_id);
 		}
 		close(net.sock);
@@ -395,12 +401,13 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 }
 char * jsonVal(const char * json, const char * pattern) {
 	char * val = NULL;
+        char * val_pos = NULL;
 
 	size_t pattern_len = strlen(pattern);
-	const char * val_pos = strstr(json, pattern) + pattern_len + 1;
-
-	if(val_pos == NULL)
-		return NULL;
+        if((val_pos = strstr(json, pattern)) != NULL)
+            val_pos += (pattern_len + 1);
+        else
+            return NULL;
 
 	int i = 0;
 	size_t len = 0;
@@ -516,29 +523,33 @@ char * BuildConfigurationPackage(hostconfig * data) {
         char * sysusers = NULL;         // konta uzytkownikow
         char * vhosts = NULL;           // konfiguracja vhostow
         char * htusers = NULL;          // konfiguracja htpasswd
+        char * s_vhost_count = NULL;    // liczba vhostow (string)
+        char * s_htusers_count = NULL;  // liczba kont htpasswd (string)
         int size = 0;                   // ilosc pamieci do zaalokowania
         const int DataTypes = 2;        // liczba obszarow konfiguracji:
                                         // - apache, sysusers
         int vhost_count = 0;            // liczba odczytanych vhostow
         int htusers_count = 0;          // liczba odczytanych kont htpasswd
-        char * k_config_ver = ",config_ver:";
         char * k_htpasswd_count = "htpasswd_count:";
         char * dataType_braces = "{},";
 
-	// string zawierajacy numer wersji konfiguracji
-	char * s_config_ver = int2String(data->confVer);
         // odczytujemy liczbe vhostow i zamieniamy ja na string
-        vhost_count = getVhostsCount(data->httpd.vhost);
-        char * s_vhost_count = int2String(vhost_count);
+        if(data->httpd.vhost != NULL) {
+            vhost_count = getVhostsCount(data->httpd.vhost);
+            s_vhost_count = int2String(vhost_count);
+        }
         // odczytujemy liczbe kont htpasswd i zamieniamy ja na string
-        htusers_count = getHTusersCount(data->httpd.htpasswd);
-        char * s_htusers_count = int2String(htusers_count);  
-        
-         // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
-        size = getSysUsersPackageSize(data->sysUsers);
-        size += getApachedataSize(data->httpd);
-        size += strlen(s_config_ver) + strlen(k_config_ver);
-        size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
+        if(data->httpd.htpasswd != NULL) {
+            htusers_count = getHTusersCount(data->httpd.htpasswd);
+            s_htusers_count = int2String(htusers_count); 
+        }   
+        // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
+        if(data->sysUsers != NULL)
+            size += getSysUsersPackageSize(data->sysUsers);
+        if(data->httpd.vhost != NULL || data->httpd.htpasswd != NULL)
+            size += getApachedataSize(data->httpd);
+        if(data->httpd.htpasswd != NULL)
+            size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
         size += (strlen(dataType_braces) * DataTypes) + strlen("[datatype:hostconfig]") + 1; 
 
         // alokujemy cala potrzebna pamiec
@@ -546,28 +557,33 @@ char * BuildConfigurationPackage(hostconfig * data) {
         memset(package, '\0', size);
         
         // odczytujemy poszczegolne sekcje konfiguracji
-        sysusers = sysusersPackage(data->sysUsers);  
-        vhosts = apacheConfigPackage(data->httpd);   
-        htusers = readHtpasswdData(data->httpd.htpasswd);
+        if(data->sysUsers != NULL)
+            sysusers = sysusersPackage(data->sysUsers);  
+        if(data->httpd.vhost != NULL)
+            vhosts = apacheConfigPackage(data->httpd);   
+        if(data->httpd.htpasswd != NULL)
+            htusers = readHtpasswdData(data->httpd.htpasswd);
     
         // skladamy pakiet w calosc
 	strncpy(package, "[datatype:hostconfig,", strlen("[datatype:hostconfig,") + 1);
-        strncat(package, sysusers, strlen(sysusers) + 1);
-        strncat(package, vhosts, strlen(vhosts) + 1);
-        strncat(package, htusers, strlen(htusers) + 1);
-	strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
-	strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
-	strncat(package, k_config_ver, strlen(k_config_ver) + 1);
-	strncat(package, s_config_ver, strlen(s_config_ver));
+        if(data->sysUsers != NULL)
+            strncat(package, sysusers, strlen(sysusers) + 1);
+        if(data->httpd.vhost != NULL)
+            strncat(package, vhosts, strlen(vhosts) + 1);
+        if(data->httpd.htpasswd != NULL)
+            strncat(package, htusers, strlen(htusers) + 1);
+	if(data->httpd.htpasswd != NULL) {
+            strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
+            strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
+        }
 	strncat(package, "}]", 3);
 
         // zwalniamy pamiec
-	free(s_config_ver);
-	free(s_htusers_count);
-        free(s_vhost_count);
-        free(htusers);
-        free(vhosts);
-        free(sysusers);
+	if(s_htusers_count != NULL)   free(s_htusers_count);
+        if(s_vhost_count != NULL)     free(s_vhost_count);
+        if(htusers != NULL)           free(htusers);
+        if(vhosts != NULL)            free(vhosts);
+        if(sysusers != NULL)          free(sysusers);
         
 	return package;
 }
@@ -582,15 +598,23 @@ int fileExist(char * path) {
 	}
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
-    int status = 1;         // status funkcji: 1 - sukces, 0 - error
-    char * msg = NULL;      // wpis do logow
+    int status = 0;         // status funkcji: 1 - sukces, 0 - error
     ver * curr = cfgver;
     
+    // inicjujemy struktury
+    conf->httpd.htpasswd = NULL;
+    conf->httpd.vhost = NULL;
+    conf->sysUsers = NULL;
+    
     while(curr) {
-        if(!strcmp(curr->scope, "apache") && curr->version > clientver)
+        if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
             conf->httpd = ReadWWWConfiguration(hostid, lf);
-        if(!strcmp(curr->scope, "sysusers") && curr->version > clientver)
+            status = 1;
+        }
+        if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
             conf->sysUsers = getSystemAccounts(conf, hostid);
+            status = 1;
+        }
         curr = curr->next;
     }
     
@@ -601,7 +625,7 @@ ver * checkVersions(char * systemid) {
     MYSQL_RES * res;
     MYSQL_ROW row;
     
-    char * query = mkString("SELECT scope, version FROM configver WHERE systemid = '",
+    char * query = mkString("SELECT scope, version FROM configver WHERE systemid = ",
                             "(SELECT id FROM sysinfo where system_id = '", systemid,"')", NULL);
     
     ver * head = NULL;
@@ -622,7 +646,7 @@ ver * checkVersions(char * systemid) {
     while((row = mysql_fetch_row(res))) {
         curr = malloc(sizeof(ver));
         curr->scope     = readData(row[0]);
-        curr->version   = int2String(row[1]);
+        curr->version   = atoi(row[1]);
         curr->next      = NULL;
         
         if(head == NULL)
@@ -635,4 +659,44 @@ ver * checkVersions(char * systemid) {
     free(query);
     
     return head;
+}
+int readPackageVersion(char * str) {
+    char * pos = str;       // aktualna pozycja w stringu
+    char sver[11];          // string zawierajacy numer wersji
+    int i = 0;              // index bufora
+    int max = 0;            // liczba obszarow konfiguracyjnych
+    int ver = 0;            // numer wersji w formie liczbowej
+    int maxv = 0;           // wybieramy najwiekszy numer wersji w pakiecie
+    
+    // weryfikujemy ile jest wpisow z wersja konfiguracji
+    while((pos = strstr(pos, "config_ver:")) != NULL) {
+        max++;
+        pos++;
+    }
+    int vers[max];          // tablica przechowujaca odczytane wersje konfiguracji
+    int n = 0;              // index tablicy
+    
+    pos = str;              // wracamy na poczatek stringa
+    memset(sver, '\0', 11);
+    while((pos = strstr(pos, "config_ver:")) != NULL) {
+        pos += strlen("config_ver:");
+        while(*pos != '}' && *pos != ',')
+            sver[i++] = *pos++;
+        ver = atoi(sver);
+        vers[n++] = ver;
+        i = 0;
+        memset(sver, '\0', 11);
+    }
+    maxv = maxver(vers, n);
+    return maxv;
+}
+int maxver(int vers[], int n) {
+    int max = vers[0];      // zakladamy, ze pierwszy jest najwiekszy
+    int i;
+    
+    for(i = 0; i < n; i++)
+        if(vers[i] > max)
+            max = vers[i];
+    
+    return max;
 }
