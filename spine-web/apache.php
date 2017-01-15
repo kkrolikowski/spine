@@ -68,7 +68,7 @@
       }
       $q = $dbh->prepare("UPDATE www SET htpasswd = ".$htpasswdStatus." WHERE id = ".$vhostid);
       $q->execute();
-      updateConfigVersion($dbh, $_POST['serverid']);
+      updateConfigVersion($dbh, $_POST['serverid'], "apache");
 
       $vhostAccess = vhostAccessLevel($dbh, $vhostid);
 
@@ -210,7 +210,7 @@
       $q = $dbh->prepare("INSERT INTO www_users_access(user_id, vhost_id, server_id) VALUES(".$htuser.", ".$_GET['edit'].", ".$_POST['serverid'].")");
       $q->execute();
     }
-    updateConfigVersion($dbh, $_POST['serverid']);
+    updateConfigVersion($dbh, $_POST['serverid'], "apache");
 
     $vhostid = $_GET['edit'];
     $vhostAccess = vhostAccessLevel($dbh, $vhostid);
@@ -257,7 +257,7 @@
       $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
       $q->execute();
 
-      updateConfigVersion($dbh, $_POST['serverid']);
+      updateConfigVersion($dbh, $_POST['serverid'], "apache");
     }
   }
   if(isset($_GET['chpass'])) {
@@ -267,7 +267,7 @@
     $q = $dbh->prepare("UPDATE www_users SET password = '".$pass."' WHERE id = ".$_POST['id']);
     $q->execute();
 
-    updateConfigVersion($dbh, $_POST['serverid']);
+    updateConfigVersion($dbh, $_POST['serverid'], "apache");
   }
   if(isset($_GET['vhid'])) {
     $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $_GET['vhid']);
@@ -282,6 +282,6 @@
     $q = $dbh->prepare("UPDATE www SET status = 'D', purgedir = '".$_POST['rmdir']."' WHERE id = ".$_GET['vhdel']);
     $q->execute();
 
-    updateConfigVersion($dbh, $_POST['serverid']);
+    updateConfigVersion($dbh, $_POST['serverid'], "apache");
   }
 ?>
