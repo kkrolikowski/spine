@@ -287,7 +287,10 @@ int createUserAccounts(sysuser * su, FILE * lf) {
             msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
             writeLog(lf, msg);
             if(curr->sudo) {
-                grantSuperUser(curr->login);
+                if(!grantSuperUser(curr->login)) {
+                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
+                    writeLog(lf, msg);
+                }
             }
         }
         else {
@@ -537,4 +540,63 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf) {
         }
     }
     return ok;
+}
+int grantSuperUser(char * login) {
+    FILE * group;           // handle to /etc/group
+    FILE * tmp;             // handle to tempfile
+    char * sudo = NULL;     // changed group entry
+    char buff[512];         // buffer for file operations
+    
+    memset(buff, '\0', 512);
+    if((group = fopen("/etc/group", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(group);
+        return 0;
+    }
+    // lets create tempfile with changed content from /etc/group
+    while(fgets(buff, 512, group) != NULL) {
+        if(strstr(buff, "sudo") != NULL) {
+            sudo = updateGroup(buff, login);
+            fputs(sudo, tmp);
+            free(sudo);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', 512);
+    }
+    fclose(group);
+    
+    // now lets write new /etc/group file
+    if((group = fopen("/etc/group", "w")) == NULL)
+        return 0;
+    rewind(tmp);
+    memset(buff, '\0', 512);
+    while(fgets(buff, 512, tmp) != NULL) {
+        fputs(buff, group);
+        memset(buff, '\0', 512);
+    }
+    fclose(group);
+    fclose(tmp);
+    
+    return 1;
+}
+char * updateGroup(char * buff, char * login) {
+    char * entry = NULL;        // entry containing updated sudo group
+    size_t len = 0;             // memory size for new entry
+    
+    // memory size with coma separator and \0 sign and newline
+    len = strlen(buff) + strlen(login) + 3;
+    entry = (char *) malloc(len * sizeof(char));
+    memset(entry, '\0', len);
+
+    // copy string without newline
+    strncpy(entry, buff, strlen(buff) - 1);
+    if(*(entry+strlen(entry) - 1) != ':')
+        strncat(entry, ",", 1);
+    // appendd login with newline at the end
+    strncat(entry, login, strlen(login));
+    *(entry + strlen(entry)) = '\n';
+    
+    return entry;
 }
