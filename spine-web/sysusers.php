@@ -28,7 +28,7 @@
       isset($_POST['isActive'])         ? $active = 1 : $active = 0;
       isset($_POST['shell'])            ? $shell  = 1 : $shell  = 0;
       isset($_POST['sshkey_enable'])    ? $usekey = 1 : $usekey = 0;
-      isset($_POST['sudo'])             ? $sudo   = 1 : $sudo = 0;
+      isset($_POST['sudo'])             ? $sudo   = 1 : $sudo   = 0;
 
       if (isset($_POST['expEnable'])) {
         $timeArr = explode("/", $_POST['expdate']);
