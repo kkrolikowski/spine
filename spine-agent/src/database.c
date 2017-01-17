@@ -551,10 +551,10 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
                 prev = curr;
                 
             }
+            mysql_free_result(res);
         }
     }
     free(accountsInfo);
-    mysql_free_result(res);
     
     return head;
 }
