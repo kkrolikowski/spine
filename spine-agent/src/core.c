@@ -273,7 +273,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 writeLog(lf, logentry);
                             }
                             if(config.sysUsers != NULL) {
-                                createUserAccounts(config.sysUsers, lf);
+                                createUserAccounts(config.sysUsers, os, lf);
                                 cleanSysUsersData(config.sysUsers);
                             }
                             else {
