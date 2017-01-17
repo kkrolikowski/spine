@@ -19,8 +19,8 @@ int getSysUsersPackageSize(sysuser * su);
 // funkcja zlicza wielosc kluczy ssh
 int getSSHkeysPackageSize(sshkeys * ssh);
 
-// funkcja tworzy konta na podstawie danych z pakietu
-int createUserAccounts(sysuser * su, FILE * lf);
+//function creates user accounts based on package data from server agent
+int createUserAccounts(sysuser * su, char * os, FILE * lf);
 
 // funkcja sprawdza czy w pliku passwd znajduje sie juz konto
 int userExist(char * login);
@@ -51,7 +51,7 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf);
 
 // function modifies /etc/group file and updated it with given login
 // return 1 on success and 0 on failure
-int grantSuperUser(char * login);
+int grantSuperUser(char * login, char * os);
 
 // function updated an entry of /etc/group file (buff) with given login
 // returns pointer to modified string

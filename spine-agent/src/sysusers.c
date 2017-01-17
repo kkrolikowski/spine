@@ -249,7 +249,7 @@ int getSSHkeysPackageSize(sshkeys * ssh) {
     
     return size;
 }
-int createUserAccounts(sysuser * su, FILE * lf) {
+int createUserAccounts(sysuser * su, char * os, FILE * lf) {
     int status = 1;
     sysuser * curr = su;
     char * msg = NULL;
@@ -287,7 +287,7 @@ int createUserAccounts(sysuser * su, FILE * lf) {
             msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
             writeLog(lf, msg);
             if(curr->sudo) {
-                if(!grantSuperUser(curr->login)) {
+                if(!grantSuperUser(curr->login, os)) {
                     msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
                     writeLog(lf, msg);
                 }
@@ -541,11 +541,17 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf) {
     }
     return ok;
 }
-int grantSuperUser(char * login) {
-    FILE * group;           // handle to /etc/group
-    FILE * tmp;             // handle to tempfile
-    char * sudo = NULL;     // changed group entry
-    char buff[512];         // buffer for file operations
+int grantSuperUser(char * login, char * os) {
+    FILE * group;               // handle to /etc/group
+    FILE * tmp;                 // handle to tempfile
+    char * entry = NULL;        // changed group entry
+    char * groupName = NULL;    // name of group
+    char buff[512];             // buffer for file operations
+    
+    if(!strcmp(os, "Ubuntu"))
+        groupName = "sudo";
+    else
+        groupName = "wheel";
     
     memset(buff, '\0', 512);
     if((group = fopen("/etc/group", "r")) == NULL)
@@ -556,10 +562,10 @@ int grantSuperUser(char * login) {
     }
     // lets create tempfile with changed content from /etc/group
     while(fgets(buff, 512, group) != NULL) {
-        if(strstr(buff, "sudo") != NULL) {
-            sudo = updateGroup(buff, login);
-            fputs(sudo, tmp);
-            free(sudo);
+        if(strstr(buff, groupName) != NULL) {
+            entry = updateGroup(buff, login);
+            fputs(entry, tmp);
+            free(entry);
         }
         else
             fputs(buff, tmp);
