@@ -13,6 +13,7 @@ Before you star building this project please check if you have installed require
 - libgtop2-7 
 - libgtop2-common 
 - libgtop2-dev
+
 ### Install
 Download sources from master branch, unzip and go to spine-agent subfolder
 ```
@@ -22,7 +23,7 @@ make
 make install
 ```
 After this binary spine-agent should be placed in /usr/local/bin
- 
+
 ## Recent Changes
 - **2017-01-16:** Added mechanism to grant user sudo access. Which means: root access on the system.
 - **2017-01-15:** Fixed few segmentation fault errors in spine-agent code.
