@@ -4,7 +4,7 @@ Adding new hosts is quite simple. All you have to do is configure and run spine-
 ## Building spine-agent
 Spine-agent is an executable, which can be built with make facility.
 ### Requirements
-Before you star building this project please check if you have installed required packages
+Before you start building this project please ensure that you have installed required packages
 - autconf >= 2.63
 - automake
 - gcc
