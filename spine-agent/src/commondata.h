@@ -23,6 +23,7 @@ typedef struct sysuser {
     sshkeys * sshkey;       // wszystkie klucze ssh uzytkownika
     int version;            // wersja konfiguracji
     char * status;          // status wpisu
+    int sudo;               // czy konto ma miec dostep do roota
     struct sysuser * next;  // wskaznik do kolejnego konta
 } sysuser;
 

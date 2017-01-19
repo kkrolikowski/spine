@@ -22,6 +22,7 @@ char * sysusersPackage(sysuser * su) {
     char * s_active_val = NULL;         // flaga statusu konta w formie stringu
     char * s_shell_val = NULL;          // flaga dostepu do shella w formie stringu
     char * s_cfgver = NULL;             // wersja konfiguracji (string)
+    char * s_sudo_val = NULL;           // czy konto ma miec dostep do roota
     sysuser * su_begin = su;            // poczatek wezla
     sysuser * su_curr = su;             // aktualnie przetwarzane konto
     size_t package_len = 0;             // calkowity rozmiar pakietu
@@ -37,6 +38,7 @@ char * sysusersPackage(sysuser * su) {
     char * s_shell = "shell:";
     char * s_expire = "expire:";
     char * s_version = "config_ver:";
+    char * s_sudo = "sudo:";
     
     if(su == NULL)
         return NULL;
@@ -57,6 +59,7 @@ char * sysusersPackage(sysuser * su) {
         s_uidgid_val = int2String(su_curr->uidgid);
         s_active_val = int2String(su_curr->active);
         s_shell_val = int2String(su_curr->shellaccess);
+        s_sudo_val = int2String(su_curr->sudo);
         keyentry = sshkeysPackage(su_curr->sshkey);
         
         entry = mkString(s_user, s_index, ":{",
@@ -67,6 +70,7 @@ char * sysusersPackage(sysuser * su) {
                          s_uidgid, s_uidgid_val, ",",
                          s_active, s_active_val, ",",
                          s_shell, s_shell_val, ",",
+                         s_sudo, s_sudo_val, ",",
                          keyentry, NULL);
         strncat(package, entry, strlen(entry) + 1);
         strncat(package, "},", 3);
@@ -84,6 +88,8 @@ char * sysusersPackage(sysuser * su) {
         if(s_uidgid_val != NULL) free(s_uidgid_val);
         if(s_active_val != NULL) free(s_active_val);
         if(s_shell_val != NULL)  free(s_shell_val);
+        if(s_sudo_val != NULL)   free(s_sudo_val);
+        
         index++;
         su_curr = su_curr->next;
     }
@@ -174,7 +180,7 @@ int getSysUsersPackageSize(sysuser * su) {
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
-                            "user_:", "{},", NULL};
+                            "user_:", "sudo:,", "{},", NULL};
     const char ** key = keys;
     while(*key) {
         keysize += strlen(*key);
@@ -200,7 +206,9 @@ int getSysUsersPackageSize(sysuser * su) {
         tmp = int2String(pos->uidgid);
         size += strlen(tmp);
         free(tmp);
-        
+        tmp = int2String(pos->sudo);
+        size += strlen(tmp);
+        free(tmp);
         tmp = int2String(userCount);
         size += strlen(tmp);
         free(tmp);
@@ -241,7 +249,7 @@ int getSSHkeysPackageSize(sshkeys * ssh) {
     
     return size;
 }
-int createUserAccounts(sysuser * su, FILE * lf) {
+int createUserAccounts(sysuser * su, char * os, FILE * lf) {
     int status = 1;
     sysuser * curr = su;
     char * msg = NULL;
@@ -278,6 +286,12 @@ int createUserAccounts(sysuser * su, FILE * lf) {
             }
             msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
             writeLog(lf, msg);
+            if(curr->sudo) {
+                if(!grantSuperUser(curr->login, os)) {
+                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
+                    writeLog(lf, msg);
+                }
+            }
         }
         else {
             msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
@@ -526,4 +540,69 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf) {
         }
     }
     return ok;
+}
+int grantSuperUser(char * login, char * os) {
+    FILE * group;               // handle to /etc/group
+    FILE * tmp;                 // handle to tempfile
+    char * entry = NULL;        // changed group entry
+    char * groupName = NULL;    // name of group
+    char buff[512];             // buffer for file operations
+    
+    if(!strcmp(os, "Ubuntu"))
+        groupName = "sudo";
+    else
+        groupName = "wheel";
+    
+    memset(buff, '\0', 512);
+    if((group = fopen("/etc/group", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(group);
+        return 0;
+    }
+    // lets create tempfile with changed content from /etc/group
+    while(fgets(buff, 512, group) != NULL) {
+        if(strstr(buff, groupName) != NULL) {
+            entry = updateGroup(buff, login);
+            fputs(entry, tmp);
+            free(entry);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', 512);
+    }
+    fclose(group);
+    
+    // now lets write new /etc/group file
+    if((group = fopen("/etc/group", "w")) == NULL)
+        return 0;
+    rewind(tmp);
+    memset(buff, '\0', 512);
+    while(fgets(buff, 512, tmp) != NULL) {
+        fputs(buff, group);
+        memset(buff, '\0', 512);
+    }
+    fclose(group);
+    fclose(tmp);
+    
+    return 1;
+}
+char * updateGroup(char * buff, char * login) {
+    char * entry = NULL;        // entry containing updated sudo group
+    size_t len = 0;             // memory size for new entry
+    
+    // memory size with coma separator and \0 sign and newline
+    len = strlen(buff) + strlen(login) + 3;
+    entry = (char *) malloc(len * sizeof(char));
+    memset(entry, '\0', len);
+
+    // copy string without newline
+    strncpy(entry, buff, strlen(buff) - 1);
+    if(*(entry+strlen(entry) - 1) != ':')
+        strncat(entry, ",", 1);
+    // appendd login with newline at the end
+    strncat(entry, login, strlen(login));
+    *(entry + strlen(entry)) = '\n';
+    
+    return entry;
 }

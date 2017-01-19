@@ -183,7 +183,6 @@ htpasswdData * parseHtpasswdData(char * stream) {
 	return head;
 }
 void createHtgroupFile(char * path, vhostData * vhd) {
-    int i;
     FILE * htgroup;
     vhostData * curr = vhd;
 
@@ -384,7 +383,6 @@ void createHtaccess(vhostData * vhd) {
     }
 }
 void createWebsiteDir(vhostData * vhd) {
-    int i;
     vhostData * curr = vhd;
     char * dirpath = NULL;
     size_t len = 0;
@@ -418,7 +416,6 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     int counter = 0;                    // liczba stworzonych vhostow
     int total = getVhostsCount(vhd);    // calkowita liczba vhostow 
     int vhostExist = 0;                 // ustawiamy 1 jesli plik juz istnial
-    int i;
 
     // ustawiamy odpowiednie sciezki w zaleznosci od systemu operacyjnego
     if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
