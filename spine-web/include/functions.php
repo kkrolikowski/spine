@@ -38,7 +38,7 @@ function updateConfigVersion($dbh, $serverid, $scope) {
   }
   else {
     $oldVer += 1;
-    $q2 = $dbh->prepare("SELECT count(*) AS cnt FROM configver WHERE scope = '".$scope."'");
+    $q2 = $dbh->prepare("SELECT count(*) AS cnt FROM configver WHERE scope = '".$scope."' AND systemid = ".$serverid);
     $q2->execute();
     $r2 = $q2->fetch();
     if($r2['cnt'] > 0)
