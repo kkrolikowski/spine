@@ -1133,7 +1133,7 @@
                 <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
               </div>
               <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                   <table class="table table-stripped" id="users_table">
                     <thead>
                       <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
@@ -1142,6 +1142,19 @@
                     {foreach from=$sysuser key=userid item=info}
                       <tr>
                         <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
+                        <td class="button-cell">
+                          <div class="btn-group">
+                            <button type="button" class="btn btn-danger rmuser" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <span class="caret"></span>
+                              <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a href="#" data-id="{$id}" class="edit-user">Edytuj</a></li>
+                              <li><a href="#" data-id="{$id}" class="edit-user">Zablokuj</a></li>
+                            </ul>
+                          </div>
+                        </td>
                       </tr>
                     {/foreach}
                     </tbody>
