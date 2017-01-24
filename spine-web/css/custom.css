@@ -194,16 +194,16 @@
 .sys-account-form {
   padding-top: 14px;
 }
-#advanced_settings > div > div + div {
+#advanced_settings > div > div + div, #edit_advanced_settings > div > div + div {
   margin-left: -50px;
 }
-#advanced_settings > div + div > div + div {
+#advanced_settings > div + div > div + div, #edit_advanced_settings > div + div > div + div {
   margin-left: 20px;
 }
-#advanced_settings > div > div:nth-child(5n) > div {
+#advanced_settings > div > div:nth-child(5n) > div, #edit_advanced_settings > div > div:nth-child(5n) > div {
   margin-left: -17px;
 }
-#advanced_settings > div + div > div:nth-child(3n) {
+#advanced_settings > div + div > div:nth-child(3n), #edit_advanced_settings > div + div > div:nth-child(3n) {
   margin-left: -18px;
   margin-top: -10px;
 }

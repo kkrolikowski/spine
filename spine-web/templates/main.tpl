@@ -78,6 +78,7 @@
 
       <!-- Customowy skrypt strony i css -->
       <script src="js/spine.js"></script>
+      <script src="js/sysuserEdit.js"></script>
       <link href="/css/custom.css" rel="stylesheet">
 
       <!-- Monitoring -->
@@ -529,6 +530,159 @@
       </div>
     </form>
     <!-- END: Zmiana hasla htaccess -->
+    <!-- BEGIN: Sysaccount edit -->
+    <form data-toggle="validator" role="form" id="edit-sysuser-form" style="display: none;">
+      <input type="hidden" name="sid" value="{$smarty.get.serverid}">
+      <input type="hidden" name="id" value="">
+      <div class="panel panel-default">
+        <div class="panel-heading">Basic settings</div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="fullname_edit" class="control-label">Full Name</label>
+                <input type="text" class="form-control" id="fullname_edit"
+                data-minlength="3" data-error="At least 3 charactes required"
+                name="fullname_edit" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="email_edit" class="control-label">E-Mail</label>
+                <input type="email" class="form-control" id="email_edit"
+                data-error="Incorrect email address"
+                name="email_edit" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="login_edit" class="control-label">Login</label>
+                <input type="text" class="form-control" id="login_edit"
+                data-minlength="3" data-error="At least 3 characters are required"
+                name="login_edit" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="password_edit" class="control-label">Password</label>
+                <input type="password" class="form-control" id="password_edit"
+                data-minlength="6" data-error="at least 6 characters required"
+                name="password_edit" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group">
+                <label for="confirm_edit" class="control-label">Confirm</label>
+                <input type="password" class="form-control" id="confirm_edit"
+                data-minlength="6" data-error="at least 6 characters required"
+                data-match="#password_edit"
+                data-match-error="Password mismatch"
+                name="confirm_edit" required>
+                <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
+                <div class="help-block with-errors"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">Advanced settings</div>
+        <div class="panel-body" id="edit_advanced_settings">
+          <div class="row">
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" checked="true" name="isActive_edit"> Active
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="expEnable_edit"> Expiration
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="shell_edit"> Shell access
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="sudo_edit"> Administrator
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-3">
+              <div class="form-group">
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="sshkey_enable_edit"> SSH keys
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-4">
+              <div class="form-group">
+                <div id="expiration_edit" class="input-group date">
+                  <input placeholder="dd/mm/yyyy" type="text" class="form-control"
+                  data-minlength="3" data-error="Pole nie może być puste"
+                  name="expdate_edit" disabled />
+                  <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-xs-6">
+              <div class="form-group" id="sshkey_edit">
+                <input type="text" placeholder="ssh public key" class="form-control"
+                data-minlength="3" data-error="Pole nie może być puste"
+                name="sshkey_edit[0]" disabled="true" />
+              </div>
+            </div>
+            <div class="col-xs-1">
+              <span class="glyphicon glyphicon-plus"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-6">
+          <div class="form-group">
+              <button type="submit" class="btn btn-primary" id="sysuser_edit-btn">Save changes</button>
+              <button type="button" class="btn btn-default" id="edit_cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- END: Sysaccount edit -->
     <!-- BEGIN: Nowe konto systemowe -->
     <form data-toggle="validator" role="form" id="new-sysuser-form" style="display: none;">
       <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
@@ -582,8 +736,8 @@
             </div>
             <div class="col-xs-6">
               <div class="form-group">
-                <label for="confirm" class="control-label">Powtórz</label>
-                <input type="password" class="form-control" id="confirm"
+                <label for="confirmpass" class="control-label">Powtórz</label>
+                <input type="password" class="form-control" id="confirmpass"
                 data-minlength="6" data-error="min. sześć znaków"
                 data-match="#userpass"
                 data-match-error="Hasło się nie zgadza"
@@ -1144,14 +1298,14 @@
                         <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
                         <td class="button-cell">
                           <div class="btn-group">
-                            <button type="button" class="btn btn-danger rmuser" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                            <button type="button" class="btn btn-danger rmuser" data-id="{$userid}" data-serverid="{$smarty.get.serverid}">Usuń</button>
                             <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <span class="caret"></span>
                               <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <ul class="dropdown-menu">
-                              <li><a href="#" data-id="{$id}" class="edit-user">Edytuj</a></li>
-                              <li><a href="#" data-id="{$id}" class="edit-user">Zablokuj</a></li>
+                              <li><a href="#" data-id="{$userid}" class="edit-user">Edytuj</a></li>
+                              <li><a href="#" data-id="{$userid}" class="block-user">Zablokuj</a></li>
                             </ul>
                           </div>
                         </td>

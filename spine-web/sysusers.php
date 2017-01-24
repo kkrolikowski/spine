@@ -68,4 +68,26 @@
       echo json_encode($json);
     }
   }
+  if(isset($_GET['edit'])) {
+    $q = $dbh->prepare("SELECT su.id, su.fullname, su.email, su.login, su.active, su.expiration, su.shell, ".
+                       "su.status, su.sudo,	CASE su.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey SEPARATOR ',') ELSE 'NaN' ".
+                       "END AS sshkeys FROM sysusers su LEFT JOIN sysusers_sshkeys s ON s.user_id = su.id ".
+                       "WHERE	su.id = ". $_GET['edit']);
+    $q->execute();
+    $r = $q->fetch();
+    $json = array(
+      'id'        => $r['id'],
+      'fullname'  => $r['fullname'],
+      'email'     => $r['email'],
+      'login'     => $r['login'],
+      'active'    => $r['active'],
+      'expire'    => $r['expiration'],
+      'shell'     => $r['shell'],
+      'status'    => $r['status'],
+      'sudo'      => $r['sudo'],
+      'sshkeys'   => $r['sshkeys']
+    );
+    header('Content-Type: application/json');
+    echo json_encode($json);
+  }
 ?>
