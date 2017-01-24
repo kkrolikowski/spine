@@ -58,7 +58,7 @@ $(document).ready(function() {
             else {
               var glyph = 'glyphicon-minus';
               div.append(
-                '<div class="row">' +
+                '<div class="row additional-key">' +
                   '<div class="col-xs-4"></div>' +
                   '<div class="col-xs-6">' +
                     '<div class="form-group" id="sshkey_edit">' +
@@ -89,6 +89,9 @@ $(document).ready(function() {
            form.show()
          })
          .on('hide.bs.modal', function(e) {
+           form[0].reset();
+           $(".additional-key").remove();
+           $('[name="sshkey_edit[0]"]').prop('disabled', true);
            form.hide().appendTo('body');
          })
          .modal('show');
