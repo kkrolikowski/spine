@@ -92,6 +92,8 @@ $(document).ready(function() {
            form[0].reset();
            $(".additional-key").remove();
            $('[name="sshkey_edit[0]"]').prop('disabled', true);
+           $('[name="expdate_edit"]').prop('disabled', true);
+           $('.edit-user').unbind('click');
            form.hide().appendTo('body');
          })
          .modal('show');
@@ -116,5 +118,15 @@ $(document).ready(function() {
    $('#expiration_edit').datetimepicker({
      locale: 'pl-PL',
      format: 'DD/MM/YYYY'
+   });
+   $(document).on('click', '#edit_cancel', function() {
+     $('.modal').hide();
+     $('.modal-backdrop').hide();
+     $('#edit-sysuser-form')[0].reset();
+     $(".additional-key").remove();
+     $('[name="sshkey_edit[0]"]').prop('disabled', true);
+     $('[name="expdate_edit"]').prop('disabled', true);
+     $('.edit-user').unbind('click');
+     form.hide().appendTo('body');
    });
 });
