@@ -60,9 +60,10 @@
       }
       updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
       $json = array(
-        'login' => $r['login'],
-        'fullname' => $r['fullname'],
-        'email' => $r['email']
+        'id'        => $r['id'],
+        'login'     => $r['login'],
+        'fullname'  => $r['fullname'],
+        'email'     => $r['email']
       );
       header('Content-Type: application/json');
       echo json_encode($json);
