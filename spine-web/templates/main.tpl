@@ -577,7 +577,7 @@
                 <label for="password_edit" class="control-label">Password</label>
                 <input type="password" class="form-control" id="password_edit"
                 data-minlength="6" data-error="at least 6 characters required"
-                name="password_edit" required>
+                name="password_edit">
                 <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
                 <div class="help-block with-errors"></div>
               </div>
@@ -589,7 +589,7 @@
                 data-minlength="6" data-error="at least 6 characters required"
                 data-match="#password_edit"
                 data-match-error="Password mismatch"
-                name="confirm_edit" required>
+                name="confirm_edit">
                 <span class="glyphicon form-control-feedback sys-account-form" aria-hidden="true"></span>
                 <div class="help-block with-errors"></div>
               </div>
@@ -676,7 +676,7 @@
       <div class="row">
         <div class="col-xs-6">
           <div class="form-group">
-              <button type="submit" class="btn btn-primary" id="sysuser_edit-btn">Save changes</button>
+              <button type="button" class="btn btn-primary" id="sysuser_edit-btn">Save changes</button>
               <button type="button" class="btn btn-default" id="edit_cancel">Cancel</button>
           </div>
         </div>
@@ -1304,7 +1304,7 @@
                             {else}
                             <button type="button" class="btn btn-danger rmuser" data-id="{$userid}" data-serverid="{$smarty.get.serverid}">Usuń</button>
                             <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {/if}                            
+                            {/if}
                               <span class="caret"></span>
                               <span class="sr-only">Toggle Dropdown</span>
                             </button>

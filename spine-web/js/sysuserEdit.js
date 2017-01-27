@@ -78,6 +78,11 @@ $(document).ready(function() {
         else {
           form.find('[name="sshkey_enable_edit"]').prop("checked", false);
         }
+        if($('[name="expdate_edit"]').is("disabled")) {
+          $(this)
+            .removeAttr('data-minlength')
+            .removeAttr('data-error');
+        }
        bootbox
          .dialog({
            title: '<strong>Edit account: ' + response.login + '</strong>',
@@ -94,6 +99,7 @@ $(document).ready(function() {
            $('[name="sshkey_edit[0]"]').prop('disabled', true);
            $('[name="expdate_edit"]').prop('disabled', true);
            $('.edit-user').unbind('click');
+           $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
            form.hide().appendTo('body');
          })
          .modal('show');
@@ -127,6 +133,70 @@ $(document).ready(function() {
      $('[name="sshkey_edit[0]"]').prop('disabled', true);
      $('[name="expdate_edit"]').prop('disabled', true);
      $('.edit-user').unbind('click');
-     form.hide().appendTo('body');
+     $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
+     $('#edit-sysuser-form').hide().appendTo('body');
+   });
+   $(document).on('click', '#sysuser_edit-btn', function() {
+     var form = $('#edit-sysuser-form');
+     var id = form.find('[name="id"]').val();
+     $.ajax({
+       url: '/sysusers.php?update=' + id,
+       method: 'POST',
+       data: form.serializeArray(),
+       success: function() {
+         alertify.success("Account updated successfuly");
+       }
+     }).success(function(resp) {
+       $('.modal').hide();
+       $('.modal-backdrop').hide();
+       $('#edit-sysuser-form')[0].reset();
+       $(".additional-key").remove();
+       $('[name="sshkey_edit[0]"]').prop('disabled', true);
+       $('[name="expdate_edit"]').prop('disabled', true);
+       $('.edit-user').unbind('click');
+       $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
+       var tr = $('a[data-id="'+ resp.id +'"]').closest('tr');
+       tr.find('td').eq(0).html(resp.login);
+       tr.find('td').eq(1).html(resp.fullname);
+       tr.find('td').eq(2).html(resp.email);
+     });
+   });
+   $(document).on('click', '[name="sshkey_enable_edit"]', function() {
+     var plus = $('#edit_advanced_settings').find('.glyphicon-plus');
+     var i = 1;
+     $('#sshkey_edit > input').attr('disabled', ! this.checked);
+     if (!this.checked) {
+       $('.additional-key').remove();
+       $('[name="sshkey_edit[0]"]')
+       .val("")
+       .attr('placeholder', 'ssh public key')
+       .prop('disabled', true);
+       plus.unbind("click");
+       this.unbind("click");
+       i = 1;
+     }
+   });
+   $(document).on('click', '#edit_advanced_settings .glyphicon-minus', function() {
+     $(this).closest('.additional-key').remove();
+   });
+   $(document).on('click', '#edit_advanced_settings .glyphicon-plus', function() {
+     var i = 1 + $('.additional-key').length;
+     if ($('[name="sshkey_enable_edit"]').is(":checked")) {
+       $('#edit_advanced_settings').append(
+         '<div class="row additional-key">' +
+           '<div class="col-xs-4">' +
+           '</div>' +
+           '<div class="col-xs-6">' +
+             '<div class="form-group" id="sshkey_edit">' +
+               '<input type="text" placeholder="ssh public key" class="form-control" name="sshkey_edit['+ i +']" required />' +
+             '</div>' +
+           '</div>' +
+           '<div class="col-xs-1">' +
+             '<span class="glyphicon glyphicon-minus"></span>' +
+           '</div>' +
+         '</div>'
+       );
+       this.unbind('click');
+     }
    });
 });
