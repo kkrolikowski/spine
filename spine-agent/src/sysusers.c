@@ -39,6 +39,7 @@ char * sysusersPackage(sysuser * su) {
     char * s_expire = "expire:";
     char * s_version = "config_ver:";
     char * s_sudo = "sudo:";
+    char * s_status = "status:";
     
     if(su == NULL)
         return NULL;
@@ -71,6 +72,7 @@ char * sysusersPackage(sysuser * su) {
                          s_active, s_active_val, ",",
                          s_shell, s_shell_val, ",",
                          s_sudo, s_sudo_val, ",",
+                         s_status, su_curr->status, ",",
                          keyentry, NULL);
         strncat(package, entry, strlen(entry) + 1);
         strncat(package, "},", 3);
@@ -152,6 +154,7 @@ void cleanSysUsersData(sysuser * su) {
     free(curr->gecos);
     free(curr->login);
     free(curr->sha512);
+    free(curr->status);
     cleanSSHKeyData(curr->sshkey);
     
     next = curr->next;
@@ -180,7 +183,7 @@ int getSysUsersPackageSize(sysuser * su) {
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
-                            "user_:", "sudo:,", "{},", NULL};
+                            "user_:", "sudo:,", "status:,", "{},", NULL};
     const char ** key = keys;
     while(*key) {
         keysize += strlen(*key);
@@ -192,6 +195,7 @@ int getSysUsersPackageSize(sysuser * su) {
         size += strlen(pos->gecos);
         size += strlen(pos->login);
         size += strlen(pos->sha512);
+        size += strlen(pos->status);
         
         // Dane numeryczne;
         tmp = int2String(pos->active);
