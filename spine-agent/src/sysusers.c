@@ -259,7 +259,7 @@ int createUserAccounts(sysuser * su, char * os, FILE * lf) {
     char * msg = NULL;
     
     while(curr) {
-        if(!userExist(curr->login)) {
+        if(!userExist(curr->uidgid)) {
             if(!writePasswd(curr)) {
                 msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
                 writeLog(lf, msg);
@@ -352,22 +352,27 @@ int writeGroup(sysuser * su) {
     fclose(group);
     return 1;
 }
-int userExist(char * login) {
+int userExist(int uid) {
     FILE * fpasswd;
+    char * s_uid = int2String(uid);
     char buff[256];
     int status = 0;
     
-    if((fpasswd = fopen("/etc/passwd", "r")) == NULL)
+    if((fpasswd = fopen("/etc/passwd", "r")) == NULL) {
+        free(s_uid);
         return -1;
+    }
     memset(buff, '\0', 256); 
     while(fgets(buff, 256, fpasswd) != NULL) {
-        if(strstr(buff, login) != NULL) {
+        if(strstr(buff, s_uid) != NULL) {
             status = 1;
             break;
         }
         memset(buff, '\0', 256);
     }
     fclose(fpasswd);
+    free(s_uid);
+    
     return status;
 }
 int createHomeDir(sysuser * su, FILE * lf) {
@@ -609,4 +614,150 @@ char * updateGroup(char * buff, char * login) {
     *(entry + strlen(entry)) = '\n';
     
     return entry;
+}
+int updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+    sysuser * curr = su;
+    char * msg = NULL;
+    char * current_login = NULL;
+    
+    while(curr) {
+        if(!strcmp(curr->status, "U")) {
+            if((current_login = oldlogin(curr->uidgid, curr->login)) == NULL)
+                current_login = curr->login;
+            if(updatePasswd(curr)) {
+                if(updateShadow(curr, current_login)) {
+                    msg = mkString("[INFO] (reciver) Passwd info updated for user: ", su->login, NULL);
+                    writeLog(lf, msg);
+                }
+            }
+        }
+        curr = curr->next;
+    }
+}
+int updatePasswd(sysuser * su) {
+    int status = 1;                         // exit code: 1 - success, 0 - failure
+    FILE * passwd = NULL;                   // /etc/passwd file handle
+    FILE * tmp = NULL;                      // temp. file handle
+    char * s_uid = int2String(su->uidgid);    // UID in string form
+    char buff[512];                         // buffer for text processing
+    
+    // opening passwd file for reading
+    if((passwd = fopen("/etc/passwd", "r")) == NULL) {
+        free(s_uid);
+        return 0;
+    }
+    // opening tmpfile for writing
+    if((tmp = tmpfile()) == NULL) {
+        fclose(passwd);
+        free(s_uid);
+        return 0;
+    }
+    
+    memset(buff, '\0', 512);
+    while(fgets(buff, 512, passwd) != NULL) {
+        if(strstr(buff, s_uid) != NULL) {
+            if(su->shellaccess)
+                fprintf(tmp, "%s:x:%d:%d:%s:/home/%s:/bin/bash\n", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
+            else
+                fprintf(tmp, "%s:x:%d:%d:%s:/home/%s:/bin/false\n", su->login, su->uidgid, su->uidgid, su->gecos, su->login);
+        }
+        else
+            fputs(buff, tmp);
+        
+        memset(buff, '\0', 512);
+    }
+    free(s_uid);
+    fclose(passwd);
+    
+    rewind(tmp);
+    memset(buff, '\0', 512);
+    if((passwd = fopen("/etc/passwd", "w")) == NULL)
+        return 0;
+    while(fgets(buff, 512, tmp) != NULL) {
+        fputs(buff, passwd);
+        memset(buff, '\0', 512);
+    }
+    
+    return status;
+}
+char * oldlogin(int uid, char * new) {
+    FILE * passwd = NULL;
+    char * s_uid = int2String(uid);
+    char buff[512];
+    char buff2[512];
+    char * old = NULL;
+    size_t oldlen = 0;
+    int i = 0;
+    
+    if((passwd = fopen("/etc/passwd", "r")) != NULL) {
+        free(s_uid);
+        return NULL;
+    }
+    memset(buff, '\0', 512);
+    memset(buff2, '\0', 512);
+    while(fgets(buff, 512, passwd) != NULL) {
+        if(strstr(buff, s_uid) != NULL) {
+            while(buff[i] != ':') {
+                buff2[i] = buff[i];
+                i++;
+            }
+            break;
+        }
+        memset(buff, '\0', 512);
+    }
+    fclose(passwd);
+    free(s_uid);
+    
+    oldlen = strlen(buff2) + 1;
+    old = (char *) malloc(oldlen * sizeof(char));
+    memset(old, '\0', oldlen);
+    strncpy(old, buff2, oldlen);
+    
+    if(!strcmp(old, new))
+        return NULL;
+    else
+        return old;
+}
+int updateShadow(sysuser * su, char * login) {
+    FILE * shadow = NULL;
+    FILE * tmp = NULL;
+    char buff[512];
+    time_t now = time(NULL);
+    int pass_change = now / 86400;
+    int h_exp = 0;
+    
+    if((shadow = fopen("/etc/shadow", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL)
+        return 0;
+
+    memset(buff, '\0', 512);
+    while(fgets(buff, 512, shadow) != NULL) {
+        if(strstr(buff, login) != NULL) {
+            if(su->expiration > 0) {
+                h_exp = su->expiration / 86400;
+                fprintf(tmp, "%s:%s:%d:0:99999:7::%d:\n", su->login, su->sha512, pass_change, h_exp);
+            }
+            else
+                fprintf(tmp, "%s:%s:%d:0:99999:7:::\n", su->login, su->sha512, pass_change);
+        }
+        else
+            fputs(buff, tmp);
+        
+        memset(buff, '\0', 512);
+    }
+    fclose(shadow);
+    
+    rewind(tmp);
+    if((shadow = fopen("/etc/shadow", "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    memset(buff, '\0', 512);
+    while(fgets(buff, 512, tmp) != NULL) {
+        fputs(buff, shadow);
+        memset(buff, '\0', 512);
+    }
+    
+    return 1;
 }

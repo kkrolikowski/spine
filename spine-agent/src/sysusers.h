@@ -23,7 +23,7 @@ int getSSHkeysPackageSize(sshkeys * ssh);
 int createUserAccounts(sysuser * su, char * os, FILE * lf);
 
 // funkcja sprawdza czy w pliku passwd znajduje sie juz konto
-int userExist(char * login);
+int userExist(int uid);
 
 // funkcja zapisuje dane w pliku /etc/passwd
 int writePasswd(sysuser * su);
@@ -56,6 +56,19 @@ int grantSuperUser(char * login, char * os);
 // function updated an entry of /etc/group file (buff) with given login
 // returns pointer to modified string
 char * updateGroup(char * buff, char * login);
+
+// function check if particular account needs to to be updated and
+// perform this action
+int updateUserAccounts(sysuser * su, char * os, FILE * lf);
+
+// function updates /etc/passwd file with current data
+int updatePasswd(sysuser * su);
+
+// function return old login if new differs, if not - return NULL
+char * oldlogin(int uid, char * new);
+
+// function updates /etc/shadow file
+int updateShadow(sysuser * su, char * login);
 
 #endif /* SYSUSERS_H */
 
