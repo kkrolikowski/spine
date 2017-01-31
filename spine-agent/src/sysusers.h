@@ -59,7 +59,7 @@ char * updateGroup(char * buff, char * login);
 
 // function check if particular account needs to to be updated and
 // perform this action
-int updateUserAccounts(sysuser * su, char * os, FILE * lf);
+void updateUserAccounts(sysuser * su, char * os, FILE * lf);
 
 // function updates /etc/passwd file with current data
 int updatePasswd(sysuser * su);
@@ -69,6 +69,12 @@ char * oldlogin(int uid, char * new);
 
 // function updates /etc/shadow file
 int updateShadow(sysuser * su, char * login);
+
+// function changes oldlogin to newlogin in a given entry
+char * changeLogin(char * entry, char * oldlogin, char * newlogin);
+
+// function changes oldlogin to newlogin in /etc/group file
+int updateGroupFile(sysuser * su, char * oldlogin);
 
 #endif /* SYSUSERS_H */
 

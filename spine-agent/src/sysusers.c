@@ -615,7 +615,7 @@ char * updateGroup(char * buff, char * login) {
     
     return entry;
 }
-int updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     char * current_login = NULL;
@@ -624,11 +624,26 @@ int updateUserAccounts(sysuser * su, char * os, FILE * lf) {
         if(!strcmp(curr->status, "U")) {
             if((current_login = oldlogin(curr->uidgid, curr->login)) == NULL)
                 current_login = curr->login;
+            else {
+                if(updateGroupFile(curr, current_login)) {
+                    msg = mkString("[INFO] (reciver) Changed group info from user: ", current_login, " to: ", su->login, NULL);
+                    writeLog(lf, msg);
+                }
+            }
             if(updatePasswd(curr)) {
                 if(updateShadow(curr, current_login)) {
                     msg = mkString("[INFO] (reciver) Passwd info updated for user: ", su->login, NULL);
                     writeLog(lf, msg);
                 }
+            }
+            if(curr->sudo) {
+                if(!grantSuperUser(curr->login, os)) {
+                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
+                    writeLog(lf, msg);
+                }
+            }
+            else {
+                // revoke sudo access
             }
         }
         curr = curr->next;
@@ -760,4 +775,84 @@ int updateShadow(sysuser * su, char * login) {
     }
     
     return 1;
+}
+int updateGroupFile(sysuser * su, char * oldlogin) {
+    FILE * group = NULL;
+    FILE * tmp = NULL;
+    char * newentry = NULL;
+    char buff[512];
+    
+    if((group = fopen("/etc/group", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(group);
+        return 0;
+    }
+    
+    memset(buff, '\0', 512);
+    while(fgets(buff, 512, group) != NULL) {
+        if(strstr(buff, oldlogin) != NULL) {
+            newentry = changeLogin(buff, oldlogin, su->login);
+            fputs(newentry, tmp);
+            free(newentry);
+        }
+        else
+            fputs(buff, tmp);
+        
+        memset(buff, '\0', 512);
+    }
+    fclose(group);
+    
+    rewind(tmp);
+    memset(buff, '\0', 512);
+    if((group = fopen("/etc/group", "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    while(fgets(buff, 512, tmp) != NULL) {
+        fputs(buff, group);
+        memset(buff, '\0', 512);
+    }
+    fclose(group);
+    fclose(tmp);
+    
+    return 1;
+}
+char * changeLogin(char * entry, char * oldlogin, char * newlogin) {
+    // local buffer
+    const int BuffSize = 512;
+    char buff[BuffSize];
+    // begining of group entry string
+    char * curr = entry;
+    // begining of old login string
+    char * oldlogin_beg = strstr(entry, oldlogin);
+    // ending of old login string
+    char * oldlogin_end = oldlogin_beg + strlen(oldlogin);
+    // new group entry
+    char * newentry = NULL;
+    size_t newentry_len = 0;
+    // buffer index
+    int i = 0;
+
+    // initializing the buffer
+    memset(buff, '\0', BuffSize);
+    
+    // changing login string and building new entry in a buffer
+    while(*curr) {
+        if(curr != oldlogin_beg)
+            buff[i++] = *curr++;
+        else {
+            strncat(buff, newlogin, strlen(newlogin));
+            curr = oldlogin_end;
+            i += strlen(newlogin);
+        }
+    }
+    
+    // returning new entry
+    newentry_len = strlen(buff) + 1;
+    newentry = (char *) malloc(newentry_len * sizeof(char));
+    memset(newentry, '\0', newentry_len);
+    strncpy(newentry, buff, newentry_len);
+    
+    return newentry;
 }
