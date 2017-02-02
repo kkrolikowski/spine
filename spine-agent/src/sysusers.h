@@ -76,5 +76,12 @@ char * changeLogin(char * entry, char * oldlogin, char * newlogin);
 // function changes oldlogin to newlogin in /etc/group file
 int updateGroupFile(sysuser * su, char * oldlogin);
 
+// removes login from group entry and returns new entry,
+// return NULL if there is no login in a given entry
+char * rmFromGrp(char * entry, char * login);
+
+// revokes Admin access for given login
+int revokeSudoAccess(char * login, char * os);
+
 #endif /* SYSUSERS_H */
 

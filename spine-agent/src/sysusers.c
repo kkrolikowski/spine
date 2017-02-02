@@ -632,18 +632,22 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
             }
             if(updatePasswd(curr)) {
                 if(updateShadow(curr, current_login)) {
-                    msg = mkString("[INFO] (reciver) Passwd info updated for user: ", su->login, NULL);
+                    msg = mkString("[INFO] (reciver) Passwd info updated for user: ", current_login, NULL);
                     writeLog(lf, msg);
                 }
             }
             if(curr->sudo) {
-                if(!grantSuperUser(curr->login, os)) {
-                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
+                if(!grantSuperUser(current_login, os)) {
+                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", current_login, NULL);
                     writeLog(lf, msg);
                 }
             }
             else {
-                // revoke sudo access
+                if(revokeSudoAccess(current_login, os))
+                    msg = mkString("[INFO] (reciver) Admin access disabled for ", current_login, NULL);
+                else
+                    msg = mkString("[ERROR] (reciver) Error disabling admin access for ", current_login, NULL);
+                writeLog(lf, msg);
             }
         }
         curr = curr->next;
@@ -853,6 +857,93 @@ char * changeLogin(char * entry, char * oldlogin, char * newlogin) {
     newentry = (char *) malloc(newentry_len * sizeof(char));
     memset(newentry, '\0', newentry_len);
     strncpy(newentry, buff, newentry_len);
+    
+    return newentry;
+}
+int revokeSudoAccess(char * login, char * os) {
+    FILE * grp = NULL;
+    FILE * tmp = NULL;
+    char * admGrp = NULL;
+    char * newentry = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if(!strcmp(os, "Ubuntu"))
+        admGrp = "sudo";
+    else
+        admGrp = "wheel";
+    
+    if((grp = fopen("/etc/group", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(grp);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, grp) != NULL) {
+        if(strstr(buff, admGrp) != NULL) {
+            if((newentry = rmFromGrp(buff, login)) != NULL) {
+                fputs(newentry, tmp);
+                free(newentry);
+            }
+            else
+                fputs(buff, tmp);
+        }
+        else
+            fputs(newentry, tmp);
+        
+        memset(buff, '\0', BufSize);
+    }
+    fclose(grp);
+    rewind(tmp);
+    memset(buff, '\0', BufSize);
+    if((grp = fopen("/etc/group", "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, grp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(grp);
+    fclose(tmp);
+    
+    return 1;
+}
+char * rmFromGrp(char * entry, char * login) {
+    char * newentry = NULL;         // new group entry
+    char * lbeg = NULL;             // begin of login string
+    char * lend = NULL;             // end of login string
+    char * curr = entry;            // start of entry
+    const int BufSize = 512;
+    char buff[BufSize];             // local buffer
+    int i = 0;                      // buffer index
+    size_t len = 0;                 // entry length
+    
+    // verify if entry contains such user
+    if((lbeg = strstr(entry, login)) != NULL)
+        lend = lbeg + strlen(login);
+    else
+        return NULL;
+    
+    // processing entry with exclusion of user string
+    memset(buff, '\0', BufSize);
+    while(*curr) {
+        if(curr < lbeg || curr > lend)
+            buff[i++] = *curr;
+        curr++;
+    }
+    
+    // cleanup: sometimes unwanted comma stays in buffer
+    if(buff[strlen(buff)-1] == ',')
+        buff[strlen(buff)-1] = '\0';
+    
+    // processing buffer
+    len = strlen(buff) + 1;
+    newentry = (char *) malloc(len * sizeof(char));
+    memset(newentry, '\0', len);
+    strncpy(newentry, buff, len);
     
     return newentry;
 }
