@@ -83,5 +83,8 @@ char * rmFromGrp(char * entry, char * login);
 // revokes Admin access for given login
 int revokeSudoAccess(char * login, char * os);
 
+// functions renames homedir
+int renameHomeDir(char * olduser, char * newuser);
+
 #endif /* SYSUSERS_H */
 

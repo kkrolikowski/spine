@@ -625,9 +625,14 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
             if((current_login = oldlogin(curr->uidgid, curr->login)) == NULL)
                 current_login = curr->login;
             else {
+                if(renameHomeDir(current_login, su->login)) {
+                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", current_login, " to: /home/", su->login, NULL);
+                  writeLog(lf, msg);  
+                }
                 if(updateGroupFile(curr, current_login)) {
                     msg = mkString("[INFO] (reciver) Changed group info from user: ", current_login, " to: ", su->login, NULL);
                     writeLog(lf, msg);
+                    current_login = su->login;
                 }
             }
             if(updatePasswd(curr)) {
@@ -946,4 +951,13 @@ char * rmFromGrp(char * entry, char * login) {
     strncpy(newentry, buff, len);
     
     return newentry;
+}
+int renameHomeDir(char * olduser, char * newuser) {
+    char * oldpath = mkString("/home/", olduser, NULL);
+    char * newpath = mkString("/home/", newuser, NULL);
+    
+    if(!rename(oldpath, newpath))
+        return 1;
+    else
+        return 0;
 }
