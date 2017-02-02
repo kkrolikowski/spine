@@ -32,7 +32,7 @@ MYSQL * dbConnect(dbconn cfg) {
 }
 int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	systeminfo hostinfo;
-        netifstats netinfo;
+        //netifstats netinfo;
 	char * logmessage = NULL;
 	char * uptime_s = NULL;
 	char * hdd_total_s = NULL;
@@ -67,9 +67,9 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
         
         // wypelniamy dane dot. statystyk interfejsu sieciowego
         net_bytes_in_s = jsonVal(stream, "eth_in");
-        netinfo.bytes_in = atoi(net_bytes_in_s);
+        //netinfo.bytes_in = atoi(net_bytes_in_s);
         net_bytes_out_s = jsonVal(stream, "eth_out");
-        netinfo.bytes_out = atoi(net_bytes_out_s);
+        //netinfo.bytes_out = atoi(net_bytes_out_s);
 
 	// sprawdzam czy istnieje w bazie rekord z okreslonym systemid.
 	// Aktualizuje rekord jest tak. Jesli nie, dodaje nowy
