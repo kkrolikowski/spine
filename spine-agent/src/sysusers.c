@@ -695,12 +695,16 @@ int updatePasswd(sysuser * su) {
     
     rewind(tmp);
     memset(buff, '\0', 512);
-    if((passwd = fopen("/etc/passwd", "w")) == NULL)
+    if((passwd = fopen("/etc/passwd", "w")) == NULL) {
+        fclose(tmp);
         return 0;
+    }
     while(fgets(buff, 512, tmp) != NULL) {
         fputs(buff, passwd);
         memset(buff, '\0', 512);
     }
+    fclose(tmp);
+    fclose(passwd);
     
     return status;
 }
@@ -782,6 +786,8 @@ int updateShadow(sysuser * su, char * login) {
         fputs(buff, shadow);
         memset(buff, '\0', 512);
     }
+    fclose(tmp);
+    fclose(shadow);
     
     return 1;
 }
