@@ -86,5 +86,8 @@ int revokeSudoAccess(char * login, char * os);
 // functions renames homedir
 int renameHomeDir(char * olduser, char * newuser);
 
+// function checks if login is present in sudo (wheel) group
+int isAdmin(char * os, char * login);
+
 #endif /* SYSUSERS_H */
 

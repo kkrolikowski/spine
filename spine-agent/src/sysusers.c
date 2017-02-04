@@ -642,9 +642,11 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 }
             }
             if(curr->sudo) {
-                if(!grantSuperUser(current_login, os)) {
-                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", current_login, NULL);
-                    writeLog(lf, msg);
+                if(!isAdmin(os, current_login)) {
+                    if(!grantSuperUser(current_login, os)) {
+                        msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", current_login, NULL);
+                        writeLog(lf, msg);
+                    }
                 }
             }
             else {
@@ -717,7 +719,7 @@ char * oldlogin(int uid, char * new) {
     size_t oldlen = 0;
     int i = 0;
     
-    if((passwd = fopen("/etc/passwd", "r")) != NULL) {
+    if((passwd = fopen("/etc/passwd", "r")) == NULL) {
         free(s_uid);
         return NULL;
     }
@@ -963,6 +965,33 @@ int renameHomeDir(char * olduser, char * newuser) {
     char * newpath = mkString("/home/", newuser, NULL);
     
     if(!rename(oldpath, newpath))
+        return 1;
+    else
+        return 0;
+}
+int isAdmin(char * os, char * login) {
+    FILE * grp = NULL;
+    char * admGroup = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if(!strcmp(os, "Ubuntu"))
+        admGroup = "sudo";
+    else
+        admGroup = "wheel";
+    
+    if((grp = fopen("/etc/group", "r")) == NULL)
+        return 0;
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, grp) != NULL) {
+        if(strstr(buff, admGroup) != NULL)
+            break;
+        memset(buff, '\0', BufSize);
+    }
+    fclose(grp);
+    
+    if(strstr(buff, login) != NULL)
         return 1;
     else
         return 0;
