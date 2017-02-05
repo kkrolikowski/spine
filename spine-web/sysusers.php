@@ -109,7 +109,7 @@
     else {
       $exptime = "Never";
     }
-    if(isset($_POST['password_edit'])) {
+    if(strlen($_POST['password_edit'])) {
       $pass = sha512_pass($_POST['password_edit']);
     }
     else {
