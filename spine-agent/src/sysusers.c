@@ -618,42 +618,42 @@ char * updateGroup(char * buff, char * login) {
 void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
-    char * current_login = NULL;
+    char * old = NULL;
     
     while(curr) {
         if(!strcmp(curr->status, "U")) {
-            if((current_login = oldlogin(curr->uidgid, curr->login)) == NULL)
-                current_login = curr->login;
-            else {
-                if(renameHomeDir(current_login, su->login)) {
-                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", current_login, " to: /home/", su->login, NULL);
+            if((old = oldlogin(curr->uidgid, curr->login)) != NULL) {
+                if(renameHomeDir(old, su->login)) {
+                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", old, " to: /home/", su->login, NULL);
                   writeLog(lf, msg);  
                 }
-                if(updateGroupFile(curr, current_login)) {
-                    msg = mkString("[INFO] (reciver) Changed group info from user: ", current_login, " to: ", su->login, NULL);
+                if(updateGroupFile(curr, old)) {
+                    msg = mkString("[INFO] (reciver) Changed group info from user: ", old, " to: ", su->login, NULL);
                     writeLog(lf, msg);
-                    current_login = su->login;
                 }
-            }
+            } 
+            else
+                old = curr->login;
             if(updatePasswd(curr)) {
-                if(updateShadow(curr, current_login)) {
-                    msg = mkString("[INFO] (reciver) Passwd info updated for user: ", current_login, NULL);
+                if(updateShadow(curr, old)) {
+                    msg = mkString("[INFO] (reciver) Passwd info updated for user: ", curr->login, NULL);
                     writeLog(lf, msg);
+                    free(old);
                 }
             }
             if(curr->sudo) {
-                if(!isAdmin(os, current_login)) {
-                    if(!grantSuperUser(current_login, os)) {
-                        msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", current_login, NULL);
+                if(!isAdmin(os, curr->login)) {
+                    if(!grantSuperUser(curr->login, os)) {
+                        msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
                         writeLog(lf, msg);
                     }
                 }
             }
             else {
-                if(revokeSudoAccess(current_login, os))
-                    msg = mkString("[INFO] (reciver) Admin access disabled for ", current_login, NULL);
+                if(revokeSudoAccess(curr->login, os))
+                    msg = mkString("[INFO] (reciver) Admin access disabled for ", curr->login, NULL);
                 else
-                    msg = mkString("[ERROR] (reciver) Error disabling admin access for ", current_login, NULL);
+                    msg = mkString("[ERROR] (reciver) Error disabling admin access for ", curr->login, NULL);
                 writeLog(lf, msg);
             }
         }
@@ -900,12 +900,9 @@ int revokeSudoAccess(char * login, char * os) {
                 fputs(newentry, tmp);
                 free(newentry);
             }
-            else
-                fputs(buff, tmp);
         }
         else
-            fputs(newentry, tmp);
-        
+            fputs(buff, tmp);
         memset(buff, '\0', BufSize);
     }
     fclose(grp);
@@ -953,10 +950,11 @@ char * rmFromGrp(char * entry, char * login) {
         buff[strlen(buff)-1] = '\0';
     
     // processing buffer
-    len = strlen(buff) + 1;
+    len = strlen(buff) + 2;
     newentry = (char *) malloc(len * sizeof(char));
     memset(newentry, '\0', len);
     strncpy(newentry, buff, len);
+    *(newentry+strlen(newentry)) = '\n';
     
     return newentry;
 }
