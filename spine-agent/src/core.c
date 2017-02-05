@@ -274,6 +274,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             }
                             if(config.sysUsers != NULL) {
                                 createUserAccounts(config.sysUsers, os, lf);
+                                updateUserAccounts(config.sysUsers, os, lf);
                                 cleanSysUsersData(config.sysUsers);
                             }
                             else {

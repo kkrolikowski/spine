@@ -996,7 +996,22 @@ $(document).ready(function() {
         '<tr><td>'+ response.login +
         '</td><td>'+ response.fullname +
         '</td><td>'+ response.email +
-        '</td></tr>');
+        '</td>' +
+        '<td class="button-cell">' +
+          '<div class="btn-group">' +
+            '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'" data-serverid="3">Usuń</button>' +
+            '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+              '<span class="caret"></span>' +
+              '<span class="sr-only">Toggle Dropdown</span>' +
+            '</button>' +
+            '<ul class="dropdown-menu">' +
+              '<li><a href="#" data-id="'+ response.id +'" class="edit-user">Edytuj</a></li>' +
+              '<li><a href="#" data-id="'+ response.id +'" class="block-user">Zablokuj</a></li>' +
+            '</ul>' +
+          '</div>' +
+        '</td>' +
+        '</tr>'
+      );
       $('#new-sysuser-form')[0].reset();
       $('#new-sysuser-form').find('.has-success').removeClass('has-success');
       $('#new-sysuser-form').find('.glyphicon-ok').removeClass('glyphicon-ok');

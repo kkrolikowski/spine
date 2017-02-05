@@ -260,6 +260,7 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
         curr->gecos         = jsonVal(config_pos, "gecos");
         curr->login         = jsonVal(config_pos, "username");
         curr->sha512        = jsonVal(config_pos, "password");
+        curr->status        = jsonVal(config_pos, "status");
         
         tmp                 = jsonVal(config_pos, "active");
         curr->active        = atoi(tmp);
