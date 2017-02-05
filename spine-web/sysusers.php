@@ -60,12 +60,96 @@
       }
       updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
       $json = array(
-        'login' => $r['login'],
-        'fullname' => $r['fullname'],
-        'email' => $r['email']
+        'id'        => $r['id'],
+        'login'     => $r['login'],
+        'fullname'  => $r['fullname'],
+        'email'     => $r['email']
       );
       header('Content-Type: application/json');
       echo json_encode($json);
     }
+  }
+  if(isset($_GET['edit'])) {
+    $q = $dbh->prepare("SELECT su.id, su.fullname, su.email, su.login, su.active, su.expiration, su.shell, ".
+                       "su.status, su.sudo,	CASE su.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey SEPARATOR ',') ELSE 'NaN' ".
+                       "END AS sshkeys FROM sysusers su LEFT JOIN sysusers_sshkeys s ON s.user_id = su.id ".
+                       "WHERE	su.id = ". $_GET['edit']);
+    $q->execute();
+    $r = $q->fetch();
+    $json = array(
+      'id'        => $r['id'],
+      'fullname'  => $r['fullname'],
+      'email'     => $r['email'],
+      'login'     => $r['login'],
+      'active'    => $r['active'],
+      'expire'    => $r['expiration'],
+      'shell'     => $r['shell'],
+      'status'    => $r['status'],
+      'sudo'      => $r['sudo'],
+      'sshkeys'   => $r['sshkeys']
+    );
+    header('Content-Type: application/json');
+    echo json_encode($json);
+  }
+  if (isset($_GET['update'])) {
+    setlocale(LC_ALL, 'pl_PL.utf8');
+    $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname_edit']);
+
+    isset($_POST['isActive_edit'])        ? $active = 1 : $active = 0;
+    isset($_POST['shell_edit'])           ? $shell  = 1 : $shell  = 0;
+    isset($_POST['sudo_edit'])            ? $sudo   = 1 : $sudo   = 0;
+    isset($_POST['sshkey_enable_edit'])   ? $sshkey = 1 : $sshkey = 0;
+
+    if (isset($_POST['expEnable_edit'])) {
+      $timeArr = explode("/", $_POST['expdate_edit']);
+      $timeStr .= $timeArr[2] . "-" . $timeArr[1] . "-" . $timeArr[0];
+      $time = new DateTime($timeStr);
+      $exptime = $time->format('U');
+    }
+    else {
+      $exptime = "Never";
+    }
+    if(isset($_POST['password_edit'])) {
+      $pass = sha512_pass($_POST['password_edit']);
+    }
+    else {
+      $q = $dbh->prepare("SELECT pass FROM sysusers WHERE id = ".$_GET['update']);
+      $q->execute();
+      $r = $q->fetch();
+      $pass = $r['pass'];
+    }
+    $q = $dbh->prepare("UPDATE sysusers SET fullname = '".$_POST['fullname_edit']."', email = '".$_POST['email_edit']."', pass = '".$pass."', ".
+                      "gecos = '".$gecos."', login = '".$_POST['login_edit']."', active = ".$active.", expiration = '".$exptime."', ".
+                      "shell = '".$shell."', sshkeys = ".$sshkey.", sudo = ".$sudo.", status = 'U' WHERE id = ".$_GET['update']);
+    $q->execute();
+    if ($sshkey) {
+      $q = $dbh->prepare("DELETE FROM sysusers_sshkeys WHERE user_id = ".$_GET['update']);
+      $q->execute();
+      foreach ($_POST['sshkey_edit'] as $key) {
+        $q = $dbh->prepare("INSERT INTO sysusers_sshkeys (sshkey, user_id) VALUES('".$key."', ".$_GET['update'].")");
+        $q->execute();
+      }
+    }
+    else {
+      $q = $dbh->prepare("SELECT count(*) AS count FROM sysusers_sshkeys WHERE user_id = ".$_GET['update']);
+      $q->execute();
+      $r = $q->fetch();
+      if($r['count'] > 0) {
+        $q = $dbh->prepare("DELETE FROM sysusers_sshkeys WHERE user_id = ".$_GET['update']);
+        $q->execute();
+      }
+    }
+    updateConfigVersion($dbh, $_POST['sid'], "sysusers");
+    $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
+    $q->execute();
+    $r = $q->fetch();
+    $json = array(
+      'id'        => $r['id'],
+      'login'     => $r['login'],
+      'fullname'  => $r['fullname'],
+      'email'     => $r['email']
+    );
+    header('Content-Type: application/json');
+    echo json_encode($json);
   }
 ?>
