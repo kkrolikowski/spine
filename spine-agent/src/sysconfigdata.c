@@ -262,6 +262,9 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
         curr->sha512        = jsonVal(config_pos, "password");
         curr->status        = jsonVal(config_pos, "status");
         
+        tmp                 = jsonVal(config_pos, "dbid");
+        curr->dbid          = atoi(tmp);
+        free(tmp);
         tmp                 = jsonVal(config_pos, "active");
         curr->active        = atoi(tmp);
         free(tmp);

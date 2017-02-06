@@ -13,6 +13,7 @@ typedef struct sshkeys {
 
 // struktura przechowujaca wszystkie wlasciwosci konta uzytkownika w systemie
 typedef struct sysuser {
+    int dbid;               // id z bazy danych
     char * login;           // login uzytkownika
     char * sha512;          // haslo zaszyfrowane algorytmem SHA-512
     char * gecos;           // opis konta (GECOS)
