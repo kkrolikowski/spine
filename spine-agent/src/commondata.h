@@ -74,4 +74,16 @@ typedef struct hostconfig {
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
 } hostconfig;
 
+/****************************************************/
+/*             Comunication protocol                */
+/****************************************************/
+
+// update message to server agent. Provides information what to do
+// in database with particular record ID. 
+typedef struct resp {
+    char status;            // status type: U - update, D - delete
+    int dbid;               // ID of particular db record
+    struct resp * next;     // next item
+} resp;
+
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */

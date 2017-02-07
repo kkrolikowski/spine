@@ -221,18 +221,20 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
 	int clifd = -1;
-	char * clientResponse = NULL;	// string przesylany przez klienta (json)
-	char * datatype = NULL; 		// typ danych przesylanych do klienta
-	char * system_id = NULL;		// indentyfikator systemu (mac-adress)
-	char * os = NULL;				// nazwa dystrubucji Linuksa
+	char * clientResponse = NULL;       // string przesylany przez klienta (json)
+	char * datatype = NULL;             // typ danych przesylanych do klienta
+	char * system_id = NULL;            // indentyfikator systemu (mac-adress)
+	char * os = NULL;                   // nazwa dystrubucji Linuksa
 	char * configstring = NULL;
-	netinfo net;					// struktura przechowujaca ip oraz socket klienta
-	hostconfig config;            // konfiguracja calego hosta
-        ver * cfgver;                   // wersje poszczegolnych obszarow konfiguracji
-        char * clientver_str = NULL;    // wersja konfiguracji klienta (string)
-        int clientver = 0;              // wersja konfiguracji klienta
-        int packagever = 0;             // wersja konfiguracji pochodzaca z pakietu danych
-
+	netinfo net;                        // struktura przechowujaca ip oraz socket klienta
+	hostconfig config;                  // konfiguracja calego hosta
+        ver * cfgver;                       // wersje poszczegolnych obszarow konfiguracji
+        char * clientver_str = NULL;        // wersja konfiguracji klienta (string)
+        int clientver = 0;                  // wersja konfiguracji klienta
+        int packagever = 0;                 // wersja konfiguracji pochodzaca z pakietu danych
+        resp * updateMSGdata = NULL;        // update message to server agent
+        char * updateMSGdataString = NULL;  // updata message: string version
+        
 	while(1) {
 		net = clientConnection(netiffd);
 		if(GreetClient(net.sock) < 1) {
@@ -274,7 +276,13 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             }
                             if(config.sysUsers != NULL) {
                                 createUserAccounts(config.sysUsers, os, lf);
-                                updateUserAccounts(config.sysUsers, os, lf);
+                                updateMSGdata = updateUserAccounts(config.sysUsers, os, lf);
+                                updateMSGdataString = backMessage(updateMSGdata);
+                                clifd = connector(net.ipaddr, 2016);
+                                SendPackage(clifd, updateMSGdataString);
+                                close(clifd);
+                                free(updateMSGdataString);
+                                cleanMSGdata(updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
                             }
                             else {
@@ -700,4 +708,53 @@ int maxver(int vers[], int n) {
             max = vers[i];
     
     return max;
+}
+char * backMessage(resp * rsp) {
+    resp * pos = rsp;
+    int itemcnt = 0;
+    int commacnt = 0;
+    int coloncnt = 0;
+    size_t messageSize = 0;
+    char * tmp = NULL;
+    char * message = NULL;
+    char * header = "STS:";
+    
+    // obtain amount of memory to allocate
+    while(pos) {
+        tmp = int2String(pos->dbid);
+        messageSize += strlen(tmp);
+        free(tmp);
+        itemcnt++;
+        pos = pos->next;
+    }
+    commacnt = itemcnt - 1;
+    coloncnt = itemcnt;
+    messageSize += strlen(header) + itemcnt + coloncnt + commacnt + 1;
+    
+    // prepare memory
+    message = (char *) malloc(messageSize * sizeof(char));
+    memset(message, '\0', messageSize);
+    
+    // create package
+    strncpy(message, header, strlen(header));
+    pos = rsp;
+    while(pos) {
+        tmp = int2String(pos->dbid);
+        strncat(message, tmp, strlen(tmp));
+        free(tmp);
+        *(message+strlen(message)) = ':';
+        *(message+strlen(message)) = pos->status;
+        if(pos->next != NULL)
+            *(message+strlen(message)) = ',';
+        pos = pos->next;
+    }
+    
+    return message;
+}
+void cleanMSGdata(resp * rsp) {
+    resp * curr = rsp;
+    
+    if(curr->next != NULL)
+      cleanMSGdata(curr->next);
+    free(curr);
 }

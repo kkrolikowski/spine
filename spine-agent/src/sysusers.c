@@ -623,10 +623,15 @@ char * updateGroup(char * buff, char * login) {
     
     return entry;
 }
-void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
     
     while(curr) {
         if(!strcmp(curr->status, "U")) {
@@ -665,8 +670,20 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 writeLog(lf, msg);
             }
         }
+        rcurr = (resp *) malloc(sizeof(resp));
+        rcurr->status = 'A';
+        rcurr->dbid = curr->dbid;
+        rcurr->next = NULL;
+        
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+        
         curr = curr->next;
     }
+    return rhead;
 }
 int updatePasswd(sysuser * su) {
     int status = 1;                         // exit code: 1 - success, 0 - failure
