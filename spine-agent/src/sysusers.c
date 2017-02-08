@@ -632,6 +632,7 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    size_t len = 0;
     
     while(curr) {
         if(!strcmp(curr->status, "U")) {
@@ -673,6 +674,10 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
         rcurr = (resp *) malloc(sizeof(resp));
         rcurr->status = 'A';
         rcurr->dbid = curr->dbid;
+        len = strlen("sysusers") + 1;
+        rcurr->scope = (char *) malloc(len * sizeof(char));
+        memset(rcurr->scope, '\0', len);
+        strncpy(rcurr->scope, "sysusers", len);
         rcurr->next = NULL;
         
         if(rhead == NULL)

@@ -611,3 +611,6 @@ sshkeys * readSSHkeys(char * str) {
 
     return head;
 }
+int applyStatusChange(resp * data) {
+    
+}

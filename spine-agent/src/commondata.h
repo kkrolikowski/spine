@@ -82,6 +82,7 @@ typedef struct hostconfig {
 // in database with particular record ID. 
 typedef struct resp {
     char status;            // status type: U - update, D - delete
+    char * scope;           // possible values: sysusers, vhosts
     int dbid;               // ID of particular db record
     struct resp * next;     // next item
 } resp;

@@ -727,7 +727,7 @@ char * backMessage(resp * rsp) {
     size_t messageSize = 0;
     char * tmp = NULL;
     char * message = NULL;
-    char * header = "datatype:StatusChange,";
+    char * header = "datatype:StatusChange,scope:";
     
     // obtain amount of memory to allocate
     while(pos) {
@@ -740,6 +740,7 @@ char * backMessage(resp * rsp) {
     commacnt = itemcnt - 1;
     coloncnt = itemcnt;
     messageSize += strlen(header) + itemcnt + coloncnt + commacnt + 1;
+    messageSize += strlen(rsp->scope) + 1;
     
     // prepare memory
     message = (char *) malloc(messageSize * sizeof(char));
@@ -747,6 +748,8 @@ char * backMessage(resp * rsp) {
     
     // create package
     strncpy(message, header, strlen(header));
+    strncat(message, rsp->scope, strlen(rsp->scope));
+    *(message+strlen(message)) = ',';
     pos = rsp;
     while(pos) {
         tmp = int2String(pos->dbid);
@@ -769,12 +772,23 @@ void cleanMSGdata(resp * rsp) {
     free(curr);
 }
 resp * parseClientMessage(char * str) {
-    char * pos = strchr(str, ',');    // move to the meat;
+    char * pos = strstr(str, "scope") + strlen("scope:");    // begin of scope;
+    char * scope = NULL;
+    size_t len = 0;
     
     // local buffer for ID string
     const int BufSize = 128;
     char buff[BufSize];
     int i = 0;
+    memset(buff, '\0', BufSize);
+    
+    // get the scope
+    while(*pos != ',')
+        buff[i++] = *pos++;
+    len = strlen(buff) + 1;
+    scope = (char *) malloc(len * sizeof(char));
+    memset(scope, '\0', len);
+    strncpy(scope, buff, len);
     
     // preparing node of data
     resp * head = NULL;
@@ -783,6 +797,7 @@ resp * parseClientMessage(char * str) {
     
     // preparing buffer and moving to first value to read
     memset(buff, '\0', BufSize);
+    i = 0;
     pos++;
     while(*pos) {
         if(*pos != ':')
@@ -792,6 +807,9 @@ resp * parseClientMessage(char * str) {
             curr = (resp *) malloc(sizeof(resp));
             curr->dbid = atoi(buff);            
             curr->status = *++pos;          // status is following the colon
+            curr->scope = (char *) malloc(len * sizeof(char));
+            memset(curr->scope, '\0', len);
+            strncpy(curr->scope, scope, len);
             curr->next = NULL;
             
             // now we can clear the buffer and reset buffer index
@@ -811,5 +829,7 @@ resp * parseClientMessage(char * str) {
             prev = curr;
         }
     }
+    free(scope);
+    
     return head;
 }
