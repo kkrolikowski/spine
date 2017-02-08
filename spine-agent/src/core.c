@@ -301,6 +301,15 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     free(os);
 		}
+                // Status changes
+                if(!strcmp(datatype, "StatusChange")) {
+                    updateMSGdata = parseClientMessage(clientResponse);
+                    if(applyStatusChange(updateMSGdata)) {
+                        logentry = mkString("[INFO] (reciver) status in database has been changed", NULL);
+                        writeLog(lf, logentry);
+                    }
+                    cleanMSGdata(updateMSGdata);
+                }
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
                     system_id = jsonVal(clientResponse, "systemid");
@@ -334,6 +343,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     cleanWWWConfiguration(system_id);                
                     free(system_id);
 		}
+                
 		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
@@ -717,7 +727,7 @@ char * backMessage(resp * rsp) {
     size_t messageSize = 0;
     char * tmp = NULL;
     char * message = NULL;
-    char * header = "STS:";
+    char * header = "datatype:StatusChange,";
     
     // obtain amount of memory to allocate
     while(pos) {
@@ -757,4 +767,49 @@ void cleanMSGdata(resp * rsp) {
     if(curr->next != NULL)
       cleanMSGdata(curr->next);
     free(curr);
+}
+resp * parseClientMessage(char * str) {
+    char * pos = strchr(str, ',');    // move to the meat;
+    
+    // local buffer for ID string
+    const int BufSize = 128;
+    char buff[BufSize];
+    int i = 0;
+    
+    // preparing node of data
+    resp * head = NULL;
+    resp * curr = NULL;
+    resp * prev = NULL;
+    
+    // preparing buffer and moving to first value to read
+    memset(buff, '\0', BufSize);
+    pos++;
+    while(*pos) {
+        if(*pos != ':')
+            buff[i++] = *pos++;
+        else {
+            // since we have whole ID read, we can create a node of data
+            curr = (resp *) malloc(sizeof(resp));
+            curr->dbid = atoi(buff);            
+            curr->status = *++pos;          // status is following the colon
+            curr->next = NULL;
+            
+            // now we can clear the buffer and reset buffer index
+            memset(buff, '\0', BufSize);
+            i = 0;
+            
+            // if the following character is not the \0 character we can go
+            // to the next numeric value skipping comma sign
+            if(*(pos+1))
+                pos += 2;
+            
+            // binding nodes together
+            if(head == NULL)
+                head = curr;
+            else
+                prev->next = curr;
+            prev = curr;
+        }
+    }
+    return head;
 }

@@ -109,6 +109,9 @@ int readPackageVersion(char * str);
 // database
 char * backMessage(resp * rsp);
 
+// function reads to memory data from a given string
+resp * parseClientMessage(char * str);
+
 // memory cleanup
 void cleanMSGdata(resp * rsp);
 
