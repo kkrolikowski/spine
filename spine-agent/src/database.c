@@ -612,5 +612,22 @@ sshkeys * readSSHkeys(char * str) {
     return head;
 }
 int applyStatusChange(resp * data) {
+    extern MYSQL * dbh;
+    char * query = NULL;
+    resp * curr = data;
+    char stat[2];
+    char * tmp = NULL;
     
+    while(curr) {
+        stat[0] = curr->status;
+        stat[1] = '\0';
+        tmp = int2String(curr->dbid);
+        if(!strcmp(curr->scope, "sysusers"))
+            query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        mysql_query(dbh, query);
+        
+        free(tmp);
+        curr = curr->next;
+    }
+    return 1;
 }

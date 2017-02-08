@@ -767,6 +767,7 @@ char * backMessage(resp * rsp) {
 void cleanMSGdata(resp * rsp) {
     resp * curr = rsp;
     
+    free(curr->scope);
     if(curr->next != NULL)
       cleanMSGdata(curr->next);
     free(curr);
