@@ -276,13 +276,14 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             }
                             if(config.sysUsers != NULL) {
                                 createUserAccounts(config.sysUsers, os, lf);
-                                updateMSGdata = updateUserAccounts(config.sysUsers, os, lf);
-                                updateMSGdataString = backMessage(updateMSGdata);
-                                clifd = connector(net.ipaddr, 2016);
-                                SendPackage(clifd, updateMSGdataString);
-                                close(clifd);
-                                free(updateMSGdataString);
-                                cleanMSGdata(updateMSGdata);
+                                if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
+                                    updateMSGdataString = backMessage(updateMSGdata);
+                                    clifd = connector(net.ipaddr, 2016);
+                                    SendPackage(clifd, updateMSGdataString);
+                                    close(clifd);
+                                    free(updateMSGdataString);
+                                    cleanMSGdata(updateMSGdata);
+                                }
                                 cleanSysUsersData(config.sysUsers);
                             }
                             else {

@@ -670,22 +670,21 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                     msg = mkString("[ERROR] (reciver) Error disabling admin access for ", curr->login, NULL);
                 writeLog(lf, msg);
             }
+            rcurr = (resp *) malloc(sizeof(resp));
+            rcurr->status = 'A';
+            rcurr->dbid = curr->dbid;
+            len = strlen("sysusers") + 1;
+            rcurr->scope = (char *) malloc(len * sizeof(char));
+            memset(rcurr->scope, '\0', len);
+            strncpy(rcurr->scope, "sysusers", len);
+            rcurr->next = NULL;
+
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
         }
-        rcurr = (resp *) malloc(sizeof(resp));
-        rcurr->status = 'A';
-        rcurr->dbid = curr->dbid;
-        len = strlen("sysusers") + 1;
-        rcurr->scope = (char *) malloc(len * sizeof(char));
-        memset(rcurr->scope, '\0', len);
-        strncpy(rcurr->scope, "sysusers", len);
-        rcurr->next = NULL;
-        
-        if(rhead == NULL)
-            rhead = rcurr;
-        else
-            rprev->next = rcurr;
-        rprev = rcurr;
-        
         curr = curr->next;
     }
     return rhead;

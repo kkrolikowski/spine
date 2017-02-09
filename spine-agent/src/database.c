@@ -627,6 +627,7 @@ int applyStatusChange(resp * data) {
         mysql_query(dbh, query);
         
         free(tmp);
+        free(query);
         curr = curr->next;
     }
     return 1;
