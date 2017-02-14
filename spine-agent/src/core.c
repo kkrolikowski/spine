@@ -270,10 +270,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
-                            else {
-                                logentry = mkString("[WARNING] (reciver) Brak konfiguracji apacza", NULL);
-                                writeLog(lf, logentry);
-                            }
                             if(config.sysUsers != NULL) {
                                 createUserAccounts(config.sysUsers, os, lf);
                                 if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
@@ -285,10 +281,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                     cleanMSGdata(updateMSGdata);
                                 }
                                 cleanSysUsersData(config.sysUsers);
-                            }
-                            else {
-                                logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
-                                writeLog(lf, logentry);
                             }
                             if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
@@ -304,12 +296,13 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 		}
                 // Status changes
                 if(!strcmp(datatype, "StatusChange")) {
-                    updateMSGdata = parseClientMessage(clientResponse);
-                    if(applyStatusChange(updateMSGdata)) {
-                        logentry = mkString("[INFO] (reciver) status in database has been changed", NULL);
-                        writeLog(lf, logentry);
+                    if((updateMSGdata = parseClientMessage(clientResponse)) != NULL) {
+                        if(applyStatusChange(updateMSGdata)) {
+                            logentry = mkString("[INFO] (reciver) status in database has been changed", NULL);
+                            writeLog(lf, logentry);
+                        }
+                        cleanMSGdata(updateMSGdata);
                     }
-                    cleanMSGdata(updateMSGdata);
                 }
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
@@ -343,12 +336,12 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     cleanWWWConfiguration(system_id);                
                     free(system_id);
+                    free(clientver_str);
 		}
                 
 		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
-                free(clientver_str);
 		free(clientResponse);
 	}
 	close(netiffd);		// konczymy  nasluch
