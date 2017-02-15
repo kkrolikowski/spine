@@ -105,4 +105,14 @@ int maxver(int vers[], int n);
 // funkcja zwraca numer wersji, ktory zostanie zapisany przez klienta w pliku
 int readPackageVersion(char * str);
 
+// fucntion creates short string package containg information what ID to update in
+// database
+char * backMessage(resp * rsp);
+
+// function reads to memory data from a given string
+resp * parseClientMessage(char * str);
+
+// memory cleanup
+void cleanMSGdata(resp * rsp);
+
 #endif /* SPINE_AGENT_CORE_H_ */

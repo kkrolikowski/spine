@@ -95,4 +95,7 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid);
 // kont systemowych.
 sshkeys * readSSHkeys(char * str);
 
+// function updates db records with information provided from client
+int applyStatusChange(resp * data);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

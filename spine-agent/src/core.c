@@ -221,18 +221,20 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
 	int clifd = -1;
-	char * clientResponse = NULL;	// string przesylany przez klienta (json)
-	char * datatype = NULL; 		// typ danych przesylanych do klienta
-	char * system_id = NULL;		// indentyfikator systemu (mac-adress)
-	char * os = NULL;				// nazwa dystrubucji Linuksa
+	char * clientResponse = NULL;       // string przesylany przez klienta (json)
+	char * datatype = NULL;             // typ danych przesylanych do klienta
+	char * system_id = NULL;            // indentyfikator systemu (mac-adress)
+	char * os = NULL;                   // nazwa dystrubucji Linuksa
 	char * configstring = NULL;
-	netinfo net;					// struktura przechowujaca ip oraz socket klienta
-	hostconfig config;            // konfiguracja calego hosta
-        ver * cfgver;                   // wersje poszczegolnych obszarow konfiguracji
-        char * clientver_str = NULL;    // wersja konfiguracji klienta (string)
-        int clientver = 0;              // wersja konfiguracji klienta
-        int packagever = 0;             // wersja konfiguracji pochodzaca z pakietu danych
-
+	netinfo net;                        // struktura przechowujaca ip oraz socket klienta
+	hostconfig config;                  // konfiguracja calego hosta
+        ver * cfgver;                       // wersje poszczegolnych obszarow konfiguracji
+        char * clientver_str = NULL;        // wersja konfiguracji klienta (string)
+        int clientver = 0;                  // wersja konfiguracji klienta
+        int packagever = 0;                 // wersja konfiguracji pochodzaca z pakietu danych
+        resp * updateMSGdata = NULL;        // update message to server agent
+        char * updateMSGdataString = NULL;  // updata message: string version
+        
 	while(1) {
 		net = clientConnection(netiffd);
 		if(GreetClient(net.sock) < 1) {
@@ -268,18 +270,17 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
-                            else {
-                                logentry = mkString("[WARNING] (reciver) Brak konfiguracji apacza", NULL);
-                                writeLog(lf, logentry);
-                            }
                             if(config.sysUsers != NULL) {
                                 createUserAccounts(config.sysUsers, os, lf);
-                                updateUserAccounts(config.sysUsers, os, lf);
+                                if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
+                                    updateMSGdataString = backMessage(updateMSGdata);
+                                    clifd = connector(net.ipaddr, 2016);
+                                    SendPackage(clifd, updateMSGdataString);
+                                    close(clifd);
+                                    free(updateMSGdataString);
+                                    cleanMSGdata(updateMSGdata);
+                                }
                                 cleanSysUsersData(config.sysUsers);
-                            }
-                            else {
-                                logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
-                                writeLog(lf, logentry);
                             }
                             if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
@@ -293,6 +294,16 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     free(os);
 		}
+                // Status changes
+                if(!strcmp(datatype, "StatusChange")) {
+                    if((updateMSGdata = parseClientMessage(clientResponse)) != NULL) {
+                        if(applyStatusChange(updateMSGdata)) {
+                            logentry = mkString("[INFO] (reciver) status in database has been changed", NULL);
+                            writeLog(lf, logentry);
+                        }
+                        cleanMSGdata(updateMSGdata);
+                    }
+                }
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
                     system_id = jsonVal(clientResponse, "systemid");
@@ -325,11 +336,12 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     cleanWWWConfiguration(system_id);                
                     free(system_id);
+                    free(clientver_str);
 		}
+                
 		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
-                free(clientver_str);
 		free(clientResponse);
 	}
 	close(netiffd);		// konczymy  nasluch
@@ -700,4 +712,119 @@ int maxver(int vers[], int n) {
             max = vers[i];
     
     return max;
+}
+char * backMessage(resp * rsp) {
+    resp * pos = rsp;
+    int itemcnt = 0;
+    int commacnt = 0;
+    int coloncnt = 0;
+    size_t messageSize = 0;
+    char * tmp = NULL;
+    char * message = NULL;
+    char * header = "datatype:StatusChange,scope:";
+    
+    // obtain amount of memory to allocate
+    while(pos) {
+        tmp = int2String(pos->dbid);
+        messageSize += strlen(tmp);
+        free(tmp);
+        itemcnt++;
+        pos = pos->next;
+    }
+    commacnt = itemcnt - 1;
+    coloncnt = itemcnt;
+    messageSize += strlen(header) + itemcnt + coloncnt + commacnt + 1;
+    messageSize += strlen(rsp->scope) + 1;
+    
+    // prepare memory
+    message = (char *) malloc(messageSize * sizeof(char));
+    memset(message, '\0', messageSize);
+    
+    // create package
+    strncpy(message, header, strlen(header));
+    strncat(message, rsp->scope, strlen(rsp->scope));
+    *(message+strlen(message)) = ',';
+    pos = rsp;
+    while(pos) {
+        tmp = int2String(pos->dbid);
+        strncat(message, tmp, strlen(tmp));
+        free(tmp);
+        *(message+strlen(message)) = ':';
+        *(message+strlen(message)) = pos->status;
+        if(pos->next != NULL)
+            *(message+strlen(message)) = ',';
+        pos = pos->next;
+    }
+    
+    return message;
+}
+void cleanMSGdata(resp * rsp) {
+    resp * curr = rsp;
+    
+    free(curr->scope);
+    if(curr->next != NULL)
+      cleanMSGdata(curr->next);
+    free(curr);
+}
+resp * parseClientMessage(char * str) {
+    char * pos = strstr(str, "scope") + strlen("scope:");    // begin of scope;
+    char * scope = NULL;
+    size_t len = 0;
+    
+    // local buffer for ID string
+    const int BufSize = 128;
+    char buff[BufSize];
+    int i = 0;
+    memset(buff, '\0', BufSize);
+    
+    // get the scope
+    while(*pos != ',')
+        buff[i++] = *pos++;
+    len = strlen(buff) + 1;
+    scope = (char *) malloc(len * sizeof(char));
+    memset(scope, '\0', len);
+    strncpy(scope, buff, len);
+    
+    // preparing node of data
+    resp * head = NULL;
+    resp * curr = NULL;
+    resp * prev = NULL;
+    
+    // preparing buffer and moving to first value to read
+    memset(buff, '\0', BufSize);
+    i = 0;
+    pos++;
+    while(*pos) {
+        if(*pos != ':')
+            buff[i++] = *pos++;
+        else {
+            // since we have whole ID read, we can create a node of data
+            curr = (resp *) malloc(sizeof(resp));
+            curr->dbid = atoi(buff);            
+            curr->status = *++pos;          // status is following the colon
+            curr->scope = (char *) malloc(len * sizeof(char));
+            memset(curr->scope, '\0', len);
+            strncpy(curr->scope, scope, len);
+            curr->next = NULL;
+            
+            // now we can clear the buffer and reset buffer index
+            memset(buff, '\0', BufSize);
+            i = 0;
+            
+            // if the following character is not the \0 character we can go
+            // to the next numeric value skipping comma sign
+            if(*(pos+1))
+                pos += 2;
+            
+            // binding nodes together
+            if(head == NULL)
+                head = curr;
+            else
+                prev->next = curr;
+            prev = curr;
+        }
+    }
+    free(scope);
+    
+    return head;
 }

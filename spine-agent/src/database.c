@@ -502,7 +502,7 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
     MYSQL_RES * res;
     MYSQL_ROW row;
     
-    char * accountsInfo = mkString("SELECT u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
+    char * accountsInfo = mkString("SELECT u.id, u.login, u.pass, u.gecos, u.uid, u.active, u.expiration, ",
                                    "u.shell, CASE u.sshkeys WHEN 1 THEN GROUP_CONCAT(s.sshkey ",
                                    "SEPARATOR ',') ELSE 'NaN' END AS ssh_keys, cv.version AS config_ver, u.status, u.sudo FROM sysusers u LEFT JOIN ",
                                    "sysusers_sshkeys s ON (u.id = s.user_id AND u.sshkeys = 1) LEFT JOIN sysinfo si ",
@@ -520,27 +520,28 @@ sysuser * getSystemAccounts(hostconfig * hc, char * systemid) {
                 // inicjujemy wezel
                 curr = (sysuser *) malloc(sizeof(sysuser));
                 
-                curr->login     = readData(row[0]);     // login
-                curr->sha512    = readData(row[1]);     // haslo
-                curr->gecos     = readData(row[2]);     // GECOS
-                curr->uidgid    = atoi(row[3]);         // UID/GID usera
-                curr->active    = atoi(row[4]);         // status konta
+                curr->dbid      = atoi(row[0]);         // id rekordu
+                curr->login     = readData(row[1]);     // login
+                curr->sha512    = readData(row[2]);     // haslo
+                curr->gecos     = readData(row[3]);     // GECOS
+                curr->uidgid    = atoi(row[4]);         // UID/GID usera
+                curr->active    = atoi(row[5]);         // status konta
                 
                 // zapisujemy w pamieci informacje na temat expiracji konta
                 if(!strcmp(row[5], "Never"))
                     curr->expiration = 0;
                 else
-                    curr->expiration = atoi(row[5]);
+                    curr->expiration = atoi(row[6]);
                 
                 // zapisujemy informacje, czy konto bedzie mialo dostep do shella
-                curr->shellaccess = atoi(row[6]);
+                curr->shellaccess = atoi(row[7]);
                 
                 // dolaczamy wezel pamieci z kluczami ssh
-                curr->sshkey = readSSHkeys(row[7]);
+                curr->sshkey = readSSHkeys(row[8]);
                 
-               curr->version = atoi(row[8]);
-               curr->status  = readData(row[9]);
-               curr->sudo    = atoi(row[10]);         // dostep do roota
+               curr->version = atoi(row[9]);
+               curr->status  = readData(row[10]);
+               curr->sudo    = atoi(row[11]);         // dostep do roota
                 
                 // tworzymy kolejny wezel
                 curr->next = NULL;
@@ -609,4 +610,25 @@ sshkeys * readSSHkeys(char * str) {
     prev = curr;
 
     return head;
+}
+int applyStatusChange(resp * data) {
+    extern MYSQL * dbh;
+    char * query = NULL;
+    resp * curr = data;
+    char stat[2];
+    char * tmp = NULL;
+    
+    while(curr) {
+        stat[0] = curr->status;
+        stat[1] = '\0';
+        tmp = int2String(curr->dbid);
+        if(!strcmp(curr->scope, "sysusers"))
+            query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        mysql_query(dbh, query);
+        
+        free(tmp);
+        free(query);
+        curr = curr->next;
+    }
+    return 1;
 }

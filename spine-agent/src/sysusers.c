@@ -23,6 +23,7 @@ char * sysusersPackage(sysuser * su) {
     char * s_shell_val = NULL;          // flaga dostepu do shella w formie stringu
     char * s_cfgver = NULL;             // wersja konfiguracji (string)
     char * s_sudo_val = NULL;           // czy konto ma miec dostep do roota
+    char * s_id_val = NULL;             // ID rekordu z bazy
     sysuser * su_begin = su;            // poczatek wezla
     sysuser * su_curr = su;             // aktualnie przetwarzane konto
     size_t package_len = 0;             // calkowity rozmiar pakietu
@@ -30,6 +31,7 @@ char * sysusersPackage(sysuser * su) {
     // klucze dla wartosci w pakiecie i inne stale elementy
     char * header = "{scope:sysusers,";
     char * s_user = "user_";
+    char * s_id = "dbid:";
     char * s_username = "username:";
     char * s_password = "password:";
     char * s_gecos = "gecos:";
@@ -56,6 +58,7 @@ char * sysusersPackage(sysuser * su) {
     
     while(su_curr) {
         s_index = int2String(index);
+        s_id_val = int2String(su_curr->dbid);
         s_expval_val = int2String(su_curr->expiration);
         s_uidgid_val = int2String(su_curr->uidgid);
         s_active_val = int2String(su_curr->active);
@@ -64,6 +67,7 @@ char * sysusersPackage(sysuser * su) {
         keyentry = sshkeysPackage(su_curr->sshkey);
         
         entry = mkString(s_user, s_index, ":{",
+                         s_id, s_id_val, ",",
                          s_username, su_curr->login, ",",
                          s_password, su_curr->sha512, ",",
                          s_gecos, su_curr->gecos, ",",
@@ -91,6 +95,7 @@ char * sysusersPackage(sysuser * su) {
         if(s_active_val != NULL) free(s_active_val);
         if(s_shell_val != NULL)  free(s_shell_val);
         if(s_sudo_val != NULL)   free(s_sudo_val);
+        if(s_id_val != NULL)     free(s_id_val);
         
         index++;
         su_curr = su_curr->next;
@@ -181,7 +186,7 @@ int getSysUsersPackageSize(sysuser * su) {
     int userCount = 0;      // zliczanie liczby userow
     
     // nazwy kluczy w pakiecie;
-    const char * keys[] = { "username:,", "password:,", "gecos:,", "expire:,",
+    const char * keys[] = { "dbid:," "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
                             "user_:", "sudo:,", "status:,", "{},", NULL};
     const char ** key = keys;
@@ -198,6 +203,9 @@ int getSysUsersPackageSize(sysuser * su) {
         size += strlen(pos->status);
         
         // Dane numeryczne;
+        tmp = int2String(pos->dbid);
+        size += strlen(tmp);
+        free(tmp);
         tmp = int2String(pos->active);
         size += strlen(tmp);
         free(tmp);
@@ -615,10 +623,16 @@ char * updateGroup(char * buff, char * login) {
     
     return entry;
 }
-void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    size_t len = 0;
     
     while(curr) {
         if(!strcmp(curr->status, "U")) {
@@ -638,7 +652,6 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 if(updateShadow(curr, old)) {
                     msg = mkString("[INFO] (reciver) Passwd info updated for user: ", curr->login, NULL);
                     writeLog(lf, msg);
-                    free(old);
                 }
             }
             if(curr->sudo) {
@@ -656,9 +669,24 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                     msg = mkString("[ERROR] (reciver) Error disabling admin access for ", curr->login, NULL);
                 writeLog(lf, msg);
             }
+            rcurr = (resp *) malloc(sizeof(resp));
+            rcurr->status = 'A';
+            rcurr->dbid = curr->dbid;
+            len = strlen("sysusers") + 1;
+            rcurr->scope = (char *) malloc(len * sizeof(char));
+            memset(rcurr->scope, '\0', len);
+            strncpy(rcurr->scope, "sysusers", len);
+            rcurr->next = NULL;
+
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
         }
         curr = curr->next;
     }
+    return rhead;
 }
 int updatePasswd(sysuser * su) {
     int status = 1;                         // exit code: 1 - success, 0 - failure
