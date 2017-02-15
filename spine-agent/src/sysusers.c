@@ -652,7 +652,6 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 if(updateShadow(curr, old)) {
                     msg = mkString("[INFO] (reciver) Passwd info updated for user: ", curr->login, NULL);
                     writeLog(lf, msg);
-                    free(old);
                 }
             }
             if(curr->sudo) {
