@@ -280,6 +280,11 @@ int createUserAccounts(sysuser * su, char * os, FILE * lf) {
                 curr = curr->next;
                 continue;
             }
+            if(!curr->active)
+                if(disableAccount(curr->login)) {
+                    msg = mkString("[INFO] (reciver) Account ", curr->login, " is disabled", NULL);
+                    writeLog(lf, msg);
+                }
             if(!writeGroup(curr)) {
                 msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/group", NULL);
                 writeLog(lf, msg);
@@ -1021,4 +1026,70 @@ int isAdmin(char * os, char * login) {
         return 1;
     else
         return 0;
+}
+int disableAccount(char * login) {
+    FILE * shadow = NULL;
+    FILE * tmp = NULL;
+    char * newentry = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if((shadow = fopen("/etc/shadow", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(shadow);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, shadow) != NULL) {
+        if(strstr(buff, login) != NULL) {
+            newentry = lockEntry(buff);
+            fputs(newentry, tmp);
+            free(newentry);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(shadow);
+    rewind(tmp);
+    
+    if((shadow = fopen("/etc/shadow", "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+ 
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, shadow);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(shadow);
+    fclose(tmp);
+    
+    return 1;
+}
+char * lockEntry(char * entry) {
+    char * pos = entry;
+    char * colon = strchr(entry, ':');
+    char * newentry = NULL;
+    char * ne_pos = NULL;
+    size_t entry_size = strlen(entry) + 2;
+    
+    newentry = (char *) malloc(entry_size * sizeof(char));
+    memset(newentry, '\0', entry_size);
+    ne_pos = newentry;
+    
+    while(*pos) {
+        if(pos == colon) {
+            *ne_pos = ':';
+            *(ne_pos + 1) = '!';
+            ne_pos++;
+        }
+        else
+            *ne_pos = *pos;
+        ne_pos++; pos++;
+    }
+    return newentry;
 }
