@@ -95,5 +95,8 @@ int disableAccount(char * login);
 // function returns changed string with ! mark
 char * lockEntry(char * entry);
 
+// function upadtes information about sshkeys for particular user
+int updateSSHKeys(sysuser * su, FILE * lf);
+
 #endif /* SYSUSERS_H */
 

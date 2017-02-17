@@ -547,7 +547,8 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf) {
         }
         else {
             while(curr) {
-                fprintf(authKeys, "%s\n", curr->key);
+                if(strcmp(curr->key, "NaN"))
+                    fprintf(authKeys, "%s\n", curr->key);
                 curr = curr->next;
             }
             fclose(authKeys);
@@ -680,6 +681,12 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                     msg = mkString("[ERROR] (reciver) Error disabling admin access for ", curr->login, NULL);
                 writeLog(lf, msg);
             }
+            if(updateSSHKeys(curr, lf))
+                msg = mkString("[INFO] (reciver) SSH keys for ", curr->login, NULL);
+            else
+                msg = mkString("[INFO] (reciver) Disabled SSH keys for ", curr->login, NULL);
+            writeLog(lf, msg);
+            
             rcurr = (resp *) malloc(sizeof(resp));
             rcurr->status = 'A';
             rcurr->dbid = curr->dbid;
@@ -1100,4 +1107,27 @@ char * lockEntry(char * entry) {
         ne_pos++; pos++;
     }
     return newentry;
+}
+int updateSSHKeys(sysuser * su, FILE * lf) {
+    sshkeys * keys = su->sshkey;
+    char * sshkeysDirPath = mkString("/home/", su->login, "/.ssh/", NULL);
+    DIR * sshkeysDir = NULL;
+    int status = 1;
+    
+    if(!strcmp(keys->key, "NaN")) {
+        if((sshkeysDir = opendir(sshkeysDirPath)) != NULL) {
+            closedir(sshkeysDir);
+            purgeDir(sshkeysDirPath);
+            status = 0;
+        }
+    }
+    else {
+        if(writeAuthorizedKeys(su, lf))
+            status = 1;
+        else
+            status = 0;
+    }
+    free(sshkeysDirPath);
+    
+    return status;
 }
