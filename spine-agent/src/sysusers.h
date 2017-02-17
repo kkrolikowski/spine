@@ -89,5 +89,11 @@ int renameHomeDir(char * olduser, char * newuser);
 // function checks if login is present in sudo (wheel) group
 int isAdmin(char * os, char * login);
 
+// Function disables given sysuser account
+int disableAccount(char * login);
+
+// function returns changed string with ! mark
+char * lockEntry(char * entry);
+
 #endif /* SYSUSERS_H */
 
