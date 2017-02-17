@@ -659,6 +659,12 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                     writeLog(lf, msg);
                 }
             }
+            if(!curr->active) {
+                if(disableAccount(curr->login)) {
+                    msg = mkString("[INFO] (reciver) Account: ", curr->login, " is locked", NULL);
+                    writeLog(lf, msg);
+                }
+            }
             if(curr->sudo) {
                 if(!isAdmin(os, curr->login)) {
                     if(!grantSuperUser(curr->login, os)) {
@@ -933,6 +939,8 @@ int revokeSudoAccess(char * login, char * os) {
                 fputs(newentry, tmp);
                 free(newentry);
             }
+            else
+                fputs(buff, tmp);
         }
         else
             fputs(buff, tmp);
