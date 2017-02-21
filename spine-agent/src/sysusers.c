@@ -481,8 +481,7 @@ int copy(char * from, char * to) {
 }
 sshkeys * readSSHKeysFromPackage(char * str) {
     char * pos = str;                       // aktualna pozycja w stringu
-    char * end = strstr(str, "},user_");    // adres konca przetwarzania
-    char * end2 = strstr(str, "},config_ver"); // adres konca
+    char * end = NULL;                       // adres konca przetwarzania
     int step = strlen("sshkey_:") + 1;      // dlugosc klucza
     char buff[512];                         // bufor w ktorym przechowamy oczytany klucz ssh
     int i = 0;                              // index bufora
@@ -492,8 +491,12 @@ sshkeys * readSSHKeysFromPackage(char * str) {
     sshkeys * curr = NULL;
     sshkeys * prev = NULL;
     
+    end = strstr(str, "},user_");
+    if(end == NULL)
+        end = strstr(str, "},config_ver");
+    
     memset(buff, '\0', 512);
-    while((pos = strstr(pos, "sshkey_")) != NULL && ((pos < end) || (pos < end2))) {
+    while((pos = strstr(pos, "sshkey_")) != NULL && pos < end) {
         pos += step;
         while(*pos != ',' && *pos != '}') {
             buff[i] = *pos;
