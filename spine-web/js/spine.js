@@ -1015,6 +1015,10 @@ $(document).ready(function() {
       $('#new-sysuser-form')[0].reset();
       $('#new-sysuser-form').find('.has-success').removeClass('has-success');
       $('#new-sysuser-form').find('.glyphicon-ok').removeClass('glyphicon-ok');
+      $(".ssh-keys").remove();
+      $('[name="sshkey[0]"]').prop('disabled', true);
+      $('[name="expdate"]').prop('disabled', true);
+      $('#new-sysuser-form').validator('destroy').validator();
     });
   });
   $(document).on('click', '[name="expEnable"]', function() {
