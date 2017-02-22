@@ -158,6 +158,21 @@ $(document).ready(function() {
        $('.edit-user').unbind('click');
        $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
        $('#edit-sysuser-form').validator('destroy').validator();
+       $('#edit-sysuser-form').hide().appendTo('body');
+       $(document).on('click', '#password_edit', function() {
+         if($('#password_edit, #confirm_edit').is('[readonly]')) {
+           $('#password_edit, #confirm_edit').removeAttr('readonly');
+           $('#password_edit').removeAttr('placeholder');
+           $('#password_edit').attr('placeholder', 'Password');
+           $('#confirm_edit').attr('placeholder', 'Confirm');
+         }
+         else {
+           $('#password_edit, #confirm_edit').attr('readonly', 'readonly');
+           $('#password_edit, #confirm_edit').removeAttr('placeholder');
+           $('#password_edit').attr('placeholder', 'Click here to change password');
+         }
+       });
+
        var tr = $('a[data-id="'+ resp.id +'"]').closest('tr');
        tr.find('td').eq(0).html(resp.login);
        tr.find('td').eq(1).html(resp.fullname);
