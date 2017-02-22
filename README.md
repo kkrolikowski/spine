@@ -6,12 +6,10 @@ Spine-agent is an executable, which can be built with make facility.
 ### Requirements
 Before you start building this project please ensure that you have installed required packages
 - autconf >= 2.63
-- automake
 - gcc
-- libmysqlclient-dev 
-- libmysqlclient18 
-- libgtop2-7 
-- libgtop2-common 
+- libmysqlclient-dev
+- libmysqlclient
+- libgtop2-7
 - libgtop2-dev
 
 ### Install
@@ -25,5 +23,6 @@ make install
 After this binary spine-agent should be placed in /usr/local/bin
 
 ## Recent Changes
+- **2017-02-22:** Added functionality of editing user system accounts
 - **2017-01-16:** Added mechanism to grant user sudo access. Which means: root access on the system.
 - **2017-01-15:** Fixed few segmentation fault errors in spine-agent code.
