@@ -100,6 +100,7 @@ $(document).ready(function() {
            $('[name="expdate_edit"]').prop('disabled', true);
            $('.edit-user').unbind('click');
            $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
+           $('#edit-sysuser-form').validator('destroy').validator();
            form.hide().appendTo('body');
          })
          .modal('show');
@@ -135,6 +136,7 @@ $(document).ready(function() {
      $('.edit-user').unbind('click');
      $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
      $('#edit-sysuser-form').hide().appendTo('body');
+     $('#edit-sysuser-form').validator('destroy').validator();
    });
    $(document).on('click', '#sysuser_edit-btn', function() {
      var form = $('#edit-sysuser-form');
@@ -155,6 +157,7 @@ $(document).ready(function() {
        $('[name="expdate_edit"]').prop('disabled', true);
        $('.edit-user').unbind('click');
        $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
+       $('#edit-sysuser-form').validator('destroy').validator();
        var tr = $('a[data-id="'+ resp.id +'"]').closest('tr');
        tr.find('td').eq(0).html(resp.login);
        tr.find('td').eq(1).html(resp.fullname);
