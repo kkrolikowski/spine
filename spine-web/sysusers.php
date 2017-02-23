@@ -5,7 +5,7 @@
 
   if (isset($_GET['add'])) {
     // sprawdzamy, czy takie konto juz istnieje w bazie
-    $q = $dbh->prepare("SELECT count(*) AS usercnt FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
+    $q = $dbh->prepare("SELECT count(*) AS usercnt FROM sysusers WHERE login = '".$_POST['login']."' AND status != 'D' AND system_id = ".$_POST['serverid']);
     $q->execute();
     $r = $q->fetch();
     if ($r['usercnt'] > 0) {
@@ -151,5 +151,10 @@
     );
     header('Content-Type: application/json');
     echo json_encode($json);
+  }
+  if(isset($_GET['rmuser'])) {
+    $q = $dbh->prepare("UPDATE sysusers SET status = 'D' WHERE id = ".$_GET['rmuser']);
+    $q->execute();
+    updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
   }
 ?>
