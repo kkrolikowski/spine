@@ -220,8 +220,8 @@ int insertItem(systeminfo * info) {
 	sysid_s = int2String(sysid);
 
 	// dodajemy do bazy domyslnego usera (root).
-	query = mkString("INSERT INTO sysusers(login,fullname,email,system_id) ",
-			"VALUES('root', 'Charlie Root', 'root@angrybits.pl', ", sysid_s, ")", NULL);
+	query = mkString("INSERT INTO sysusers(login,fullname,email,gecos,status,system_id) ",
+			"VALUES('root', 'Charlie Root', 'root@angrybits.pl', 'Charlie Root', 'A', ", sysid_s, ")", NULL);
 	if(!mysql_query(dbh, query))
 		status = 1;
 
