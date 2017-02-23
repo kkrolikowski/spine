@@ -85,7 +85,7 @@
       $spine->assign('hostsrv', $services);
 
       // Lista kont uzytkownikow w systemie
-      $q = $dbh->prepare("SELECT id, login, fullname, email FROM sysusers WHERE system_id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT id, login, fullname, email FROM sysusers WHERE status != 'D' AND system_id = ". $_GET['serverid']);
       $q->execute();
       while ($r = $q->fetch()) {
         $sysuser[$r['id']] = array(
