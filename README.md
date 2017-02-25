@@ -23,6 +23,7 @@ make install
 After this binary spine-agent should be placed in /usr/local/bin
 
 ## Recent Changes
+- **2017-02-25:** Added functionality allowing removing users from system
 - **2017-02-22:** Added functionality of editing user system accounts
 - **2017-01-16:** Added mechanism to grant user sudo access. Which means: root access on the system.
 - **2017-01-15:** Fixed few segmentation fault errors in spine-agent code.
