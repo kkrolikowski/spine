@@ -115,4 +115,7 @@ resp * parseClientMessage(char * str);
 // memory cleanup
 void cleanMSGdata(resp * rsp);
 
+// function creates single node of response status message.
+resp *  respStatus(char * scope, char status, int dbid);
+
 #endif /* SPINE_AGENT_CORE_H_ */

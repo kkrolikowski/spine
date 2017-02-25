@@ -828,3 +828,18 @@ resp * parseClientMessage(char * str) {
     
     return head;
 }
+resp *  respStatus(char * scope, char status, int dbid) {
+    resp * node = NULL;
+    size_t len = 0;
+    
+    node = (resp *) malloc(sizeof(resp));
+    node->status = status;
+    node->dbid = dbid;
+    len = strlen(scope) + 1;
+    node->scope = (char *) malloc(len * sizeof(char));
+    memset(node->scope, '\0', len);
+    strncpy(node->scope, scope, len);
+    node->next = NULL;
+    
+    return node;
+}

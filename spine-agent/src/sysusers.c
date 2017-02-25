@@ -642,7 +642,6 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
-    size_t len = 0;
     
     while(curr) {
         if(!strcmp(curr->status, "U")) {
@@ -691,15 +690,7 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 msg = mkString("[INFO] (reciver) Disabled SSH keys for ", curr->login, NULL);
             writeLog(lf, msg);
             
-            rcurr = (resp *) malloc(sizeof(resp));
-            rcurr->status = 'A';
-            rcurr->dbid = curr->dbid;
-            len = strlen("sysusers") + 1;
-            rcurr->scope = (char *) malloc(len * sizeof(char));
-            memset(rcurr->scope, '\0', len);
-            strncpy(rcurr->scope, "sysusers", len);
-            rcurr->next = NULL;
-
+            rcurr = respStatus("sysusers", 'A', curr->dbid);
             if(rhead == NULL)
                 rhead = rcurr;
             else
@@ -729,6 +720,13 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
             purgeDir(homedir);
             msg = mkString("[INFO] (reciver) Account ", curr->login, " deleted.", NULL);
             free(homedir);
+            
+            rcurr = respStatus("sysusers", 'D', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
         }
         curr = curr->next;
     }
