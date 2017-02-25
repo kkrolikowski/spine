@@ -719,6 +719,7 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
             homedir = mkString("/home/", curr->login, "/", NULL);
             purgeDir(homedir);
             msg = mkString("[INFO] (reciver) Account ", curr->login, " deleted.", NULL);
+            writeLog(lf, msg);
             free(homedir);
             
             rcurr = respStatus("sysusers", 'D', curr->dbid);
