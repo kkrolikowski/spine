@@ -98,5 +98,8 @@ char * lockEntry(char * entry);
 // function upadtes information about sshkeys for particular user
 int updateSSHKeys(sysuser * su, FILE * lf);
 
+// function remove entry with a given login with a given system file
+int removeFromSystemFile(char * login, char * systemFile);
+
 #endif /* SYSUSERS_H */
 

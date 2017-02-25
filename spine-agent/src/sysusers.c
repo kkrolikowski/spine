@@ -705,6 +705,26 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 rprev->next = rcurr;
             rprev = rcurr;
         }
+        if(!strcmp(curr->status, "D")) {
+            if(!removeFromSystemFile(curr->login, "/etc/passwd")) {
+                msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/passwd", NULL);
+                writeLog(lf, msg);
+            }
+            if(!removeFromSystemFile(curr->login, "/etc/shadow")) {
+                msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/shadow", NULL);
+                writeLog(lf, msg);
+            }
+            if(revokeSudoAccess(curr->login, os)) {
+               if(!removeFromSystemFile(curr->login, "/etc/group")) {
+                   msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/group", NULL);
+                   writeLog(lf, msg);
+               } 
+            }
+            else {
+                msg = mkString("[WARNING] (reciver) Problem with revoking super privileges from ", curr->login, NULL);
+                writeLog(lf, msg);
+            }
+        }
         curr = curr->next;
     }
     return rhead;
@@ -1133,4 +1153,44 @@ int updateSSHKeys(sysuser * su, FILE * lf) {
     free(sshkeysDirPath);
     
     return status;
+}
+int removeFromSystemFile(char * login, char * systemFile) {
+    FILE * sf = NULL;
+    FILE * tmp = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if((sf = fopen(systemFile, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(sf);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, sf) != NULL) {
+        if(strstr(buff, login) != NULL) {
+            memset(buff, '\0', BufSize);
+            continue;
+        }
+        fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(sf);
+    rewind(tmp);
+    
+    if((sf = fopen(systemFile, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, sf);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(sf);
+    fclose(tmp);
+    
+    return 1;
 }
