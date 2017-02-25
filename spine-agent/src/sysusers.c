@@ -636,6 +636,7 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
+    char * homedir = NULL;
     
     // response to server
     resp * rhead = NULL;
@@ -724,6 +725,10 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 msg = mkString("[WARNING] (reciver) Problem with revoking super privileges from ", curr->login, NULL);
                 writeLog(lf, msg);
             }
+            homedir = mkString("/home/", curr->login, "/", NULL);
+            purgeDir(homedir);
+            msg = mkString("[INFO] (reciver) Account ", curr->login, " deleted.", NULL);
+            free(homedir);
         }
         curr = curr->next;
     }
