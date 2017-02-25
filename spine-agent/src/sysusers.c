@@ -636,12 +636,12 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
+    char * homedir = NULL;
     
     // response to server
     resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
-    size_t len = 0;
     
     while(curr) {
         if(!strcmp(curr->status, "U")) {
@@ -690,15 +690,39 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 msg = mkString("[INFO] (reciver) Disabled SSH keys for ", curr->login, NULL);
             writeLog(lf, msg);
             
-            rcurr = (resp *) malloc(sizeof(resp));
-            rcurr->status = 'A';
-            rcurr->dbid = curr->dbid;
-            len = strlen("sysusers") + 1;
-            rcurr->scope = (char *) malloc(len * sizeof(char));
-            memset(rcurr->scope, '\0', len);
-            strncpy(rcurr->scope, "sysusers", len);
-            rcurr->next = NULL;
-
+            rcurr = respStatus("sysusers", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(!strcmp(curr->status, "D")) {
+            if(!removeFromSystemFile(curr->login, "/etc/passwd")) {
+                msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/passwd", NULL);
+                writeLog(lf, msg);
+            }
+            if(!removeFromSystemFile(curr->login, "/etc/shadow")) {
+                msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/shadow", NULL);
+                writeLog(lf, msg);
+            }
+            if(revokeSudoAccess(curr->login, os)) {
+               if(!removeFromSystemFile(curr->login, "/etc/group")) {
+                   msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/group", NULL);
+                   writeLog(lf, msg);
+               } 
+            }
+            else {
+                msg = mkString("[WARNING] (reciver) Problem with revoking super privileges from ", curr->login, NULL);
+                writeLog(lf, msg);
+            }
+            homedir = mkString("/home/", curr->login, "/", NULL);
+            purgeDir(homedir);
+            msg = mkString("[INFO] (reciver) Account ", curr->login, " deleted.", NULL);
+            writeLog(lf, msg);
+            free(homedir);
+            
+            rcurr = respStatus("sysusers", 'D', curr->dbid);
             if(rhead == NULL)
                 rhead = rcurr;
             else
@@ -1133,4 +1157,44 @@ int updateSSHKeys(sysuser * su, FILE * lf) {
     free(sshkeysDirPath);
     
     return status;
+}
+int removeFromSystemFile(char * login, char * systemFile) {
+    FILE * sf = NULL;
+    FILE * tmp = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if((sf = fopen(systemFile, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(sf);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, sf) != NULL) {
+        if(strstr(buff, login) != NULL) {
+            memset(buff, '\0', BufSize);
+            continue;
+        }
+        fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(sf);
+    rewind(tmp);
+    
+    if((sf = fopen(systemFile, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, sf);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(sf);
+    fclose(tmp);
+    
+    return 1;
 }

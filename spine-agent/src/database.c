@@ -220,8 +220,8 @@ int insertItem(systeminfo * info) {
 	sysid_s = int2String(sysid);
 
 	// dodajemy do bazy domyslnego usera (root).
-	query = mkString("INSERT INTO sysusers(login,fullname,email,system_id) ",
-			"VALUES('root', 'Charlie Root', 'root@angrybits.pl', ", sysid_s, ")", NULL);
+	query = mkString("INSERT INTO sysusers(login,fullname,email,gecos,status,system_id) ",
+			"VALUES('root', 'Charlie Root', 'root@angrybits.pl', 'Charlie Root', 'A', ", sysid_s, ")", NULL);
 	if(!mysql_query(dbh, query))
 		status = 1;
 
@@ -622,8 +622,13 @@ int applyStatusChange(resp * data) {
         stat[0] = curr->status;
         stat[1] = '\0';
         tmp = int2String(curr->dbid);
-        if(!strcmp(curr->scope, "sysusers"))
-            query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        
+        if(!strcmp(curr->scope, "sysusers")) {
+            if(curr->status == 'D')
+                query = mkString("DELETE FROM sysusers WHERE id = ", tmp, NULL);
+            else
+                query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        }
         mysql_query(dbh, query);
         
         free(tmp);
