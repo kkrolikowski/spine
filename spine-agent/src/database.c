@@ -622,8 +622,13 @@ int applyStatusChange(resp * data) {
         stat[0] = curr->status;
         stat[1] = '\0';
         tmp = int2String(curr->dbid);
-        if(!strcmp(curr->scope, "sysusers"))
-            query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        
+        if(!strcmp(curr->scope, "sysusers")) {
+            if(curr->status == 'D')
+                query = mkString("DELETE FROM sysusers WHERE id = ", tmp, NULL);
+            else
+                query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        }
         mysql_query(dbh, query);
         
         free(tmp);
