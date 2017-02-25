@@ -79,6 +79,8 @@
       <!-- Customowy skrypt strony i css -->
       <script src="js/spine.js"></script>
       <script src="js/sysuserEdit.js"></script>
+      <script src="js/sysuserRemove.js"></script>
+
       <link href="/css/custom.css" rel="stylesheet">
 
       <!-- Monitoring -->
@@ -1299,10 +1301,10 @@
                         <td class="button-cell">
                           <div class="btn-group">
                             {if $info.login == 'root'}
-                            <button type="button" class="btn btn-danger rmuser" data-id="{$userid}" data-serverid="{$smarty.get.serverid}" disabled>Usuń</button>
+                            <button type="button" class="btn btn-danger rm-sysuser" data-id="{$userid}" data-serverid="{$smarty.get.serverid}" disabled>Usuń</button>
                             <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
                             {else}
-                            <button type="button" class="btn btn-danger rmuser" data-id="{$userid}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                            <button type="button" class="btn btn-danger rm-sysuser" data-id="{$userid}" data-serverid="{$smarty.get.serverid}">Usuń</button>
                             <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {/if}
                               <span class="caret"></span>
