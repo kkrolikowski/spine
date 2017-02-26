@@ -1205,6 +1205,18 @@
                       {/if}
                     {elseif isset($smarty.get.settings)}
                       <h3 class="page-header">Settings</h3>
+                        <div class="row">
+                          <div class="col-sm-4">
+                          <div class="panel panel-primary">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">SMTP Settings</h3>
+                          </div>
+                          <div class="panel-body">
+                            Panel content
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
