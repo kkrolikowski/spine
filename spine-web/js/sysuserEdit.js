@@ -217,4 +217,15 @@ $(document).ready(function() {
        this.unbind('click');
      }
    });
+   $(document).on('click', '.block-user', function() {
+     var tr = $(this).closest('tr');
+     if(tr.hasClass("danger")) {
+       tr.removeClass("danger");
+       $(this).html("Zablokuj");
+     }
+     else {
+       tr.addClass("danger");
+       $(this).html("Odblokuj");
+     }
+   });
 });
