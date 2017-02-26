@@ -48,7 +48,7 @@
                           ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.", 'N', ".$sudo.")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
+      $q = $dbh->prepare("SELECT id,login,fullname,email,active FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -63,7 +63,8 @@
         'id'        => $r['id'],
         'login'     => $r['login'],
         'fullname'  => $r['fullname'],
-        'email'     => $r['email']
+        'email'     => $r['email'],
+        'isactive'  => $r['active']
       );
       header('Content-Type: application/json');
       echo json_encode($json);
@@ -140,14 +141,15 @@
       }
     }
     updateConfigVersion($dbh, $_POST['sid'], "sysusers");
-    $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
+    $q = $dbh->prepare("SELECT id,login,fullname,email,active FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
     $q->execute();
     $r = $q->fetch();
     $json = array(
       'id'        => $r['id'],
       'login'     => $r['login'],
       'fullname'  => $r['fullname'],
-      'email'     => $r['email']
+      'email'     => $r['email'],
+      'isactive'  => $r['active']
     );
     header('Content-Type: application/json');
     echo json_encode($json);
@@ -156,5 +158,20 @@
     $q = $dbh->prepare("UPDATE sysusers SET status = 'D' WHERE id = ".$_GET['rmuser']);
     $q->execute();
     updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
+  }
+  if(isset($_GET['lock'])) {
+    if($_GET['lock'] == 1) {
+      $query = "UPDATE sysusers SET active = 0, status = 'U' WHERE id = ". $_GET['userid'];
+    }
+    else {
+      $query = "UPDATE sysusers SET active = 1, status = 'U' WHERE id = ". $_GET['userid'];
+    }
+    $q = $dbh->prepare($query);
+    $q->execute();
+
+    $q = $dbh->prepare("SELECT system_id FROM sysusers WHERE id = ".$_GET['userid']);
+    $q->execute();
+    $r = $q->fetch();
+    updateConfigVersion($dbh, $r['system_id'], "sysusers");
   }
 ?>

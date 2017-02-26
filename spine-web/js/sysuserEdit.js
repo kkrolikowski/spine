@@ -173,10 +173,20 @@ $(document).ready(function() {
          }
        });
 
+       var BlockUserLink = $('.block-user[data-id="'+ resp.id +'"]');
        var tr = $('a[data-id="'+ resp.id +'"]').closest('tr');
        tr.find('td').eq(0).html(resp.login);
        tr.find('td').eq(1).html(resp.fullname);
        tr.find('td').eq(2).html(resp.email);
+
+       if(resp.isactive == 0) {
+         tr.addClass("danger");
+         BlockUserLink.html("Odblokuj");
+       }
+       else {
+         tr.removeClass("danger");
+         BlockUserLink.html("Zablokuj");
+       }
      });
    });
    $(document).on('click', '[name="sshkey_enable_edit"]', function() {
@@ -216,5 +226,28 @@ $(document).ready(function() {
        );
        this.unbind('click');
      }
+   });
+   $(document).on('click', '.block-user', function() {
+     var tr = $(this).closest('tr');
+     var userid = $(this).attr('data-id');
+     if(tr.hasClass("danger")) {
+       var lock = 0;
+       var msg = 'unlocked';
+       tr.removeClass("danger");
+       $(this).html("Zablokuj");
+     }
+     else {
+       var lock = 1;
+       var msg = 'locked';
+       tr.addClass("danger");
+       $(this).html("Odblokuj");
+     }
+     $.ajax({
+       url: '/sysusers.php?lock='+ lock +'&userid=' + userid,
+       method: 'GET',
+       success: function() {
+         alertify.success("Account is "+ msg);
+       }
+     });
    });
 });

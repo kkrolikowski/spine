@@ -990,10 +990,18 @@ $(document).ready(function() {
         alertify.error(xhr.getResponseHeader('X-Message'));
       }
   }).success(function(response) {
+      if(response.isactive == 0) {
+        var tr = '<tr class="danger">';
+        var lockstatus = "Odblokuj";
+      }
+      else {
+        var tr = '<tr>';
+        var lockstatus = "Zablokuj";
+      }
       $('.modal').hide();
       $('.modal-backdrop').hide();
       $('#users_table > tbody').append(
-        '<tr><td>'+ response.login +
+        tr +'<td>'+ response.login +
         '</td><td>'+ response.fullname +
         '</td><td>'+ response.email +
         '</td>' +
@@ -1006,7 +1014,7 @@ $(document).ready(function() {
             '</button>' +
             '<ul class="dropdown-menu">' +
               '<li><a href="#" data-id="'+ response.id +'" class="edit-user">Edytuj</a></li>' +
-              '<li><a href="#" data-id="'+ response.id +'" class="block-user">Zablokuj</a></li>' +
+              '<li><a href="#" data-id="'+ response.id +'" class="block-user">'+ lockstatus +'</a></li>' +
             '</ul>' +
           '</div>' +
         '</td>' +
