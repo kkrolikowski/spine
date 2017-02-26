@@ -1321,6 +1321,7 @@
                               {else}
                               <li><a href="#" data-id="{$userid}" class="block-user">Zablokuj</a></li>
                               {/if}
+                              <li><a href="#" data-id="{$userid}" class="reset-pass">Resetuj hasło</a></li>
                             </ul>
                           </div>
                         </td>
