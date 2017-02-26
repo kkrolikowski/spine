@@ -1296,7 +1296,11 @@
                     </thead>
                     <tbody>
                     {foreach from=$sysuser key=userid item=info}
+                    {if $info.isactive == 0}
+                      <tr class="danger">
+                    {else}
                       <tr>
+                    {/if}
                         <td>{$info.login}</td><td>{$info.fullname}</td><td>{$info.email}</td>
                         <td class="button-cell">
                           <div class="btn-group">
@@ -1312,7 +1316,11 @@
                             </button>
                             <ul class="dropdown-menu">
                               <li><a href="#" data-id="{$userid}" class="edit-user">Edytuj</a></li>
+                              {if $info.isactive == 0}
+                              <li><a href="#" data-id="{$userid}" class="block-user">Odblokuj</a></li>
+                              {else}
                               <li><a href="#" data-id="{$userid}" class="block-user">Zablokuj</a></li>
+                              {/if}
                             </ul>
                           </div>
                         </td>
