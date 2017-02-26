@@ -48,7 +48,7 @@
                           ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.", 'N', ".$sudo.")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
+      $q = $dbh->prepare("SELECT id,login,fullname,email,active FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -63,7 +63,8 @@
         'id'        => $r['id'],
         'login'     => $r['login'],
         'fullname'  => $r['fullname'],
-        'email'     => $r['email']
+        'email'     => $r['email'],
+        'isactive'  => $r['active']
       );
       header('Content-Type: application/json');
       echo json_encode($json);
