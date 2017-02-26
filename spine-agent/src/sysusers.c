@@ -646,12 +646,12 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     while(curr) {
         if(!strcmp(curr->status, "U")) {
             if((old = oldlogin(curr->uidgid, curr->login)) != NULL) {
-                if(renameHomeDir(old, su->login)) {
-                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", old, " to: /home/", su->login, NULL);
+                if(renameHomeDir(old, curr->login)) {
+                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", old, " to: /home/", curr->login, NULL);
                   writeLog(lf, msg);  
                 }
                 if(updateGroupFile(curr, old)) {
-                    msg = mkString("[INFO] (reciver) Changed group info from user: ", old, " to: ", su->login, NULL);
+                    msg = mkString("[INFO] (reciver) Changed group info from user: ", old, " to: ", curr->login, NULL);
                     writeLog(lf, msg);
                 }
             } 
