@@ -168,5 +168,10 @@
     }
     $q = $dbh->prepare($query);
     $q->execute();
+
+    $q = $dbh->prepare("SELECT system_id FROM sysusers WHERE id = ".$_GET['userid']);
+    $q->execute();
+    $r = $q->fetch();
+    updateConfigVersion($dbh, $r['system_id'], "sysusers");
   }
 ?>
