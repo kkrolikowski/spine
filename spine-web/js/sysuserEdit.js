@@ -246,6 +246,7 @@ $(document).ready(function() {
        url: '/sysusers.php?lock='+ lock +'&userid=' + userid,
        method: 'GET',
        success: function() {
+         alertify.success("Account is "+ msg);
        }
      });
    });
