@@ -173,10 +173,20 @@ $(document).ready(function() {
          }
        });
 
+       var BlockUserLink = $('.block-user[data-id="'+ resp.id +'"]');
        var tr = $('a[data-id="'+ resp.id +'"]').closest('tr');
        tr.find('td').eq(0).html(resp.login);
        tr.find('td').eq(1).html(resp.fullname);
        tr.find('td').eq(2).html(resp.email);
+
+       if(resp.isactive == 0) {
+         tr.addClass("danger");
+         BlockUserLink.html("Odblokuj");
+       }
+       else {
+         tr.removeClass("danger");
+         BlockUserLink.html("Zablokuj");
+       }
      });
    });
    $(document).on('click', '[name="sshkey_enable_edit"]', function() {

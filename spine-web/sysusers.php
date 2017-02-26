@@ -141,14 +141,15 @@
       }
     }
     updateConfigVersion($dbh, $_POST['sid'], "sysusers");
-    $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
+    $q = $dbh->prepare("SELECT id,login,fullname,email,active FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
     $q->execute();
     $r = $q->fetch();
     $json = array(
       'id'        => $r['id'],
       'login'     => $r['login'],
       'fullname'  => $r['fullname'],
-      'email'     => $r['email']
+      'email'     => $r['email'],
+      'isactive'  => $r['active']
     );
     header('Content-Type: application/json');
     echo json_encode($json);
