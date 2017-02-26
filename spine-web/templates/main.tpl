@@ -1051,7 +1051,7 @@
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        <li><a href="?settings"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -1203,6 +1203,8 @@
                       {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "S"}
                       <img src="/images/server-centos_warning.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {/if}
+                    {elseif isset($smarty.get.settings)}
+                      <h3 class="page-header">Settings</h3>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
@@ -1436,7 +1438,7 @@
           </div>
               {/if}
             {/if}
-            {if isset($smarty.get.serverid)}
+            {if isset($smarty.get.serverid) || isset($smarty.get.settings)}
             <div class="row">
             {else}
             <div class="row">
