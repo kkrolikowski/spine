@@ -229,13 +229,24 @@ $(document).ready(function() {
    });
    $(document).on('click', '.block-user', function() {
      var tr = $(this).closest('tr');
+     var userid = $(this).attr('data-id');
      if(tr.hasClass("danger")) {
+       var lock = 0;
+       var msg = 'unlocked';
        tr.removeClass("danger");
        $(this).html("Zablokuj");
      }
      else {
+       var lock = 1;
+       var msg = 'locked';
        tr.addClass("danger");
        $(this).html("Odblokuj");
      }
+     $.ajax({
+       url: '/sysusers.php?lock='+ lock +'&userid=' + userid,
+       method: 'GET',
+       success: function() {
+       }
+     });
    });
 });

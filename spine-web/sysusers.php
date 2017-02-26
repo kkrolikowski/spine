@@ -159,4 +159,14 @@
     $q->execute();
     updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
   }
+  if(isset($_GET['lock'])) {
+    if($_GET['lock'] == 1) {
+      $query = "UPDATE sysusers SET active = 0 WHERE id = ". $_GET['userid'];
+    }
+    else {
+      $query = "UPDATE sysusers SET active = 1 WHERE id = ". $_GET['userid'];
+    }
+    $q = $dbh->prepare($query);
+    $q->execute();
+  }
 ?>
