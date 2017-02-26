@@ -161,10 +161,10 @@
   }
   if(isset($_GET['lock'])) {
     if($_GET['lock'] == 1) {
-      $query = "UPDATE sysusers SET active = 0 WHERE id = ". $_GET['userid'];
+      $query = "UPDATE sysusers SET active = 0, status = 'U' WHERE id = ". $_GET['userid'];
     }
     else {
-      $query = "UPDATE sysusers SET active = 1 WHERE id = ". $_GET['userid'];
+      $query = "UPDATE sysusers SET active = 1, status = 'U' WHERE id = ". $_GET['userid'];
     }
     $q = $dbh->prepare($query);
     $q->execute();
