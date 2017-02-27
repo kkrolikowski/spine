@@ -1,4 +1,4 @@
-https://api.travis-ci.org/kkrolikowski/spine.svg?branch=master
+![](https://api.travis-ci.org/kkrolikowski/spine.svg?branch=master)
 # Spine
 Spine is designed to distribute systems configuration across servers with running spine-agent. It's simmilar to cpanel, but with spine you are able to extend configuration across many hosts.
 Adding new hosts is quite simple. All you have to do is configure and run spine-agent. After that new host is automatically regirestered in the system.
