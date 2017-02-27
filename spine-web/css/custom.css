@@ -207,3 +207,6 @@
   margin-left: -18px;
   margin-top: -10px;
 }
+.smtp_settings_fields > div > div {
+  margin-left: -20px;
+}

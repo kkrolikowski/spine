@@ -1212,7 +1212,36 @@
                             <h3 class="panel-title">SMTP Settings</h3>
                           </div>
                           <div class="panel-body">
-                            Panel content
+                            <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
+                              <div class="form-group smtp_settings_fields">
+                                <div class="row">
+                                  <label for="smtphost" class="col-sm-2 control-label">Host</label>
+                                  <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="smtphost"
+                                    data-minlength="3" data-error="Enter hostname"
+                                    name="smtphost" placeholder="localhost"  required>
+                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                  </div>
+                                  <div class="col-sm-4">
+                                    <div class="help-block with-errors"></div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="form-group smtp_settings_fields">
+                                <div class="row">
+                                  <label for="smtpport" class="col-sm-2 control-label">Port</label>
+                                  <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="smtpport"
+                                    data-minlength="2" data-error="Enter port number"
+                                    name="smtphost" placeholder="25"  required>
+                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                  </div>
+                                  <div class="col-sm-4">
+                                    <div class="help-block with-errors"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
                           </div>
                         </div>
                       </div>
