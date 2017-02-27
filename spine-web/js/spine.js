@@ -1015,6 +1015,7 @@ $(document).ready(function() {
             '<ul class="dropdown-menu">' +
               '<li><a href="#" data-id="'+ response.id +'" class="edit-user">Edytuj</a></li>' +
               '<li><a href="#" data-id="'+ response.id +'" class="block-user">'+ lockstatus +'</a></li>' +
+              '<li><a href="#" data-id="'+ response.id +'" class="reset-pass">Resetuj hasło</a></li>' +
             '</ul>' +
           '</div>' +
         '</td>' +

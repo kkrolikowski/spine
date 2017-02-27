@@ -1051,7 +1051,7 @@
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        <li><a href="?settings"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -1203,6 +1203,49 @@
                       {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "S"}
                       <img src="/images/server-centos_warning.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {/if}
+                    {elseif isset($smarty.get.settings)}
+                      <h3 class="page-header">Settings</h3>
+                        <div class="row">
+                          <div class="col-sm-4">
+                          <div class="panel panel-primary">
+                          <div class="panel-heading">
+                            <h3 class="panel-title">SMTP Settings</h3>
+                          </div>
+                          <div class="panel-body">
+                            <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
+                              <div class="form-group smtp_settings_fields">
+                                <div class="row">
+                                  <label for="smtphost" class="col-sm-2 control-label">Host</label>
+                                  <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="smtphost"
+                                    data-minlength="3" data-error="Enter hostname"
+                                    name="smtphost" placeholder="localhost"  required>
+                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                  </div>
+                                  <div class="col-sm-4">
+                                    <div class="help-block with-errors"></div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="form-group smtp_settings_fields">
+                                <div class="row">
+                                  <label for="smtpport" class="col-sm-2 control-label">Port</label>
+                                  <div class="col-sm-2">
+                                    <input type="text" class="form-control" id="smtpport"
+                                    data-minlength="2" data-error="Enter port number"
+                                    name="smtphost" placeholder="25"  required>
+                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                  </div>
+                                  <div class="col-sm-4">
+                                    <div class="help-block with-errors"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
@@ -1321,6 +1364,7 @@
                               {else}
                               <li><a href="#" data-id="{$userid}" class="block-user">Zablokuj</a></li>
                               {/if}
+                              <li><a href="#" data-id="{$userid}" class="reset-pass">Resetuj hasło</a></li>
                             </ul>
                           </div>
                         </td>
@@ -1435,7 +1479,7 @@
           </div>
               {/if}
             {/if}
-            {if isset($smarty.get.serverid)}
+            {if isset($smarty.get.serverid) || isset($smarty.get.settings)}
             <div class="row">
             {else}
             <div class="row">
