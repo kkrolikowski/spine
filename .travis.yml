@@ -1,7 +1,8 @@
 before_install:
+- sudo add-apt-repository ppa:dns/gnu -y
 - sudo apt-get update -qq
 - sudo apt-get install -qq libmysqlclient-dev libmysqlclient18 libgtop2-7 libgtop2-common libgtop2-dev
-- ./autogen.sh
-install: make get-deps
+- sudo apt-get install --only-upgrade autoconf
+install: cd spine-agent && ./autogen.sh
 language: c
 compiler: gcc
