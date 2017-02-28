@@ -213,3 +213,7 @@
 #smtp_auth_enable > label {
   margin-left: -6px;
 }
+#smtp_settings_save {
+  margin-left: 73px;
+  margin-top: 10px;
+}

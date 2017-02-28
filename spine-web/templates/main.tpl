@@ -1290,6 +1290,9 @@
                                 </div>
                               </div>
                             </div>
+                            <div class="form-group smtp_settings_fields">
+                              <button type="button" class="btn btn-primary" id="smtp_settings_save">Save changes</button>
+                            </div>
                           </form>
                         </div>
                     {else}
