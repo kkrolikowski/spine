@@ -1051,7 +1051,7 @@
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                         </li>
-                        <li><a href="?settings"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -1090,6 +1090,14 @@
                                 {/foreach}
                             </ul>
                             <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                          <a href="#"><i class="fa fa-wrench f-fw"></i> Settings<span class="fa arrow"></span></a>
+                          <ul class="nav nav-second-level">
+                            <li>
+                              <a href="?settings=smtp">SMTP <span class="fa arrow"></span></a>
+                            </li>
+                          </ul>
                         </li>
                         <li>
                             <a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
@@ -1209,9 +1217,12 @@
                           <div class="col-sm-4">
                           <div class="panel panel-primary">
                           <div class="panel-heading">
+                            {if $smarty.get.settings == "smtp"}
                             <h3 class="panel-title">SMTP Settings</h3>
+                            {/if}
                           </div>
                           <div class="panel-body">
+                            {if $smarty.get.settings == "smtp"}
                             <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
                               <div class="form-group smtp_settings_fields">
                                 <div class="row">
@@ -1241,7 +1252,17 @@
                                   </div>
                                 </div>
                               </div>
+                              <div class="form-group">
+                                <div class="row">
+                                  <div class="checkbox col-sm-offset-2" id="smtp_auth_enable">
+                                    <label>
+                                      <input type="checkbox"> Authentication options
+                                    </label>
+                                  </div>
+                                </div>
+                              </div>
                             </form>
+                            {/if}
                           </div>
                         </div>
                       </div>

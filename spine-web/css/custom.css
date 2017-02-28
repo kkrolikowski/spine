@@ -210,3 +210,6 @@
 .smtp_settings_fields > div > div {
   margin-left: -20px;
 }
+#smtp_auth_enable > label {
+  margin-left: -6px;
+}
