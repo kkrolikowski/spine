@@ -80,6 +80,7 @@
       <script src="js/spine.js"></script>
       <script src="js/sysuserEdit.js"></script>
       <script src="js/sysuserRemove.js"></script>
+      <script src="js/smtp_settings.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
@@ -1213,48 +1214,83 @@
                       {/if}
                     {elseif $smarty.get.settings == "smtp"}
                       <h3 class="page-header"><img src="images/mail_settings.png" height="40px"> SMTP Settings</h3>
-                        <div class="row">
-                          <div class="col-sm-4">
-                            <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
-                              <div class="form-group smtp_settings_fields">
-                                <div class="row">
-                                  <label for="smtphost" class="col-sm-2 control-label">Host</label>
-                                  <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="smtphost"
-                                    data-minlength="3" data-error="Enter hostname"
-                                    name="smtphost" placeholder="localhost"  required>
-                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <div class="help-block with-errors"></div>
-                                  </div>
+                        <div class="col-sm-4">
+                          <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
+                            <div class="form-group smtp_settings_fields">
+                              <div class="row">
+                                <label for="smtphost" class="col-sm-2 control-label">Host</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="smtphost"
+                                  data-minlength="3" data-error="Enter hostname"
+                                  name="smtphost" placeholder="localhost"  required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
                                 </div>
                               </div>
-                              <div class="form-group smtp_settings_fields">
-                                <div class="row">
-                                  <label for="smtpport" class="col-sm-2 control-label">Port</label>
-                                  <div class="col-sm-2">
-                                    <input type="text" class="form-control" id="smtpport"
-                                    data-minlength="2" data-error="Enter port number"
-                                    name="smtphost" placeholder="25"  required>
-                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <div class="help-block with-errors"></div>
-                                  </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields">
+                              <div class="row">
+                                <label for="smtpport" class="col-sm-2 control-label">Port</label>
+                                <div class="col-sm-2">
+                                  <input type="text" class="form-control" id="smtpport"
+                                  data-minlength="2" data-error="Enter port number"
+                                  name="smtpport" placeholder="25"  required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
                                 </div>
                               </div>
-                              <div class="form-group">
-                                <div class="row">
-                                  <div class="checkbox col-sm-offset-2" id="smtp_auth_enable">
-                                    <label>
-                                      <input type="checkbox"> Authentication options
-                                    </label>
-                                  </div>
+                            </div>
+                            <div class="form-group">
+                              <div class="row">
+                                <div class="checkbox col-sm-offset-2">
+                                  <label>
+                                    <input type="checkbox" id="smtp_auth_enable"> Authentication options
+                                  </label>
                                 </div>
                               </div>
-                            </form>
-                          </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <label for="smtplogin" class="col-sm-2 control-label">Login</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="smtplogin"
+                                  data-minlength="2" data-error="Enter SMTP username"
+                                  name="smtplogin" placeholder="SMTP login"  required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <label for="smtppass" class="col-sm-2 control-label">Password</label>
+                                <div class="col-sm-6">
+                                  <input type="password" class="form-control" id="smtppass"
+                                  data-minlength="2" data-error="Enter SMTP password"
+                                  name="smtppass" placeholder="SMTP password"  required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <div class="checkbox col-sm-offset-2">
+                                  <label>
+                                    <input type="checkbox" id="smtp_ssl"> Use SSL
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                          </form>
                         </div>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
