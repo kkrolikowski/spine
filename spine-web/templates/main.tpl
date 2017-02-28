@@ -1095,7 +1095,7 @@
                           <a href="#"><i class="fa fa-wrench f-fw"></i> Settings<span class="fa arrow"></span></a>
                           <ul class="nav nav-second-level">
                             <li>
-                              <a href="?settings=smtp">SMTP <span class="fa arrow"></span></a>
+                              <a href="?settings=smtp">SMTP</a>
                             </li>
                           </ul>
                         </li>
@@ -1211,18 +1211,10 @@
                       {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "S"}
                       <img src="/images/server-centos_warning.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {/if}
-                    {elseif isset($smarty.get.settings)}
-                      <h3 class="page-header">Settings</h3>
+                    {elseif $smarty.get.settings == "smtp"}
+                      <h3 class="page-header"><img src="images/mail_settings.png" height="40px"> SMTP Settings</h3>
                         <div class="row">
                           <div class="col-sm-4">
-                          <div class="panel panel-primary">
-                          <div class="panel-heading">
-                            {if $smarty.get.settings == "smtp"}
-                            <h3 class="panel-title">SMTP Settings</h3>
-                            {/if}
-                          </div>
-                          <div class="panel-body">
-                            {if $smarty.get.settings == "smtp"}
                             <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
                               <div class="form-group smtp_settings_fields">
                                 <div class="row">
@@ -1262,11 +1254,8 @@
                                 </div>
                               </div>
                             </form>
-                            {/if}
                           </div>
                         </div>
-                      </div>
-                    </div>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
