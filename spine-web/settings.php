@@ -20,10 +20,10 @@
       }
       $query = "INSERT INTO settings_smtp (host,port,login,password,`ssl`, spine_from) ".
                "VALUES('".$_POST['smtphost']."', ".$_POST['smtpport'].", '".$_POST['smtplogin']."', ".
-               "'".$_POST['smtppass']."', ".$ssl.", '".$_POST['spine_from']."')";
+               "'".$_POST['smtppass']."', ".$ssl.", '".$_POST['smtpfrom']."')";
     }
     else {
-      $query = "INSERT INTO settings_smtp (host,port,spine_from) VALUES('".$_POST['smtphost']."', ".$_POST['smtpport'].", '".$_POST['spine_from']."')";
+      $query = "INSERT INTO settings_smtp (host,port,spine_from) VALUES('".$_POST['smtphost']."', ".$_POST['smtpport'].", '".$_POST['smtpfrom']."')";
     }
     $q = $dbh->prepare($query);
     $q->execute();
