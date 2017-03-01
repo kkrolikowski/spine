@@ -137,18 +137,22 @@ function lastUID($dbh, $sysid) {
 
   return $r['uid'];
 }
-function sha512_pass($clearPass) {
+function randomString($chars) {
   $charArr = array('1','2','3','4','5','6','q','w','e','r','t','a','s',
                   'd','f','g','z','x','c','v','b','7','8','9','0','-',
                   'y','u','i','o','p','h','j','k','l','n','m','.','/',
                   'Q','W','E','R','T','A','S','D','F','G','Z','X','C','V',
                   'B','Y','U','I','O','P','H','J','K','L','N','?','!');
 
-  for ($i=0; $i < 8; $i++) {
+  for ($i=0; $i < $chars; $i++) {
     $charIndex = rand(0, count($charArr));
-    $salt .= $charArr[$charIndex];
+    $randstr .= $charArr[$charIndex];
   }
 
+  return $randstr;
+}
+function sha512_pass($clearPass) {
+  $salt = randomString(8);
   define('CRYPT_SHA512', 1);
   return crypt($clearPass, "$6$".$salt);
 }

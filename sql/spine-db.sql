@@ -120,6 +120,34 @@ LOCK TABLES `service_checks` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `settings_smtp`
+--
+
+DROP TABLE IF EXISTS `settings_smtp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `settings_smtp` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host` varchar(45) DEFAULT 'localhost',
+  `port` int(11) DEFAULT '25',
+  `login` varchar(45) DEFAULT 'none',
+  `password` varchar(45) DEFAULT 'none',
+  `ssl` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `settings_smtp`
+--
+
+LOCK TABLES `settings_smtp` WRITE;
+/*!40000 ALTER TABLE `settings_smtp` DISABLE KEYS */;
+/*!40000 ALTER TABLE `settings_smtp` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `sysinfo`
 --
 
@@ -410,4 +438,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-02-02 19:58:40
+-- Dump completed on 2017-02-28 15:19:46

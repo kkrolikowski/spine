@@ -80,6 +80,8 @@
       <script src="js/spine.js"></script>
       <script src="js/sysuserEdit.js"></script>
       <script src="js/sysuserRemove.js"></script>
+      <script src="js/smtp_settings.js"></script>
+      <script src="js/resetpass.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
@@ -1051,7 +1053,7 @@
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
                         </li>
-                        <li><a href="?settings"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="login.html"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
@@ -1090,6 +1092,14 @@
                                 {/foreach}
                             </ul>
                             <!-- /.nav-second-level -->
+                        </li>
+                        <li>
+                          <a href="#"><i class="fa fa-wrench f-fw"></i> Settings<span class="fa arrow"></span></a>
+                          <ul class="nav nav-second-level">
+                            <li>
+                              <a href="?settings=smtp">SMTP</a>
+                            </li>
+                          </ul>
                         </li>
                         <li>
                             <a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
@@ -1203,49 +1213,149 @@
                       {elseif ($basicInfo.os == "Centos6" || $basicInfo.os == "Centos7") and $basicInfo.status == "S"}
                       <img src="/images/server-centos_warning.png" width="70">Host: {$basicInfo.hostname}</h3>
                       {/if}
-                    {elseif isset($smarty.get.settings)}
-                      <h3 class="page-header">Settings</h3>
-                        <div class="row">
-                          <div class="col-sm-4">
-                          <div class="panel panel-primary">
-                          <div class="panel-heading">
-                            <h3 class="panel-title">SMTP Settings</h3>
-                          </div>
-                          <div class="panel-body">
-                            <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
-                              <div class="form-group smtp_settings_fields">
-                                <div class="row">
-                                  <label for="smtphost" class="col-sm-2 control-label">Host</label>
-                                  <div class="col-sm-6">
-                                    <input type="text" class="form-control" id="smtphost"
-                                    data-minlength="3" data-error="Enter hostname"
-                                    name="smtphost" placeholder="localhost"  required>
-                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <div class="help-block with-errors"></div>
-                                  </div>
+                    {elseif $smarty.get.settings == "smtp"}
+                      <h3 class="page-header"><img src="images/mail_settings.png" height="40px"> SMTP Settings</h3>
+                        <div class="col-sm-4">
+                          <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
+                            <div class="form-group smtp_settings_fields">
+                              <div class="row">
+                                <label for="smtphost" class="col-sm-2 control-label">Host</label>
+                                <div class="col-sm-6">
+                                  {if isset($smtp_settings)}
+                                  <input type="text" class="form-control" id="smtphost"
+                                  data-minlength="3" data-error="Enter hostname"
+                                  name="smtphost" placeholder="localhost" value="{$smtp_settings.host}" required>
+                                  {else}
+                                  <input type="text" class="form-control" id="smtphost"
+                                  data-minlength="3" data-error="Enter hostname"
+                                  name="smtphost" placeholder="localhost" required>
+                                  {/if}
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
                                 </div>
                               </div>
-                              <div class="form-group smtp_settings_fields">
-                                <div class="row">
-                                  <label for="smtpport" class="col-sm-2 control-label">Port</label>
-                                  <div class="col-sm-2">
-                                    <input type="text" class="form-control" id="smtpport"
-                                    data-minlength="2" data-error="Enter port number"
-                                    name="smtphost" placeholder="25"  required>
-                                    <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
-                                  </div>
-                                  <div class="col-sm-4">
-                                    <div class="help-block with-errors"></div>
-                                  </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields">
+                              <div class="row">
+                                <label for="smtpport" class="col-sm-2 control-label">Port</label>
+                                <div class="col-sm-2">
+                                  {if isset($smtp_settings)}
+                                  <input type="text" class="form-control" id="smtpport"
+                                  data-minlength="2" data-error="Enter port number"
+                                  name="smtpport" placeholder="25" value="{$smtp_settings.port}" required>
+                                  {else}
+                                  <input type="text" class="form-control" id="smtpport"
+                                  data-minlength="2" data-error="Enter port number"
+                                  name="smtpport" placeholder="25"  required>
+                                  {/if}
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
                                 </div>
                               </div>
-                            </form>
-                          </div>
+                            </div>
+                            <div class="form-group">
+                              <div class="row">
+                                <div class="checkbox col-sm-offset-2">
+                                  <label>
+                                    {if isset($smtp_settings) && $smtp_settings.auth == 1}
+                                    <input type="checkbox" id="smtp_auth_enable" name="smtp_auth" checked> Authentication options
+                                    {else}
+                                    <input type="checkbox" id="smtp_auth_enable" name="smtp_auth"> Authentication options
+                                    {/if}
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                            {if isset($smtp_settings) && $smtp_settings.auth == 1}
+                            <div class="form-group smtp_settings_fields advanced_smtp_settings">
+                              <div class="row">
+                                <label for="smtplogin" class="col-sm-2 control-label">Login</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="smtplogin"
+                                  data-minlength="2" data-error="Enter SMTP username"
+                                  name="smtplogin" placeholder="SMTP login" value="{$smtp_settings.login}" required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields advanced_smtp_settings">
+                              <div class="row">
+                                <label for="smtppass" class="col-sm-2 control-label">Password</label>
+                                <div class="col-sm-6">
+                                  <input type="password" class="form-control" id="smtppass"
+                                  data-minlength="2" data-error="Enter SMTP password"
+                                  name="smtppass" placeholder="SMTP password" value="{$smtp_settings.password}" required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <div class="checkbox col-sm-offset-2">
+                                  <label>
+                                    {if $smtp_settings.ssl == 1}
+                                    <input type="checkbox" id="smtp_ssl" name="use_ssl" checked> Use SSL
+                                    {else}
+                                    <input type="checkbox" id="smtp_ssl" name="use_ssl"> Use SSL
+                                    {/if}
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                            {else}
+                            <div class="form-group smtp_settings_fields advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <label for="smtplogin" class="col-sm-2 control-label">Login</label>
+                                <div class="col-sm-6">
+                                  <input type="text" class="form-control" id="smtplogin"
+                                  data-minlength="2" data-error="Enter SMTP username"
+                                  name="smtplogin" placeholder="SMTP login"  required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <label for="smtppass" class="col-sm-2 control-label">Password</label>
+                                <div class="col-sm-6">
+                                  <input type="password" class="form-control" id="smtppass"
+                                  data-minlength="2" data-error="Enter SMTP password"
+                                  name="smtppass" placeholder="SMTP password"  required>
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group advanced_smtp_settings" style="display: none;">
+                              <div class="row">
+                                <div class="checkbox col-sm-offset-2">
+                                  <label>
+                                    <input type="checkbox" name="use_ssl" id="smtp_ssl"> Use SSL
+                                  </label>
+                                </div>
+                              </div>
+                            </div>
+                            {/if}
+                            <div class="form-group smtp_settings_fields">
+                              <button type="button" class="btn btn-primary" id="smtp_settings_save">Save changes</button>
+                            </div>
+                          </form>
                         </div>
-                      </div>
-                    </div>
                     {else}
                     <h3 class="page-header">Dashboard</h3>
                     {/if}
