@@ -164,7 +164,7 @@
     $spine->assign('Logs', $logs);
   }
   if($_GET['settings'] == "smtp") {
-    $q = $dbh->prepare("SELECT host,port,login,password,ssl FROM settings_smtp");
+    $q = $dbh->prepare("SELECT host,port,login,password,`ssl` FROM settings_smtp");
     $q->execute();
     $r = $q->fetch();
     if($q->rowCount() > 0) {

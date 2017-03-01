@@ -1261,9 +1261,9 @@
                                 <div class="checkbox col-sm-offset-2">
                                   <label>
                                     {if isset($smtp_settings) && $smtp_settings.auth == 1}
-                                    <input type="checkbox" id="smtp_auth_enable" checked> Authentication options
+                                    <input type="checkbox" id="smtp_auth_enable" name="smtp_auth" checked> Authentication options
                                     {else}
-                                    <input type="checkbox" id="smtp_auth_enable"> Authentication options
+                                    <input type="checkbox" id="smtp_auth_enable" name="smtp_auth"> Authentication options
                                     {/if}
                                   </label>
                                 </div>
@@ -1303,9 +1303,9 @@
                                 <div class="checkbox col-sm-offset-2">
                                   <label>
                                     {if $smtp_settings.ssl == 1}
-                                    <input type="checkbox" id="smtp_ssl" checked> Use SSL
+                                    <input type="checkbox" id="smtp_ssl" name="use_ssl" checked> Use SSL
                                     {else}
-                                    <input type="checkbox" id="smtp_ssl"> Use SSL
+                                    <input type="checkbox" id="smtp_ssl" name="use_ssl"> Use SSL
                                     {/if}
                                   </label>
                                 </div>
@@ -1344,7 +1344,7 @@
                               <div class="row">
                                 <div class="checkbox col-sm-offset-2">
                                   <label>
-                                    <input type="checkbox" id="smtp_ssl"> Use SSL
+                                    <input type="checkbox" name="use_ssl" id="smtp_ssl"> Use SSL
                                   </label>
                                 </div>
                               </div>
