@@ -1219,6 +1219,26 @@
                           <form role="form" class="form-horizontal" data-toggle="validator" id="settings_smtp">
                             <div class="form-group smtp_settings_fields">
                               <div class="row">
+                                <label for="smtpfrom" class="col-sm-2 control-label">From</label>
+                                <div class="col-sm-6">
+                                  {if isset($smtp_settings)}
+                                  <input type="text" class="form-control" id="smtpfrom"
+                                  data-minlength="3" data-error="Enter e-mail address"
+                                  name="smtpfrom" placeholder="admin@example.com" value="{$smtp_settings.spine_from}" required>
+                                  {else}
+                                  <input type="text" class="form-control" id="smtpfrom"
+                                  data-minlength="3" data-error="Enter e-mail address"
+                                  name="smtpfrom" placeholder="admin@example.com" required>
+                                  {/if}
+                                  <span class="glyphicon form-control-feedback" aria-hidden="true"></span>
+                                </div>
+                                <div class="col-sm-4">
+                                  <div class="help-block with-errors"></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="form-group smtp_settings_fields">
+                              <div class="row">
                                 <label for="smtphost" class="col-sm-2 control-label">Host</label>
                                 <div class="col-sm-6">
                                   {if isset($smtp_settings)}
