@@ -1,6 +1,7 @@
 <?php
   include_once './include/config.php';
   include_once './include/functions.php';
+  include_once './include/smtp.php';
   $dbh = DBconnect();
 
   if (isset($_GET['add'])) {
@@ -173,5 +174,41 @@
     $q->execute();
     $r = $q->fetch();
     updateConfigVersion($dbh, $r['system_id'], "sysusers");
+  }
+  if(isset($_GET['resetpass'])) {
+    $q = $dbh->prepare("SELECT u.system_id,u.login,u.email,s.hostname ".
+                      "FROM sysusers u LEFT JOIN sysinfo s ON s.id = u.system_id ".
+                      "WHERE u.id =".$_GET['resetpass']);
+    $q->execute();
+    $r = $q->fetch();
+    $systemid = $r['system_id'];
+    $login    = $r['login'];
+    $email    = $r['email'];
+    $host     = $r['hostname'];
+
+    $randompass = randomString(12);
+    $encrypted_pass = sha512_pass($randompass);
+
+    $q = $dbh->prepare("UPDATE sysusers set pass = '".$encrypted_pass."', status = 'U' WHERE id = ".$_GET['resetpass']);
+    $q->execute();
+    updateConfigVersion($dbh, $systemid, "sysusers");
+
+    $subject = "Spine - New password";
+    $message  = "Dear ". $login. ",\n\n";
+    $message .= "Administrator requested a new password for you.\n";
+    $message .= "Your new password on host: ".$host." is: ".$randompass."\n";
+
+    $q = $dbh->prepare("SELECT host,port,login,password,`ssl` FROM settings_smtp");
+    $q->execute();
+    $r = $q->fetch();
+
+    $params = array();
+    array_push($params, $r['host']);
+    array_push($params, $r['port']);
+    array_push($params, $r['login']);
+    array_push($params, $r['password']);
+    array_push($params, $r['ssl']);
+
+    sendEmail("spine@angrybits.pl", $email, $subject, $message, $params);
   }
 ?>

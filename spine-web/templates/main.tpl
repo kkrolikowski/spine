@@ -81,6 +81,7 @@
       <script src="js/sysuserEdit.js"></script>
       <script src="js/sysuserRemove.js"></script>
       <script src="js/smtp_settings.js"></script>
+      <script src="js/resetpass.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
