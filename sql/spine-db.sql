@@ -133,6 +133,7 @@ CREATE TABLE `settings_smtp` (
   `login` varchar(45) DEFAULT 'none',
   `password` varchar(45) DEFAULT 'none',
   `ssl` int(11) DEFAULT '0',
+  `spine_from` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -438,4 +439,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-02-28 15:19:46
+-- Dump completed on 2017-03-02  0:21:05
