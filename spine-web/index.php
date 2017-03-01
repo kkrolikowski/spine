@@ -164,25 +164,27 @@
     $spine->assign('Logs', $logs);
   }
   if($_GET['settings'] == "smtp") {
-    $q = $dbh->prepare("SELECT host,port,login,password,`ssl` FROM settings_smtp");
+    $q = $dbh->prepare("SELECT host,port,login,password,`ssl`,spine_from FROM settings_smtp");
     $q->execute();
     $r = $q->fetch();
     if($q->rowCount() > 0) {
       if($r['login'] != "none") {
         $smtp_settings = array(
-          'host'      => $r['host'],
-          'port'      => $r['port'],
-          'login'     => $r['login'],
-          'password'  => $r['password'],
-          'ssl'       => $r['ssl'],
-          'auth'      => 1
+          'host'        => $r['host'],
+          'port'        => $r['port'],
+          'login'       => $r['login'],
+          'password'    => $r['password'],
+          'ssl'         => $r['ssl'],
+          'spine_from'  => $r['spine_from'],
+          'auth'        => 1
         );
       }
       else {
         $smtp_settings = array(
-          'host'      => $r['host'],
-          'port'      => $r['port'],
-          'auth'      => 0
+          'host'        => $r['host'],
+          'port'        => $r['port'],
+          'spine_from'  => $r['spine_from'],
+          'auth'        => 0
         );
       }
       $spine->assign('smtp_settings', $smtp_settings);
