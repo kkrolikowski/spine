@@ -198,17 +198,18 @@
     $message .= "Administrator requested a new password for you.\n";
     $message .= "Your new password on host: ".$host." is: ".$randompass."\n";
 
-    $q = $dbh->prepare("SELECT host,port,login,password,`ssl` FROM settings_smtp");
+    $q = $dbh->prepare("SELECT host,port,login,password,`ssl`,spine_from FROM settings_smtp");
     $q->execute();
     $r = $q->fetch();
 
     $params = array();
+    $from = $r['spine_from'];
     array_push($params, $r['host']);
     array_push($params, $r['port']);
     array_push($params, $r['login']);
     array_push($params, $r['password']);
     array_push($params, $r['ssl']);
 
-    sendEmail("spine@angrybits.pl", $email, $subject, $message, $params);
+    sendEmail($from, $email, $subject, $message, $params);
   }
 ?>
