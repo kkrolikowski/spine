@@ -94,7 +94,7 @@
     echo json_encode($json);
   }
   if (isset($_GET['update'])) {
-    setlocale(LC_ALL, 'pl_PL.utf8');
+    setlocale(LC_ALL, 'en_US.UTF8');
     $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname_edit']);
 
     isset($_POST['isActive_edit'])        ? $active = 1 : $active = 0;
