@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $('.reset-pass').on('click', function() {
+  $(document).on('click', '.reset-pass', function() {
     var userid = $(this).attr('data-id');
     $.ajax({
       url: "/sysusers.php?resetpass=" + userid,
