@@ -40,7 +40,7 @@
       else {
         $exptime = "Never";
       }
-      setlocale(LC_ALL, 'pl_PL.utf8');
+      setlocale(LC_ALL, 'en_US.UTF8');
       $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname']);
 
       $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,gecos,uid,gid,active,expiration, shell, sshkeys, status, sudo) ".
