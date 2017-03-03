@@ -266,56 +266,46 @@ int createUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     
-    while(curr) {
-        if(!userExist(curr->uidgid)) {
-            if(!writePasswd(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(!writeShadow(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/shadow", NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(!curr->active)
-                if(disableAccount(curr->login)) {
-                    msg = mkString("[INFO] (reciver) Account ", curr->login, " is disabled", NULL);
-                    writeLog(lf, msg);
-                }
-            if(!writeGroup(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/group", NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(!createHomeDir(curr, lf)) {
-                msg = mkString("[WARNING] (reciver) Blad tworzenia katalogu domowego: /home/", curr->login, NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(writeAuthorizedKeys(curr, lf)) {
-                msg = mkString("[INFO] (reciver) Klucze ssh dla ", curr->login, " zostaly zainstalowane", NULL);
-                writeLog(lf, msg);
-            }
-            msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
-            writeLog(lf, msg);
-            if(curr->sudo) {
-                if(!grantSuperUser(curr->login, os)) {
-                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
-                    writeLog(lf, msg);
-                }
-            }
-        }
-        else {
-            msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
+    if(!userExist(curr->uidgid)) {
+        if(!writePasswd(curr)) {
+            msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
             writeLog(lf, msg);
         }
-        curr = curr->next;
+        if(!writeShadow(curr)) {
+            msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/shadow", NULL);
+            writeLog(lf, msg);
+        }
+        if(!curr->active)
+            if(disableAccount(curr->login)) {
+                msg = mkString("[INFO] (reciver) Account ", curr->login, " is disabled", NULL);
+                writeLog(lf, msg);
+            }
+        if(!writeGroup(curr)) {
+            msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/group", NULL);
+            writeLog(lf, msg);
+        }
+        if(!createHomeDir(curr, lf)) {
+            msg = mkString("[WARNING] (reciver) Blad tworzenia katalogu domowego: /home/", curr->login, NULL);
+            writeLog(lf, msg);
+        }
+        if(writeAuthorizedKeys(curr, lf)) {
+            msg = mkString("[INFO] (reciver) Klucze ssh dla ", curr->login, " zostaly zainstalowane", NULL);
+            writeLog(lf, msg);
+        }
+        msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
+        writeLog(lf, msg);
+        if(curr->sudo) {
+            if(!grantSuperUser(curr->login, os)) {
+                msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
+                writeLog(lf, msg);
+            }
+        }
     }
+    else {
+        msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
+        writeLog(lf, msg);
+    }
+
     return status;
 }
 int writePasswd(sysuser * su) {
