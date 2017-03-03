@@ -644,6 +644,15 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
     resp * rprev = NULL;
     
     while(curr) {
+        if(!strcmp(curr->status, "N")) {
+            createUserAccounts(curr, os, lf);
+            rcurr = respStatus("sysusers", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
         if(!strcmp(curr->status, "U")) {
             if((old = oldlogin(curr->uidgid, curr->login)) != NULL) {
                 if(renameHomeDir(old, curr->login)) {

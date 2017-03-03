@@ -271,7 +271,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             if(config.httpd.vhost != NULL)
                                 apacheSetup(config.httpd, os, lf);
                             if(config.sysUsers != NULL) {
-                                createUserAccounts(config.sysUsers, os, lf);
                                 if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
                                     updateMSGdataString = backMessage(updateMSGdata);
                                     clifd = connector(net.ipaddr, 2016);
