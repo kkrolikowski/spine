@@ -50,6 +50,7 @@ char * apacheConfigPackage(httpdata www) {
 	char * entry = NULL;            // zawartosc vhosta
 	char * metainfo = NULL;		// dane pomocnicze
 	char * authbasic = NULL;	// flaga okreslajaca, czy jest wlaczone haslo na witrynie
+        char * s_dbid = NULL;
         vhostData * vhpos = www.vhost; // wskaznik pomocniczny, ktory bedzie przemieszczal sie po wezle
         
         // naglowek pakietu danych
@@ -70,8 +71,10 @@ char * apacheConfigPackage(httpdata www) {
         while(vhpos) {
             numstr = int2String(vidx);
             authbasic = int2String(vhpos->password_access);
+            s_dbid = int2String(vhpos->dbid);
             entry = mkString(
                             "vhost_", numstr, ":{",
+                            "dbid:",             s_dbid,                    ",",
                             "ServerName:",       vhpos->ServerName,         ",",
                             "ServerAlias:",      vhpos->ServerAlias,        ",",
                             "DocumentRoot:",     vhpos->DocumentRoot,       ",",
@@ -92,6 +95,7 @@ char * apacheConfigPackage(httpdata www) {
             }
             
             // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+            free(s_dbid);
             free(entry);
             free(numstr);
             free(authbasic);
@@ -514,7 +518,7 @@ int getVhostPackageSize(vhostData * vhd) {
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
                             "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
-                            "vhost_:", "{},", NULL};
+                            "vhost_:", "dbid:,", "{},", NULL};
     const char ** key = keys;
     while(*key) {
         keysize += strlen(*key);
@@ -540,6 +544,10 @@ int getVhostPackageSize(vhostData * vhd) {
         free(tmp);
         
         tmp = int2String(vhostCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        tmp = int2String(pos->dbid);
         size += strlen(tmp);
         free(tmp);
         

@@ -303,6 +303,7 @@ httpdata ParseConfigDataAPACHE(char * json) {
     char * config_pos = NULL;   // pozycja w stringu wzgledem vhost_(n)
     char * vheader = NULL;      // tutaj bedzie naglowek vhost_(n)
     char * index = NULL;        // biezacy numer vhosta w formie stringu
+    char * sdbid = NULL;        // id vhosta w bazie
     char * authbasic = NULL;    // wartosc tekstowa skladnika password_access
     
     // przetwarzamy calkowita liczbe vhostow
@@ -332,8 +333,10 @@ httpdata ParseConfigDataAPACHE(char * json) {
         config_pos = strstr(json, vheader);
         authbasic = jsonVal(config_pos, "authbasic");
         config_ver_s = jsonVal(config_pos, "config_ver");
+        sdbid = jsonVal(config_pos, "dbid");
         
         curr = (vhostData *) malloc(sizeof(vhostData));
+        curr->dbid                  = atoi(sdbid);
         curr->ServerName            = jsonVal(config_pos, "ServerName");
         curr->ServerAlias           = jsonVal(config_pos, "ServerAlias");
         curr->DocumentRoot          = jsonVal(config_pos, "DocumentRoot");
@@ -355,6 +358,7 @@ httpdata ParseConfigDataAPACHE(char * json) {
             prev->next = curr;
         prev = curr;
         
+        free(sdbid);
         free(vheader);
         free(authbasic);
         free(index);
