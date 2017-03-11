@@ -116,17 +116,11 @@ char * apacheConfigPackage(httpdata www) {
         
 	return package;
 }
-void createHtpasswdFile(char * os, htpasswdData * htpasswd) {
-	char * htpasswd_path = NULL;
+void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd) {
 	FILE * htpasswd_file = NULL;
 	htpasswdData * pos = htpasswd;
 
-	if(!strcmp(os, "Ubuntu"))
-		htpasswd_path = "/etc/apache2/auth/.htpasswd";
-	else if(strstr(os, "Centos") != NULL)
-		htpasswd_path = "/etc/httpd/auth/.htpasswd";
-
-	if((htpasswd_file = fopen(htpasswd_path, "w")) != NULL) {
+	if((htpasswd_file = fopen(htpasswdFilePath, "w")) != NULL) {
 		while(pos != NULL) {
 			fprintf(htpasswd_file, "%s\n", pos->entry);
 			pos = pos->next;
@@ -184,41 +178,40 @@ htpasswdData * parseHtpasswdData(char * stream) {
 }
 void createHtgroupFile(char * path, vhostData * vhd) {
     FILE * htgroup;
-    vhostData * curr = vhd;
 
     if((htgroup = fopen(path, "w")) != NULL) {
-        while(curr) {
-            if(curr->password_access == 1)
-                fprintf(htgroup, "%s: %s\n", curr->ServerName, curr->htusers);
-            
-            curr = curr->next;
-        }
+        fprintf(htgroup, "%s: %s\n", vhd->ServerName, vhd->htusers);
         fclose(htgroup);
     }
 }
-void createHtgroupConfig(char * os, vhostData * vhd, FILE * lf) {
-    char * logmessage = NULL;
-    char * htgroupDir = NULL;
+void apacheAuthConfig(char * os, vhostData * vhd, htpasswdData * authData, FILE * lf) {
+    char * lmsg = NULL;
+    char * authDir = NULL;
     char * htgroupFilePath = NULL;
+    char * htpasswdFilePath = NULL;
 
     if(!strcmp(os, "Ubuntu"))
-        htgroupDir = "/etc/apache2/auth";
+        authDir = "/etc/apache2/auth";
     else if(strstr(os, "Centos") != NULL)
-        htgroupDir = "/etc/httpd/auth";
-    htgroupFilePath = mkString(htgroupDir, "/.htgroup", NULL);
-
-    if(mkdir(htgroupDir, 0755) < 0) {
-        if(errno != EEXIST) {
-            logmessage = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", htgroupDir, "\n", NULL);
-            writeLog(lf, logmessage);
-        }
-        else
+        authDir = "/etc/httpd/auth";
+    
+    htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
+    htpasswdFilePath = mkString(authDir, "/.htpasswd", NULL);
+    
+    if(mkdir(authDir, 0755) < 0) {
+        if(errno == EEXIST) {
             createHtgroupFile(htgroupFilePath, vhd);
+            createHtpasswdFile(htpasswdFilePath, authData);
+        }
+        else {
+            lmsg = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", authDir, "\n", NULL);
+            writeLog(lf, lmsg);
+        }
     }
-    else
+    else {
         createHtgroupFile(htgroupFilePath, vhd);
-
-    free(htgroupFilePath);
+        createHtpasswdFile(htpasswdFilePath, authData);
+    }
 }
 char * accessOrder(char * str) {
 	char * allow = "allow,deny";
@@ -336,73 +329,31 @@ void reloadApache(char * os) {
 	else if(pid > 0)
 		wait(NULL);
 }
-void apacheSetup(httpdata www, char * os, FILE * lf) {
-    char * msg = NULL;
-    int htusersCount = getHTusersCount(www.htpasswd);
+void createHtaccess(char * htaccessPath, char * hta_content) {
+    FILE * htaccess = NULL;
     
-    if(createVhostConfig(os, www.vhost, lf)) {
-        createWebsiteDir(www.vhost);
-        createHtaccess(www.vhost);
-        createHtgroupConfig(os, www.vhost, lf);
-        if(htusersCount > 0) {
-            createHtpasswdFile(os, www.htpasswd);
-        }
-        else {
-            clearAuthData(os);
-        }
-        msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
-        writeLog(lf, msg);
-        reloadApache(os);
-    }
-    else {
-        msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
-        writeLog(lf, msg);
-    }
-    if(removeVhost(os, www.vhost)) {
-        msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
-        writeLog(lf, msg);
-        reloadApache(os);
-    }
-    cleanVhostData(www.vhost);
-}
-void createHtaccess(vhostData * vhd) {
-    FILE * htaccess;
-    char * htaccessPath = NULL;
-    vhostData * curr = vhd;
-    
-    while(curr) {
-        htaccessPath = mkString(curr->DocumentRoot, "/.htaccess", NULL);
-        if(strcmp(curr->htaccess, "NaN")) {
-            if((htaccess = fopen(htaccessPath, "w")) != NULL)
-                fprintf(htaccess, "%s\n", curr->htaccess);
-
-            fclose(htaccess);
-            free(htaccessPath);
-        }
-        curr = curr->next;
+    if((htaccess = fopen(htaccessPath, "w")) != NULL) {
+        fprintf(htaccess, "%s\n", hta_content);
+        fclose(htaccess);
     }
 }
-void createWebsiteDir(vhostData * vhd) {
-    vhostData * curr = vhd;
+void createWebsiteDir(char * websiteDir) {
     char * dirpath = NULL;
     size_t len = 0;
     
-    while(curr) {
-        len = strlen(curr->DocumentRoot) + 2;
-        dirpath = (char *) malloc(len * sizeof(char));
-        memset(dirpath, '\0', len);
-        strncpy(dirpath, curr->DocumentRoot, strlen(curr->DocumentRoot));
-        strncat(dirpath, "/", 2);
-        if(access(dirpath, F_OK) < 0) {
-            if(errno == ENOENT)
-                mkdirtree(curr->DocumentRoot);
-        }
-        free(dirpath);
-        curr = curr->next;
+    len = strlen(websiteDir) + 2;
+    dirpath = (char *) malloc(len * sizeof(char));
+    memset(dirpath, '\0', len);
+    
+    strncpy(dirpath, websiteDir, strlen(websiteDir));
+    strncat(dirpath, "/", 2);
+    if(access(dirpath, F_OK) < 0) {
+        if(errno == ENOENT)
+            mkdirtree(websiteDir);
     }
+    free(dirpath);
 }
 int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
-    vhostData * pos = vhd;              // aktualna pozycja w pamieci
     char * configDir = NULL;            // sciezka do katalogu konfiguracyjnego apacza
     char * configDir2 = NULL;           // Ubuntu only. sciezka do katalogu sites-enabled
     char * apacheAuthDir = NULL;        // sciezka do katalogu z uzytkownikami i grupami apacza
@@ -412,9 +363,7 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     char * logentry = NULL;             // komunikat do logu programu
     char * acl_entry = NULL;            // kompletna lista konfiguracji dostepu
     char * acl_order = NULL;            // kolejnosc przetwarzania listy dostepow
-    FILE * vhost;                       // uchwyt pliku vhosta
-    int counter = 0;                    // liczba stworzonych vhostow
-    int total = getVhostsCount(vhd);    // calkowita liczba vhostow 
+    FILE * vhost = NULL;                // uchwyt pliku vhosta
     int vhostExist = 0;                 // ustawiamy 1 jesli plik juz istnial
 
     // ustawiamy odpowiednie sciezki w zaleznosci od systemu operacyjnego
@@ -430,87 +379,69 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
         logsDir = "/var/log/apache2";
     }
 
-    while(pos) {
-        if(!strcmp(pos->status, "A")) {
-            path = mkString(configDir, pos->ServerName, ".conf", NULL);
-            path2 = mkString(configDir2, pos->ServerName, ".conf", NULL);
-            if(!access(path, F_OK))
-                vhostExist = 1;
-            if((vhost = fopen(path, "w")) == NULL) {
-                logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
-                writeLog(lf, logentry);
-                pos = pos->next;
-                continue;
-            }
-            counter++;
-            acl_order = accessOrder(pos->vhost_access_order);
-            acl_entry = acl(pos->vhost_access_list);
-            fprintf(vhost, "<VirtualHost *:80>\n");
-            fprintf(vhost, "\tServerName %s\n", pos->ServerName);
-            if(strcmp(pos->ServerAlias, "NaN"))
-                fprintf(vhost, "\tServerAlias %s\n", pos->ServerAlias);
-            fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", pos->DocumentRoot);
-            fprintf(vhost, "\t<Directory %s>\n", pos->DocumentRoot);
-            fprintf(vhost, "\t\tOptions %s\n", pos->apacheOpts);
-            fprintf(vhost, "\t\tAllowOverride All\n");
-            fprintf(vhost, "\t\tOrder %s\n", acl_order);
-            fprintf(vhost, "%s\n", acl_entry);
-            if(!strcmp(distro, "Ubuntu"))
-                fprintf(vhost, "\t\tRequire all granted\n");
-            fprintf(vhost, "\t</Directory>\n\n");
-            if(pos->password_access) {
-                fprintf(vhost, "\t<Location />\n");
-                fprintf(vhost, "\t\tAuthType Basic\n");
-                fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
-                fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
-                fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
-                fprintf(vhost, "\t\tRequire group %s\n", pos->ServerName);
-                fprintf(vhost, "\t</Location>\n\n");
-            }
-            fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, pos->ServerName);
-            fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, pos->ServerName);
-            fprintf(vhost, "</VirtualHost>\n");
-            fclose(vhost);
-            free(acl_order);
-            free(acl_entry);
-            if(vhostExist)
-                logentry = mkString("[INFO] (reciver) Konfiguracja dla ", pos->ServerName, " zostala zaktualizowana", NULL);
-            else
-                logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", pos->ServerName, NULL);
-            writeLog(lf, logentry);
-            if(!strcmp(distro, "Ubuntu"))
-                if(access(path2, F_OK) < 0) {
-                    if(errno == ENOENT) {
-                        if(symlink(path, path2)) {
-                            if(errno == EEXIST)
-                                logentry = mkString("[WARNING] (reciver) Vhost: ", pos->ServerName, " byl juz aktywny", NULL);
-                            else
-                                logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", pos->ServerName, NULL);
-                            writeLog(lf, logentry);
-                        }
-                    }
-                }
-            
-            vhostExist = 0;
-            free(path);
-            free(path2);
-        }
-        else if(!strcmp(pos->status, "D"))
-            counter++;
-        pos = pos->next;
-    }
-
-    /* weryfikujemy rezultat zakladania plikow
-     *  jesli nie udalo sie stworzyc zadnego: -1
-     *  jesli udalo sie stworzyc wszystkie: 1
-     *  jesli nie udalo sie stworzyc niektorych: 0
-     */
-    if(counter == 0)
-        return -1;
-    else if(counter == total)
-        return 1;
-    else
+    path = mkString(configDir, vhd->ServerName, ".conf", NULL);
+    path2 = mkString(configDir2, vhd->ServerName, ".conf", NULL);
+    if(!access(path, F_OK))
+        vhostExist = 1;
+    if((vhost = fopen(path, "w")) == NULL) {
+        logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
+        writeLog(lf, logentry);
+        free(path);
+        free(path2);
         return 0;
+    }
+    acl_order = accessOrder(vhd->vhost_access_order);
+    acl_entry = acl(vhd->vhost_access_list);
+    fprintf(vhost, "<VirtualHost *:80>\n");
+    fprintf(vhost, "\tServerName %s\n", vhd->ServerName);
+    if(strcmp(vhd->ServerAlias, "NaN"))
+        fprintf(vhost, "\tServerAlias %s\n", vhd->ServerAlias);
+    fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhd->DocumentRoot);
+    fprintf(vhost, "\t<Directory %s>\n", vhd->DocumentRoot);
+    fprintf(vhost, "\t\tOptions %s\n", vhd->apacheOpts);
+    fprintf(vhost, "\t\tAllowOverride All\n");
+    fprintf(vhost, "\t\tOrder %s\n", acl_order);
+    fprintf(vhost, "%s\n", acl_entry);
+    if(!strcmp(distro, "Ubuntu"))
+        fprintf(vhost, "\t\tRequire all granted\n");
+    fprintf(vhost, "\t</Directory>\n\n");
+    if(vhd->password_access) {
+        fprintf(vhost, "\t<Location />\n");
+        fprintf(vhost, "\t\tAuthType Basic\n");
+        fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
+        fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
+        fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
+        fprintf(vhost, "\t\tRequire group %s\n", vhd->ServerName);
+        fprintf(vhost, "\t</Location>\n\n");
+    }
+    fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhd->ServerName);
+    fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhd->ServerName);
+    fprintf(vhost, "</VirtualHost>\n");
+    fclose(vhost);
+    free(acl_order);
+    free(acl_entry);
+    if(vhostExist)
+        logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhd->ServerName, " zostala zaktualizowana", NULL);
+    else
+        logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhd->ServerName, NULL);
+    writeLog(lf, logentry);
+    if(!strcmp(distro, "Ubuntu")) {
+        if(access(path2, F_OK) < 0) {
+            if(errno == ENOENT) {
+                if(symlink(path, path2)) {
+                    if(errno == EEXIST)
+                        logentry = mkString("[WARNING] (reciver) Vhost: ", vhd->ServerName, " byl juz aktywny", NULL);
+                    else
+                        logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhd->ServerName, NULL);
+                    writeLog(lf, logentry);
+                }
+            }
+        }
+    }
+    free(path);
+    free(path2);
+    
+    return 1;
 }
 void clearAuthData(char * os) {
 	char * htpasswd_path = NULL;
@@ -530,40 +461,29 @@ void clearAuthData(char * os) {
 	if(fileExist(htgroup_path))
 		unlink(htgroup_path);
 }
-int removeVhost(char * os, vhostData * vhd) {
-    int count = 0;
+void removeVhost(char * os, vhostData * vhd) {
     char * vhostConfig = NULL;
     char * vhostConfigSymlink = NULL;
     char * vhostDir = NULL;
-    vhostData * curr = vhd;
 
-    while(curr) {
-        vhostDir = mkString("/var/www/", curr->ServerName, "/", NULL);
-        if(!strcmp(os, "Ubuntu")) {
-            vhostConfig = mkString("/etc/apache2/sites-available/", curr->ServerName, ".conf", NULL);
-            vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", curr->ServerName, ".conf", NULL);
-        }
-        else if(strstr(os, "Centos") != NULL) {
-            vhostConfig = mkString("/etc/httpd/conf.d/", curr->ServerName, ".conf", NULL);
-        }
-        if(!strcmp(curr->status, "D")) {
-            if(vhostConfig != NULL) {
-                unlink(vhostConfig);
-                count++;
-            }
-            if(vhostConfigSymlink != NULL)
-                unlink(vhostConfigSymlink);
-        }
-        if(!strcmp(curr->purgedir, "Y"))
-            purgeDir(vhostDir);
-
-        if(vhostConfig != NULL) free(vhostConfig);
-        if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
-        if(vhostDir != NULL) free(vhostDir);
-        
-        curr = curr->next;
+    vhostDir = mkString("/var/www/", vhd->ServerName, "/", NULL);
+    if(!strcmp(os, "Ubuntu")) {
+        vhostConfig = mkString("/etc/apache2/sites-available/", vhd->ServerName, ".conf", NULL);
+        vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", vhd->ServerName, ".conf", NULL);
     }
-    return count;
+    else if(strstr(os, "Centos") != NULL) {
+        vhostConfig = mkString("/etc/httpd/conf.d/", vhd->ServerName, ".conf", NULL);
+    }
+    unlink(vhostConfig);
+    if(vhostConfigSymlink != NULL)
+        unlink(vhostConfigSymlink);
+    
+    if(!strcmp(vhd->purgedir, "Y"))
+        purgeDir(vhostDir);
+
+    if(vhostConfig != NULL) free(vhostConfig);
+    if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
+    if(vhostDir != NULL) free(vhostDir);
 }
 int getApachedataSize(httpdata www) {
     int size = 0;
@@ -693,4 +613,70 @@ void cleanVhostData(vhostData * vhd) {
     if(next != NULL)
         cleanVhostData(next);
     free(curr);
+}
+resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
+    vhostData * vh = www.vhost;
+    htpasswdData * authData = www.htpasswd;
+    char * htaccessPath = NULL;
+    char * lmsg = NULL;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    while(vh) {
+        htaccessPath = mkString(vh->DocumentRoot, "/.htaccess", NULL);
+        if(!strcmp(vh->status, "N") || !strcmp(vh->status, "U")) {
+            if(createVhostConfig(os, vh, lf)) {
+                if(vh->password_access)
+                    apacheAuthConfig(os, vh, authData, lf);
+                if(!strcmp(vh->status, "N"))
+                    createWebsiteDir(vh->DocumentRoot);
+                if(strcmp(vh->htaccess, "NaN"))
+                    createHtaccess(htaccessPath, vh->htaccess);
+                else
+                    unlink(htaccessPath);
+                
+                rcurr = respStatus("apache", 'A', vh->dbid);
+                if(rhead == NULL)
+                    rhead = rcurr;
+                else
+                    rprev->next = rcurr;
+                rprev = rcurr;
+                
+                if(!strcmp(vh->status, "N"))
+                    lmsg = mkString("[INFO] (reciver) Konfiguracja witryny ", vh->ServerName, " zostala utworzona", NULL);
+                else if(!strcmp(vh->status, "U"))
+                    lmsg = mkString("[INFO] (reciver) Konfiguracja witryny ", vh->ServerName, " zostala zaktualizowana", NULL);
+            }
+            else
+                lmsg = mkString("[ERROR] (reciver) Blad tworzenia konfiguracji dla witryny ", vh->ServerName, NULL);
+            writeLog(lf, lmsg);
+        }
+        if(!strcmp(vh->status, "D")) {
+            removeVhost(os, vh);
+            
+            rcurr = respStatus("apache", 'D', vh->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        free(htaccessPath);
+        vh = vh->next;
+    }
+    if(authData != NULL) {
+        createHtpasswdFile(os, www.htpasswd);
+    }
+    else {
+        clearAuthData(os);
+    }
+    
+    lmsg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
+    writeLog(lf, lmsg);
+    reloadApache(os);
+    
+    return rhead;
 }

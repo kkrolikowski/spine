@@ -269,7 +269,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
-                                apacheSetup(config.httpd, os, lf);
+                                updateApacheSetup(config.httpd, os, lf);
                             if(config.sysUsers != NULL) {
                                 if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
                                     updateMSGdataString = backMessage(updateMSGdata);

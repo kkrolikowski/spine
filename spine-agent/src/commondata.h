@@ -53,6 +53,7 @@ typedef struct vhostData {
     char * status;		// flaga: A - vhost aktywny, D - do skasowania
     char * purgedir;		// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
     int version;                // wersja konfiguracji
+    int dbid;                   // id rekordu z bazy danych
     struct vhostData * next;    // wskaznik do kolejnego vhosta
 } vhostData;
 
