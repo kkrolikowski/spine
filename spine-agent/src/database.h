@@ -63,9 +63,6 @@ vhostData * ReadVhostData(char * hostid);
 // funkcja zwraca ID rekordu z bazy zawierajacego okreslony mac-adres serwera
 int getDBHostID(char * hwaddr);
 
-// funkcja czysci konfiguracje vhosta w bazie danych
-void cleanWWWConfiguration(char * hostid);
-
 // funkcja sprawdza, czy usluga na danym hoscie zostala zarejestrowana
 // 0 - usluga nie zarejestrowana
 // 1 - usluga istnieje

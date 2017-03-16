@@ -375,40 +375,6 @@ int getDBHostID(char * hwaddr) {
 	free(query);
 	return id;
 }
-void cleanWWWConfiguration(char * hostid) {
-	extern MYSQL * dbh;
-	MYSQL_RES * res;
-	MYSQL_ROW row;
-	long rows = 0L;
-
-	char * query = mkString("SELECT id FROM www WHERE `status` = 'D' AND system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid, "')", NULL);
-	char * subquery = NULL;
-	if(!mysql_query(dbh, query)) {
-		if((res = mysql_store_result(dbh)) != NULL) {
-			if((rows = mysql_num_rows(res)) > 0) {
-				while((row = mysql_fetch_row(res))) {
-					subquery = mkString("DELETE FROM www_opts_selected WHERE vhost_id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-
-					subquery = mkString("DELETE FROM www_access WHERE vhost_id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-
-					subquery = mkString("DELETE FROM www_users_access WHERE vhost_id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-
-					subquery = mkString("DELETE FROM www WHERE id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-				}
-				mysql_free_result(res);
-			}
-		}
-	}
-	free(query);
-}
 void updateServiceState(char * cliresp) {
 	char * systemid = jsonVal(cliresp, "systemid");		// mac-adres hosta
 	char * m_data = rawMonitoringData(cliresp);  		// surowe dane dot. monitoringu

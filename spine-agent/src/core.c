@@ -332,8 +332,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 
                         close(clifd);
                         free(configstring);
-                    }
-                    cleanWWWConfiguration(system_id);                
+                    }             
                     free(system_id);
                     free(clientver_str);
 		}
