@@ -92,8 +92,8 @@
       $pass = "{SHA}" . $secret;
 
       if(!htuserExist($dbh, $_POST['login'], $_POST['serverid'])) {
-        $q = $dbh->prepare("INSERT INTO www_users(login,password,system_id) ".
-        "VALUES('".$_POST['login']."', '".$pass."', ".$_POST['serverid'].")");
+        $q = $dbh->prepare("INSERT INTO www_users(login,password,system_id,status) ".
+        "VALUES('".$_POST['login']."', '".$pass."', ".$_POST['serverid'].", 'N')");
         $q->execute();
 
         $q = $dbh->prepare("SELECT id FROM www_users WHERE login = '".$_POST['login']."'");
@@ -114,6 +114,7 @@
           header('Content-Type: application/json');
           echo json_encode($json);
         }
+        updateConfigVersion($dbh, $_POST['serverid'], "htusers");
       }
       else {
         $message = "X-Message: Konto ". $_POST['login'] ." jest juz dodane do bazy.";
@@ -229,7 +230,7 @@
     echo json_encode($json);
   }
   if(isset($_GET['htusers'])) {
-    $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ".$_GET['htusers']);
+    $q = $dbh->prepare("SELECT id, login FROM www_users WHERE status NOT LIKE 'D' AND system_id = ".$_GET['htusers']);
     $q->execute();
     while ($r = $q->fetch()) {
       $json[$r['id']] = $r['login'];
@@ -252,22 +253,20 @@
       header($message, true, 406);
     }
     else {
-      $q = $dbh->prepare("DELETE FROM www_users_access WHERE user_id = ".$_GET['rmuser']);
-      $q->execute();
-      $q = $dbh->prepare("DELETE FROM www_users WHERE id = ".$_GET['rmuser']);
+      $q = $dbh->prepare("UPDATE www_users SET status = 'D' WHERE id = ".$_GET['rmuser']);
       $q->execute();
 
-      updateConfigVersion($dbh, $_POST['serverid'], "apache");
+      updateConfigVersion($dbh, $_POST['serverid'], "htusers");
     }
   }
   if(isset($_GET['chpass'])) {
     $secret = base64_encode(sha1($_POST['password'], true));
     $pass = "{SHA}" . $secret;
 
-    $q = $dbh->prepare("UPDATE www_users SET password = '".$pass."' WHERE id = ".$_POST['id']);
+    $q = $dbh->prepare("UPDATE www_users SET password = '".$pass."', status = 'U' WHERE id = ".$_POST['id']);
     $q->execute();
 
-    updateConfigVersion($dbh, $_POST['serverid'], "apache");
+    updateConfigVersion($dbh, $_POST['serverid'], "htusers");
   }
   if(isset($_GET['vhid'])) {
     $q = $dbh->prepare("SELECT ServerName FROM www WHERE id = ". $_GET['vhid']);

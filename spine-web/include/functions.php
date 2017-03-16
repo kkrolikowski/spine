@@ -29,22 +29,32 @@ function updateConfigVersion($dbh, $serverid, $scope) {
   $newVer = dayVersion();
   $oldVer = checkConfigVer($dbh, $serverid);
 
-  if($newVer > $oldVer) {
-    if($oldVer == 0)
-      $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$newVer.", ".$serverid.")");
-    else
-      $q = $dbh->prepare("UPDATE configver SET version = ".$newVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
-    $q->execute();
+  $q = $dbh->prepare("SELECT count(*) AS n FROM configver WHERE scope = '".$scope."'");
+  $q->execute();
+  $r = $q->fetch();
+  if($r['n'] > 0) {
+    if($newVer > $oldVer) {
+      if($oldVer == 0)
+        $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$newVer.", ".$serverid.")");
+      else
+        $q = $dbh->prepare("UPDATE configver SET version = ".$newVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
+      $q->execute();
+    }
+    else {
+      $oldVer += 1;
+      $q2 = $dbh->prepare("SELECT count(*) AS cnt FROM configver WHERE scope = '".$scope."' AND systemid = ".$serverid);
+      $q2->execute();
+      $r2 = $q2->fetch();
+      if($r2['cnt'] > 0)
+        $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
+      else
+        $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$oldVer.", ".$serverid.")");
+      $q->execute();
+    }
   }
   else {
     $oldVer += 1;
-    $q2 = $dbh->prepare("SELECT count(*) AS cnt FROM configver WHERE scope = '".$scope."' AND systemid = ".$serverid);
-    $q2->execute();
-    $r2 = $q2->fetch();
-    if($r2['cnt'] > 0)
-      $q = $dbh->prepare("UPDATE configver SET version = ".$oldVer. " WHERE scope = '".$scope."' AND systemid = ".$serverid);
-    else
-      $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$oldVer.", ".$serverid.")");
+    $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$oldVer.", ".$serverid.")");
     $q->execute();
   }
 }
