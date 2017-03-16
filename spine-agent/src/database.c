@@ -630,6 +630,12 @@ int applyStatusChange(resp * data) {
             else
                 query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
         }
+        if(!strcmp(curr->scope, "apache")) {
+            if(curr->status == 'D')
+                query = mkString("DELETE FROM www WHERE id = ", tmp, NULL);
+            else
+                query = mkString("UPDATE www SET status = '", stat, "' WHERE id = ", tmp, NULL);
+        }
         mysql_query(dbh, query);
         
         free(tmp);
