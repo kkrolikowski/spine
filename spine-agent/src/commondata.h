@@ -34,8 +34,11 @@ typedef struct sysuser {
 
 // lista zawierajaca konta htpasswd
 typedef struct htpasswdData {
-    char * entry;                   // wpis w formie: login:skrothasla 
-    struct htpasswdData * next;     // nastepne konto na liscie
+    char * login;                   // login
+    char * pass;                    // password
+    int dbid;                       // database ID
+    char status;                    // account status
+    struct htpasswdData * next;     // next entry
 } htpasswdData;
 
 // konfiguracja vhostow

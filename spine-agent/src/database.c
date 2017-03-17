@@ -237,7 +237,7 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     MYSQL_ROW row;
     
     // zapytanie pobierajace liste kont htpasswd
-    char * query = mkString("SELECT CONCAT(login, ':', password) AS htpasswd FROM www_users WHERE system_id = ",
+    char * query = mkString("SELECT id, login, password, status FROM www_users WHERE system_id = ",
                             "(SELECT id FROM sysinfo WHERE system_id = '", hostid, "')", NULL);
     
     // obsluga listy kont htpasswd
@@ -251,12 +251,23 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     if(!mysql_query(dbh, query)) {
         if((res = mysql_store_result(dbh)) != NULL) {
             if(mysql_num_rows(res) > 0) {
-                while((row = mysql_fetch_row(res))) {
-                    len = strlen(row[0]) + 1;
-                    curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-                    curr->entry = (char *) malloc(len * sizeof(char));
-                    memset(curr->entry, '\0', len);
-                    strncpy(curr->entry, row[0], len);
+                while((row = mysql_fetch_row(res))) {  
+                    curr = (htpasswdData *) malloc(sizeof(htpasswdData));                   
+                    // get ID
+                    curr->dbid = atoi(row[0]);                    
+                    // get login
+                    len = strlen(row[1]) + 1;
+                    curr->login = (char *) malloc(len * sizeof(char));
+                    memset(curr->login, '\0', len);
+                    strncpy(curr->login, row[1], len);                  
+                    // get password
+                    len = strlen(row[2]) + 1;
+                    curr->pass = (char *) malloc(len * sizeof(char));
+                    memset(curr->pass, '\0', len);
+                    strncpy(curr->pass, row[2], len);
+                    // get status
+                    curr->status = row[3][0];
+                    // closing node
                     curr->next = NULL;
 
                     if(head == NULL)
