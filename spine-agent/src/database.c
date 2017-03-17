@@ -230,18 +230,6 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
-httpdata ReadWWWConfiguration(char * hostid, FILE * lf) {
-    char * msg = NULL;      // komunikaty z logami
-    httpdata results;
-    
-    if((results.htpasswd = ReadHtpasswdData(hostid)) == NULL)
-        msg = mkString("[WARNING] Brak danych na temat userow apacza", NULL);
-    if((results.vhost = ReadVhostData(hostid)) == NULL)
-        msg = mkString("[WARNING] Brak danych na temat vhostow", NULL);
-    writeLog(lf, msg);
-    
-    return results;
-}
 htpasswdData * ReadHtpasswdData(char * hostid) {
     // Zmienne umozliwiajace wyciaganie danych z bazy
     extern MYSQL * dbh;

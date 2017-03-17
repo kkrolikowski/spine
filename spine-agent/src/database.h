@@ -51,9 +51,6 @@ int checkDBConfigVer(char * systemid);
 // zawartosc do zaalokowanego obszaru pamieci.
 char * readData(char * input);
 
-// funkcja wczytuje konfiguracje serwera www z bazy do pamieci.
-httpdata ReadWWWConfiguration(char * hostid, FILE * lf);
-
 // funkcja tworzy liste laczona zawierajaca konta htpasswd
 htpasswdData * ReadHtpasswdData(char * hostid);
 

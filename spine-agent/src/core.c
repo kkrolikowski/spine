@@ -619,7 +619,11 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            conf->httpd = ReadWWWConfiguration(hostid, lf);
+            conf->httpd.vhost = ReadVhostData(hostid);
+            status = 1;
+        }
+        if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
+            conf->httpd.htpasswd = ReadHtpasswdData(hostid);
             status = 1;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
