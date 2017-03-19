@@ -6,14 +6,14 @@
 
 /*			FUNKCJE			*/
 
-// funkcja tworzy string na podstawie listy elementow
-char * readHtpasswdData(htpasswdData * htuser);
-
 // funkcja czysci elementy listy elementow
 void clearHtpasswdData(htpasswdData * htpasswd);
 
 // funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
-char * apacheConfigPackage(httpdata www);
+char * apacheConfigPackage(vhostData www);
+
+// function builds htpasswd configuration package
+char * htpasswdConfigPackage(htpasswdData htpass);
 
 // tworzenie pliku htpasswd
 void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd);
@@ -62,17 +62,9 @@ void removeVhost(char * os, vhostData * vhd);
 int getVhostPackageSize(vhostData * vhd);
 
 // funkcja zwraca wartosc pamieci potrzebna do przechowania opcji z kontami htpasswd
-int getHtPasswdPackageSize(htpasswdData * htp);
-
-// funkcja zwraca liczbe vhostow apacza odczytanych z bazy;
-int getVhostsCount(vhostData *vh);
-
-// funkcja zwraca liczbe kont htpasswd odczytanych z bazy
-int getHTusersCount(htpasswdData * htp);
+int htusersDataSize(htpasswdData * htpass);
 
 // funkcja czysci dynamiczna lista konfiuracji vhostow
 void cleanVhostData(vhostData * vhd);
-
-int getApachedataSize(httpdata www);
 
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */

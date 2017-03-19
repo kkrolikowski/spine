@@ -38,6 +38,7 @@ typedef struct htpasswdData {
     char * pass;                    // password
     int dbid;                       // database ID
     char status;                    // account status
+    int version;                    // config version
     struct htpasswdData * next;     // next entry
 } htpasswdData;
 

@@ -88,7 +88,7 @@ char * jsonVal(const char * json, const char * pattern);
 int clientNeedUpdate(char * clientData);
 
 // funkcja kumuluje konfigi w jednego jsona
-char * BuildConfigurationPackage(hostconfig * data);
+char * buildConfigPackage(hostconfig * data);
 
 // funkcja zwraca 1 jesli plik istnieje
 int fileExist(char * path);

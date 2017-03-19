@@ -30,18 +30,7 @@ char * sysusersPackage(sysuser * su) {
     
     // klucze dla wartosci w pakiecie i inne stale elementy
     char * header = "{scope:sysusers,";
-    char * s_user = "user_";
-    char * s_id = "dbid:";
-    char * s_username = "username:";
-    char * s_password = "password:";
-    char * s_gecos = "gecos:";
-    char * s_active = "active:";
-    char * s_uidgid = "uidgid:";
-    char * s_shell = "shell:";
-    char * s_expire = "expire:";
     char * s_version = "config_ver:";
-    char * s_sudo = "sudo:";
-    char * s_status = "status:";
     
     if(su == NULL)
         return NULL;
@@ -66,27 +55,25 @@ char * sysusersPackage(sysuser * su) {
         s_sudo_val = int2String(su_curr->sudo);
         keyentry = sshkeysPackage(su_curr->sshkey);
         
-        entry = mkString(s_user, s_index, ":{",
-                         s_id, s_id_val, ",",
-                         s_username, su_curr->login, ",",
-                         s_password, su_curr->sha512, ",",
-                         s_gecos, su_curr->gecos, ",",
-                         s_expire, s_expval_val, ",",
-                         s_uidgid, s_uidgid_val, ",",
-                         s_active, s_active_val, ",",
-                         s_shell, s_shell_val, ",",
-                         s_sudo, s_sudo_val, ",",
-                         s_status, su_curr->status, ",",
-                         keyentry, NULL);
+        entry = mkString(
+                        "user_",        s_index,           ":{",
+                        "dbid:",        s_id_val,           ",",
+                        "username:",    su_curr->login,     ",",
+                        "password:",    su_curr->sha512,    ",",
+                        "gecos:",       su_curr->gecos,     ",",
+                        "expire:",      s_expval_val,       ",",
+                        "uidgid:",      s_uidgid_val,       ",",
+                        "active:",      s_active_val,       ",",
+                        "shell:",       s_shell_val,        ",",
+                        "sudo:",        s_sudo_val,         ",",
+                        "status:",      su_curr->status,    ",",
+                        keyentry,                           NULL
+                    );
         strncat(package, entry, strlen(entry) + 1);
         strncat(package, "},", 3);
-        if(su_curr->next == NULL) {
+        if(su_curr->next == NULL)
             s_cfgver = int2String(su_curr->version);
-            strncat(package, s_version, strlen(s_version));
-            strncat(package, s_cfgver, strlen(s_cfgver));
-        }
-        
-        if(s_cfgver != NULL)     free(s_cfgver);
+              
         if(keyentry != NULL)     free(keyentry);
         if(entry != NULL)        free(entry);
         if(s_index != NULL)      free(s_index);
@@ -100,8 +87,11 @@ char * sysusersPackage(sysuser * su) {
         index++;
         su_curr = su_curr->next;
     }
+    strncat(package, s_version, strlen(s_version));
+    strncat(package, s_cfgver, strlen(s_cfgver));
     strncat(package, "}", 2);
     
+    free(s_cfgver);
     cleanSysUsersData(su);
     return package;
 }                                               
@@ -188,7 +178,8 @@ int getSysUsersPackageSize(sysuser * su) {
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "dbid:," "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
-                            "user_:", "sudo:,", "status:,", "{},", NULL};
+                            "user_:", "sudo:,", "status:,", "config_version:,", "{},", NULL
+                          };
     const char ** key = keys;
     while(*key) {
         keysize += strlen(*key);
@@ -237,7 +228,7 @@ int getSysUsersPackageSize(sysuser * su) {
         pos = pos->next;
     }
     size += keysize * userCount;
-    size += strlen("{scope:sysusers,},config_ver:");
+    size += strlen("{scope:sysusers,},");
     
     return size;
 }
