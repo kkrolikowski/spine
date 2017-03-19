@@ -323,7 +323,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     
                     if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
-                        configstring = BuildConfigurationPackage(&config);
+                        configstring = buildConfigPackage(&config);
                         clifd = connector(net.ipaddr, 2016);
                         SendPackage(clifd, configstring);
 
