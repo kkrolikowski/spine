@@ -226,16 +226,14 @@ void ParseConfigData(char * json, hostconfig * conf) {
     conf->sysUsers = NULL;
     char * pos = json;          // ustawiamy sie na poczatku pakietu
     // przetwarzamy typ pakietu
-    conf->datatype = jsonVal(pos, "datatype");
+    conf->datatype = jsonVal(json, "datatype");
      
-    if((pos = strstr(pos, "scope:sysusers")) != NULL)
+    if((pos = strstr(json, "scope:sysusers")) != NULL)
        conf->sysUsers = ParseConfigDataSYSUSERS(pos);
-    else
-        pos = json;
-    if((pos = strstr(pos, "scope:apache")) != NULL)
-       conf->httpd = ParseConfigDataAPACHE(pos);
-    else
-       pos = json;
+    if((pos = strstr(json, "scope:apache")) != NULL)
+       conf->httpd.vhost = ParseConfigDataAPACHE(pos);
+    if((pos = strstr(json, "scope:htusers")) != NULL)
+       conf->httpd.htpasswd = ParseConfigDataHTPASSWD(pos);
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
     int i = 0;                                          // biezacy numer konta
@@ -295,31 +293,13 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
     }
     return head;  
 }
-httpdata ParseConfigDataAPACHE(char * json) {
-    httpdata www;               // konfiguracja odczytana z pakietu
-    www.htpasswd = NULL;
-    www.vhost = NULL;
+vhostData * ParseConfigDataAPACHE(char * json) {
     int i;                      // biezacy numer vhosta
     char * config_pos = NULL;   // pozycja w stringu wzgledem vhost_(n)
     char * vheader = NULL;      // tutaj bedzie naglowek vhost_(n)
     char * index = NULL;        // biezacy numer vhosta w formie stringu
     char * sdbid = NULL;        // id vhosta w bazie
     char * authbasic = NULL;    // wartosc tekstowa skladnika password_access
-    
-    // przetwarzamy calkowita liczbe vhostow
-    char * vhostnum_s = jsonVal(json, "vhost_num");
-    int vhostCount = atoi(vhostnum_s);
-    free(vhostnum_s);
-    
-    // przetwarzamy calkowita liczbe kont htpasswd
-    int htusersCount = 0;
-    char * htusers_count_s = jsonVal(json, "htpasswd_count");
-    if(htusers_count_s != NULL) {
-        htusersCount = atoi(htusers_count_s);
-        free(htusers_count_s); 
-    }
-    
-    char * htpasswd_s = NULL;   // string przechowujacy dane htpasswd
     char * config_ver_s = NULL; // wersja konfiguracji apacza (string)
 
     // inicjujemy liste laczona
@@ -327,10 +307,9 @@ httpdata ParseConfigDataAPACHE(char * json) {
     vhostData * prev = NULL;
     vhostData * head = NULL;
     
-    for(i = 0; i < vhostCount; i++) {
-        index = int2String(i);
-        vheader = mkString("vhost_", index, NULL);
-        config_pos = strstr(json, vheader);
+    index = int2String(i);
+    vheader = mkString("vhost_", index, NULL);
+    while((config_pos = strstr(json, vheader)) != NULL) {
         authbasic = jsonVal(config_pos, "authbasic");
         config_ver_s = jsonVal(config_pos, "config_ver");
         sdbid = jsonVal(config_pos, "dbid");
@@ -358,25 +337,18 @@ httpdata ParseConfigDataAPACHE(char * json) {
             prev->next = curr;
         prev = curr;
         
-        free(sdbid);
         free(vheader);
-        free(authbasic);
         free(index);
+        free(authbasic);
         free(config_ver_s);
+        free(sdbid);
         
+        i++;
+        index = int2String(i);
+        vheader = mkString("vhost_", index, NULL);
     }
-    if(htusersCount > 0) {
-        htpasswd_s = jsonVal(json, "htpasswd");
-        www.htpasswd = parseHtpasswdData(htpasswd_s);
-        free(htpasswd_s);
-    }
-    www.vhost = head;
-    if(head != NULL)
-        www.version = head->version;
-    else
-        www.version = 0;
     
-    return www;
+    return head;
 }
 char * linuxDistro(void) {
 	char buff[128];
