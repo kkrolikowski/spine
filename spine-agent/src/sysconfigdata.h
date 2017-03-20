@@ -101,7 +101,4 @@ vhostData * ParseConfigDataAPACHE(char * json);
 // funckcja wczytuje do pamieci dane kont systemowych
 sysuser * ParseConfigDataSYSUSERS(char * json);
 
-// funkcja zwraca liczbe wystapien tekstu w stringu
-int JSONsearchString(char * json, char * needle);
-
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
