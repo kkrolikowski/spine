@@ -198,53 +198,6 @@ void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd) {
 	}
 	clearHtpasswdData(htpasswd);
 }
-htpasswdData * parseHtpasswdData(char * stream) {
-	htpasswdData * head = NULL;
-	htpasswdData * curr = NULL;
-	htpasswdData * prev = NULL;
-	char buff[256];
-	size_t buff_len = 0;
-	int i = 0;
-
-	memset(buff, '\0', 256);
-
-	while(*stream) {
-		if(*stream == '#') {
-			buff_len = strlen(buff) + 1;
-			curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-			curr->entry = (char *) malloc(buff_len * sizeof(char));
-			memset(curr->entry, '\0', buff_len);
-			strncpy(curr->entry, buff, buff_len);
-			curr->next = NULL;
-
-			if(head == NULL)
-				head = curr;
-			else
-				prev->next = curr;
-			prev = curr;
-
-			memset(buff, '\0', 256);
-			i = 0;
-			stream++;
-		}
-		buff[i] = *stream;
-		stream++; i++;
-	}
-	buff_len = strlen(buff) + 1;
-	curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-	curr->entry = (char *) malloc(buff_len * sizeof(char));
-	memset(curr->entry, '\0', buff_len);
-	strncpy(curr->entry, buff, buff_len);
-	curr->next = NULL;
-
-	if(head == NULL)
-		head = curr;
-	else
-		prev->next = curr;
-	prev = curr;
-
-	return head;
-}
 void createHtgroupFile(char * path, vhostData * vhd) {
     FILE * htgroup;
 

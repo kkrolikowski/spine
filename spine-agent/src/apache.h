@@ -18,9 +18,6 @@ char * htpasswdConfigPackage(htpasswdData * htpass);
 // tworzenie pliku htpasswd
 void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd);
 
-// odczyt danych tekstowych do struktury danych
-htpasswdData * parseHtpasswdData(char * stream);
-
 void createHtgroupFile(char * path, vhostData * vhd);
 
 // funkcja konfiguruje konta i grupy do uwierzytelaninia userow poprzez apacza
