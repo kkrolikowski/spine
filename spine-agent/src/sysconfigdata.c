@@ -236,11 +236,18 @@ void ParseConfigData(char * json, hostconfig * conf) {
        conf->httpd.htpasswd = ParseConfigDataHTPASSWD(pos);
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
-    int i = 0;                                          // biezacy numer konta
-    char * config_pos = NULL;                           // pozycja wzgledem user_(n)
-    char * uheader = NULL;                              // tutaj znajdzie sie naglowek user_(n)
-    char * index = NULL;                                // biezacy numer konta w formie stringu
-    char * tmp = NULL;                                  // tymczasowe przechowanie stringu
+    int i               = 0;                            // actual number of processed data items
+    char * config_pos   = NULL;                         // relative position in input string
+    char * uheader      = NULL;                         // this is header of data portion
+    char * index        = NULL;                         // actual position of user data
+    char * tmp          = NULL;                         // helper variable for converting string into numeric vals
+    char * end          = strstr(json, "config_ver:");  // when to stop
+    int cfgver          = 0;                            // config version
+    
+    // processing config version
+    tmp = jsonVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
     
     // inicjalizacja danych do listy laczonej
     sysuser * head = NULL;
@@ -249,7 +256,7 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
     
     index = int2String(i);
     uheader = mkString("user_", index, NULL);
-    while((config_pos = strstr(json, uheader)) != NULL) {
+    while((config_pos = strstr(json, uheader)) != NULL && config_pos < end) {
           curr = (sysuser *) malloc(sizeof(sysuser));
         
         curr->gecos         = jsonVal(config_pos, "gecos");
@@ -275,9 +282,7 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
         tmp                 = jsonVal(config_pos, "sudo");
         curr->sudo          = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(config_pos, "config_ver:");
-        curr->version       = atoi(tmp);
-        free(tmp);
+        curr->version       = cfgver;
         
         curr->sshkey        = readSSHKeysFromPackage(strstr(config_pos, "sshkey_0"));
         curr->next = NULL;
@@ -298,11 +303,18 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
     return head;  
 }
 htpasswdData * ParseConfigDataHTPASSWD(char * json) {
-    int i = 0;                                          // biezacy numer konta
-    char * config_pos = NULL;                           // pozycja wzgledem user_(n)
-    char * uheader = NULL;                              // tutaj znajdzie sie naglowek user_(n)
-    char * index = NULL;                                // biezacy numer konta w formie stringu
-    char * tmp = NULL;                                  // tymczasowe przechowanie stringu
+    int i               = 0;                            // actual number of processed data items
+    char * config_pos   = NULL;                         // relative position in input string
+    char * uheader      = NULL;                         // this is header of data portion
+    char * index        = NULL;                         // actual position of user data
+    char * tmp          = NULL;                         // helper variable for converting string into numeric vals
+    char * end          = strstr(json, "config_ver:");  // when to stop 
+    int cfgver          = 0;                            // config version
+    
+    // processing config version
+    tmp = jsonVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
     
     // inicjalizacja danych do listy laczonej
     htpasswdData * head = NULL;
@@ -311,7 +323,7 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     
     index = int2String(i);
     uheader = mkString("user_", index, NULL);
-    while((config_pos = strstr(json, uheader)) != NULL) {
+    while((config_pos = strstr(json, uheader)) != NULL && config_pos < end) {
         curr = (htpasswdData *) malloc(sizeof(sysuser));
         
         curr->login         = jsonVal(config_pos, "login");
@@ -324,7 +336,7 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
         tmp                 = jsonVal(config_pos, "status");
         curr->status        = tmp[0];
         free(tmp);
-        
+        curr->version       = cfgver;
         curr->next = NULL;
         
         if(head == NULL)
@@ -343,14 +355,17 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     return head;  
 }
 vhostData * ParseConfigDataAPACHE(char * json) {
-    int i;                      // biezacy numer vhosta
-    char * config_pos = NULL;   // pozycja w stringu wzgledem vhost_(n)
-    char * vheader = NULL;      // tutaj bedzie naglowek vhost_(n)
-    char * index = NULL;        // biezacy numer vhosta w formie stringu
-    char * sdbid = NULL;        // id vhosta w bazie
-    char * authbasic = NULL;    // wartosc tekstowa skladnika password_access
-    char * config_ver_s = NULL; // wersja konfiguracji apacza (string)
-
+    int i = 0;                                          // actual number of processed data items
+    char * config_pos   = NULL;                         // relative position in input string
+    char * vheader      = NULL;                         // this is header of data portion
+    char * index        = NULL;                         // actual position of user data
+    char * sdbid        = NULL;                         // DB ID of a record
+    char * authbasic    = NULL;                         // this flag triggers configuration of authbasic
+    char * config_ver_s = NULL;                         // config version
+    char * end          = strstr(json, "config_ver:");  // when to stop
+    
+    config_ver_s = jsonVal(json, "config_ver");
+    
     // inicjujemy liste laczona
     vhostData * curr = NULL;
     vhostData * prev = NULL;
@@ -358,9 +373,8 @@ vhostData * ParseConfigDataAPACHE(char * json) {
     
     index = int2String(i);
     vheader = mkString("vhost_", index, NULL);
-    while((config_pos = strstr(json, vheader)) != NULL) {
+    while((config_pos = strstr(json, vheader)) != NULL && config_pos < end) {
         authbasic = jsonVal(config_pos, "authbasic");
-        config_ver_s = jsonVal(config_pos, "config_ver");
         sdbid = jsonVal(config_pos, "dbid");
         
         curr = (vhostData *) malloc(sizeof(vhostData));
@@ -389,13 +403,13 @@ vhostData * ParseConfigDataAPACHE(char * json) {
         free(vheader);
         free(index);
         free(authbasic);
-        free(config_ver_s);
         free(sdbid);
         
         i++;
         index = int2String(i);
         vheader = mkString("vhost_", index, NULL);
     }
+    free(config_ver_s);
     
     return head;
 }
