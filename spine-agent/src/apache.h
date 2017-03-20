@@ -10,10 +10,10 @@
 void clearHtpasswdData(htpasswdData * htpasswd);
 
 // funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
-char * apacheConfigPackage(vhostData www);
+char * apacheConfigPackage(vhostData * www);
 
 // function builds htpasswd configuration package
-char * htpasswdConfigPackage(htpasswdData htpass);
+char * htpasswdConfigPackage(htpasswdData * htpass);
 
 // tworzenie pliku htpasswd
 void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd);

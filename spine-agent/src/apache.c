@@ -44,7 +44,7 @@ int htusersDataSize(htpasswdData * htpass) {
     
     return sum;
 }
-char * htpasswdConfigPackage(htpasswdData htpass) {
+char * htpasswdConfigPackage(htpasswdData * htpass) {
     int vidx = 0;			// vhost index
     size_t packageSize = 0;             // package size
     char * package          = NULL;     // output package
@@ -116,7 +116,7 @@ void clearHtpasswdData(htpasswdData * htpasswd) {
         clearHtpasswdData(next);
     free(curr);
 }
-char * apacheConfigPackage(vhostData www) {
+char * apacheConfigPackage(vhostData * www) {
     int vidx = 0;			// vhost index
     size_t packageSize = 0;             // package size
     char * package          = NULL;     // output package
