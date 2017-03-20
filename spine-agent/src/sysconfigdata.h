@@ -101,4 +101,7 @@ vhostData * ParseConfigDataAPACHE(char * json);
 // funckcja wczytuje do pamieci dane kont systemowych
 sysuser * ParseConfigDataSYSUSERS(char * json);
 
+// function writes to memory htpasswd content
+htpasswdData * ParseConfigDataHTPASSWD(char * json);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

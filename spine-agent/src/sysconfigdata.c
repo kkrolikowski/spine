@@ -293,7 +293,52 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
         
         i++;
         index = int2String(i);
-        uheader = mkString("vhost_", index, NULL);
+        uheader = mkString("user_", index, NULL);
+    }
+    return head;  
+}
+htpasswdData * ParseConfigDataHTPASSWD(char * json) {
+    int i = 0;                                          // biezacy numer konta
+    char * config_pos = NULL;                           // pozycja wzgledem user_(n)
+    char * uheader = NULL;                              // tutaj znajdzie sie naglowek user_(n)
+    char * index = NULL;                                // biezacy numer konta w formie stringu
+    char * tmp = NULL;                                  // tymczasowe przechowanie stringu
+    
+    // inicjalizacja danych do listy laczonej
+    htpasswdData * head = NULL;
+    htpasswdData * curr = NULL;
+    htpasswdData * prev = NULL;
+    
+    index = int2String(i);
+    uheader = mkString("user_", index, NULL);
+    while((config_pos = strstr(json, uheader)) != NULL) {
+        curr = (htpasswdData *) malloc(sizeof(sysuser));
+        
+        curr->login         = jsonVal(config_pos, "login");
+        curr->pass          = jsonVal(config_pos, "password");
+        curr->status        = jsonVal(config_pos, "status");
+        
+        tmp                 = jsonVal(config_pos, "dbid");
+        curr->dbid          = atoi(tmp);
+        free(tmp);
+        tmp                 = jsonVal(config_pos, "status");
+        curr->status        = tmp[0];
+        free(tmp);
+        
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;      
+        
+        free(uheader);
+        free(index);
+        
+        i++;
+        index = int2String(i);
+        uheader = mkString("user_", index, NULL);
     }
     return head;  
 }
