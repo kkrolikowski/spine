@@ -16,12 +16,14 @@ char * apacheConfigPackage(vhostData * www);
 char * htpasswdConfigPackage(htpasswdData * htpass);
 
 // tworzenie pliku htpasswd
-void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd);
+resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata);
+
+resp * HtpasswdSetup(htpasswdData * htp, char * os, resp * rdata);
 
 void createHtgroupFile(char * path, vhostData * vhd);
 
 // funkcja konfiguruje konta i grupy do uwierzytelaninia userow poprzez apacza
-void apacheAuthConfig(char * os, vhostData * vhd, htpasswdData * authData, FILE * lf);
+void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf);
 
 // funkcja konfiguruje opcje order apacza na podstawie informacji z bazy
 char * accessOrder(char * str);

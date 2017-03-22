@@ -185,18 +185,94 @@ char * apacheConfigPackage(vhostData * www) {
 
     return package;
 }
-void createHtpasswdFile(char * htpasswdFilePath, htpasswdData * htpasswd) {
-	FILE * htpasswd_file = NULL;
-	htpasswdData * pos = htpasswd;
-
-	if((htpasswd_file = fopen(htpasswdFilePath, "w")) != NULL) {
-		while(pos != NULL) {
-			fprintf(htpasswd_file, "%s\n", pos->entry);
-			pos = pos->next;
-		}
-		fclose(htpasswd_file);
-	}
-	clearHtpasswdData(htpasswd);
+resp * HtpasswdSetup(htpasswdData * htp, char * os, resp * rdata) {
+    char * authDir = NULL;      // os related directory "auth" path
+    char * htpasswdPath = NULL; // file path to .htpasswd
+    
+    // response data
+    resp * data = NULL;
+    
+    // let's create path to .htpasswd file
+    if(!strcmp(os, "Ubuntu"))
+        authDir = "/etc/apache2/auth";
+    else
+        authDir = "/etc/httpd/auth";
+    htpasswdPath = mkString(authDir, "/.htpasswd", NULL);
+    
+    // let's create auth directory
+    if(mkdir(authDir, 0755) < 0) {
+        if(errno == EEXIST)
+            data = createHtpasswdFile(htp, htpasswdPath, rdata);
+        else
+            return NULL;           // error creating directory
+    }
+    else
+        data = createHtpasswdFile(htp, htpasswdPath, rdata);
+    
+    free(htpasswdPath);
+    
+    return data;
+}
+resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
+    FILE * htpasswd = NULL;         // filehandler for .htpasswd
+    htpasswdData * curr = htp;      // current position in memory
+    char * buff = NULL;             // buffer with logins and passwords
+    char * entry = NULL;            // buffer entry;
+    char * scope = "htusers";       // response scope
+    size_t buffLen = 0;             // amount of memory for buffer
+    
+    // response data
+    resp * rhead = rdata;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    // obtaining memory size to allocate
+    while(curr) {
+        if(curr->status == 'N' || curr->status == 'U')
+            buffLen += strlen(curr->login) + strlen(curr->pass) + 2;
+        curr = curr->next;
+    }
+    
+    // preparing memory for all entries which should be placed in .htpasswd file
+    buffLen += 1;
+    buff = (char *) malloc(buffLen * sizeof(char));
+    memset(buff, '\0', buffLen);
+    
+    // feeding the buffer and creating response nodes for further processing
+    curr = htp;
+    while(curr) {
+        rcurr = (resp *) malloc(sizeof(resp));
+        if(curr->status == 'N' || curr->status == 'U') {
+            entry = mkString(curr->login, ":", curr->pass, "\n", NULL);
+            strncat(buff, entry, strlen(entry));
+            free(entry);         
+            rcurr->status = 'A';
+        }
+        else
+            rcurr->status = 'D';
+        
+        rcurr->dbid = curr->dbid;
+        rcurr->scope = (char *) malloc((strlen(scope) +1) * sizeof(char));
+        memset(rcurr->scope, '\0', strlen(scope) +1);
+        strncpy(rcurr->scope, scope, strlen(scope));
+        rcurr->next = NULL;
+        
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+        
+        curr = curr->next;
+    }
+    
+    if((htpasswd = fopen(path, "w")) == NULL)
+        return NULL;
+    fputs(buff, htpasswd);
+    fclose(htpasswd);
+    free(buff);
+    
+    return rhead;
 }
 void createHtgroupFile(char * path, vhostData * vhd) {
     FILE * htgroup;
@@ -206,11 +282,10 @@ void createHtgroupFile(char * path, vhostData * vhd) {
         fclose(htgroup);
     }
 }
-void apacheAuthConfig(char * os, vhostData * vhd, htpasswdData * authData, FILE * lf) {
+void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
     char * lmsg = NULL;
     char * authDir = NULL;
     char * htgroupFilePath = NULL;
-    char * htpasswdFilePath = NULL;
 
     if(!strcmp(os, "Ubuntu"))
         authDir = "/etc/apache2/auth";
@@ -218,12 +293,10 @@ void apacheAuthConfig(char * os, vhostData * vhd, htpasswdData * authData, FILE 
         authDir = "/etc/httpd/auth";
     
     htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
-    htpasswdFilePath = mkString(authDir, "/.htpasswd", NULL);
     
     if(mkdir(authDir, 0755) < 0) {
         if(errno == EEXIST) {
             createHtgroupFile(htgroupFilePath, vhd);
-            createHtpasswdFile(htpasswdFilePath, authData);
         }
         else {
             lmsg = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", authDir, "\n", NULL);
@@ -232,7 +305,6 @@ void apacheAuthConfig(char * os, vhostData * vhd, htpasswdData * authData, FILE 
     }
     else {
         createHtgroupFile(htgroupFilePath, vhd);
-        createHtpasswdFile(htpasswdFilePath, authData);
     }
 }
 char * accessOrder(char * str) {

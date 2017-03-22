@@ -270,6 +270,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                         if(!strcmp(config.datatype, "hostconfig")) {
                             if(config.httpd.vhost != NULL)
                                 updateApacheSetup(config.httpd, os, lf);
+                            if(config.httpd.htpasswd != NULL)
+                                HtpasswdSetup(config.httpd.htpasswd, os, updateMSGdata);
                             if(config.sysUsers != NULL) {
                                 if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
                                     updateMSGdataString = backMessage(updateMSGdata);
