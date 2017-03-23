@@ -226,6 +226,9 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     resp * rcurr = NULL;
     resp * rprev = NULL;
     
+    while(rhead != NULL)
+        rhead = rhead->next;
+    
     // obtaining memory size to allocate
     while(curr) {
         if(curr->status == 'N' || curr->status == 'U')
@@ -265,13 +268,13 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
         
         curr = curr->next;
     }
-    
-    if((htpasswd = fopen(path, "w")) == NULL)
-        return NULL;
-    fputs(buff, htpasswd);
-    fclose(htpasswd);
-    free(buff);
-    
+    if(strlen(buff)) {
+        if((htpasswd = fopen(path, "w")) == NULL)
+            return NULL;
+        fputs(buff, htpasswd);
+        fclose(htpasswd);
+        free(buff);
+    }
     return rhead;
 }
 void createHtgroupFile(char * path, vhostData * vhd) {
@@ -662,7 +665,6 @@ void cleanVhostData(vhostData * vhd) {
 }
 resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
     vhostData * vh = www.vhost;
-    htpasswdData * authData = www.htpasswd;
     char * htaccessPath = NULL;
     char * lmsg = NULL;
     
@@ -676,7 +678,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         if(!strcmp(vh->status, "N") || !strcmp(vh->status, "U")) {
             if(createVhostConfig(os, vh, lf)) {
                 if(vh->password_access)
-                    apacheAuthConfig(os, vh, authData, lf);
+                    apacheAuthConfig(os, vh, lf);
                 if(!strcmp(vh->status, "N"))
                     createWebsiteDir(vh->DocumentRoot);
                 if(strcmp(vh->htaccess, "NaN"))
@@ -712,12 +714,6 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         }
         free(htaccessPath);
         vh = vh->next;
-    }
-    if(authData != NULL) {
-        createHtpasswdFile(os, www.htpasswd);
-    }
-    else {
-        clearAuthData(os);
     }
     
     lmsg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
