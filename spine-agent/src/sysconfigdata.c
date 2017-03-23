@@ -328,7 +328,9 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
         
         curr->login         = jsonVal(config_pos, "login");
         curr->pass          = jsonVal(config_pos, "password");
-        curr->status        = jsonVal(config_pos, "status");
+        tmp                 = jsonVal(config_pos, "status");
+        curr->status        = tmp[0];
+        free(tmp);
         
         tmp                 = jsonVal(config_pos, "dbid");
         curr->dbid          = atoi(tmp);
