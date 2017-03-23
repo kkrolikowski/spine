@@ -613,16 +613,20 @@ char * updateGroup(char * buff, char * login) {
     
     return entry;
 }
-resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
     char * homedir = NULL;
     
     // response to server
-    resp * rhead = NULL;
+    resp * rhead = respdata;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    
+    // moving to the end of the list
+    while(rhead != NULL)
+        rhead = rhead->next;
     
     while(curr) {
         if(!strcmp(curr->status, "N")) {

@@ -271,9 +271,9 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             if(config.httpd.vhost != NULL)
                                 updateMSGdata = updateApacheSetup(config.httpd, os, lf);
                             if(config.httpd.htpasswd != NULL)
-                                HtpasswdSetup(config.httpd.htpasswd, os, updateMSGdata);
+                                updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, updateMSGdata);
                             if(config.sysUsers != NULL) {
-                                if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
+                                if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata)) != NULL) {
                                     updateMSGdataString = backMessage(updateMSGdata);
                                     clifd = connector(net.ipaddr, 2016);
                                     SendPackage(clifd, updateMSGdataString);
