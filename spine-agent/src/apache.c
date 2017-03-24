@@ -332,9 +332,17 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
     
     if(mkdir(authDir, 0755) < 0) {
         if(errno == EEXIST) {
-            if(!createHtgroupFile(htgroupFilePath, vhd)) {
-                lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
-                writeLog(lf, lmsg);
+            if(vhd->password_access) {
+                if(!createHtgroupFile(htgroupFilePath, vhd)) {
+                    lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
+                    writeLog(lf, lmsg);
+                }
+            }
+            else {
+                if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
+                    lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
+                    writeLog(lf, lmsg);
+                }
             }
         }
         else {
@@ -343,7 +351,14 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
         }
     }
     else {
-        createHtgroupFile(htgroupFilePath, vhd);
+        if(vhd->password_access)
+            createHtgroupFile(htgroupFilePath, vhd);
+        else {
+            if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
+                lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
+                writeLog(lf, lmsg);
+            }
+        }
     }
 }
 char * accessOrder(char * str) {
@@ -713,8 +728,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         htaccessPath = mkString(vh->DocumentRoot, "/.htaccess", NULL);
         if(!strcmp(vh->status, "N") || !strcmp(vh->status, "U")) {
             if(createVhostConfig(os, vh, lf)) {
-                if(vh->password_access)
-                    apacheAuthConfig(os, vh, lf);
+                apacheAuthConfig(os, vh, lf);
                 if(!strcmp(vh->status, "N"))
                     createWebsiteDir(vh->DocumentRoot);
                 if(strcmp(vh->htaccess, "NaN"))
@@ -757,4 +771,42 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
     reloadApache(os);
     
     return rhead;
+}
+int removeFromHtGroupFile(char * path, char * entry) {
+    FILE * htgroup = NULL;
+    FILE * tmp = NULL;
+    const int Size = 1024;
+    char buff[Size];
+    
+    if((htgroup = fopen(path, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htgroup);
+        return 0;
+    }
+    
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, htgroup) != NULL) {
+        if(strstr(buff, entry) != NULL)
+            continue;
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', Size);
+    }
+    fclose(htgroup);
+    rewind(tmp);
+    
+    if((htgroup = fopen(path, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, tmp) != NULL) {
+        fputs(buff, htgroup);
+        memset(buff, '\0', Size);
+    }
+    fclose(tmp);
+    fclose(htgroup);
+    
+    return 1;
 }

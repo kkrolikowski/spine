@@ -66,4 +66,7 @@ int htusersDataSize(htpasswdData * htpass);
 // funkcja czysci dynamiczna lista konfiuracji vhostow
 void cleanVhostData(vhostData * vhd);
 
+// removing entry fron .htgroup
+int removeFromHtGroupFile(char * path, char * entry);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */
