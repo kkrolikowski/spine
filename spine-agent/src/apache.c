@@ -592,19 +592,14 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     return 1;
 }
 void clearAuthData(char * os) {
-	char * htpasswd_path = NULL;
-	char * htgroup_path = NULL;
+    char * htgroup_path = NULL;
 
-	if(!strcmp(os, "Ubuntu")) {
-		htpasswd_path = "/etc/apache2/auth/.htpasswd";
-		htgroup_path = "/etc/apache2/auth/.htgroup";
-	}
-	else if(strstr(os, "Centos") != NULL) {
-		htpasswd_path = "/etc/httpd/auth/.htpasswd";
-		htgroup_path = "/etc/httpd/auth/.htgroup";
-	}
-	if(fileExist(htgroup_path))
-		unlink(htgroup_path);
+    if(!strcmp(os, "Ubuntu"))
+        htgroup_path = "/etc/apache2/auth/.htgroup";
+    else if(strstr(os, "Centos") != NULL)
+        htgroup_path = "/etc/httpd/auth/.htgroup";
+    if(fileExist(htgroup_path))
+        unlink(htgroup_path);
 }
 void removeVhost(char * os, vhostData * vhd) {
     char * vhostConfig = NULL;
