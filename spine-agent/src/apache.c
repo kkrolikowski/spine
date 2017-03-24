@@ -277,13 +277,46 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     }
     return rhead;
 }
-void createHtgroupFile(char * path, vhostData * vhd) {
-    FILE * htgroup;
+int createHtgroupFile(char * path, vhostData * vhd) {
+    FILE * htgroup = NULL;
+    FILE * tmp = NULL;
+    char * entry = NULL;
+    const int BufSize = 1024;
+    char buff[BufSize];
 
-    if((htgroup = fopen(path, "w")) != NULL) {
-        fprintf(htgroup, "%s: %s\n", vhd->ServerName, vhd->htusers);
+    if((htgroup = fopen(path, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
         fclose(htgroup);
+        return 0;
     }
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, htgroup) != NULL) {
+        if(strstr(buff, vhd->ServerName) != NULL) {
+            entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
+            fputs(entry, tmp);
+            free(entry);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(htgroup);
+    rewind(tmp);
+    
+    if((htgroup = fopen(path, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, htgroup);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(tmp);
+    fclose(htgroup);
+    
+    return 1;
 }
 void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
     char * lmsg = NULL;
@@ -299,7 +332,10 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
     
     if(mkdir(authDir, 0755) < 0) {
         if(errno == EEXIST) {
-            createHtgroupFile(htgroupFilePath, vhd);
+            if(!createHtgroupFile(htgroupFilePath, vhd)) {
+                lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
+                writeLog(lf, lmsg);
+            }
         }
         else {
             lmsg = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", authDir, "\n", NULL);
