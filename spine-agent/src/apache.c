@@ -603,9 +603,6 @@ void clearAuthData(char * os) {
 		htpasswd_path = "/etc/httpd/auth/.htpasswd";
 		htgroup_path = "/etc/httpd/auth/.htgroup";
 	}
-
-	if(fileExist(htpasswd_path))
-		unlink(htpasswd_path);
 	if(fileExist(htgroup_path))
 		unlink(htgroup_path);
 }
@@ -718,6 +715,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
     vhostData * vh = www.vhost;
     char * htaccessPath = NULL;
     char * lmsg = NULL;
+    int authItems = 0;
     
     // response to server
     resp * rhead = NULL;
@@ -729,6 +727,8 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         if(!strcmp(vh->status, "N") || !strcmp(vh->status, "U")) {
             if(createVhostConfig(os, vh, lf)) {
                 apacheAuthConfig(os, vh, lf);
+                if(vh->password_access)
+                    authItems++;
                 if(!strcmp(vh->status, "N"))
                     createWebsiteDir(vh->DocumentRoot);
                 if(strcmp(vh->htaccess, "NaN"))
@@ -765,6 +765,8 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         free(htaccessPath);
         vh = vh->next;
     }
+    if(!authItems)
+        clearAuthData(os);
     
     lmsg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
     writeLog(lf, lmsg);
