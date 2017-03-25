@@ -9,40 +9,43 @@
 #include "core.h"
 
 int htusersDataSize(htpasswdData * htpass) {
-    int sum = 0;
-    int userCount = 0;
-    char * tmp = NULL;
-    htpasswdData * curr = htpass;
-    char * header = "{scope:htusers,}";
+    htpasswdData * curr = htpass;       // current node
+    int size = 0;                       // overrall data size
+    int keySize = 0;                    // key names size
+    int nodeCount = 0;                  // processed nodes count
+    char * tmp = NULL;                  // temporary string
+
+    // package header
+    char * header = "{scope:htusers,}";    
+    // package keys names
     char * keys[] = { "login:,", "password:,", "dbid:,", 
                       "status:,", "config_version:,", NULL 
                     };
     char ** key = keys;
-    int keySize = 0; 
+    
+    while(*key)
+        keySize += strlen(*key++);
     
     while(curr) {
-        sum += strlen(curr->login);
-        sum += strlen(curr->pass);
+        size += strlen(curr->login);
+        size += strlen(curr->pass);
         
         tmp = int2String(curr->dbid);
-        sum += strlen(tmp);
+        size += strlen(tmp);
         free(tmp);
-        sum += 1;
+        size += 1;          // one byte for status flag in each item
         if(curr->next == NULL) {
             tmp = int2String(curr->version);
-            sum += strlen(tmp);
+            size += strlen(tmp);
             free(tmp);
         }
-        userCount++;
+        nodeCount++;
         curr = curr->next;
     }
-    while(*key++)
-        keySize += strlen(*key);
-    keySize *= userCount;
+    size += strlen(header);
+    size += keySize * nodeCount;
     
-    sum += keySize + strlen(header);
-    
-    return sum;
+    return size;
 }
 char * htpasswdConfigPackage(htpasswdData * htpass) {
     int vidx = 0;			// vhost index
@@ -634,17 +637,16 @@ int getVhostPackageSize(vhostData * vhd) {
     
     // package header 
     char * header = "{scope:apache,},";
-    // nazwy kluczy w pakiecie;
+    // package keys names
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
                             "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
                             "vhost_:", "dbid:,", "{},", NULL};
-    const char ** key = keys;
+    const char ** key = keys;    
     
-    while(*key) {
-        keySize += strlen(*key);
-        key++;
-    }
+    while(*key)
+        keySize += strlen(*key++);
+    
     while(curr) {
         // string data
         size += strlen(curr->DocumentRoot);
