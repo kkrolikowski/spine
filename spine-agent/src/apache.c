@@ -626,13 +626,13 @@ void removeVhost(char * os, vhostData * vhd) {
     if(vhostDir != NULL) free(vhostDir);
 }
 int getVhostPackageSize(vhostData * vhd) {
-    int size = 0;           // licznik bajtow
-    int keysize = 0;        // rozmiar kluczy w pakiecie
-    vhostData * pos = vhd;  // aktualna pozycja w pamieci
-    char * tmp = NULL;      // tymczasowa zmienna do przechowania
-                            // wartosci numerycznych w formie stringu
-    int vhostCount = 0;     // zliczanie liczby vhostow
-
+    vhostData * curr = vhd;     // current node
+    int size = 0;               // overrall data size
+    int keySize = 0;            // key names size
+    int nodeCount = 0;          // processed nodes count
+    char * tmp = NULL;          // temporary string
+    
+    // package header 
     char * header = "{scope:apache,},";
     // nazwy kluczy w pakiecie;
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
@@ -640,48 +640,49 @@ int getVhostPackageSize(vhostData * vhd) {
                             "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
                             "vhost_:", "dbid:,", "{},", NULL};
     const char ** key = keys;
+    
     while(*key) {
-        keysize += strlen(*key);
+        keySize += strlen(*key);
         key++;
     }
-    while(pos) {
-        // Dane tekstowe
-        size += strlen(pos->DocumentRoot);
-        size += strlen(pos->ServerAlias);
-        size += strlen(pos->ServerName);
-        size += strlen(pos->apacheOpts);
-        size += strlen(pos->htaccess);
-        size += strlen(pos->htusers);
-        size += strlen(pos->purgedir);
-        size += strlen(pos->status);
-        size += strlen(pos->user);
-        size += strlen(pos->vhost_access_list);
-        size += strlen(pos->vhost_access_order);
+    while(curr) {
+        // string data
+        size += strlen(curr->DocumentRoot);
+        size += strlen(curr->ServerAlias);
+        size += strlen(curr->ServerName);
+        size += strlen(curr->apacheOpts);
+        size += strlen(curr->htaccess);
+        size += strlen(curr->htusers);
+        size += strlen(curr->purgedir);
+        size += strlen(curr->status);
+        size += strlen(curr->user);
+        size += strlen(curr->vhost_access_list);
+        size += strlen(curr->vhost_access_order);
 
-        // Dane numeryczne;
-        tmp = int2String(pos->password_access);
+        // numeric data
+        tmp = int2String(curr->password_access);
         size += strlen(tmp);
         free(tmp);
         
-        tmp = int2String(vhostCount);
+        tmp = int2String(nodeCount);
         size += strlen(tmp);
         free(tmp);
         
-        tmp = int2String(pos->dbid);
+        tmp = int2String(curr->dbid);
         size += strlen(tmp);
         free(tmp);
         
-        if(pos->next == NULL) {
-            tmp = int2String(pos->version);
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
             size += strlen(tmp);
             free(tmp);
         }
                 
-        vhostCount++;
-        pos = pos->next;
+        nodeCount++;
+        curr = curr->next;
     }
     size += strlen(header);
-    size += keysize * vhostCount;
+    size += keySize * nodeCount;
     
     return size;
 }
