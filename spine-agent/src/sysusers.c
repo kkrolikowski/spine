@@ -168,68 +168,68 @@ void cleanSSHKeyData(sshkeys * k) {
     free(curr);
 }
 int getSysUsersPackageSize(sysuser * su) {
-    int size = 0;           // licznik bajtow
-    int keysize = 0;        // rozmiar kluczy w pakiecie
-    sysuser * pos = su;     // aktualna pozycja w pamieci
-    char * tmp = NULL;      // tymczasowa zmienna do przechowania
-                            // wartosci numerycznych w formie stringu
-    int userCount = 0;      // zliczanie liczby userow
+    sysuser * curr = su;    // current node
+    int size = 0;           // overrall data size
+    int keySize = 0;        // key names size
+    int nodeCount = 0;      // processed nodes count
+    char * tmp = NULL;      // temporary string
     
-    // nazwy kluczy w pakiecie;
+    // package header 
+    char * header = "{scope:sysusers,},";  
+    // package keys names
     const char * keys[] = { "dbid:," "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
                             "user_:", "sudo:,", "status:,", "config_version:,", "{},", NULL
                           };
     const char ** key = keys;
-    while(*key) {
-        keysize += strlen(*key);
-        key++;
-    }
     
-    while(pos) {
-        // Dane tekstowe
-        size += strlen(pos->gecos);
-        size += strlen(pos->login);
-        size += strlen(pos->sha512);
-        size += strlen(pos->status);
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        // string data
+        size += strlen(curr->gecos);
+        size += strlen(curr->login);
+        size += strlen(curr->sha512);
+        size += strlen(curr->status);
         
-        // Dane numeryczne;
-        tmp = int2String(pos->dbid);
+        // numeric data
+        tmp = int2String(curr->dbid);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->active);
+        tmp = int2String(curr->active);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->expiration);
+        tmp = int2String(curr->expiration);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->shellaccess);
+        tmp = int2String(curr->shellaccess);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->uidgid);
+        tmp = int2String(curr->uidgid);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->sudo);
+        tmp = int2String(curr->sudo);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(userCount);
+        tmp = int2String(nodeCount);
         size += strlen(tmp);
         free(tmp);
         
-        if(pos->next == NULL) {
-            tmp = int2String(pos->version);
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
             size += strlen(tmp);
             free(tmp);
         }
-        // klucze ssh
-        size += getSSHkeysPackageSize(pos->sshkey);
+        // ssh keys
+        size += getSSHkeysPackageSize(curr->sshkey);
         
-        userCount++;
-        pos = pos->next;
+        nodeCount++;
+        curr = curr->next;
     }
-    size += keysize * userCount;
-    size += strlen("{scope:sysusers,},");
-    
+    size += strlen(header);
+    size += keySize * nodeCount;
+
     return size;
 }
 int getSSHkeysPackageSize(sshkeys * ssh) {
