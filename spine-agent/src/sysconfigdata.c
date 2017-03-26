@@ -236,55 +236,57 @@ void ParseConfigData(char * json, hostconfig * conf) {
        conf->httpd.htpasswd = ParseConfigDataHTPASSWD(pos);
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
-    int i               = 0;                            // actual number of processed data items
-    char * config_pos   = NULL;                         // relative position in input string
-    char * uheader      = NULL;                         // this is header of data portion
-    char * index        = NULL;                         // actual position of user data
-    char * tmp          = NULL;                         // helper variable for converting string into numeric vals
-    char * end          = strstr(json, "config_ver:");  // when to stop
-    int cfgver          = 0;                            // config version
+    char * offset   = NULL;             // relative position in input string
+    char * iheader  = NULL;             // this is header of data portion
+    char * idx      = NULL;             // actual position of user data
+    char * tmp      = NULL;             // helper variable for converting string into numeric vals
+    int i           = 0;                // actual number of processed data items
+    int cfgver      = 0;                // config version
+    
+    // when to end reading input data
+    char * end      = strstr(json, "config_ver:");
+    
+    // system accounts data nodes
+    sysuser * head = NULL;
+    sysuser * curr = NULL;
+    sysuser * prev = NULL;
     
     // processing config version
     tmp = jsonVal(json, "config_ver");
     cfgver = atoi(tmp);
     free(tmp);
     
-    // inicjalizacja danych do listy laczonej
-    sysuser * head = NULL;
-    sysuser * curr = NULL;
-    sysuser * prev = NULL;
-    
-    index = int2String(i);
-    uheader = mkString("user_", index, NULL);
-    while((config_pos = strstr(json, uheader)) != NULL && config_pos < end) {
-          curr = (sysuser *) malloc(sizeof(sysuser));
+    idx = int2String(i);
+    iheader = mkString("user_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
+        curr = (sysuser *) malloc(sizeof(sysuser));
         
-        curr->gecos         = jsonVal(config_pos, "gecos");
-        curr->login         = jsonVal(config_pos, "username");
-        curr->sha512        = jsonVal(config_pos, "password");
-        curr->status        = jsonVal(config_pos, "status");
+        curr->gecos         = jsonVal(offset, "gecos");
+        curr->login         = jsonVal(offset, "username");
+        curr->sha512        = jsonVal(offset, "password");
+        curr->status        = jsonVal(offset, "status");
         
-        tmp                 = jsonVal(config_pos, "dbid");
+        tmp                 = jsonVal(offset, "dbid");
         curr->dbid          = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(config_pos, "active");
+        tmp                 = jsonVal(offset, "active");
         curr->active        = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(config_pos, "uidgid");
+        tmp                 = jsonVal(offset, "uidgid");
         curr->uidgid        = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(config_pos, "shell");
+        tmp                 = jsonVal(offset, "shell");
         curr->shellaccess   = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(config_pos, "expire");
+        tmp                 = jsonVal(offset, "expire");
         curr->expiration    = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(config_pos, "sudo");
+        tmp                 = jsonVal(offset, "sudo");
         curr->sudo          = atoi(tmp);
         free(tmp);
         curr->version       = cfgver;
         
-        curr->sshkey        = readSSHKeysFromPackage(strstr(config_pos, "sshkey_0"));
+        curr->sshkey        = readSSHKeysFromPackage(strstr(offset, "sshkey_0"));
         curr->next = NULL;
         
         if(head == NULL)
@@ -293,12 +295,12 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
             prev->next = curr;
         prev = curr;      
         
-        free(uheader);
+        free(iheader);
         free(index);
         
         i++;
         index = int2String(i);
-        uheader = mkString("user_", index, NULL);
+        iheader = mkString("user_", index, NULL);
     }
     return head;  
 }
