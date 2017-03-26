@@ -48,6 +48,7 @@ int htusersDataSize(htpasswdData * htpass) {
     return size;
 }
 char * htpasswdConfigPackage(htpasswdData * htpass) {
+    // common data
     htpasswdData * curr     = htpass;   // node traversing pointer
     int size = 0;                       // package size
     int idx  = 0;			// item number
@@ -55,21 +56,22 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
     char * numstr           = NULL;	// item number as a string
     char * entry            = NULL;     // particular entry definition
     char * s_dbid           = NULL;     // DB ID in a form of string
+    // specific data
     char status[2];                     // status flags can be: NUDA
 
-    // naglowek pakietu danych
+    // package header
     char * header = "{scope:htusers,";
 
-    // wersja konfiguracji kont htpasswd
+    // config version
     char * k_config_ver = "config_ver:";
     char * s_config_ver = NULL;
 
-    // zaalokowania pamieci dla calego pakietu
+    // preparing memory
     size = htusersDataSize(htpass) + 1;
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
   
-    // budujemy pakiet
+    // building a package
     strncpy(package, header, strlen(header));
     while(curr) {
         numstr = int2String(idx);
