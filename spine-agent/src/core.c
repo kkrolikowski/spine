@@ -600,11 +600,11 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            conf->httpd.vhost = ReadVhostData(hostid);
+            conf->httpd.vhost = ReadVhostData(hostid); // getVhostData
             status = 1;
         }
         if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
-            conf->httpd.htpasswd = ReadHtpasswdData(hostid);
+            conf->httpd.htpasswd = ReadHtpasswdData(hostid); // getHtpasswdData
             status = 1;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
