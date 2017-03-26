@@ -65,7 +65,10 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
     // config version
     char * k_config_ver = "config_ver:";
     char * s_config_ver = NULL;
-
+    
+    if(htpass == NULL)
+        return NULL;
+    
     // preparing memory
     size = htusersDataSize(htpass) + 1;
     package = (char *) malloc(size * sizeof(char));
@@ -95,6 +98,7 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
         free(s_dbid);
         free(entry);
         free(numstr);
+        idx++;
         curr = curr->next;
     }
 
@@ -140,6 +144,9 @@ char * apacheConfigPackage(vhostData * www) {
     char * k_config_ver = "config_ver:";
     char * s_config_ver = NULL;
 
+    if(www == NULL)
+        return NULL;
+    
     // preparing memory
     size = getVhostPackageSize(www) + 1;
     package = (char *) malloc(size * sizeof(char));
