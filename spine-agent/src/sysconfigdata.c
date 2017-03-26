@@ -305,40 +305,39 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
     return head;  
 }
 htpasswdData * ParseConfigDataHTPASSWD(char * json) {
-    int i               = 0;                            // actual number of processed data items
-    char * config_pos   = NULL;                         // relative position in input string
-    char * uheader      = NULL;                         // this is header of data portion
-    char * index        = NULL;                         // actual position of user data
-    char * tmp          = NULL;                         // helper variable for converting string into numeric vals
-    char * end          = strstr(json, "config_ver:");  // when to stop 
-    int cfgver          = 0;                            // config version
-    
-    // processing config version
-    tmp = jsonVal(json, "config_ver");
-    cfgver = atoi(tmp);
-    free(tmp);
+    char * offset       = NULL;        // relative position in input string
+    char * iheader      = NULL;        // this is header of data portion
+    char * idx          = NULL;        // actual position of user data
+    char * tmp          = NULL;        // helper variable for converting string into numeric vals
+    int i               = 0;           // actual number of processed data items
+    int cfgver          = 0;           // config version
+ 
+    // when to end reading input data
+    char * end          = strstr(json, "config_ver:");
     
     // inicjalizacja danych do listy laczonej
     htpasswdData * head = NULL;
     htpasswdData * curr = NULL;
     htpasswdData * prev = NULL;
     
-    index = int2String(i);
-    uheader = mkString("user_", index, NULL);
-    while((config_pos = strstr(json, uheader)) != NULL && config_pos < end) {
+    // processing config version
+    tmp = jsonVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
+    
+    idx = int2String(i);
+    iheader = mkString("user_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
         curr = (htpasswdData *) malloc(sizeof(sysuser));
         
-        curr->login         = jsonVal(config_pos, "login");
-        curr->pass          = jsonVal(config_pos, "password");
-        tmp                 = jsonVal(config_pos, "status");
+        curr->login         = jsonVal(offset, "login");
+        curr->pass          = jsonVal(offset, "password");
+        tmp                 = jsonVal(offset, "status");
         curr->status        = tmp[0];
         free(tmp);
         
-        tmp                 = jsonVal(config_pos, "dbid");
+        tmp                 = jsonVal(offset, "dbid");
         curr->dbid          = atoi(tmp);
-        free(tmp);
-        tmp                 = jsonVal(config_pos, "status");
-        curr->status        = tmp[0];
         free(tmp);
         curr->version       = cfgver;
         curr->next = NULL;
@@ -349,12 +348,12 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
             prev->next = curr;
         prev = curr;      
         
-        free(uheader);
-        free(index);
+        free(iheader);
+        free(idx);
         
         i++;
-        index = int2String(i);
-        uheader = mkString("user_", index, NULL);
+        idx = int2String(i);
+        iheader = mkString("user_", idx, NULL);
     }
     return head;  
 }
