@@ -48,31 +48,31 @@ int htusersDataSize(htpasswdData * htpass) {
     return size;
 }
 char * htpasswdConfigPackage(htpasswdData * htpass) {
-    int vidx = 0;			// vhost index
-    size_t packageSize = 0;             // package size
+    htpasswdData * curr     = htpass;   // node traversing pointer
+    int size = 0;                       // package size
+    int idx  = 0;			// item number
     char * package          = NULL;     // output package
-    char * numstr           = NULL;	// htuser index as a string
-    char * entry            = NULL;     // particular htuser definition
+    char * numstr           = NULL;	// item number as a string
+    char * entry            = NULL;     // particular entry definition
     char * s_dbid           = NULL;     // DB ID in a form of string
     char status[2];                     // status flags can be: NUDA
-    htpasswdData * curr     = htpass;   // node traversing pointer
 
     // naglowek pakietu danych
-    char * package_header = "{scope:htusers,";
+    char * header = "{scope:htusers,";
 
     // wersja konfiguracji kont htpasswd
     char * k_config_ver = "config_ver:";
     char * s_config_ver = NULL;
 
     // zaalokowania pamieci dla calego pakietu
-    packageSize = htusersDataSize(htpass) + 1;
-    package = (char *) malloc(packageSize * sizeof(char));
-    memset(package, '\0', packageSize);
+    size = htusersDataSize(htpass) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
   
     // budujemy pakiet
-    strncpy(package, package_header, strlen(package_header));
+    strncpy(package, header, strlen(header));
     while(curr) {
-        numstr = int2String(vidx);
+        numstr = int2String(idx);
         s_dbid = int2String(curr->dbid);
         memset(status, '\0', 2);
         status[0] = curr->status;
@@ -120,61 +120,63 @@ void clearHtpasswdData(htpasswdData * htpasswd) {
     free(curr);
 }
 char * apacheConfigPackage(vhostData * www) {
-    int vidx = 0;			// vhost index
-    size_t packageSize = 0;             // package size
-    char * package          = NULL;     // output package
-    char * numstr           = NULL;	// vhost index as a string
-    char * entry            = NULL;     // particular vhost definition
-    char * authbasic        = NULL;	// authbasic flag
-    char * s_dbid           = NULL;     // DB ID in a form of string
-    vhostData * vhpos       = www;      // node traversing pointer
+    // common data
+    vhostData * curr       = www;       // node traversing pointer
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    // specific data
+    char * authbasic       = NULL;	// authbasic flag
 
-    // naglowek pakietu danych
-    char * package_header = "{scope:apache,";
+    // package header
+    char * header = "{scope:apache,";
 
-    // wersja konfiguracji apacza
+    // config version
     char * k_config_ver = "config_ver:";
     char * s_config_ver = NULL;
 
-    // zaalokowania pamieci dla calego pakietu
-    packageSize = getVhostPackageSize(www) + 1;
-    package = (char *) malloc(packageSize * sizeof(char));
-    memset(package, '\0', packageSize);
+    // preparing memory
+    size = getVhostPackageSize(www) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
 
-    // budujemy pakiet
-    strncpy(package, package_header, strlen(package_header)); // definiujemy typ konfiguracji (apache)
-    while(vhpos) {
-        numstr = int2String(vidx);
-        authbasic = int2String(vhpos->password_access);
-        s_dbid = int2String(vhpos->dbid);
+    // package building
+    strncpy(package, header, strlen(header)); // configuration type
+    while(curr) {
+        numstr = int2String(idx);
+        authbasic = int2String(curr->password_access);
+        s_dbid = int2String(curr->dbid);
         entry = mkString(
                         "vhost_", numstr, ":{",
-                        "dbid:",             s_dbid,                    ",",
-                        "ServerName:",       vhpos->ServerName,         ",",
-                        "ServerAlias:",      vhpos->ServerAlias,        ",",
-                        "DocumentRoot:",     vhpos->DocumentRoot,       ",",
-                        "ApacheOpts:",       vhpos->apacheOpts,         ",",
-                        "VhostAccessOrder:", vhpos->vhost_access_order, ",",
-                        "VhostAccessList:",  vhpos->vhost_access_list,  ",",
-                        "htaccess:",         vhpos->htaccess,           ",",
-                        "authbasic:",        authbasic,                 ",",
-                        "htusers:",          vhpos->htusers,            ",",
-                        "vhoststatus:",      vhpos->status,             ",",
-                        "purgedir:",         vhpos->purgedir,           ",",
-                        "user:",             vhpos->user,               "}",
+                        "dbid:",             s_dbid,                   ",",
+                        "ServerName:",       curr->ServerName,         ",",
+                        "ServerAlias:",      curr->ServerAlias,        ",",
+                        "DocumentRoot:",     curr->DocumentRoot,       ",",
+                        "ApacheOpts:",       curr->apacheOpts,         ",",
+                        "VhostAccessOrder:", curr->vhost_access_order, ",",
+                        "VhostAccessList:",  curr->vhost_access_list,  ",",
+                        "htaccess:",         curr->htaccess,           ",",
+                        "authbasic:",        authbasic,                ",",
+                        "htusers:",          curr->htusers,            ",",
+                        "vhoststatus:",      curr->status,             ",",
+                        "purgedir:",         curr->purgedir,           ",",
+                        "user:",             curr->user,               "}",
                         ",", NULL);
         strncat(package, entry, strlen(entry) + 1);
-        if(vhpos->next == NULL)
-            s_config_ver = int2String(vhpos->version);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
 
         // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
         free(s_dbid);
         free(entry);
         free(numstr);
         free(authbasic);
-        if(strcmp(vhpos->ServerName, "NaN"))
-            vidx++;
-        vhpos = vhpos->next;
+        if(strcmp(curr->ServerName, "NaN"))
+            idx++;
+        curr = curr->next;
     }
 
     // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
