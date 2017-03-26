@@ -296,11 +296,11 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
         prev = curr;      
         
         free(iheader);
-        free(index);
+        free(idx);
         
         i++;
-        index = int2String(i);
-        iheader = mkString("user_", index, NULL);
+        idx = int2String(i);
+        iheader = mkString("user_", idx, NULL);
     }
     return head;  
 }
@@ -359,43 +359,51 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     return head;  
 }
 vhostData * ParseConfigDataAPACHE(char * json) {
-    int i = 0;                                          // actual number of processed data items
-    char * config_pos   = NULL;                         // relative position in input string
-    char * vheader      = NULL;                         // this is header of data portion
-    char * index        = NULL;                         // actual position of user data
-    char * sdbid        = NULL;                         // DB ID of a record
-    char * authbasic    = NULL;                         // this flag triggers configuration of authbasic
-    char * config_ver_s = NULL;                         // config version
-    char * end          = strstr(json, "config_ver:");  // when to stop
+    char * offset       = NULL;         // relative position in input string
+    char * iheader      = NULL;         // this is header of data portion
+    char * idx          = NULL;         // actual position of user data
+    char * tmp          = NULL;         // tmp string for converting data to numeric types
+    int i               = 0;            // actual number of processed data items
+    int cfgver          = 0;            // configuration version
     
-    config_ver_s = jsonVal(json, "config_ver");
+    // when to end reading input data
+    char * end          = strstr(json, "config_ver:");
     
-    // inicjujemy liste laczona
+    // apache vhosts data nodes
     vhostData * curr = NULL;
     vhostData * prev = NULL;
     vhostData * head = NULL;
     
-    index = int2String(i);
-    vheader = mkString("vhost_", index, NULL);
-    while((config_pos = strstr(json, vheader)) != NULL && config_pos < end) {
-        authbasic = jsonVal(config_pos, "authbasic");
-        sdbid = jsonVal(config_pos, "dbid");
+    // processing config version
+    tmp = jsonVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
+    
+    idx = int2String(i);
+    iheader = mkString("vhost_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
         
         curr = (vhostData *) malloc(sizeof(vhostData));
-        curr->dbid                  = atoi(sdbid);
-        curr->ServerName            = jsonVal(config_pos, "ServerName");
-        curr->ServerAlias           = jsonVal(config_pos, "ServerAlias");
-        curr->DocumentRoot          = jsonVal(config_pos, "DocumentRoot");
-        curr->apacheOpts            = jsonVal(config_pos, "ApacheOpts");
-        curr->vhost_access_order    = jsonVal(config_pos, "VhostAccessOrder");
-        curr->vhost_access_list     = jsonVal(config_pos, "VhostAccessList");
-        curr->htaccess              = jsonVal(config_pos, "htaccess");
-        curr->password_access       = atoi(authbasic);
-        curr->version               = atoi(config_ver_s);
-        curr->user                  = jsonVal(config_pos, "user");
-        curr->htusers               = jsonVal(config_pos, "htusers");
-        curr->status                = jsonVal(config_pos, "vhoststatus");
-        curr->purgedir              = jsonVal(config_pos, "purgedir");
+        curr->ServerName            = jsonVal(offset, "ServerName");
+        curr->ServerAlias           = jsonVal(offset, "ServerAlias");
+        curr->DocumentRoot          = jsonVal(offset, "DocumentRoot");
+        curr->apacheOpts            = jsonVal(offset, "ApacheOpts");
+        curr->vhost_access_order    = jsonVal(offset, "VhostAccessOrder");
+        curr->vhost_access_list     = jsonVal(offset, "VhostAccessList");
+        curr->htaccess              = jsonVal(offset, "htaccess");
+        curr->version               = cfgver;
+        curr->user                  = jsonVal(offset, "user");
+        curr->htusers               = jsonVal(offset, "htusers");
+        curr->status                = jsonVal(offset, "vhoststatus");
+        curr->purgedir              = jsonVal(offset, "purgedir");
+        
+        tmp                         = jsonVal(offset, "authbasic");
+        curr->password_access       = atoi(tmp);
+        free(tmp);
+        tmp                         = jsonVal(offset, "dbid");
+        curr->dbid                  = atoi(tmp);
+        free(tmp);
+        
         curr->next = NULL;
         
         if(head == NULL)
@@ -404,16 +412,13 @@ vhostData * ParseConfigDataAPACHE(char * json) {
             prev->next = curr;
         prev = curr;
         
-        free(vheader);
-        free(index);
-        free(authbasic);
-        free(sdbid);
+        free(iheader);
+        free(idx);
         
         i++;
-        index = int2String(i);
-        vheader = mkString("vhost_", index, NULL);
+        idx = int2String(i);
+        iheader = mkString("vhost_", idx, NULL);
     }
-    free(config_ver_s);
     
     return head;
 }
