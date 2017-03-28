@@ -364,44 +364,16 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
                     writeLog(lf, lmsg);
                 }
             }
+            else {
+                lmsg = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", authDir, "\n", NULL);
+                writeLog(lf, lmsg);
+            }
         }
     }
     else {
         if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
             lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
             writeLog(lf, lmsg);
-        }
-    }
-    
-    
-    if(mkdir(authDir, 0755) < 0) {
-        if(errno == EEXIST) {
-            if(vhd->password_access) {
-                if(!createHtgroupFile(htgroupFilePath, vhd)) {
-                    lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
-                    writeLog(lf, lmsg);
-                }
-            }
-            else {
-                if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
-                    lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
-                    writeLog(lf, lmsg);
-                }
-            }
-        }
-        else {
-            lmsg = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", authDir, "\n", NULL);
-            writeLog(lf, lmsg);
-        }
-    }
-    else {
-        if(vhd->password_access)
-            createHtgroupFile(htgroupFilePath, vhd);
-        else {
-            if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
-                lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
-                writeLog(lf, lmsg);
-            }
         }
     }
 }
