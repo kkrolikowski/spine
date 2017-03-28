@@ -298,8 +298,20 @@ int createHtgroupFile(char * path, vhostData * vhd) {
     const int BufSize = 1024;
     char buff[BufSize];
 
-    if((htgroup = fopen(path, "r")) == NULL)
-        return 0;
+    // when there's no inital .htgroup file
+    if((htgroup = fopen(path, "r")) == NULL) {
+        if((htgroup = fopen(path, "w")) == NULL)
+            return 0;
+        else {
+            entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
+            fputs(entry, htgroup);
+            free(entry);
+            fclose(htgroup);
+            return 1;
+        }
+    }
+    
+    // .htgroup exists, we can proceed 
     if((tmp = tmpfile()) == NULL) {
         fclose(htgroup);
         return 0;
@@ -343,6 +355,24 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
         authDir = "/etc/httpd/auth";
     
     htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
+    
+    if(vhd->password_access) {
+        if(mkdir(authDir, 0755) < 0) {
+            if(errno == EEXIST) {
+                if(!createHtgroupFile(htgroupFilePath, vhd)) {
+                    lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
+                    writeLog(lf, lmsg);
+                }
+            }
+        }
+    }
+    else {
+        if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
+            lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
+            writeLog(lf, lmsg);
+        }
+    }
+    
     
     if(mkdir(authDir, 0755) < 0) {
         if(errno == EEXIST) {
