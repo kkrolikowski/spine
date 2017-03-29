@@ -391,6 +391,7 @@ CREATE TABLE `www_users` (
   `login` varchar(45) DEFAULT NULL,
   `password` varchar(128) DEFAULT NULL,
   `system_id` int(11) DEFAULT NULL,
+  `status` varchar(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -439,4 +440,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-02  0:21:05
+-- Dump completed on 2017-03-29 21:26:33
