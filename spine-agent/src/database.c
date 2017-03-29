@@ -619,7 +619,7 @@ void delete(char * scope, int id) {
     char * sid = int2String(id);
     
     if(!strcmp(scope, "apache"))
-       query = mkString("DELETE ROM www WHERE id = ", sid, NULL); 
+       query = mkString("DELETE FROM www WHERE id = ", sid, NULL); 
     if(!strcmp(scope, "htusers"))
        query = mkString("DELETE FROM www_users WHERE id = ", sid, NULL);
     if(!strcmp(scope, "sysusers"))
