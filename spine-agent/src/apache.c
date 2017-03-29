@@ -369,6 +369,12 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
                 writeLog(lf, lmsg);
             }
         }
+        else {
+            if(!createHtgroupFile(htgroupFilePath, vhd)) {
+                lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
+                writeLog(lf, lmsg);
+            }
+        }
     }
     else {
         if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
