@@ -92,4 +92,10 @@ sshkeys * readSSHkeys(char * str);
 // function updates db records with information provided from client
 int applyStatusChange(resp * data);
 
+// activate item in db table
+void activate(char * scope, int id);
+
+// deletes item from db table
+void delete(char * scope, int id);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

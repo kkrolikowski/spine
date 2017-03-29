@@ -583,34 +583,49 @@ sshkeys * readSSHkeys(char * str) {
     return head;
 }
 int applyStatusChange(resp * data) {
-    extern MYSQL * dbh;
-    char * query = NULL;
     resp * curr = data;
-    char stat[2];
-    char * tmp = NULL;
     
     while(curr) {
-        stat[0] = curr->status;
-        stat[1] = '\0';
-        tmp = int2String(curr->dbid);
+        if(curr->status == 'A')
+            activate(curr->scope, curr->dbid);
+        if(curr->status == 'D')
+            delete(curr->scope, curr->dbid);
         
-        if(!strcmp(curr->scope, "sysusers")) {
-            if(curr->status == 'D')
-                query = mkString("DELETE FROM sysusers WHERE id = ", tmp, NULL);
-            else
-                query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
-        }
-        if(!strcmp(curr->scope, "apache")) {
-            if(curr->status == 'D')
-                query = mkString("DELETE FROM www WHERE id = ", tmp, NULL);
-            else
-                query = mkString("UPDATE www SET status = '", stat, "' WHERE id = ", tmp, NULL);
-        }
-        mysql_query(dbh, query);
-        
-        free(tmp);
-        free(query);
         curr = curr->next;
     }
     return 1;
+}
+void activate(char * scope, int id) {
+    extern MYSQL * dbh;
+    
+    char * query = NULL;
+    char * sid = int2String(id);
+    
+    if(!strcmp(scope, "apache"))
+       query = mkString("UPDATE www SET status = 'A' WHERE id = ", sid, NULL); 
+    if(!strcmp(scope, "htusers"))
+       query = mkString("UPDATE www_users SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "sysusers"))
+       query = mkString("UPDATE sysusers SET status = 'A' WHERE id = ", sid, NULL);
+    
+    mysql_query(dbh, query);
+    free(query);
+    free(sid);
+}
+void delete(char * scope, int id) {
+    extern MYSQL * dbh;
+    
+    char * query = NULL;
+    char * sid = int2String(id);
+    
+    if(!strcmp(scope, "apache"))
+       query = mkString("DELETE ROM www WHERE id = ", sid, NULL); 
+    if(!strcmp(scope, "htusers"))
+       query = mkString("DELETE FROM www_users WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "sysusers"))
+       query = mkString("DELETE FROM sysusers WHERE id = ", sid, NULL);
+    
+    mysql_query(dbh, query);
+    free(query);
+    free(sid);
 }
