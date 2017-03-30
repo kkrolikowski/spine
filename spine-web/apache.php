@@ -33,7 +33,7 @@
 
       $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status, access_order) VALUES('".
       $_POST['sn']. "', '". $ServerAliasClean . "', '". $DocumentRoot. "', '". $htaccess. "', ". $_POST['account'].
-      ", ". $_POST['serverid'] .", 'A', '".$_POST['access_order']."')");
+      ", ". $_POST['serverid'] .", 'N', '".$_POST['access_order']."')");
       $q->execute();
 
       // ustalamy ID vhosta
@@ -186,7 +186,7 @@
       array_push($opts, $value);
     }
     $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $saClean ."', htaccess = '". $_POST['htaccess'].
-                        "', access_order = '".$_POST['access_order']."', htpasswd = ".$_POST['htpasswd']." WHERE id = ". $_GET['edit']);
+                        "', access_order = '".$_POST['access_order']."', htpasswd = ".$_POST['htpasswd'].", status = 'U' WHERE id = ". $_GET['edit']);
     $q->execute();
 
     $q = $dbh->prepare("DELETE FROM www_opts_selected WHERE vhost_id = ". $_GET['edit']);
