@@ -268,20 +268,25 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     packagever = readPackageVersion(clientResponse);
                     if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
-                            if(config.httpd.vhost != NULL)
+                            if(config.httpd.vhost != NULL) {
                                 updateMSGdata = updateApacheSetup(config.httpd, os, lf);
-                            if(config.httpd.htpasswd != NULL)
+                                cleanVhostData(config.httpd.vhost);
+                            }
+                            if(config.httpd.htpasswd != NULL) {
                                 updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, updateMSGdata);
+                                clearHtpasswdData(config.httpd.htpasswd);
+                            }
                             if(config.sysUsers != NULL) {
-                                if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata)) != NULL) {
-                                    updateMSGdataString = backMessage(updateMSGdata);
-                                    clifd = connector(net.ipaddr, 2016);
-                                    SendPackage(clifd, updateMSGdataString);
-                                    close(clifd);
-                                    free(updateMSGdataString);
-                                    cleanMSGdata(updateMSGdata);
-                                }
+                                updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
+                            }
+                            if(updateMSGdata != NULL) {
+                                updateMSGdataString = backMessage(updateMSGdata);
+                                clifd = connector(net.ipaddr, 2016);
+                                SendPackage(clifd, updateMSGdataString);
+                                close(clifd);
+                                free(updateMSGdataString);
+                                cleanMSGdata(updateMSGdata);
                             }
                             if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
