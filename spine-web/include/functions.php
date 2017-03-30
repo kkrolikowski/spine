@@ -53,8 +53,7 @@ function updateConfigVersion($dbh, $serverid, $scope) {
     }
   }
   else {
-    $oldVer += 1;
-    $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$oldVer.", ".$serverid.")");
+    $q = $dbh->prepare("INSERT INTO configver(scope, version, systemid) VALUES('".$scope."', ".$newVer.", ".$serverid.")");
     $q->execute();
   }
 }
