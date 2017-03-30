@@ -16,7 +16,7 @@ int htusersDataSize(htpasswdData * htpass) {
     char * tmp = NULL;                  // temporary string
 
     // package header
-    char * header = "{scope:htusers,}";    
+    char * header = "{scope:htusers,},";    
     // package keys names
     char * keys[] = { "login:,", "password:,", "dbid:,", 
                       "status:,", "config_version:,", NULL 
@@ -88,7 +88,7 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
                         "login:",           curr->login,    ",",
                         "password:",        curr->pass,     ",",
                         "status:",          status,         ",",
-                        ",", NULL);
+                        NULL);
         
         strncat(package, entry, strlen(entry) + 1);
         if(curr->next == NULL)

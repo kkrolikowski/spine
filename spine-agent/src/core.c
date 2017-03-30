@@ -326,7 +326,16 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     
                     if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
                         configstring = buildConfigPackage(&config);
-                        clifd = connector(net.ipaddr, 2016);
+                        if((clifd = connector(net.ipaddr, 2016)) < 0) {
+                            logentry = mkString("[ERROR] could not connect to ", net.ipaddr, NULL);
+                            writeLog(lf, logentry);
+                            free(net.ipaddr);
+                            free(configstring);
+                            free(system_id);
+                            free(clientver_str);
+                            free(datatype);
+                            continue;
+                        }
                         SendPackage(clifd, configstring);
 
                         logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
@@ -553,7 +562,7 @@ char * buildConfigPackage(hostconfig * data) {
         package_size += htusersDataSize(htpass);
     if(su != NULL)
         package_size += getSysUsersPackageSize(su);
-    package_size += strlen(package_header) + 1;
+    package_size += strlen(package_header) + 2;
     
     // preparing memory
     package = (char *) malloc(package_size * sizeof(char));
