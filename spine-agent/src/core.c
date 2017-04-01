@@ -287,6 +287,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 close(clifd);
                                 free(updateMSGdataString);
                                 cleanMSGdata(updateMSGdata);
+                                updateMSGdata = NULL;
                             }
                             if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
@@ -331,8 +332,6 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     
                     if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
                         configstring = buildConfigPackage(&config);
-                        logentry = mkString(configstring, NULL);
-                        writeLog(lf, logentry);
                         if((clifd = connector(net.ipaddr, 2016)) < 0) {
                             logentry = mkString("[ERROR] could not connect to ", net.ipaddr, NULL);
                             writeLog(lf, logentry);
