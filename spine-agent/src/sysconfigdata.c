@@ -311,7 +311,7 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     char * tmp          = NULL;        // helper variable for converting string into numeric vals
     int i               = 0;           // actual number of processed data items
     int cfgver          = 0;           // config version
- 
+    
     // when to end reading input data
     char * end          = strstr(json, "config_ver:");
     
