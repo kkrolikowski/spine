@@ -240,7 +240,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     char * entry = NULL;            // buffer entry;
     char * scope = "htusers";       // response scope
     size_t buffLen = 0;             // amount of memory for buffer
-    
+
     // response data
     resp * rhead = rdata;
     resp * rcurr = NULL;
@@ -251,8 +251,11 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     
     // obtaining memory size to allocate
     while(curr) {
-        if(curr->status == 'N' || curr->status == 'U' || curr->status == 'A')
-            buffLen += strlen(curr->login) + strlen(curr->pass) + 2;
+        if(curr->status == 'N' || curr->status == 'U' || curr->status == 'A') {
+            entry = mkString(curr->login, ":", curr->pass, "\n", NULL);
+            buffLen += strlen(entry);
+            free(entry);
+        }
         curr = curr->next;
     }
     
@@ -293,8 +296,9 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
             return NULL;
         fputs(buff, htpasswd);
         fclose(htpasswd);
-        free(buff);
     }
+    free(buff);
+    
     return rhead;
 }
 int createHtgroupFile(char * path, vhostData * vhd) {
