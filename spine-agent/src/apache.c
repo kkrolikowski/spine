@@ -251,7 +251,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     
     // obtaining memory size to allocate
     while(curr) {
-        if(curr->status == 'N' || curr->status == 'U')
+        if(curr->status == 'N' || curr->status == 'U' || curr->status == 'A')
             buffLen += strlen(curr->login) + strlen(curr->pass) + 2;
         curr = curr->next;
     }
@@ -265,7 +265,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     curr = htp;
     while(curr) {
         rcurr = (resp *) malloc(sizeof(resp));
-        if(curr->status == 'N' || curr->status == 'U') {
+        if(curr->status == 'N' || curr->status == 'U' || curr->status == 'A') {
             entry = mkString(curr->login, ":", curr->pass, "\n", NULL);
             strncat(buff, entry, strlen(entry));
             free(entry);         
