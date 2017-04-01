@@ -570,7 +570,6 @@ char * buildConfigPackage(hostconfig * data) {
         package_size += getSysUsersPackageSize(su);
     package_size += strlen(package_header) + 2;
     
-    //package_size = 1024000;
     // preparing memory
     package = (char *) malloc(package_size * sizeof(char));
     memset(package, '\0', package_size);
