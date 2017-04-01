@@ -355,6 +355,9 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
         idx = int2String(i);
         iheader = mkString("user_", idx, NULL);
     }
+    free(idx);
+    free(iheader);
+    
     return head;  
 }
 vhostData * ParseConfigDataAPACHE(char * json) {
