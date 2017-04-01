@@ -331,6 +331,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     
                     if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
                         configstring = buildConfigPackage(&config);
+                        logentry = mkString(configstring, NULL);
+                        writeLog(lf, logentry);
                         if((clifd = connector(net.ipaddr, 2016)) < 0) {
                             logentry = mkString("[ERROR] could not connect to ", net.ipaddr, NULL);
                             writeLog(lf, logentry);
@@ -569,6 +571,7 @@ char * buildConfigPackage(hostconfig * data) {
         package_size += getSysUsersPackageSize(su);
     package_size += strlen(package_header) + 2;
     
+    //package_size = 1024000;
     // preparing memory
     package = (char *) malloc(package_size * sizeof(char));
     memset(package, '\0', package_size);

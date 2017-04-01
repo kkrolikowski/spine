@@ -18,7 +18,7 @@ int htusersDataSize(htpasswdData * htpass) {
     // package header
     char * header = "{scope:htusers,},";    
     // package keys names
-    char * keys[] = { "login:,", "password:,", "dbid:,", 
+    char * keys[] = { "user_:" "login:,", "password:,", "dbid:,", 
                       "status:,", "config_version:,", NULL 
                     };
     char ** key = keys;
@@ -33,6 +33,12 @@ int htusersDataSize(htpasswdData * htpass) {
         tmp = int2String(curr->dbid);
         size += strlen(tmp);
         free(tmp);
+        
+        // string length of each user index number
+        tmp = int2String(nodeCount);
+        size += strlen(tmp);
+        free(tmp);
+        
         size += 1;          // one byte for status flag in each item
         if(curr->next == NULL) {
             tmp = int2String(curr->version);
@@ -660,7 +666,7 @@ int getVhostPackageSize(vhostData * vhd) {
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
                             "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
-                            "vhost_:", "dbid:,", "{},", NULL};
+                            "vhost_:", "dbid:,", "{},", "authbasic:,", NULL};
     const char ** key = keys;    
     
     while(*key)
