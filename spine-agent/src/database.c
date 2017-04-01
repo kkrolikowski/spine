@@ -307,7 +307,8 @@ vhostData * ReadVhostData(char * hostid) {
                             "www_opts ON www_opts.id = www_opts_selected.opt_id LEFT JOIN www_access ON www_access.vhost_id = www.id LEFT JOIN ",
                             "www_users_access ON (www_users_access.vhost_id = www.id AND www.htpasswd > 0) LEFT JOIN www_users ON ",
                             "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) LEFT JOIN configver ON (configver.systemid = sysinfo.id AND ",
-                            "configver.scope = 'apache') WHERE www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
+                            "configver.scope = 'apache') WHERE www.status NOT LIKE 'A' AND www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid ,
+                            "') GROUP BY www.id", NULL);
     
     // obsluga listy odczytanych vhostow
     vhostData * head = NULL;
