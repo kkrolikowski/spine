@@ -300,7 +300,7 @@ vhostData * ReadVhostData(char * hostid) {
     // zapytanie wyciagajace konfiguracje vhostow z bazy
     char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
                             "configver.version AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
-                            "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
+                            "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR '#') AS accesslist, ",
                             "www.access_order, www.htpasswd AS password_access, case www.htpasswd WHEN 1 THEN GROUP_CONCAT(DISTINCT www_users.login ",
                             "SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir, www.id FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
                             "sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
