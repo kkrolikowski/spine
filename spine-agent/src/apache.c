@@ -388,7 +388,7 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
     }
     else {
         if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
-            lmsg = mkString("[ERROR] (reciver) Error removing entry", vhd->ServerName, " from .htgroup file");
+            lmsg = mkString("[WARNING] (reciver) Error removing (or not exist) entry", vhd->ServerName, " from .htgroup file", NULL);
             writeLog(lf, lmsg);
         }
     }
@@ -760,16 +760,16 @@ int removeFromHtGroupFile(char * path, char * entry) {
     return 1;
 }
 char * vhostACL(char * str) {
-    char * out      = NULL;             // output string
-    char * curr     = str;              // current character in string
-    char * allow    = "Allow from ";    // keywords #1
-    char * deny     = "Deny from ";     // keywords #2
-    int items       = 0;                // items in string to process
-    int acl_seq     = 0;                // number of acl sequences
-    size_t memsize  = 0;                // memory size which handle output string
-    char buff[16];                      // temporary buffer, should be enough
-                                        // to store ip address
-    int index       = 0;                // buffer index
+    char * out      = NULL;                 // output string
+    char * curr     = str;                  // current character in string
+    char * allow    = "\t\tAllow from ";    // keywords #1
+    char * deny     = "\t\tDeny from ";     // keywords #2
+    int items       = 0;                    // items in string to process
+    int acl_seq     = 0;                    // number of acl sequences
+    size_t memsize  = 0;                    // memory size which handle output string
+    char buff[16];                          // temporary buffer, should be enough
+                                            // to store ip address
+    int index       = 0;                    // buffer index
     
     // let's check how many entries we have to process
     while(*curr) {
