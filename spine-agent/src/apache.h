@@ -28,12 +28,6 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf);
 // funkcja konfiguruje opcje order apacza na podstawie informacji z bazy
 char * accessOrder(char * str);
 
-// funckcja zwraca kompletny fragment konfiguracji allow/deny apacza
-char * acl(char * str);
-
-// funckcja generuje pojedynczy wpis w configu apacza Deny from xxx lub Allow from xxx
-char * apache_accesslist_entry(char * str);
-
 // funkcja wywoluje skrypt do przeladowania konfiguracji apacza
 void reloadApache(char * os);
 
@@ -68,5 +62,9 @@ void cleanVhostData(vhostData * vhd);
 
 // removing entry fron .htgroup
 int removeFromHtGroupFile(char * path, char * entry);
+
+// function converts string (example: 192.168.1.1:1#all:0) into apache
+// allow/deny from string.
+char * vhostACL(char * str);
 
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */

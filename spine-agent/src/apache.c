@@ -414,86 +414,6 @@ char * accessOrder(char * str) {
 
 	return order;
 }
-char * acl(char * str) {
-	char buff[256];
-	char chunk[64];
-	char * accesslist = NULL;
-	char * acl_entry = NULL;
-	size_t accesslist_len = 0;
-	int i = 0;
-
-	memset(buff, '\0', 256);
-	memset(chunk, '\0', 64);
-	while(*str) {
-		if(*str == '#') {
-			chunk[i] = '\0';
-			acl_entry = apache_accesslist_entry(chunk);
-			strcat(buff, acl_entry);
-			strcat(buff, "\n");
-			free(acl_entry);
-			i = 0;
-			str++;
-		}
-		else {
-			chunk[i] = *str;
-			str++; i++;
-		}
-	}
-	chunk[i] = '\0';
-	acl_entry = apache_accesslist_entry(chunk);
-	strcat(buff, acl_entry);
-
-	accesslist_len = strlen(buff) + 1;
-	accesslist = (char *) malloc(accesslist_len * sizeof(char));
-	memset(accesslist, '\0', accesslist_len);
-	strncpy(accesslist, buff, accesslist_len);
-	free(acl_entry);
-
-	return accesslist;
-}
-char * apache_accesslist_entry(char * str) {
-	char * allow = "\t\tAllow from ";		// poczatek linijki (allow)
-	char * deny = "\t\tDeny from ";			// poczatek linijki (deny)
-	char * rule = NULL;						// przyjmie wartosc allow lub deny
-	char * rule_entry = NULL;				// adres stringa z pojedyncza regula
-	char * access_val = NULL;				// wartosc 0 lub 1 - allow lub deny
-	char * str_begin = str;					// poczatek stringa przekazanego do funkcji
-	char * access_from = NULL;				// string przechowujacy wartosc from
-	char * access_from_begin = NULL;		// poczatek stringa przechowujacego from
-	long from_len = 0L;						// ilosc pamieci potrzebnej do przechowania wartosci from
-	size_t rule_len = 0;					// ilosc pamieci potrzebnej do przechowania calego entry
-
-	access_val = strchr(str, ':') + 1;							// odszukujemy wartosc allow lub deny
-	from_len = access_val - str_begin;							// okreslamy ilosc pamieci potrzebnej na przechowanie wartosci from
-	access_from = (char *) malloc(from_len * sizeof(char));		// alokujemy pamiec do przechowania wartosci from
-	access_from_begin = access_from;							// zapisujemy adres poczatkowy
-	memset(access_from, '\0', from_len);
-
-	// odczytujemy from ze stringa
-	while(*str_begin != ':') {
-		*access_from = *str_begin;
-		access_from++; str_begin++;
-	}
-	*access_from = '\0';
-
-	// okreslamy czy ma byc Deny from czy Allow from
-	if(strcmp(access_val, "0"))
-		rule = allow;
-	else
-		rule = deny;
-
-	// rezerwujemy pamiec i wypelniamy ja zebranymi danymi
-	rule_len = strlen(rule) + strlen(access_from_begin) + 1;
-	rule_entry = (char *) malloc(rule_len * sizeof(char));
-	memset(rule_entry, '\0', rule_len);
-	strcpy(rule_entry, rule);
-	strcat(rule_entry, access_from_begin);
-
-	// zwalniamy niepotrzebna pamiec
-	free(access_from_begin);
-
-	return rule_entry;
-}
 void reloadApache(char * os) {
 	pid_t pid;
 
@@ -571,7 +491,7 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
         return 0;
     }
     acl_order = accessOrder(vhd->vhost_access_order);
-    acl_entry = acl(vhd->vhost_access_list);
+    acl_entry = vhostACL(vhd->vhost_access_list);
     fprintf(vhost, "<VirtualHost *:80>\n");
     fprintf(vhost, "\tServerName %s\n", vhd->ServerName);
     if(strcmp(vhd->ServerAlias, "NaN"))
@@ -838,4 +758,55 @@ int removeFromHtGroupFile(char * path, char * entry) {
     fclose(htgroup);
     
     return 1;
+}
+char * vhostACL(char * str) {
+    char * out      = NULL;             // output string
+    char * curr     = str;              // current character in string
+    char * allow    = "Allow from ";    // keywords #1
+    char * deny     = "Deny from ";     // keywords #2
+    int items       = 0;                // items in string to process
+    int acl_seq     = 0;                // number of acl sequences
+    size_t memsize  = 0;                // memory size which handle output string
+    char buff[16];                      // temporary buffer, should be enough
+                                        // to store ip address
+    int index       = 0;                // buffer index
+    
+    // let's check how many entries we have to process
+    while(*curr) {
+        if(*curr == '#')
+            items++;
+        curr++;
+    }
+    items += 1;                 // there's allways one item more than #
+    acl_seq = 2 * items;        // acl sequeces are 2 times more than items
+    
+    // size of input string + string length of longest direcive - number
+    // of streering acl sequences + two extra bytes, one for newline, second
+    // for string zero sign.
+    memsize = strlen(str) + (strlen(allow) * items) - acl_seq + 2;
+    out = (char *) malloc(memsize * sizeof(char));
+    memset(out, '\0', memsize);
+    
+    // let's move to the begining and prepare temporary buffer
+    curr = str;
+    memset(buff, '\0', 16);
+    while(*curr) {
+        if(*curr != ':')
+            buff[index++] = *curr++;
+        else {
+            if(*(curr + 1) == '1')
+                strncat(out, allow, strlen(allow));
+            else
+                strncat(out, deny, strlen(deny));
+            strncat(out, buff, strlen(buff));
+            *(out + strlen(out)) = '\n';
+            memset(buff, '\0', 16);
+            if(*(curr + 2) == '#')
+                curr = curr + 3;
+            else
+                break;
+            index = 0;
+        }
+    }
+    return out;
 }
