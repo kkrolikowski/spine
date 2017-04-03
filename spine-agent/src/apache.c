@@ -251,7 +251,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
         if(curr->status == 'N') {
             if(createHtpasswdEntry(curr, path)) {
                 lmsg = mkString("[INFO] (reciver) Added user ", curr->login, " to .htpasswd file", NULL);
-                curr->status = 'A';
+                rcurr->status = 'A';
             }
             else
                 lmsg = mkString("[WARNING] (reciver) Error adding user ", curr->login, " to .htpasswd file", NULL);
@@ -260,7 +260,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
         if(curr->status == 'U') {
             if(updateHtpasswdEntry(curr, path)) {
                 lmsg = mkString("[INFO] (reciver) Updating user ", curr->login, " in .htpasswd file", NULL);
-                curr->status = 'A';
+                rcurr->status = 'A';
             }
             else
                 lmsg = mkString("[WARNING] (reciver) Error updating user ", curr->login, " in .htpasswd file", NULL);
@@ -269,7 +269,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
         if(curr->status == 'D') {
             if(deleteHtpasswdEntry(curr, path)) {
                 lmsg = mkString("[INFO] (reciver) User ", curr->login, " deleted from .htpasswd file", NULL);
-                curr->status = 'D';
+                rcurr->status = 'D';
             }
             else
                 lmsg = mkString("[WARNING] (reciver) Error deleting user ", curr->login, " from .htpasswd file", NULL);
