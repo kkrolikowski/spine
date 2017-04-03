@@ -239,8 +239,9 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     // zapytanie pobierajace liste kont htpasswd
     char * query = mkString("SELECT ht.id, ht.login, ht.password, ht.status, cfg.version ",
                             "FROM www_users ht LEFT JOIN configver cfg ON ht.system_id = ",
-                            "cfg.systemid AND cfg.scope = 'htusers' WHERE ht.system_id = ",
-                            "(SELECT id FROM sysinfo WHERE system_id = '",hostid,"')", NULL);
+                            "cfg.systemid AND cfg.scope = 'htusers' WHERE ht.status NOT LIKE 'A' ",
+                            "AND ht.system_id = (SELECT id FROM sysinfo WHERE system_id = '",hostid,
+                            "')", NULL);
     
     // obsluga listy kont htpasswd
     htpasswdData * head = NULL;
