@@ -464,7 +464,6 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     char * acl_entry = NULL;            // kompletna lista konfiguracji dostepu
     char * acl_order = NULL;            // kolejnosc przetwarzania listy dostepow
     FILE * vhost = NULL;                // uchwyt pliku vhosta
-    int vhostExist = 0;                 // ustawiamy 1 jesli plik juz istnial
 
     // ustawiamy odpowiednie sciezki w zaleznosci od systemu operacyjnego
     if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
@@ -481,8 +480,7 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
 
     path = mkString(configDir, vhd->ServerName, ".conf", NULL);
     path2 = mkString(configDir2, vhd->ServerName, ".conf", NULL);
-    if(!access(path, F_OK))
-        vhostExist = 1;
+    
     if((vhost = fopen(path, "w")) == NULL) {
         logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
         writeLog(lf, logentry);
@@ -520,11 +518,6 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     fclose(vhost);
     free(acl_order);
     free(acl_entry);
-    if(vhostExist)
-        logentry = mkString("[INFO] (reciver) Konfiguracja dla ", vhd->ServerName, " zostala zaktualizowana", NULL);
-    else
-        logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", vhd->ServerName, NULL);
-    writeLog(lf, logentry);
     if(!strcmp(distro, "Ubuntu")) {
         if(access(path2, F_OK) < 0) {
             if(errno == ENOENT) {
