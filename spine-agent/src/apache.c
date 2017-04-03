@@ -808,7 +808,7 @@ int createHtpasswdEntry(htpasswdData * data, char * path) {
     }
     fclose(htpasswd);
     
-    if((htpasswd = fopen(htpasswd, "a")) == NULL)
+    if((htpasswd = fopen(path, "a")) == NULL)
         return 0;
     fprintf(htpasswd, "%s:%s\n", data->login, data->pass);
     fclose(htpasswd);
