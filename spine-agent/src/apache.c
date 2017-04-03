@@ -815,3 +815,43 @@ int createHtpasswdEntry(htpasswdData * data, char * path) {
     
     return 1;
 }
+int updateHtpasswdEntry(htpasswdData * data, char * path) {
+    FILE * htpasswd     = NULL;     // .htpasswd file
+    FILE * tmp          = NULL;     // temp file
+    char * entry        = NULL;
+    const int Size      = 1024;     // buffer size
+    char buff[Size];                // temporary buffer
+    
+    if((htpasswd = fopen(path, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htpasswd);
+        return 0;
+    }
+    
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, htpasswd) != NULL) {
+        if(strstr(buff, data->login) != NULL) {
+            entry = mkString(data->login, ":", data->pass, "\n", NULL);
+            fputs(entry, tmp);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', Size);
+    }
+    fclose(htpasswd);
+    
+    rewind(tmp);
+    if((htpasswd = fopen(path, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    while(fgets(buff, Size, tmp) != NULL) {
+        fputs(buff, htpasswd);
+        memset(buff, '\0', Size);
+    }
+    fclose(htpasswd);
+    fclose(tmp);
+    
+    return 1;
+}
