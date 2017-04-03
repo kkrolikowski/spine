@@ -16,9 +16,9 @@ char * apacheConfigPackage(vhostData * www);
 char * htpasswdConfigPackage(htpasswdData * htpass);
 
 // tworzenie pliku htpasswd
-resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata);
+resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rdata);
 
-resp * HtpasswdSetup(htpasswdData * htp, char * os, resp * rdata);
+resp * HtpasswdSetup(htpasswdData * htp, char * os, FILE * lf, resp * rdata);
 
 int createHtgroupFile(char * path, vhostData * vhd);
 

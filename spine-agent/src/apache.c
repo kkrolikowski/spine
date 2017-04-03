@@ -205,7 +205,7 @@ char * apacheConfigPackage(vhostData * www) {
 
     return package;
 }
-resp * HtpasswdSetup(htpasswdData * htp, char * os, resp * rdata) {
+resp * HtpasswdSetup(htpasswdData * htp, char * os, FILE * lf, resp * rdata) {
     char * authDir = NULL;      // os related directory "auth" path
     char * htpasswdPath = NULL; // file path to .htpasswd
     
@@ -222,24 +222,21 @@ resp * HtpasswdSetup(htpasswdData * htp, char * os, resp * rdata) {
     // let's create auth directory
     if(mkdir(authDir, 0755) < 0) {
         if(errno == EEXIST)
-            data = createHtpasswdFile(htp, htpasswdPath, rdata);
+            data = createHtpasswdFile(htp, htpasswdPath, lf, rdata);
         else
             return NULL;           // error creating directory
     }
     else
-        data = createHtpasswdFile(htp, htpasswdPath, rdata);
+        data = createHtpasswdFile(htp, htpasswdPath, lf, rdata);
     
     free(htpasswdPath);
     
     return data;
 }
-resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
-    FILE * htpasswd = NULL;         // filehandler for .htpasswd
+resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rdata) {
     htpasswdData * curr = htp;      // current position in memory
-    char * buff = NULL;             // buffer with logins and passwords
-    char * entry = NULL;            // buffer entry;
     char * scope = "htusers";       // response scope
-    size_t buffLen = 0;             // amount of memory for buffer
+    char * lmsg = NULL;             // log message
 
     // response data
     resp * rhead = rdata;
@@ -249,34 +246,35 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
     while(rhead != NULL)
         rhead = rhead->next;
     
-    // obtaining memory size to allocate
-    while(curr) {
-        if(curr->status == 'N' || curr->status == 'U' || curr->status == 'A') {
-            entry = mkString(curr->login, ":", curr->pass, "\n", NULL);
-            buffLen += strlen(entry);
-            free(entry);
-        }
-        curr = curr->next;
-    }
-    
-    // preparing memory for all entries which should be placed in .htpasswd file
-    buffLen += 1;
-    buff = (char *) malloc(buffLen * sizeof(char));
-    memset(buff, '\0', buffLen);
-    
-    // feeding the buffer and creating response nodes for further processing
-    curr = htp;
     while(curr) {
         rcurr = (resp *) malloc(sizeof(resp));
-        if(curr->status == 'N' || curr->status == 'U' || curr->status == 'A') {
-            entry = mkString(curr->login, ":", curr->pass, "\n", NULL);
-            strncat(buff, entry, strlen(entry));
-            free(entry);         
-            rcurr->status = 'A';
+        if(curr->status == 'N') {
+            if(createHtpasswdEntry(curr, path)) {
+                lmsg = mkString("[INFO] (reciver) Added user ", curr->login, " to .htpasswd file", NULL);
+                curr->status = 'A';
+            }
+            else
+                lmsg = mkString("[WARNING] (reciver) Error adding user ", curr->login, " to .htpasswd file", NULL);
+            writeLog(lf, lmsg);
         }
-        else
-            rcurr->status = 'D';
-        
+        if(curr->status == 'U') {
+            if(updateHtpasswdEntry(curr, path)) {
+                lmsg = mkString("[INFO] (reciver) Updating user ", curr->login, " in .htpasswd file", NULL);
+                curr->status = 'A';
+            }
+            else
+                lmsg = mkString("[WARNING] (reciver) Error updating user ", curr->login, " in .htpasswd file", NULL);
+            writeLog(lf, lmsg);
+        }
+        if(curr->status == 'D') {
+            if(deleteHtpasswdEntry(curr, path)) {
+                lmsg = mkString("[INFO] (reciver) User ", curr->login, " deleted from .htpasswd file", NULL);
+                curr->status = 'D';
+            }
+            else
+                lmsg = mkString("[WARNING] (reciver) Error deleting user ", curr->login, " from .htpasswd file", NULL);
+            writeLog(lf, lmsg);
+        }
         rcurr->dbid = curr->dbid;
         rcurr->scope = (char *) malloc((strlen(scope) +1) * sizeof(char));
         memset(rcurr->scope, '\0', strlen(scope) +1);
@@ -291,13 +289,6 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, resp * rdata) {
         
         curr = curr->next;
     }
-    if(strlen(buff)) {
-        if((htpasswd = fopen(path, "w")) == NULL)
-            return NULL;
-        fputs(buff, htpasswd);
-        fclose(htpasswd);
-    }
-    free(buff);
     
     return rhead;
 }
@@ -721,7 +712,7 @@ int removeFromHtGroupFile(char * path, char * entry) {
     char buff[Size];
     
     if((htgroup = fopen(path, "r")) == NULL)
-        return 0;
+        return -1;
     if((tmp = tmpfile()) == NULL) {
         fclose(htgroup);
         return 0;

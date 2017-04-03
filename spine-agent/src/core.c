@@ -273,7 +273,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 cleanVhostData(config.httpd.vhost);
                             }
                             if(config.httpd.htpasswd != NULL) {
-                                updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, updateMSGdata);
+                                updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, lf, updateMSGdata);
                                 clearHtpasswdData(config.httpd.htpasswd);
                             }
                             if(config.sysUsers != NULL) {
