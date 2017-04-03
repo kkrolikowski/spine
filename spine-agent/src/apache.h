@@ -73,4 +73,7 @@ int createHtpasswdEntry(htpasswdData * data, char * path);
 // function updates .htpasswd file with a given data
 int updateHtpasswdEntry(htpasswdData * data, char * path);
 
+// function removes given entry from .htpasswd file
+int deleteHtpasswdEntry(htpasswdData * data, char * path);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */

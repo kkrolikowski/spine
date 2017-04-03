@@ -834,6 +834,7 @@ int updateHtpasswdEntry(htpasswdData * data, char * path) {
         if(strstr(buff, data->login) != NULL) {
             entry = mkString(data->login, ":", data->pass, "\n", NULL);
             fputs(entry, tmp);
+            free(entry);
         }
         else
             fputs(buff, tmp);
@@ -852,6 +853,44 @@ int updateHtpasswdEntry(htpasswdData * data, char * path) {
     }
     fclose(htpasswd);
     fclose(tmp);
+    
+    return 1;
+}
+int deleteHtpasswdEntry(htpasswdData * data, char * path) {
+    FILE * htpasswd = NULL;
+    FILE * tmp      = NULL;
+    const int Size  = 1024;
+    char buff[Size];
+    
+    if((htpasswd = fopen(path, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htpasswd);
+        return 0;
+    }
+    
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, htpasswd) != NULL) {
+        if(strstr(buff, data->login) != NULL) {
+            memset(buff, '\0', Size);
+            continue;
+        }
+        fputs(buff, tmp);
+        memset(buff, '\0', Size);
+    }
+    fclose(htpasswd);
+    
+    rewind(tmp);
+    if((htpasswd = fopen(path, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    while(fgets(buff, Size, tmp) != NULL) {
+        fputs(buff, htpasswd);
+        memset(buff, '\0', Size);
+    }
+    fclose(tmp);
+    fclose(htpasswd);
     
     return 1;
 }
