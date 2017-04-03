@@ -67,4 +67,7 @@ int removeFromHtGroupFile(char * path, char * entry);
 // allow/deny from string.
 char * vhostACL(char * str);
 
+// function creates new entry at the end of .htpasswd file
+int createHtpasswdEntry(htpasswdData * data, char * path);
+
 #endif /* SPINE_AGENT_SRC_APACHE_H_ */

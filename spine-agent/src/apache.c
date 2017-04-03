@@ -794,3 +794,24 @@ char * vhostACL(char * str) {
     }
     return out;
 }
+int createHtpasswdEntry(htpasswdData * data, char * path) {
+    FILE * htpasswd = NULL;     // .htpasswd file
+    
+    // if .htpasswd doesn't exist we need to create it
+    if((htpasswd = fopen(path, "r")) == NULL) {
+        if((htpasswd = fopen(path, "w")) == NULL)
+            return 0;
+        else {
+            fprintf(htpasswd, "%s:%s\n", data->login, data->pass);
+            fclose(htpasswd);
+        }
+    }
+    fclose(htpasswd);
+    
+    if((htpasswd = fopen(htpasswd, "a")) == NULL)
+        return 0;
+    fprintf(htpasswd, "%s:%s\n", data->login, data->pass);
+    fclose(htpasswd);
+    
+    return 1;
+}
