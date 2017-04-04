@@ -88,7 +88,7 @@ char * jsonVal(const char * json, const char * pattern);
 int clientNeedUpdate(char * clientData);
 
 // funkcja kumuluje konfigi w jednego jsona
-char * BuildConfigurationPackage(hostconfig * data);
+char * buildConfigPackage(hostconfig * data);
 
 // funkcja zwraca 1 jesli plik istnieje
 int fileExist(char * path);
@@ -104,5 +104,18 @@ int maxver(int vers[], int n);
 
 // funkcja zwraca numer wersji, ktory zostanie zapisany przez klienta w pliku
 int readPackageVersion(char * str);
+
+// fucntion creates short string package containg information what ID to update in
+// database
+char * backMessage(resp * rsp);
+
+// function reads to memory data from a given string
+resp * parseClientMessage(char * str);
+
+// memory cleanup
+void cleanMSGdata(resp * rsp);
+
+// function creates single node of response status message.
+resp *  respStatus(char * scope, char status, int dbid);
 
 #endif /* SPINE_AGENT_CORE_H_ */

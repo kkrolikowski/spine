@@ -13,6 +13,7 @@ typedef struct sshkeys {
 
 // struktura przechowujaca wszystkie wlasciwosci konta uzytkownika w systemie
 typedef struct sysuser {
+    int dbid;               // id z bazy danych
     char * login;           // login uzytkownika
     char * sha512;          // haslo zaszyfrowane algorytmem SHA-512
     char * gecos;           // opis konta (GECOS)
@@ -33,8 +34,12 @@ typedef struct sysuser {
 
 // lista zawierajaca konta htpasswd
 typedef struct htpasswdData {
-    char * entry;                   // wpis w formie: login:skrothasla 
-    struct htpasswdData * next;     // nastepne konto na liscie
+    char * login;                   // login
+    char * pass;                    // password
+    int dbid;                       // database ID
+    char status;                    // account status
+    int version;                    // config version
+    struct htpasswdData * next;     // next entry
 } htpasswdData;
 
 // konfiguracja vhostow
@@ -52,6 +57,7 @@ typedef struct vhostData {
     char * status;		// flaga: A - vhost aktywny, D - do skasowania
     char * purgedir;		// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
     int version;                // wersja konfiguracji
+    int dbid;                   // id rekordu z bazy danych
     struct vhostData * next;    // wskaznik do kolejnego vhosta
 } vhostData;
 
@@ -72,5 +78,18 @@ typedef struct hostconfig {
     httpdata httpd;         // konfiguracja serwera www
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
 } hostconfig;
+
+/****************************************************/
+/*             Comunication protocol                */
+/****************************************************/
+
+// update message to server agent. Provides information what to do
+// in database with particular record ID. 
+typedef struct resp {
+    char status;            // status type: U - update, D - delete
+    char * scope;           // possible values: sysusers, vhosts
+    int dbid;               // ID of particular db record
+    struct resp * next;     // next item
+} resp;
 
 #endif /* SPINE_AGENT_SRC_COMMONDATA_H_ */

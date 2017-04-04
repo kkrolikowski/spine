@@ -12,92 +12,89 @@
 #include "core.h"
 
 char * sysusersPackage(sysuser * su) {
-    char * package = NULL;              // wskaznik do wynikowego stringu
-    char * entry = NULL;                // wkskaznik do pojedynczego elementu
-    char * keyentry = NULL;             // wskaznik do kluczy ssh
-    int index = 0;                      // licznik kont systemowych
-    char * s_index = NULL;              // licznik kont systemowych jako string
-    char * s_expval_val = NULL;         // expiracja konta w formie stringu
-    char * s_uidgid_val = NULL;         // UID/GID w formie stringu
-    char * s_active_val = NULL;         // flaga statusu konta w formie stringu
-    char * s_shell_val = NULL;          // flaga dostepu do shella w formie stringu
-    char * s_cfgver = NULL;             // wersja konfiguracji (string)
-    char * s_sudo_val = NULL;           // czy konto ma miec dostep do roota
-    sysuser * su_begin = su;            // poczatek wezla
-    sysuser * su_curr = su;             // aktualnie przetwarzane konto
-    size_t package_len = 0;             // calkowity rozmiar pakietu
+    // common data
+    sysuser * curr          = su;       // node traversing pointer
+    int size                = 0;        // package size
+    int idx                 = 0;        // item number
+    char * package          = NULL;     // result package
+    char * numstr           = NULL;     // item number as a string
+    char * entry            = NULL;     // particular entry definition
+    char * s_dbid           = NULL;     // DB ID in a form of string
+    // specific data
+    char * keyentry         = NULL;     // sshkeys belonging to user
+    char * s_expval_val     = NULL;     // account expiration
+    char * s_uidgid_val     = NULL;     // UID/GID
+    char * s_active_val     = NULL;     // 1: account is active, 0: inactive
+    char * s_shell_val      = NULL;     // 1: account have shell access, 0: doesn't
+    char * s_sudo_val       = NULL;     // 1: admin privileges, 0: regular user
+    //sysuser * su_begin = su;            // poczatek wezla
     
-    // klucze dla wartosci w pakiecie i inne stale elementy
+    // package header
     char * header = "{scope:sysusers,";
-    char * s_user = "user_";
-    char * s_username = "username:";
-    char * s_password = "password:";
-    char * s_gecos = "gecos:";
-    char * s_active = "active:";
-    char * s_uidgid = "uidgid:";
-    char * s_shell = "shell:";
-    char * s_expire = "expire:";
-    char * s_version = "config_ver:";
-    char * s_sudo = "sudo:";
-    char * s_status = "status:";
+    
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
     
     if(su == NULL)
         return NULL;
     
-    // obliczanie ilosci pamieci potrzebnej do przechowania pakietu
-    package_len = getSysUsersPackageSize(su);
-    package = (char *) malloc(package_len * sizeof(char));
-    memset(package, '\0', package_len);
+    // preparing memory
+    size = getSysUsersPackageSize(su);
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
     
-    // resetujemy zmienne i zaczynamy budowac pakiet
-    index = 0;
-    su_curr = su_begin;
+    // building a package
     strncpy(package, header, strlen(header));
-    
-    while(su_curr) {
-        s_index = int2String(index);
-        s_expval_val = int2String(su_curr->expiration);
-        s_uidgid_val = int2String(su_curr->uidgid);
-        s_active_val = int2String(su_curr->active);
-        s_shell_val = int2String(su_curr->shellaccess);
-        s_sudo_val = int2String(su_curr->sudo);
-        keyentry = sshkeysPackage(su_curr->sshkey);
+    while(curr) {
+        numstr       = int2String(idx);
+        s_dbid       = int2String(curr->dbid);
+        s_expval_val = int2String(curr->expiration);
+        s_uidgid_val = int2String(curr->uidgid);
+        s_active_val = int2String(curr->active);
+        s_shell_val  = int2String(curr->shellaccess);
+        s_sudo_val   = int2String(curr->sudo);
+        keyentry     = sshkeysPackage(curr->sshkey);
         
-        entry = mkString(s_user, s_index, ":{",
-                         s_username, su_curr->login, ",",
-                         s_password, su_curr->sha512, ",",
-                         s_gecos, su_curr->gecos, ",",
-                         s_expire, s_expval_val, ",",
-                         s_uidgid, s_uidgid_val, ",",
-                         s_active, s_active_val, ",",
-                         s_shell, s_shell_val, ",",
-                         s_sudo, s_sudo_val, ",",
-                         s_status, su_curr->status, ",",
-                         keyentry, NULL);
+        entry = mkString(
+                        "user_",        numstr,          ":{",
+                        "dbid:",        s_dbid,          ",",
+                        "username:",    curr->login,     ",",
+                        "password:",    curr->sha512,    ",",
+                        "gecos:",       curr->gecos,     ",",
+                        "expire:",      s_expval_val,    ",",
+                        "uidgid:",      s_uidgid_val,    ",",
+                        "active:",      s_active_val,    ",",
+                        "shell:",       s_shell_val,     ",",
+                        "sudo:",        s_sudo_val,      ",",
+                        "status:",      curr->status,    ",",
+                        keyentry,                        NULL
+                    );
         strncat(package, entry, strlen(entry) + 1);
         strncat(package, "},", 3);
-        if(su_curr->next == NULL) {
-            s_cfgver = int2String(su_curr->version);
-            strncat(package, s_version, strlen(s_version));
-            strncat(package, s_cfgver, strlen(s_cfgver));
-        }
-        
-        if(s_cfgver != NULL)     free(s_cfgver);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+              
         if(keyentry != NULL)     free(keyentry);
         if(entry != NULL)        free(entry);
-        if(s_index != NULL)      free(s_index);
+        if(numstr != NULL)       free(numstr);
         if(s_expval_val != NULL) free(s_expval_val);
         if(s_uidgid_val != NULL) free(s_uidgid_val);
         if(s_active_val != NULL) free(s_active_val);
         if(s_shell_val != NULL)  free(s_shell_val);
         if(s_sudo_val != NULL)   free(s_sudo_val);
+        if(s_dbid != NULL)       free(s_dbid);
         
-        index++;
-        su_curr = su_curr->next;
+        idx++;
+        curr = curr->next;
     }
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "}", 2);
     
+    free(s_config_ver);
     cleanSysUsersData(su);
+    
     return package;
 }                                               
                                                 
@@ -173,64 +170,68 @@ void cleanSSHKeyData(sshkeys * k) {
     free(curr);
 }
 int getSysUsersPackageSize(sysuser * su) {
-    int size = 0;           // licznik bajtow
-    int keysize = 0;        // rozmiar kluczy w pakiecie
-    sysuser * pos = su;     // aktualna pozycja w pamieci
-    char * tmp = NULL;      // tymczasowa zmienna do przechowania
-                            // wartosci numerycznych w formie stringu
-    int userCount = 0;      // zliczanie liczby userow
+    sysuser * curr = su;    // current node
+    int size = 0;           // overrall data size
+    int keySize = 0;        // key names size
+    int nodeCount = 0;      // processed nodes count
+    char * tmp = NULL;      // temporary string
     
-    // nazwy kluczy w pakiecie;
-    const char * keys[] = { "username:,", "password:,", "gecos:,", "expire:,",
+    // package header 
+    char * header = "{scope:sysusers,},";  
+    // package keys names
+    const char * keys[] = { "dbid:," "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
-                            "user_:", "sudo:,", "status:,", "{},", NULL};
+                            "user_:", "sudo:,", "status:,", "config_version:,", "{},", NULL
+                          };
     const char ** key = keys;
-    while(*key) {
-        keysize += strlen(*key);
-        key++;
-    }
     
-    while(pos) {
-        // Dane tekstowe
-        size += strlen(pos->gecos);
-        size += strlen(pos->login);
-        size += strlen(pos->sha512);
-        size += strlen(pos->status);
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        // string data
+        size += strlen(curr->gecos);
+        size += strlen(curr->login);
+        size += strlen(curr->sha512);
+        size += strlen(curr->status);
         
-        // Dane numeryczne;
-        tmp = int2String(pos->active);
+        // numeric data
+        tmp = int2String(curr->dbid);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->expiration);
+        tmp = int2String(curr->active);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->shellaccess);
+        tmp = int2String(curr->expiration);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->uidgid);
+        tmp = int2String(curr->shellaccess);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->sudo);
+        tmp = int2String(curr->uidgid);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(userCount);
+        tmp = int2String(curr->sudo);
+        size += strlen(tmp);
+        free(tmp);
+        tmp = int2String(nodeCount);
         size += strlen(tmp);
         free(tmp);
         
-        if(pos->next == NULL) {
-            tmp = int2String(pos->version);
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
             size += strlen(tmp);
             free(tmp);
         }
-        // klucze ssh
-        size += getSSHkeysPackageSize(pos->sshkey);
+        // ssh keys
+        size += getSSHkeysPackageSize(curr->sshkey);
         
-        userCount++;
-        pos = pos->next;
+        nodeCount++;
+        curr = curr->next;
     }
-    size += keysize * userCount;
-    size += strlen("{scope:sysusers,},config_ver:");
-    
+    size += strlen(header);
+    size += keySize * nodeCount;
+
     return size;
 }
 int getSSHkeysPackageSize(sshkeys * ssh) {
@@ -258,51 +259,46 @@ int createUserAccounts(sysuser * su, char * os, FILE * lf) {
     sysuser * curr = su;
     char * msg = NULL;
     
-    while(curr) {
-        if(!userExist(curr->uidgid)) {
-            if(!writePasswd(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(!writeShadow(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/shadow", NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(!writeGroup(curr)) {
-                msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/group", NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(!createHomeDir(curr, lf)) {
-                msg = mkString("[WARNING] (reciver) Blad tworzenia katalogu domowego: /home/", curr->login, NULL);
-                writeLog(lf, msg);
-                curr = curr->next;
-                continue;
-            }
-            if(writeAuthorizedKeys(curr, lf)) {
-                msg = mkString("[INFO] (reciver) Klucze ssh dla ", curr->login, " zostaly zainstalowane", NULL);
-                writeLog(lf, msg);
-            }
-            msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
-            writeLog(lf, msg);
-            if(curr->sudo) {
-                if(!grantSuperUser(curr->login, os)) {
-                    msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
-                    writeLog(lf, msg);
-                }
-            }
-        }
-        else {
-            msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
+    if(!userExist(curr->uidgid)) {
+        if(!writePasswd(curr)) {
+            msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/passwd", NULL);
             writeLog(lf, msg);
         }
-        curr = curr->next;
+        if(!writeShadow(curr)) {
+            msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/shadow", NULL);
+            writeLog(lf, msg);
+        }
+        if(!curr->active)
+            if(disableAccount(curr->login)) {
+                msg = mkString("[INFO] (reciver) Account ", curr->login, " is disabled", NULL);
+                writeLog(lf, msg);
+            }
+        if(!writeGroup(curr)) {
+            msg = mkString("[WARNING] (reciver) Blad zapisu ", curr->login, " w /etc/group", NULL);
+            writeLog(lf, msg);
+        }
+        if(!createHomeDir(curr, lf)) {
+            msg = mkString("[WARNING] (reciver) Blad tworzenia katalogu domowego: /home/", curr->login, NULL);
+            writeLog(lf, msg);
+        }
+        if(writeAuthorizedKeys(curr, lf)) {
+            msg = mkString("[INFO] (reciver) Klucze ssh dla ", curr->login, " zostaly zainstalowane", NULL);
+            writeLog(lf, msg);
+        }
+        msg = mkString("[INFO] (reciver) Konto: ", curr->login, " zostalo poprawnie utworzone", NULL);
+        writeLog(lf, msg);
+        if(curr->sudo) {
+            if(!grantSuperUser(curr->login, os)) {
+                msg = mkString("[ERROR] (reciver) Nie udalo sie przyznac sudo dla konta ", curr->login, NULL);
+                writeLog(lf, msg);
+            }
+        }
     }
+    else {
+        msg = mkString("[WARNING] (reciver) Konto: ", curr->login, " juz istnieje", NULL);
+        writeLog(lf, msg);
+    }
+
     return status;
 }
 int writePasswd(sysuser * su) {
@@ -468,8 +464,7 @@ int copy(char * from, char * to) {
 }
 sshkeys * readSSHKeysFromPackage(char * str) {
     char * pos = str;                       // aktualna pozycja w stringu
-    char * end = strstr(str, "},user_");    // adres konca przetwarzania
-    char * end2 = strstr(str, "},config_ver"); // adres konca
+    char * end = NULL;                       // adres konca przetwarzania
     int step = strlen("sshkey_:") + 1;      // dlugosc klucza
     char buff[512];                         // bufor w ktorym przechowamy oczytany klucz ssh
     int i = 0;                              // index bufora
@@ -479,8 +474,12 @@ sshkeys * readSSHKeysFromPackage(char * str) {
     sshkeys * curr = NULL;
     sshkeys * prev = NULL;
     
+    end = strstr(str, "},user_");
+    if(end == NULL)
+        end = strstr(str, "},config_ver");
+    
     memset(buff, '\0', 512);
-    while((pos = strstr(pos, "sshkey_")) != NULL && ((pos < end) || (pos < end2))) {
+    while((pos = strstr(pos, "sshkey_")) != NULL && pos < end) {
         pos += step;
         while(*pos != ',' && *pos != '}') {
             buff[i] = *pos;
@@ -534,7 +533,8 @@ int writeAuthorizedKeys(sysuser * su, FILE * lf) {
         }
         else {
             while(curr) {
-                fprintf(authKeys, "%s\n", curr->key);
+                if(strcmp(curr->key, "NaN"))
+                    fprintf(authKeys, "%s\n", curr->key);
                 curr = curr->next;
             }
             fclose(authKeys);
@@ -615,20 +615,39 @@ char * updateGroup(char * buff, char * login) {
     
     return entry;
 }
-void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
+    char * homedir = NULL;
+    
+    // response to server
+    resp * rhead = respdata;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    // moving to the end of the list
+    while(rhead != NULL)
+        rhead = rhead->next;
     
     while(curr) {
+        if(!strcmp(curr->status, "N")) {
+            createUserAccounts(curr, os, lf);
+            rcurr = respStatus("sysusers", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
         if(!strcmp(curr->status, "U")) {
             if((old = oldlogin(curr->uidgid, curr->login)) != NULL) {
-                if(renameHomeDir(old, su->login)) {
-                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", old, " to: /home/", su->login, NULL);
+                if(renameHomeDir(old, curr->login)) {
+                  msg = mkString("[INFO] (reciver) Changed homedir from: /home/", old, " to: /home/", curr->login, NULL);
                   writeLog(lf, msg);  
                 }
                 if(updateGroupFile(curr, old)) {
-                    msg = mkString("[INFO] (reciver) Changed group info from user: ", old, " to: ", su->login, NULL);
+                    msg = mkString("[INFO] (reciver) Changed group info from user: ", old, " to: ", curr->login, NULL);
                     writeLog(lf, msg);
                 }
             } 
@@ -638,7 +657,12 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                 if(updateShadow(curr, old)) {
                     msg = mkString("[INFO] (reciver) Passwd info updated for user: ", curr->login, NULL);
                     writeLog(lf, msg);
-                    free(old);
+                }
+            }
+            if(!curr->active) {
+                if(disableAccount(curr->login)) {
+                    msg = mkString("[INFO] (reciver) Account: ", curr->login, " is locked", NULL);
+                    writeLog(lf, msg);
                 }
             }
             if(curr->sudo) {
@@ -656,9 +680,54 @@ void updateUserAccounts(sysuser * su, char * os, FILE * lf) {
                     msg = mkString("[ERROR] (reciver) Error disabling admin access for ", curr->login, NULL);
                 writeLog(lf, msg);
             }
+            if(updateSSHKeys(curr, lf))
+                msg = mkString("[INFO] (reciver) SSH keys for ", curr->login, NULL);
+            else
+                msg = mkString("[INFO] (reciver) Disabled SSH keys for ", curr->login, NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("sysusers", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(!strcmp(curr->status, "D")) {
+            if(!removeFromSystemFile(curr->login, "/etc/passwd")) {
+                msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/passwd", NULL);
+                writeLog(lf, msg);
+            }
+            if(!removeFromSystemFile(curr->login, "/etc/shadow")) {
+                msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/shadow", NULL);
+                writeLog(lf, msg);
+            }
+            if(revokeSudoAccess(curr->login, os)) {
+               if(!removeFromSystemFile(curr->login, "/etc/group")) {
+                   msg = mkString("[WARNING] (reciver) Problem with removing ", curr->login, " from /etc/group", NULL);
+                   writeLog(lf, msg);
+               } 
+            }
+            else {
+                msg = mkString("[WARNING] (reciver) Problem with revoking super privileges from ", curr->login, NULL);
+                writeLog(lf, msg);
+            }
+            homedir = mkString("/home/", curr->login, "/", NULL);
+            purgeDir(homedir);
+            msg = mkString("[INFO] (reciver) Account ", curr->login, " deleted.", NULL);
+            writeLog(lf, msg);
+            free(homedir);
+            
+            rcurr = respStatus("sysusers", 'D', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
         }
         curr = curr->next;
     }
+    return rhead;
 }
 int updatePasswd(sysuser * su) {
     int status = 1;                         // exit code: 1 - success, 0 - failure
@@ -900,6 +969,8 @@ int revokeSudoAccess(char * login, char * os) {
                 fputs(newentry, tmp);
                 free(newentry);
             }
+            else
+                fputs(buff, tmp);
         }
         else
             fputs(buff, tmp);
@@ -993,4 +1064,133 @@ int isAdmin(char * os, char * login) {
         return 1;
     else
         return 0;
+}
+int disableAccount(char * login) {
+    FILE * shadow = NULL;
+    FILE * tmp = NULL;
+    char * newentry = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if((shadow = fopen("/etc/shadow", "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(shadow);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, shadow) != NULL) {
+        if(strstr(buff, login) != NULL) {
+            newentry = lockEntry(buff);
+            fputs(newentry, tmp);
+            free(newentry);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(shadow);
+    rewind(tmp);
+    
+    if((shadow = fopen("/etc/shadow", "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+ 
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, shadow);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(shadow);
+    fclose(tmp);
+    
+    return 1;
+}
+char * lockEntry(char * entry) {
+    char * pos = entry;
+    char * colon = strchr(entry, ':');
+    char * newentry = NULL;
+    char * ne_pos = NULL;
+    size_t entry_size = strlen(entry) + 2;
+    
+    newentry = (char *) malloc(entry_size * sizeof(char));
+    memset(newentry, '\0', entry_size);
+    ne_pos = newentry;
+    
+    while(*pos) {
+        if(pos == colon) {
+            *ne_pos = ':';
+            *(ne_pos + 1) = '!';
+            ne_pos++;
+        }
+        else
+            *ne_pos = *pos;
+        ne_pos++; pos++;
+    }
+    return newentry;
+}
+int updateSSHKeys(sysuser * su, FILE * lf) {
+    sshkeys * keys = su->sshkey;
+    char * sshkeysDirPath = mkString("/home/", su->login, "/.ssh/", NULL);
+    DIR * sshkeysDir = NULL;
+    int status = 1;
+    
+    if(!strcmp(keys->key, "NaN")) {
+        if((sshkeysDir = opendir(sshkeysDirPath)) != NULL) {
+            closedir(sshkeysDir);
+            purgeDir(sshkeysDirPath);
+            status = 0;
+        }
+    }
+    else {
+        if(writeAuthorizedKeys(su, lf))
+            status = 1;
+        else
+            status = 0;
+    }
+    free(sshkeysDirPath);
+    
+    return status;
+}
+int removeFromSystemFile(char * login, char * systemFile) {
+    FILE * sf = NULL;
+    FILE * tmp = NULL;
+    const int BufSize = 512;
+    char buff[BufSize];
+    
+    if((sf = fopen(systemFile, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(sf);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, sf) != NULL) {
+        if(strstr(buff, login) != NULL) {
+            memset(buff, '\0', BufSize);
+            continue;
+        }
+        fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(sf);
+    rewind(tmp);
+    
+    if((sf = fopen(systemFile, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, sf);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(sf);
+    fclose(tmp);
+    
+    return 1;
 }
