@@ -33,15 +33,6 @@ CREATE TABLE `configver` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `configver`
---
-
-LOCK TABLES `configver` WRITE;
-/*!40000 ALTER TABLE `configver` DISABLE KEYS */;
-/*!40000 ALTER TABLE `configver` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `log_host`
 --
 
@@ -57,15 +48,6 @@ CREATE TABLE `log_host` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `log_host`
---
-
-LOCK TABLES `log_host` WRITE;
-/*!40000 ALTER TABLE `log_host` DISABLE KEYS */;
-/*!40000 ALTER TABLE `log_host` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `netif_stats`
@@ -86,15 +68,6 @@ CREATE TABLE `netif_stats` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `netif_stats`
---
-
-LOCK TABLES `netif_stats` WRITE;
-/*!40000 ALTER TABLE `netif_stats` DISABLE KEYS */;
-/*!40000 ALTER TABLE `netif_stats` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `service_checks`
 --
 
@@ -109,15 +82,6 @@ CREATE TABLE `service_checks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `service_checks`
---
-
-LOCK TABLES `service_checks` WRITE;
-/*!40000 ALTER TABLE `service_checks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `service_checks` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `settings_smtp`
@@ -138,15 +102,6 @@ CREATE TABLE `settings_smtp` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `settings_smtp`
---
-
-LOCK TABLES `settings_smtp` WRITE;
-/*!40000 ALTER TABLE `settings_smtp` DISABLE KEYS */;
-/*!40000 ALTER TABLE `settings_smtp` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `sysinfo`
@@ -174,15 +129,6 @@ CREATE TABLE `sysinfo` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sysinfo`
---
-
-LOCK TABLES `sysinfo` WRITE;
-/*!40000 ALTER TABLE `sysinfo` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sysinfo` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `sysusers`
@@ -213,15 +159,6 @@ CREATE TABLE `sysusers` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `sysusers`
---
-
-LOCK TABLES `sysusers` WRITE;
-/*!40000 ALTER TABLE `sysusers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sysusers` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `sysusers_sshkeys`
 --
 
@@ -236,15 +173,6 @@ CREATE TABLE `sysusers_sshkeys` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sysusers_sshkeys`
---
-
-LOCK TABLES `sysusers_sshkeys` WRITE;
-/*!40000 ALTER TABLE `sysusers_sshkeys` DISABLE KEYS */;
-/*!40000 ALTER TABLE `sysusers_sshkeys` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `users`
@@ -263,15 +191,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `www`
@@ -298,15 +217,6 @@ CREATE TABLE `www` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `www`
---
-
-LOCK TABLES `www` WRITE;
-/*!40000 ALTER TABLE `www` DISABLE KEYS */;
-/*!40000 ALTER TABLE `www` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `www_access`
 --
 
@@ -323,15 +233,6 @@ CREATE TABLE `www_access` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `www_access`
---
-
-LOCK TABLES `www_access` WRITE;
-/*!40000 ALTER TABLE `www_access` DISABLE KEYS */;
-/*!40000 ALTER TABLE `www_access` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `www_opts`
 --
 
@@ -344,16 +245,6 @@ CREATE TABLE `www_opts` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `www_opts`
---
-
-LOCK TABLES `www_opts` WRITE;
-/*!40000 ALTER TABLE `www_opts` DISABLE KEYS */;
-INSERT INTO `www_opts` VALUES (1,'Indexes'),(2,'FollowSymLinks'),(3,'MultiViews'),(4,'ExecCGI');
-/*!40000 ALTER TABLE `www_opts` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `www_opts_selected`
@@ -369,15 +260,6 @@ CREATE TABLE `www_opts_selected` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `www_opts_selected`
---
-
-LOCK TABLES `www_opts_selected` WRITE;
-/*!40000 ALTER TABLE `www_opts_selected` DISABLE KEYS */;
-/*!40000 ALTER TABLE `www_opts_selected` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `www_users`
@@ -398,15 +280,6 @@ CREATE TABLE `www_users` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `www_users`
---
-
-LOCK TABLES `www_users` WRITE;
-/*!40000 ALTER TABLE `www_users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `www_users` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `www_users_access`
 --
 
@@ -421,15 +294,6 @@ CREATE TABLE `www_users_access` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `www_users_access`
---
-
-LOCK TABLES `www_users_access` WRITE;
-/*!40000 ALTER TABLE `www_users_access` DISABLE KEYS */;
-/*!40000 ALTER TABLE `www_users_access` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -440,4 +304,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-29 21:26:33
+-- Dump completed on 2017-04-04 21:53:11
