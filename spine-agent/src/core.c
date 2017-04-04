@@ -276,6 +276,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, lf, updateMSGdata);
                                 clearHtpasswdData(config.httpd.htpasswd);
                             }
+                            clearAuthData(os);
                             if(config.sysUsers != NULL) {
                                 updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
