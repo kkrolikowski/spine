@@ -709,6 +709,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
 int removeFromHtGroupFile(char * path, char * entry) {
     FILE * htgroup = NULL;
     FILE * tmp = NULL;
+    int items = 0;
     const int Size = 1024;
     char buff[Size];
     
@@ -723,25 +724,32 @@ int removeFromHtGroupFile(char * path, char * entry) {
     while(fgets(buff, Size, htgroup) != NULL) {
         if(strstr(buff, entry) != NULL)
             continue;
-        else
+        else {
             fputs(buff, tmp);
+            items++;
+        }
         memset(buff, '\0', Size);
     }
     fclose(htgroup);
-    rewind(tmp);
     
-    if((htgroup = fopen(path, "w")) == NULL) {
+    if(items > 0) {
+        rewind(tmp);
+        if((htgroup = fopen(path, "w")) == NULL) {
+            fclose(tmp);
+            return 0;
+        }
+        memset(buff, '\0', Size);
+        while(fgets(buff, Size, tmp) != NULL) {
+            fputs(buff, htgroup);
+            memset(buff, '\0', Size);
+        }
         fclose(tmp);
-        return 0;
+        fclose(htgroup);
     }
-    memset(buff, '\0', Size);
-    while(fgets(buff, Size, tmp) != NULL) {
-        fputs(buff, htgroup);
-        memset(buff, '\0', Size);
+    else {
+        fclose(tmp);
+        unlink(path);
     }
-    fclose(tmp);
-    fclose(htgroup);
-    
     return 1;
 }
 char * vhostACL(char * str) {
