@@ -100,6 +100,7 @@ $(document).ready(function() {
            $('[name="expdate_edit"]').prop('disabled', true);
            $('.edit-user').unbind('click');
            $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
+           $('#edit-sysuser-form').validator('destroy').validator();
            form.hide().appendTo('body');
          })
          .modal('show');
@@ -135,6 +136,7 @@ $(document).ready(function() {
      $('.edit-user').unbind('click');
      $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
      $('#edit-sysuser-form').hide().appendTo('body');
+     $('#edit-sysuser-form').validator('destroy').validator();
    });
    $(document).on('click', '#sysuser_edit-btn', function() {
      var form = $('#edit-sysuser-form');
@@ -155,10 +157,36 @@ $(document).ready(function() {
        $('[name="expdate_edit"]').prop('disabled', true);
        $('.edit-user').unbind('click');
        $('#edit_advanced_settings').find('.glyphicon-plus').unbind('click');
+       $('#edit-sysuser-form').validator('destroy').validator();
+       $('#edit-sysuser-form').hide().appendTo('body');
+       $(document).on('click', '#password_edit', function() {
+         if($('#password_edit, #confirm_edit').is('[readonly]')) {
+           $('#password_edit, #confirm_edit').removeAttr('readonly');
+           $('#password_edit').removeAttr('placeholder');
+           $('#password_edit').attr('placeholder', 'Password');
+           $('#confirm_edit').attr('placeholder', 'Confirm');
+         }
+         else {
+           $('#password_edit, #confirm_edit').attr('readonly', 'readonly');
+           $('#password_edit, #confirm_edit').removeAttr('placeholder');
+           $('#password_edit').attr('placeholder', 'Click here to change password');
+         }
+       });
+
+       var BlockUserLink = $('.block-user[data-id="'+ resp.id +'"]');
        var tr = $('a[data-id="'+ resp.id +'"]').closest('tr');
        tr.find('td').eq(0).html(resp.login);
        tr.find('td').eq(1).html(resp.fullname);
        tr.find('td').eq(2).html(resp.email);
+
+       if(resp.isactive == 0) {
+         tr.addClass("danger");
+         BlockUserLink.html("Odblokuj");
+       }
+       else {
+         tr.removeClass("danger");
+         BlockUserLink.html("Zablokuj");
+       }
      });
    });
    $(document).on('click', '[name="sshkey_enable_edit"]', function() {
@@ -198,5 +226,28 @@ $(document).ready(function() {
        );
        this.unbind('click');
      }
+   });
+   $(document).on('click', '.block-user', function() {
+     var tr = $(this).closest('tr');
+     var userid = $(this).attr('data-id');
+     if(tr.hasClass("danger")) {
+       var lock = 0;
+       var msg = 'unlocked';
+       tr.removeClass("danger");
+       $(this).html("Zablokuj");
+     }
+     else {
+       var lock = 1;
+       var msg = 'locked';
+       tr.addClass("danger");
+       $(this).html("Odblokuj");
+     }
+     $.ajax({
+       url: '/sysusers.php?lock='+ lock +'&userid=' + userid,
+       method: 'GET',
+       success: function() {
+         alertify.success("Account is "+ msg);
+       }
+     });
    });
 });

@@ -85,13 +85,14 @@
       $spine->assign('hostsrv', $services);
 
       // Lista kont uzytkownikow w systemie
-      $q = $dbh->prepare("SELECT id, login, fullname, email FROM sysusers WHERE system_id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT id, login, fullname, email, active FROM sysusers WHERE status != 'D' AND system_id = ". $_GET['serverid']);
       $q->execute();
       while ($r = $q->fetch()) {
         $sysuser[$r['id']] = array(
           'login' => $r['login'],
           'fullname' => $r['fullname'],
-          'email' => $r['email']
+          'email' => $r['email'],
+          'isactive' => $r['active']
         );
       }
       $spine->assign('sysuser', $sysuser);
@@ -161,6 +162,33 @@
       );
     }
     $spine->assign('Logs', $logs);
+  }
+  if($_GET['settings'] == "smtp") {
+    $q = $dbh->prepare("SELECT host,port,login,password,`ssl`,spine_from FROM settings_smtp");
+    $q->execute();
+    $r = $q->fetch();
+    if($q->rowCount() > 0) {
+      if($r['login'] != "none") {
+        $smtp_settings = array(
+          'host'        => $r['host'],
+          'port'        => $r['port'],
+          'login'       => $r['login'],
+          'password'    => $r['password'],
+          'ssl'         => $r['ssl'],
+          'spine_from'  => $r['spine_from'],
+          'auth'        => 1
+        );
+      }
+      else {
+        $smtp_settings = array(
+          'host'        => $r['host'],
+          'port'        => $r['port'],
+          'spine_from'  => $r['spine_from'],
+          'auth'        => 0
+        );
+      }
+      $spine->assign('smtp_settings', $smtp_settings);
+    }
   }
   $spine->display('main.tpl');
 ?>

@@ -1,11 +1,12 @@
 <?php
   include_once './include/config.php';
   include_once './include/functions.php';
+  include_once './include/smtp.php';
   $dbh = DBconnect();
 
   if (isset($_GET['add'])) {
     // sprawdzamy, czy takie konto juz istnieje w bazie
-    $q = $dbh->prepare("SELECT count(*) AS usercnt FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
+    $q = $dbh->prepare("SELECT count(*) AS usercnt FROM sysusers WHERE login = '".$_POST['login']."' AND status != 'D' AND system_id = ".$_POST['serverid']);
     $q->execute();
     $r = $q->fetch();
     if ($r['usercnt'] > 0) {
@@ -39,7 +40,7 @@
       else {
         $exptime = "Never";
       }
-      setlocale(LC_ALL, 'pl_PL.utf8');
+      setlocale(LC_ALL, 'en_US.UTF8');
       $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname']);
 
       $q = $dbh->prepare("INSERT INTO sysusers(login,pass,fullname,email,system_id,gecos,uid,gid,active,expiration, shell, sshkeys, status, sudo) ".
@@ -48,7 +49,7 @@
                           ", ".$active.", '".$exptime."', ".$shell.", ".$usekey.", 'N', ".$sudo.")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
+      $q = $dbh->prepare("SELECT id,login,fullname,email,active FROM sysusers WHERE login = '".$_POST['login']."' AND system_id = ".$_POST['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -63,7 +64,8 @@
         'id'        => $r['id'],
         'login'     => $r['login'],
         'fullname'  => $r['fullname'],
-        'email'     => $r['email']
+        'email'     => $r['email'],
+        'isactive'  => $r['active']
       );
       header('Content-Type: application/json');
       echo json_encode($json);
@@ -92,7 +94,7 @@
     echo json_encode($json);
   }
   if (isset($_GET['update'])) {
-    setlocale(LC_ALL, 'pl_PL.utf8');
+    setlocale(LC_ALL, 'en_US.UTF8');
     $gecos = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $_POST['fullname_edit']);
 
     isset($_POST['isActive_edit'])        ? $active = 1 : $active = 0;
@@ -109,7 +111,7 @@
     else {
       $exptime = "Never";
     }
-    if(isset($_POST['password_edit'])) {
+    if(strlen($_POST['password_edit'])) {
       $pass = sha512_pass($_POST['password_edit']);
     }
     else {
@@ -140,16 +142,74 @@
       }
     }
     updateConfigVersion($dbh, $_POST['sid'], "sysusers");
-    $q = $dbh->prepare("SELECT id,login,fullname,email FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
+    $q = $dbh->prepare("SELECT id,login,fullname,email,active FROM sysusers WHERE login = '".$_POST['login_edit']."' AND system_id = ".$_POST['sid']);
     $q->execute();
     $r = $q->fetch();
     $json = array(
       'id'        => $r['id'],
       'login'     => $r['login'],
       'fullname'  => $r['fullname'],
-      'email'     => $r['email']
+      'email'     => $r['email'],
+      'isactive'  => $r['active']
     );
     header('Content-Type: application/json');
     echo json_encode($json);
+  }
+  if(isset($_GET['rmuser'])) {
+    $q = $dbh->prepare("UPDATE sysusers SET status = 'D' WHERE id = ".$_GET['rmuser']);
+    $q->execute();
+    updateConfigVersion($dbh, $_POST['serverid'], "sysusers");
+  }
+  if(isset($_GET['lock'])) {
+    if($_GET['lock'] == 1) {
+      $query = "UPDATE sysusers SET active = 0, status = 'U' WHERE id = ". $_GET['userid'];
+    }
+    else {
+      $query = "UPDATE sysusers SET active = 1, status = 'U' WHERE id = ". $_GET['userid'];
+    }
+    $q = $dbh->prepare($query);
+    $q->execute();
+
+    $q = $dbh->prepare("SELECT system_id FROM sysusers WHERE id = ".$_GET['userid']);
+    $q->execute();
+    $r = $q->fetch();
+    updateConfigVersion($dbh, $r['system_id'], "sysusers");
+  }
+  if(isset($_GET['resetpass'])) {
+    $q = $dbh->prepare("SELECT u.system_id,u.login,u.email,s.hostname ".
+                      "FROM sysusers u LEFT JOIN sysinfo s ON s.id = u.system_id ".
+                      "WHERE u.id =".$_GET['resetpass']);
+    $q->execute();
+    $r = $q->fetch();
+    $systemid = $r['system_id'];
+    $login    = $r['login'];
+    $email    = $r['email'];
+    $host     = $r['hostname'];
+
+    $randompass = randomString(12);
+    $encrypted_pass = sha512_pass($randompass);
+
+    $q = $dbh->prepare("UPDATE sysusers set pass = '".$encrypted_pass."', status = 'U' WHERE id = ".$_GET['resetpass']);
+    $q->execute();
+    updateConfigVersion($dbh, $systemid, "sysusers");
+
+    $subject = "Spine - New password";
+    $message  = "Dear ". $login. ",\n\n";
+    $message .= "Administrator requested a new password for you.\n";
+    $message .= "Your new password on host: ".$host." is: ".$randompass."\n";
+
+    $q = $dbh->prepare("SELECT host,port,login,password,`ssl`,spine_from FROM settings_smtp");
+    $q->execute();
+    $r = $q->fetch();
+
+    $params = array();
+    $from = $r['spine_from'];
+    array_push($params, $r['host']);
+    array_push($params, $r['port']);
+    array_push($params, $r['login']);
+    array_push($params, $r['password']);
+    array_push($params, $r['ssl']);
+
+    sendEmail($from, $email, $subject, $message, $params);
   }
 ?>

@@ -207,3 +207,13 @@
   margin-left: -18px;
   margin-top: -10px;
 }
+.smtp_settings_fields > div > div {
+  margin-left: -20px;
+}
+#smtp_auth_enable > label {
+  margin-left: -6px;
+}
+#smtp_settings_save {
+  margin-left: 73px;
+  margin-top: 10px;
+}

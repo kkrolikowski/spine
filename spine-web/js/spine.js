@@ -990,23 +990,32 @@ $(document).ready(function() {
         alertify.error(xhr.getResponseHeader('X-Message'));
       }
   }).success(function(response) {
+      if(response.isactive == 0) {
+        var tr = '<tr class="danger">';
+        var lockstatus = "Odblokuj";
+      }
+      else {
+        var tr = '<tr>';
+        var lockstatus = "Zablokuj";
+      }
       $('.modal').hide();
       $('.modal-backdrop').hide();
       $('#users_table > tbody').append(
-        '<tr><td>'+ response.login +
+        tr +'<td>'+ response.login +
         '</td><td>'+ response.fullname +
         '</td><td>'+ response.email +
         '</td>' +
         '<td class="button-cell">' +
           '<div class="btn-group">' +
-            '<button type="button" class="btn btn-danger rmuser" data-id="'+ response.id +'" data-serverid="3">Usuń</button>' +
+            '<button type="button" class="btn btn-danger rm-sysuser" data-id="'+ response.id +'" data-serverid="'+ serverid +'">Usuń</button>' +
             '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
               '<span class="caret"></span>' +
               '<span class="sr-only">Toggle Dropdown</span>' +
             '</button>' +
             '<ul class="dropdown-menu">' +
               '<li><a href="#" data-id="'+ response.id +'" class="edit-user">Edytuj</a></li>' +
-              '<li><a href="#" data-id="'+ response.id +'" class="block-user">Zablokuj</a></li>' +
+              '<li><a href="#" data-id="'+ response.id +'" class="block-user">'+ lockstatus +'</a></li>' +
+              '<li><a href="#" data-id="'+ response.id +'" class="reset-pass">Resetuj hasło</a></li>' +
             '</ul>' +
           '</div>' +
         '</td>' +
@@ -1015,6 +1024,10 @@ $(document).ready(function() {
       $('#new-sysuser-form')[0].reset();
       $('#new-sysuser-form').find('.has-success').removeClass('has-success');
       $('#new-sysuser-form').find('.glyphicon-ok').removeClass('glyphicon-ok');
+      $(".ssh-keys").remove();
+      $('[name="sshkey[0]"]').prop('disabled', true);
+      $('[name="expdate"]').prop('disabled', true);
+      $('#new-sysuser-form').validator('destroy').validator();
     });
   });
   $(document).on('click', '[name="expEnable"]', function() {
