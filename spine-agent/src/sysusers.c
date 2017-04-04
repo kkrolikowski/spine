@@ -12,97 +12,89 @@
 #include "core.h"
 
 char * sysusersPackage(sysuser * su) {
-    char * package = NULL;              // wskaznik do wynikowego stringu
-    char * entry = NULL;                // wkskaznik do pojedynczego elementu
-    char * keyentry = NULL;             // wskaznik do kluczy ssh
-    int index = 0;                      // licznik kont systemowych
-    char * s_index = NULL;              // licznik kont systemowych jako string
-    char * s_expval_val = NULL;         // expiracja konta w formie stringu
-    char * s_uidgid_val = NULL;         // UID/GID w formie stringu
-    char * s_active_val = NULL;         // flaga statusu konta w formie stringu
-    char * s_shell_val = NULL;          // flaga dostepu do shella w formie stringu
-    char * s_cfgver = NULL;             // wersja konfiguracji (string)
-    char * s_sudo_val = NULL;           // czy konto ma miec dostep do roota
-    char * s_id_val = NULL;             // ID rekordu z bazy
-    sysuser * su_begin = su;            // poczatek wezla
-    sysuser * su_curr = su;             // aktualnie przetwarzane konto
-    size_t package_len = 0;             // calkowity rozmiar pakietu
+    // common data
+    sysuser * curr          = su;       // node traversing pointer
+    int size                = 0;        // package size
+    int idx                 = 0;        // item number
+    char * package          = NULL;     // result package
+    char * numstr           = NULL;     // item number as a string
+    char * entry            = NULL;     // particular entry definition
+    char * s_dbid           = NULL;     // DB ID in a form of string
+    // specific data
+    char * keyentry         = NULL;     // sshkeys belonging to user
+    char * s_expval_val     = NULL;     // account expiration
+    char * s_uidgid_val     = NULL;     // UID/GID
+    char * s_active_val     = NULL;     // 1: account is active, 0: inactive
+    char * s_shell_val      = NULL;     // 1: account have shell access, 0: doesn't
+    char * s_sudo_val       = NULL;     // 1: admin privileges, 0: regular user
+    //sysuser * su_begin = su;            // poczatek wezla
     
-    // klucze dla wartosci w pakiecie i inne stale elementy
+    // package header
     char * header = "{scope:sysusers,";
-    char * s_user = "user_";
-    char * s_id = "dbid:";
-    char * s_username = "username:";
-    char * s_password = "password:";
-    char * s_gecos = "gecos:";
-    char * s_active = "active:";
-    char * s_uidgid = "uidgid:";
-    char * s_shell = "shell:";
-    char * s_expire = "expire:";
-    char * s_version = "config_ver:";
-    char * s_sudo = "sudo:";
-    char * s_status = "status:";
+    
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
     
     if(su == NULL)
         return NULL;
     
-    // obliczanie ilosci pamieci potrzebnej do przechowania pakietu
-    package_len = getSysUsersPackageSize(su);
-    package = (char *) malloc(package_len * sizeof(char));
-    memset(package, '\0', package_len);
+    // preparing memory
+    size = getSysUsersPackageSize(su);
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
     
-    // resetujemy zmienne i zaczynamy budowac pakiet
-    index = 0;
-    su_curr = su_begin;
+    // building a package
     strncpy(package, header, strlen(header));
-    
-    while(su_curr) {
-        s_index = int2String(index);
-        s_id_val = int2String(su_curr->dbid);
-        s_expval_val = int2String(su_curr->expiration);
-        s_uidgid_val = int2String(su_curr->uidgid);
-        s_active_val = int2String(su_curr->active);
-        s_shell_val = int2String(su_curr->shellaccess);
-        s_sudo_val = int2String(su_curr->sudo);
-        keyentry = sshkeysPackage(su_curr->sshkey);
+    while(curr) {
+        numstr       = int2String(idx);
+        s_dbid       = int2String(curr->dbid);
+        s_expval_val = int2String(curr->expiration);
+        s_uidgid_val = int2String(curr->uidgid);
+        s_active_val = int2String(curr->active);
+        s_shell_val  = int2String(curr->shellaccess);
+        s_sudo_val   = int2String(curr->sudo);
+        keyentry     = sshkeysPackage(curr->sshkey);
         
-        entry = mkString(s_user, s_index, ":{",
-                         s_id, s_id_val, ",",
-                         s_username, su_curr->login, ",",
-                         s_password, su_curr->sha512, ",",
-                         s_gecos, su_curr->gecos, ",",
-                         s_expire, s_expval_val, ",",
-                         s_uidgid, s_uidgid_val, ",",
-                         s_active, s_active_val, ",",
-                         s_shell, s_shell_val, ",",
-                         s_sudo, s_sudo_val, ",",
-                         s_status, su_curr->status, ",",
-                         keyentry, NULL);
+        entry = mkString(
+                        "user_",        numstr,          ":{",
+                        "dbid:",        s_dbid,          ",",
+                        "username:",    curr->login,     ",",
+                        "password:",    curr->sha512,    ",",
+                        "gecos:",       curr->gecos,     ",",
+                        "expire:",      s_expval_val,    ",",
+                        "uidgid:",      s_uidgid_val,    ",",
+                        "active:",      s_active_val,    ",",
+                        "shell:",       s_shell_val,     ",",
+                        "sudo:",        s_sudo_val,      ",",
+                        "status:",      curr->status,    ",",
+                        keyentry,                        NULL
+                    );
         strncat(package, entry, strlen(entry) + 1);
         strncat(package, "},", 3);
-        if(su_curr->next == NULL) {
-            s_cfgver = int2String(su_curr->version);
-            strncat(package, s_version, strlen(s_version));
-            strncat(package, s_cfgver, strlen(s_cfgver));
-        }
-        
-        if(s_cfgver != NULL)     free(s_cfgver);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+              
         if(keyentry != NULL)     free(keyentry);
         if(entry != NULL)        free(entry);
-        if(s_index != NULL)      free(s_index);
+        if(numstr != NULL)       free(numstr);
         if(s_expval_val != NULL) free(s_expval_val);
         if(s_uidgid_val != NULL) free(s_uidgid_val);
         if(s_active_val != NULL) free(s_active_val);
         if(s_shell_val != NULL)  free(s_shell_val);
         if(s_sudo_val != NULL)   free(s_sudo_val);
-        if(s_id_val != NULL)     free(s_id_val);
+        if(s_dbid != NULL)       free(s_dbid);
         
-        index++;
-        su_curr = su_curr->next;
+        idx++;
+        curr = curr->next;
     }
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "}", 2);
     
+    free(s_config_ver);
     cleanSysUsersData(su);
+    
     return package;
 }                                               
                                                 
@@ -178,67 +170,68 @@ void cleanSSHKeyData(sshkeys * k) {
     free(curr);
 }
 int getSysUsersPackageSize(sysuser * su) {
-    int size = 0;           // licznik bajtow
-    int keysize = 0;        // rozmiar kluczy w pakiecie
-    sysuser * pos = su;     // aktualna pozycja w pamieci
-    char * tmp = NULL;      // tymczasowa zmienna do przechowania
-                            // wartosci numerycznych w formie stringu
-    int userCount = 0;      // zliczanie liczby userow
+    sysuser * curr = su;    // current node
+    int size = 0;           // overrall data size
+    int keySize = 0;        // key names size
+    int nodeCount = 0;      // processed nodes count
+    char * tmp = NULL;      // temporary string
     
-    // nazwy kluczy w pakiecie;
+    // package header 
+    char * header = "{scope:sysusers,},";  
+    // package keys names
     const char * keys[] = { "dbid:," "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
-                            "user_:", "sudo:,", "status:,", "{},", NULL};
+                            "user_:", "sudo:,", "status:,", "config_version:,", "{},", NULL
+                          };
     const char ** key = keys;
-    while(*key) {
-        keysize += strlen(*key);
-        key++;
-    }
     
-    while(pos) {
-        // Dane tekstowe
-        size += strlen(pos->gecos);
-        size += strlen(pos->login);
-        size += strlen(pos->sha512);
-        size += strlen(pos->status);
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        // string data
+        size += strlen(curr->gecos);
+        size += strlen(curr->login);
+        size += strlen(curr->sha512);
+        size += strlen(curr->status);
         
-        // Dane numeryczne;
-        tmp = int2String(pos->dbid);
+        // numeric data
+        tmp = int2String(curr->dbid);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->active);
+        tmp = int2String(curr->active);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->expiration);
+        tmp = int2String(curr->expiration);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->shellaccess);
+        tmp = int2String(curr->shellaccess);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->uidgid);
+        tmp = int2String(curr->uidgid);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(pos->sudo);
+        tmp = int2String(curr->sudo);
         size += strlen(tmp);
         free(tmp);
-        tmp = int2String(userCount);
+        tmp = int2String(nodeCount);
         size += strlen(tmp);
         free(tmp);
         
-        if(pos->next == NULL) {
-            tmp = int2String(pos->version);
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
             size += strlen(tmp);
             free(tmp);
         }
-        // klucze ssh
-        size += getSSHkeysPackageSize(pos->sshkey);
+        // ssh keys
+        size += getSSHkeysPackageSize(curr->sshkey);
         
-        userCount++;
-        pos = pos->next;
+        nodeCount++;
+        curr = curr->next;
     }
-    size += keysize * userCount;
-    size += strlen("{scope:sysusers,},config_ver:");
-    
+    size += strlen(header);
+    size += keySize * nodeCount;
+
     return size;
 }
 int getSSHkeysPackageSize(sshkeys * ssh) {
@@ -622,16 +615,20 @@ char * updateGroup(char * buff, char * login) {
     
     return entry;
 }
-resp * updateUserAccounts(sysuser * su, char * os, FILE * lf) {
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
     sysuser * curr = su;
     char * msg = NULL;
     char * old = NULL;
     char * homedir = NULL;
     
     // response to server
-    resp * rhead = NULL;
+    resp * rhead = respdata;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    
+    // moving to the end of the list
+    while(rhead != NULL)
+        rhead = rhead->next;
     
     while(curr) {
         if(!strcmp(curr->status, "N")) {

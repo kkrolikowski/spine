@@ -34,8 +34,12 @@ typedef struct sysuser {
 
 // lista zawierajaca konta htpasswd
 typedef struct htpasswdData {
-    char * entry;                   // wpis w formie: login:skrothasla 
-    struct htpasswdData * next;     // nastepne konto na liscie
+    char * login;                   // login
+    char * pass;                    // password
+    int dbid;                       // database ID
+    char status;                    // account status
+    int version;                    // config version
+    struct htpasswdData * next;     // next entry
 } htpasswdData;
 
 // konfiguracja vhostow
@@ -53,6 +57,7 @@ typedef struct vhostData {
     char * status;		// flaga: A - vhost aktywny, D - do skasowania
     char * purgedir;		// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
     int version;                // wersja konfiguracji
+    int dbid;                   // id rekordu z bazy danych
     struct vhostData * next;    // wskaznik do kolejnego vhosta
 } vhostData;
 

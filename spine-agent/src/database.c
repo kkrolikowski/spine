@@ -230,18 +230,6 @@ int insertItem(systeminfo * info) {
 
 	return status;
 }
-httpdata ReadWWWConfiguration(char * hostid, FILE * lf) {
-    char * msg = NULL;      // komunikaty z logami
-    httpdata results;
-    
-    if((results.htpasswd = ReadHtpasswdData(hostid)) == NULL)
-        msg = mkString("[WARNING] Brak danych na temat userow apacza", NULL);
-    if((results.vhost = ReadVhostData(hostid)) == NULL)
-        msg = mkString("[WARNING] Brak danych na temat vhostow", NULL);
-    writeLog(lf, msg);
-    
-    return results;
-}
 htpasswdData * ReadHtpasswdData(char * hostid) {
     // Zmienne umozliwiajace wyciaganie danych z bazy
     extern MYSQL * dbh;
@@ -249,8 +237,11 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     MYSQL_ROW row;
     
     // zapytanie pobierajace liste kont htpasswd
-    char * query = mkString("SELECT CONCAT(login, ':', password) AS htpasswd FROM www_users WHERE system_id = ",
-                            "(SELECT id FROM sysinfo WHERE system_id = '", hostid, "')", NULL);
+    char * query = mkString("SELECT ht.id, ht.login, ht.password, ht.status, cfg.version ",
+                            "FROM www_users ht LEFT JOIN configver cfg ON ht.system_id = ",
+                            "cfg.systemid AND cfg.scope = 'htusers' WHERE ht.status NOT LIKE 'A' ",
+                            "AND ht.system_id = (SELECT id FROM sysinfo WHERE system_id = '",hostid,
+                            "')", NULL);
     
     // obsluga listy kont htpasswd
     htpasswdData * head = NULL;
@@ -263,12 +254,26 @@ htpasswdData * ReadHtpasswdData(char * hostid) {
     if(!mysql_query(dbh, query)) {
         if((res = mysql_store_result(dbh)) != NULL) {
             if(mysql_num_rows(res) > 0) {
-                while((row = mysql_fetch_row(res))) {
-                    len = strlen(row[0]) + 1;
-                    curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-                    curr->entry = (char *) malloc(len * sizeof(char));
-                    memset(curr->entry, '\0', len);
-                    strncpy(curr->entry, row[0], len);
+                while((row = mysql_fetch_row(res))) {  
+                    curr = (htpasswdData *) malloc(sizeof(htpasswdData));                   
+                    // get ID
+                    curr->dbid = atoi(row[0]);                    
+                    // get login
+                    len = strlen(row[1]) + 1;
+                    curr->login = (char *) malloc(len * sizeof(char));
+                    memset(curr->login, '\0', len);
+                    strncpy(curr->login, row[1], len);                  
+                    // get password
+                    len = strlen(row[2]) + 1;
+                    curr->pass = (char *) malloc(len * sizeof(char));
+                    memset(curr->pass, '\0', len);
+                    strncpy(curr->pass, row[2], len);
+                    // get status
+                    curr->status = row[3][0];
+                    //version
+                    curr->version = atoi(row[4]);
+                    
+                    // closing node
                     curr->next = NULL;
 
                     if(head == NULL)
@@ -296,14 +301,15 @@ vhostData * ReadVhostData(char * hostid) {
     // zapytanie wyciagajace konfiguracje vhostow z bazy
     char * query = mkString("SELECT www.ServerName, www.ServerAlias, www.DocumentRoot, www.htaccess, sysusers.login AS user, ",
                             "configver.version AS config_ver, GROUP_CONCAT(DISTINCT www_opts.vhostopt SEPARATOR ' ') AS opts, ",
-                            "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR ',') AS accesslist, ",
+                            "GROUP_CONCAT(DISTINCT CONCAT(www_access.fromhost, ':', www_access.access_permission) SEPARATOR '#') AS accesslist, ",
                             "www.access_order, www.htpasswd AS password_access, case www.htpasswd WHEN 1 THEN GROUP_CONCAT(DISTINCT www_users.login ",
-                            "SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
+                            "SEPARATOR ' ') ELSE 'NaN' END AS htusers, www.status, www.purgedir, www.id FROM www JOIN sysusers ON sysusers.id = www.user_id JOIN ",
                             "sysinfo ON sysinfo.id = www.system_id JOIN www_opts_selected ON www_opts_selected.vhost_id = www.id JOIN ",
                             "www_opts ON www_opts.id = www_opts_selected.opt_id LEFT JOIN www_access ON www_access.vhost_id = www.id LEFT JOIN ",
                             "www_users_access ON (www_users_access.vhost_id = www.id AND www.htpasswd > 0) LEFT JOIN www_users ON ",
                             "(www_users.id = www_users_access.user_id AND www.htpasswd > 0) LEFT JOIN configver ON (configver.systemid = sysinfo.id AND ",
-                            "configver.scope = 'apache') WHERE www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid ,"') GROUP BY www.id", NULL);
+                            "configver.scope = 'apache') WHERE www.status NOT LIKE 'A' AND www.system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid ,
+                            "') GROUP BY www.id", NULL);
     
     // obsluga listy odczytanych vhostow
     vhostData * head = NULL;
@@ -330,6 +336,7 @@ vhostData * ReadVhostData(char * hostid) {
                     curr->htusers               = readData(row[10]);
                     curr->status                = readData(row[11]);
                     curr->purgedir              = readData(row[12]);
+                    curr->dbid                  = atoi(row[13]);
                     
                     curr->next = NULL;
 
@@ -373,40 +380,6 @@ int getDBHostID(char * hwaddr) {
 	}
 	free(query);
 	return id;
-}
-void cleanWWWConfiguration(char * hostid) {
-	extern MYSQL * dbh;
-	MYSQL_RES * res;
-	MYSQL_ROW row;
-	long rows = 0L;
-
-	char * query = mkString("SELECT id FROM www WHERE `status` = 'D' AND system_id = (SELECT id FROM sysinfo WHERE system_id = '", hostid, "')", NULL);
-	char * subquery = NULL;
-	if(!mysql_query(dbh, query)) {
-		if((res = mysql_store_result(dbh)) != NULL) {
-			if((rows = mysql_num_rows(res)) > 0) {
-				while((row = mysql_fetch_row(res))) {
-					subquery = mkString("DELETE FROM www_opts_selected WHERE vhost_id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-
-					subquery = mkString("DELETE FROM www_access WHERE vhost_id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-
-					subquery = mkString("DELETE FROM www_users_access WHERE vhost_id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-
-					subquery = mkString("DELETE FROM www WHERE id = ", row[0], NULL);
-					mysql_query(dbh, subquery);
-					free(subquery);
-				}
-				mysql_free_result(res);
-			}
-		}
-	}
-	free(query);
 }
 void updateServiceState(char * cliresp) {
 	char * systemid = jsonVal(cliresp, "systemid");		// mac-adres hosta
@@ -612,28 +585,49 @@ sshkeys * readSSHkeys(char * str) {
     return head;
 }
 int applyStatusChange(resp * data) {
-    extern MYSQL * dbh;
-    char * query = NULL;
     resp * curr = data;
-    char stat[2];
-    char * tmp = NULL;
     
     while(curr) {
-        stat[0] = curr->status;
-        stat[1] = '\0';
-        tmp = int2String(curr->dbid);
+        if(curr->status == 'A')
+            activate(curr->scope, curr->dbid);
+        if(curr->status == 'D')
+            delete(curr->scope, curr->dbid);
         
-        if(!strcmp(curr->scope, "sysusers")) {
-            if(curr->status == 'D')
-                query = mkString("DELETE FROM sysusers WHERE id = ", tmp, NULL);
-            else
-                query = mkString("UPDATE sysusers SET status = '", stat, "' WHERE id = ", tmp, NULL);
-        }
-        mysql_query(dbh, query);
-        
-        free(tmp);
-        free(query);
         curr = curr->next;
     }
     return 1;
+}
+void activate(char * scope, int id) {
+    extern MYSQL * dbh;
+    
+    char * query = NULL;
+    char * sid = int2String(id);
+    
+    if(!strcmp(scope, "apache"))
+       query = mkString("UPDATE www SET status = 'A' WHERE id = ", sid, NULL); 
+    if(!strcmp(scope, "htusers"))
+       query = mkString("UPDATE www_users SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "sysusers"))
+       query = mkString("UPDATE sysusers SET status = 'A' WHERE id = ", sid, NULL);
+    
+    mysql_query(dbh, query);
+    free(query);
+    free(sid);
+}
+void delete(char * scope, int id) {
+    extern MYSQL * dbh;
+    
+    char * query = NULL;
+    char * sid = int2String(id);
+    
+    if(!strcmp(scope, "apache"))
+       query = mkString("DELETE FROM www WHERE id = ", sid, NULL); 
+    if(!strcmp(scope, "htusers"))
+       query = mkString("DELETE FROM www_users WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "sysusers"))
+       query = mkString("DELETE FROM sysusers WHERE id = ", sid, NULL);
+    
+    mysql_query(dbh, query);
+    free(query);
+    free(sid);
 }

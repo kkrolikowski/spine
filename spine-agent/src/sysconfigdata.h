@@ -96,12 +96,12 @@ unsigned long getCurrentTime(void);
 char * CPUusage(void);
 
 // funkcja wczytuje do pamieci dane konfiguracyjne apacza
-httpdata ParseConfigDataAPACHE(char * json);
+vhostData * ParseConfigDataAPACHE(char * json);
 
 // funckcja wczytuje do pamieci dane kont systemowych
 sysuser * ParseConfigDataSYSUSERS(char * json);
 
-// funkcja zwraca liczbe wystapien tekstu w stringu
-int JSONsearchString(char * json, char * needle);
+// function writes to memory htpasswd content
+htpasswdData * ParseConfigDataHTPASSWD(char * json);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

@@ -51,9 +51,6 @@ int checkDBConfigVer(char * systemid);
 // zawartosc do zaalokowanego obszaru pamieci.
 char * readData(char * input);
 
-// funkcja wczytuje konfiguracje serwera www z bazy do pamieci.
-httpdata ReadWWWConfiguration(char * hostid, FILE * lf);
-
 // funkcja tworzy liste laczona zawierajaca konta htpasswd
 htpasswdData * ReadHtpasswdData(char * hostid);
 
@@ -62,9 +59,6 @@ vhostData * ReadVhostData(char * hostid);
 
 // funkcja zwraca ID rekordu z bazy zawierajacego okreslony mac-adres serwera
 int getDBHostID(char * hwaddr);
-
-// funkcja czysci konfiguracje vhosta w bazie danych
-void cleanWWWConfiguration(char * hostid);
 
 // funkcja sprawdza, czy usluga na danym hoscie zostala zarejestrowana
 // 0 - usluga nie zarejestrowana
@@ -97,5 +91,11 @@ sshkeys * readSSHkeys(char * str);
 
 // function updates db records with information provided from client
 int applyStatusChange(resp * data);
+
+// activate item in db table
+void activate(char * scope, int id);
+
+// deletes item from db table
+void delete(char * scope, int id);
 
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

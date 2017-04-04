@@ -268,18 +268,27 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     packagever = readPackageVersion(clientResponse);
                     if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
-                            if(config.httpd.vhost != NULL)
-                                apacheSetup(config.httpd, os, lf);
+                            if(config.httpd.vhost != NULL) {
+                                updateMSGdata = updateApacheSetup(config.httpd, os, lf);
+                                cleanVhostData(config.httpd.vhost);
+                            }
+                            if(config.httpd.htpasswd != NULL) {
+                                updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, lf, updateMSGdata);
+                                clearHtpasswdData(config.httpd.htpasswd);
+                            }
+                            clearAuthData(os);
                             if(config.sysUsers != NULL) {
-                                if((updateMSGdata = updateUserAccounts(config.sysUsers, os, lf)) != NULL) {
-                                    updateMSGdataString = backMessage(updateMSGdata);
-                                    clifd = connector(net.ipaddr, 2016);
-                                    SendPackage(clifd, updateMSGdataString);
-                                    close(clifd);
-                                    free(updateMSGdataString);
-                                    cleanMSGdata(updateMSGdata);
-                                }
+                                updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
+                            }
+                            if(updateMSGdata != NULL) {
+                                updateMSGdataString = backMessage(updateMSGdata);
+                                clifd = connector(net.ipaddr, 2016);
+                                SendPackage(clifd, updateMSGdataString);
+                                close(clifd);
+                                free(updateMSGdataString);
+                                cleanMSGdata(updateMSGdata);
+                                updateMSGdata = NULL;
                             }
                             if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
@@ -323,8 +332,17 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     
                     if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
-                        configstring = BuildConfigurationPackage(&config);
-                        clifd = connector(net.ipaddr, 2016);
+                        configstring = buildConfigPackage(&config);
+                        if((clifd = connector(net.ipaddr, 2016)) < 0) {
+                            logentry = mkString("[ERROR] could not connect to ", net.ipaddr, NULL);
+                            writeLog(lf, logentry);
+                            free(net.ipaddr);
+                            free(configstring);
+                            free(system_id);
+                            free(clientver_str);
+                            free(datatype);
+                            continue;
+                        }
                         SendPackage(clifd, configstring);
 
                         logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
@@ -332,8 +350,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 
                         close(clifd);
                         free(configstring);
-                    }
-                    cleanWWWConfiguration(system_id);                
+                    }             
                     free(system_id);
                     free(clientver_str);
 		}
@@ -530,74 +547,53 @@ int clientNeedUpdate(char * clientData) {
 	else
 		return 0;
 }
-char * BuildConfigurationPackage(hostconfig * data) {
-        char * package = NULL;          // pelen pakiet danych
-        char * sysusers = NULL;         // konta uzytkownikow
-        char * vhosts = NULL;           // konfiguracja vhostow
-        char * htusers = NULL;          // konfiguracja htpasswd
-        char * s_vhost_count = NULL;    // liczba vhostow (string)
-        char * s_htusers_count = NULL;  // liczba kont htpasswd (string)
-        int size = 0;                   // ilosc pamieci do zaalokowania
-        const int DataTypes = 2;        // liczba obszarow konfiguracji:
-                                        // - apache, sysusers
-        int vhost_count = 0;            // liczba odczytanych vhostow
-        int htusers_count = 0;          // liczba odczytanych kont htpasswd
-        char * k_htpasswd_count = "htpasswd_count:";
-        char * dataType_braces = "{},";
-
-        // odczytujemy liczbe vhostow i zamieniamy ja na string
-        if(data->httpd.vhost != NULL) {
-            vhost_count = getVhostsCount(data->httpd.vhost);
-            s_vhost_count = int2String(vhost_count);
-        }
-        // odczytujemy liczbe kont htpasswd i zamieniamy ja na string
-        if(data->httpd.htpasswd != NULL) {
-            htusers_count = getHTusersCount(data->httpd.htpasswd);
-            s_htusers_count = int2String(htusers_count); 
-        }   
-        // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
-        if(data->sysUsers != NULL)
-            size += getSysUsersPackageSize(data->sysUsers);
-        if(data->httpd.vhost != NULL || data->httpd.htpasswd != NULL)
-            size += getApachedataSize(data->httpd);
-        if(data->httpd.htpasswd != NULL)
-            size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
-        size += (strlen(dataType_braces) * DataTypes) + strlen("[datatype:hostconfig]") + 1; 
-
-        // alokujemy cala potrzebna pamiec
-        package = (char *) malloc(size * sizeof(char));
-        memset(package, '\0', size);
-        
-        // odczytujemy poszczegolne sekcje konfiguracji
-        if(data->sysUsers != NULL)
-            sysusers = sysusersPackage(data->sysUsers);  
-        if(data->httpd.vhost != NULL)
-            vhosts = apacheConfigPackage(data->httpd);   
-        if(data->httpd.htpasswd != NULL)
-            htusers = readHtpasswdData(data->httpd.htpasswd);
+char * buildConfigPackage(hostconfig * data) {
+    char * package              = NULL;               // output package string
+    char * vhost_package        = NULL;               // vhosts definitions
+    char * htusers_package      = NULL;               // htpasswd accounts data
+    char * sysusers_package     = NULL;               // system accounts data
+    size_t package_size = 0;                          // memory size needed to hold whole data
     
-        // skladamy pakiet w calosc
-	strncpy(package, "[datatype:hostconfig,", strlen("[datatype:hostconfig,") + 1);
-        if(data->sysUsers != NULL)
-            strncat(package, sysusers, strlen(sysusers) + 1);
-        if(data->httpd.vhost != NULL)
-            strncat(package, vhosts, strlen(vhosts) + 1);
-        if(data->httpd.htpasswd != NULL)
-            strncat(package, htusers, strlen(htusers) + 1);
-	if(data->httpd.htpasswd != NULL) {
-            strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
-            strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
-        }
-	strncat(package, "}]", 3);
-
-        // zwalniamy pamiec
-	if(s_htusers_count != NULL)   free(s_htusers_count);
-        if(s_vhost_count != NULL)     free(s_vhost_count);
-        if(htusers != NULL)           free(htusers);
-        if(vhosts != NULL)            free(vhosts);
-        if(sysusers != NULL)          free(sysusers);
-        
-	return package;
+    // defined scopes
+    vhostData * vh          = data->httpd.vhost;      // vhosts configuration
+    htpasswdData * htpass   = data->httpd.htpasswd;   // htpasswd accounts
+    sysuser * su            = data->sysUsers;         // system users accounts
+    
+    // global package keynames
+    char * package_header = "[datatype:hostconfig,";
+    
+    // obtaining size of defined scopes
+    if(vh != NULL)
+        package_size += getVhostPackageSize(vh);
+    if(htpass != NULL)
+        package_size += htusersDataSize(htpass);
+    if(su != NULL)
+        package_size += getSysUsersPackageSize(su);
+    package_size += strlen(package_header) + 2;
+    
+    // preparing memory
+    package = (char *) malloc(package_size * sizeof(char));
+    memset(package, '\0', package_size);
+    
+    strncpy(package, package_header, strlen(package_header));
+    if(vh != NULL) {
+        vhost_package = apacheConfigPackage(vh);
+        strncat(package, vhost_package, strlen(vhost_package));
+        free(vhost_package);
+    }
+    if(htpass != NULL) {
+        htusers_package = htpasswdConfigPackage(htpass);
+        strncat(package, htusers_package, strlen(htusers_package));
+        free(htusers_package);
+    }
+    if(su != NULL) {
+        sysusers_package = sysusersPackage(su);
+        strncat(package, sysusers_package, strlen(sysusers_package));
+        free(sysusers_package);
+    }
+    *(package + strlen(package)) = ']';
+    
+    return package;
 }
 int fileExist(char * path) {
 	FILE * fp = NULL;
@@ -620,7 +616,11 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            conf->httpd = ReadWWWConfiguration(hostid, lf);
+            conf->httpd.vhost = ReadVhostData(hostid); // getVhostData
+            status = 1;
+        }
+        if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
+            conf->httpd.htpasswd = ReadHtpasswdData(hostid); // getHtpasswdData
             status = 1;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {

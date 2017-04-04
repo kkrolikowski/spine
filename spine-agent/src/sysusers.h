@@ -59,7 +59,7 @@ char * updateGroup(char * buff, char * login);
 
 // function check if particular account needs to to be updated and
 // perform this action
-resp * updateUserAccounts(sysuser * su, char * os, FILE * lf);
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata);
 
 // function updates /etc/passwd file with current data
 int updatePasswd(sysuser * su);
