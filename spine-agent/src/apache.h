@@ -20,7 +20,7 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
 
 resp * HtpasswdSetup(htpasswdData * htp, char * os, FILE * lf, resp * rdata);
 
-int createHtgroupFile(char * path, vhostData * vhd);
+int updateHtgroupFile(char * authDir, vhostData * vhd);
 
 // funkcja konfiguruje konta i grupy do uwierzytelaninia userow poprzez apacza
 void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf);

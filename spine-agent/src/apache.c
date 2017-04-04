@@ -292,16 +292,25 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
     
     return rhead;
 }
-int createHtgroupFile(char * path, vhostData * vhd) {
+int updateHtgroupFile(char * authDir, vhostData * vhd) {
     FILE * htgroup = NULL;
     FILE * tmp = NULL;
+    char * htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
     char * entry = NULL;
+    int entryExist = 0;
     const int BufSize = 1024;
     char buff[BufSize];
 
+    // ensure that auth directory exists
+    if(mkdir(authDir, 0755) < 0) {
+        if(errno != EEXIST) {
+            free(htgroupFilePath);
+            return 0;
+        }
+    }
     // when there's no inital .htgroup file
-    if((htgroup = fopen(path, "r")) == NULL) {
-        if((htgroup = fopen(path, "w")) == NULL)
+    if((htgroup = fopen(htgroupFilePath, "r")) == NULL) {
+        if((htgroup = fopen(htgroupFilePath, "w")) == NULL)
             return 0;
         else {
             entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
@@ -323,15 +332,22 @@ int createHtgroupFile(char * path, vhostData * vhd) {
             entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
             fputs(entry, tmp);
             free(entry);
+            entryExist = 1;
         }
         else
             fputs(buff, tmp);
         memset(buff, '\0', BufSize);
     }
     fclose(htgroup);
+    
+    if(!entryExist) {
+        entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
+        fputs(entry, tmp);
+        free(entry);
+    }
     rewind(tmp);
     
-    if((htgroup = fopen(path, "w")) == NULL) {
+    if((htgroup = fopen(htgroupFilePath, "w")) == NULL) {
         fclose(tmp);
         return 0;
     }
@@ -358,23 +374,9 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
     htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
     
     if(vhd->password_access) {
-        if(mkdir(authDir, 0755) < 0) {
-            if(errno == EEXIST) {
-                if(!createHtgroupFile(htgroupFilePath, vhd)) {
-                    lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
-                    writeLog(lf, lmsg);
-                }
-            }
-            else {
-                lmsg = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", authDir, "\n", NULL);
-                writeLog(lf, lmsg);
-            }
-        }
-        else {
-            if(!createHtgroupFile(htgroupFilePath, vhd)) {
-                lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
-                writeLog(lf, lmsg);
-            }
+        if(!updateHtgroupFile(authDir, vhd)) {
+            lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
+            writeLog(lf, lmsg);
         }
     }
     else {
@@ -383,6 +385,7 @@ void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
             writeLog(lf, lmsg);
         }
     }
+    free(htgroupFilePath);
 }
 char * accessOrder(char * str) {
 	char * allow = "allow,deny";
