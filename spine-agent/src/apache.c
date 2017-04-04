@@ -8,216 +8,383 @@
 #include "apache.h"
 #include "core.h"
 
-char * readHtpasswdData(htpasswdData * htpasswd) {
-    char * str = NULL;			// string wynikowy
-    htpasswdData * pos = NULL;		// aktualna pozycja na liscie
-    char * prefix = "htpasswd:";	// prefix listy
-    size_t len = getHtPasswdPackageSize(htpasswd);	// rozmiar obszaru pamieci
+int htusersDataSize(htpasswdData * htpass) {
+    htpasswdData * curr = htpass;       // current node
+    int size = 0;                       // overrall data size
+    int keySize = 0;                    // key names size
+    int nodeCount = 0;                  // processed nodes count
+    char * tmp = NULL;                  // temporary string
 
-    // przygotowujemy pamiec, ktora przechowa string wynikowy
-    str = (char *) malloc(len * sizeof(char));
-    memset(str, '\0', len);
-
-    // wypelniamy pamiec danymi
-    strncpy(str, prefix, strlen(prefix) + 1);
-    pos = htpasswd;
-    while(pos != NULL) {
-        strncat(str, pos->entry, strlen(pos->entry) + 1);
-        strncat(str, "#", 2);
-        pos = pos->next;
+    // package header
+    char * header = "{scope:htusers,},";    
+    // package keys names
+    char * keys[] = { "user_:" "login:,", "password:,", "dbid:,", 
+                      "status:,", "config_version:,", NULL 
+                    };
+    char ** key = keys;
+    
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        size += strlen(curr->login);
+        size += strlen(curr->pass);
+        
+        tmp = int2String(curr->dbid);
+        size += strlen(tmp);
+        free(tmp);
+        
+        // string length of each user index number
+        tmp = int2String(nodeCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        size += 1;          // one byte for status flag in each item
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
+            size += strlen(tmp);
+            free(tmp);
+        }
+        nodeCount++;
+        curr = curr->next;
     }
-    clearHtpasswdData(htpasswd);
-    str[strlen(str) - 1] = ',';
+    size += strlen(header);
+    size += keySize * nodeCount;
+    
+    return size;
+}
+char * htpasswdConfigPackage(htpasswdData * htpass) {
+    // common data
+    htpasswdData * curr     = htpass;   // node traversing pointer
+    int size = 0;                       // package size
+    int idx  = 0;			// item number
+    char * package          = NULL;     // output package
+    char * numstr           = NULL;	// item number as a string
+    char * entry            = NULL;     // particular entry definition
+    char * s_dbid           = NULL;     // DB ID in a form of string
+    // specific data
+    char status[2];                     // status flags can be: NUDA
 
-    return str;
+    // package header
+    char * header = "{scope:htusers,";
+
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
+    
+    if(htpass == NULL)
+        return NULL;
+    
+    // preparing memory
+    size = htusersDataSize(htpass) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
+  
+    // building a package
+    strncpy(package, header, strlen(header));
+    while(curr) {
+        numstr = int2String(idx);
+        s_dbid = int2String(curr->dbid);
+        memset(status, '\0', 2);
+        status[0] = curr->status;
+        
+        entry = mkString(
+                        "user_",            numstr,        ":{",
+                        "dbid:",            s_dbid,         ",",
+                        "login:",           curr->login,    ",",
+                        "password:",        curr->pass,     ",",
+                        "status:",          status,         ",",
+                        NULL);
+        
+        strncat(package, entry, strlen(entry) + 1);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+
+        // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+        free(s_dbid);
+        free(entry);
+        free(numstr);
+        idx++;
+        curr = curr->next;
+    }
+
+    // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
+    strncat(package, "},", 2);
+
+    // czyscimy niepotrzebne dane
+    free(s_config_ver);
+    clearHtpasswdData(htpass);
+
+    return package;
 }
 void clearHtpasswdData(htpasswdData * htpasswd) {
     htpasswdData * curr = htpasswd;
     htpasswdData * next = NULL;
     
-    free(curr->entry);
+    free(curr->login);
+    free(curr->pass);
     
     next = curr->next;
     if(next != NULL)
         clearHtpasswdData(next);
     free(curr);
 }
-char * apacheConfigPackage(httpdata www) {
-	int vidx = 0;			// vhost index
-	size_t packageSize = 0;         // rozmiar pakietu
-        char * package = NULL;          // pakiet konfiguracyjny
-	char * numstr = NULL;		// string z liczby
-	char * entry = NULL;            // zawartosc vhosta
-	char * metainfo = NULL;		// dane pomocnicze
-	char * authbasic = NULL;	// flaga okreslajaca, czy jest wlaczone haslo na witrynie
-        vhostData * vhpos = www.vhost; // wskaznik pomocniczny, ktory bedzie przemieszczal sie po wezle
-        
-        // naglowek pakietu danych
-        char * package_header = "{scope:apache,";
-        
-        // wersja konfiguracji apacza
-        char * k_config_ver = "config_ver:";
-        char * s_config_ver = NULL;
-        int config_ver = 0;
+char * apacheConfigPackage(vhostData * www) {
+    // common data
+    vhostData * curr       = www;       // node traversing pointer
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    // specific data
+    char * authbasic       = NULL;	// authbasic flag
 
-        // zaalokowania pamieci dla calego pakietu
-        packageSize = getApachedataSize(www);
-        package = (char *) malloc(packageSize * sizeof(char));
-        memset(package, '\0', packageSize);
-        
-        // budujemy pakiet
-        strncpy(package, package_header, strlen(package_header)); // definiujemy typ konfiguracji (apache)
-        while(vhpos) {
-            numstr = int2String(vidx);
-            authbasic = int2String(vhpos->password_access);
-            entry = mkString(
-                            "vhost_", numstr, ":{",
-                            "ServerName:",       vhpos->ServerName,         ",",
-                            "ServerAlias:",      vhpos->ServerAlias,        ",",
-                            "DocumentRoot:",     vhpos->DocumentRoot,       ",",
-                            "ApacheOpts:",       vhpos->apacheOpts,         ",",
-                            "VhostAccessOrder:", vhpos->vhost_access_order, ",",
-                            "VhostAccessList:",  vhpos->vhost_access_list,  ",",
-                            "htaccess:",         vhpos->htaccess,           ",",
-                            "authbasic:",        authbasic,                 ",",
-                            "htusers:",          vhpos->htusers,            ",",
-                            "vhoststatus:",      vhpos->status,             ",",
-                            "purgedir:",         vhpos->purgedir,           ",",
-                            "user:",             vhpos->user,               "}",
-                            ",", NULL);
-            strncat(package, entry, strlen(entry) + 1);
-            if(vhpos->next == NULL) {
-                config_ver = vhpos->version;
-                s_config_ver = int2String(config_ver);
-            }
-            
-            // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
-            free(entry);
-            free(numstr);
-            free(authbasic);
-            if(strcmp(vhpos->ServerName, "NaN"))
-                vidx++;
-            vhpos = vhpos->next;
-        }
+    // package header
+    char * header = "{scope:apache,";
 
-	// dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-	numstr = int2String(vidx);
-	metainfo = mkString("vhost_num:", numstr, ",", NULL);
-	strncat(package, metainfo, strlen(metainfo) + 1);
-        strncat(package, k_config_ver, strlen(k_config_ver));
-        strncat(package, s_config_ver, strlen(s_config_ver));
-        strncat(package, ",", 1);
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
 
-	// czyscimy niepotrzebne dane
-	free(numstr);
-	free(metainfo);
-        free(s_config_ver);
-        cleanVhostData(www.vhost);
-        
-	return package;
-}
-void createHtpasswdFile(char * os, htpasswdData * htpasswd) {
-	char * htpasswd_path = NULL;
-	FILE * htpasswd_file = NULL;
-	htpasswdData * pos = htpasswd;
+    if(www == NULL)
+        return NULL;
+    
+    // preparing memory
+    size = getVhostPackageSize(www) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
 
-	if(!strcmp(os, "Ubuntu"))
-		htpasswd_path = "/etc/apache2/auth/.htpasswd";
-	else if(strstr(os, "Centos") != NULL)
-		htpasswd_path = "/etc/httpd/auth/.htpasswd";
+    // package building
+    strncpy(package, header, strlen(header)); // configuration type
+    while(curr) {
+        numstr = int2String(idx);
+        authbasic = int2String(curr->password_access);
+        s_dbid = int2String(curr->dbid);
+        entry = mkString(
+                        "vhost_", numstr, ":{",
+                        "dbid:",             s_dbid,                   ",",
+                        "ServerName:",       curr->ServerName,         ",",
+                        "ServerAlias:",      curr->ServerAlias,        ",",
+                        "DocumentRoot:",     curr->DocumentRoot,       ",",
+                        "ApacheOpts:",       curr->apacheOpts,         ",",
+                        "VhostAccessOrder:", curr->vhost_access_order, ",",
+                        "VhostAccessList:",  curr->vhost_access_list,  ",",
+                        "htaccess:",         curr->htaccess,           ",",
+                        "authbasic:",        authbasic,                ",",
+                        "htusers:",          curr->htusers,            ",",
+                        "vhoststatus:",      curr->status,             ",",
+                        "purgedir:",         curr->purgedir,           ",",
+                        "user:",             curr->user,               "}",
+                        ",", NULL);
+        strncat(package, entry, strlen(entry) + 1);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
 
-	if((htpasswd_file = fopen(htpasswd_path, "w")) != NULL) {
-		while(pos != NULL) {
-			fprintf(htpasswd_file, "%s\n", pos->entry);
-			pos = pos->next;
-		}
-		fclose(htpasswd_file);
-	}
-	clearHtpasswdData(htpasswd);
-}
-htpasswdData * parseHtpasswdData(char * stream) {
-	htpasswdData * head = NULL;
-	htpasswdData * curr = NULL;
-	htpasswdData * prev = NULL;
-	char buff[256];
-	size_t buff_len = 0;
-	int i = 0;
-
-	memset(buff, '\0', 256);
-
-	while(*stream) {
-		if(*stream == '#') {
-			buff_len = strlen(buff) + 1;
-			curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-			curr->entry = (char *) malloc(buff_len * sizeof(char));
-			memset(curr->entry, '\0', buff_len);
-			strncpy(curr->entry, buff, buff_len);
-			curr->next = NULL;
-
-			if(head == NULL)
-				head = curr;
-			else
-				prev->next = curr;
-			prev = curr;
-
-			memset(buff, '\0', 256);
-			i = 0;
-			stream++;
-		}
-		buff[i] = *stream;
-		stream++; i++;
-	}
-	buff_len = strlen(buff) + 1;
-	curr = (htpasswdData *) malloc(sizeof(htpasswdData));
-	curr->entry = (char *) malloc(buff_len * sizeof(char));
-	memset(curr->entry, '\0', buff_len);
-	strncpy(curr->entry, buff, buff_len);
-	curr->next = NULL;
-
-	if(head == NULL)
-		head = curr;
-	else
-		prev->next = curr;
-	prev = curr;
-
-	return head;
-}
-void createHtgroupFile(char * path, vhostData * vhd) {
-    FILE * htgroup;
-    vhostData * curr = vhd;
-
-    if((htgroup = fopen(path, "w")) != NULL) {
-        while(curr) {
-            if(curr->password_access == 1)
-                fprintf(htgroup, "%s: %s\n", curr->ServerName, curr->htusers);
-            
-            curr = curr->next;
-        }
-        fclose(htgroup);
+        // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+        free(s_dbid);
+        free(entry);
+        free(numstr);
+        free(authbasic);
+        if(strcmp(curr->ServerName, "NaN"))
+            idx++;
+        curr = curr->next;
     }
+
+    // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
+    strncat(package, "},", 2);
+
+    // czyscimy niepotrzebne dane
+    free(s_config_ver);
+    cleanVhostData(www);
+
+    return package;
 }
-void createHtgroupConfig(char * os, vhostData * vhd, FILE * lf) {
-    char * logmessage = NULL;
-    char * htgroupDir = NULL;
+resp * HtpasswdSetup(htpasswdData * htp, char * os, FILE * lf, resp * rdata) {
+    char * authDir = NULL;      // os related directory "auth" path
+    char * htpasswdPath = NULL; // file path to .htpasswd
+    
+    // response data
+    resp * data = NULL;
+    
+    // let's create path to .htpasswd file
+    if(!strcmp(os, "Ubuntu"))
+        authDir = "/etc/apache2/auth";
+    else
+        authDir = "/etc/httpd/auth";
+    htpasswdPath = mkString(authDir, "/.htpasswd", NULL);
+    
+    // let's create auth directory
+    if(mkdir(authDir, 0755) < 0) {
+        if(errno == EEXIST)
+            data = createHtpasswdFile(htp, htpasswdPath, lf, rdata);
+        else
+            return NULL;           // error creating directory
+    }
+    else
+        data = createHtpasswdFile(htp, htpasswdPath, lf, rdata);
+    
+    free(htpasswdPath);
+    
+    return data;
+}
+resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rdata) {
+    htpasswdData * curr = htp;      // current position in memory
+    char * scope = "htusers";       // response scope
+    char * lmsg = NULL;             // log message
+
+    // response data
+    resp * rhead = rdata;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    while(rhead != NULL)
+        rhead = rhead->next;
+    
+    while(curr) {
+        rcurr = (resp *) malloc(sizeof(resp));
+        if(curr->status == 'N') {
+            if(createHtpasswdEntry(curr, path)) {
+                lmsg = mkString("[INFO] (reciver) Added user ", curr->login, " to .htpasswd file", NULL);
+                rcurr->status = 'A';
+            }
+            else
+                lmsg = mkString("[WARNING] (reciver) Error adding user ", curr->login, " to .htpasswd file", NULL);
+            writeLog(lf, lmsg);
+        }
+        if(curr->status == 'U') {
+            if(updateHtpasswdEntry(curr, path)) {
+                lmsg = mkString("[INFO] (reciver) Updating user ", curr->login, " in .htpasswd file", NULL);
+                rcurr->status = 'A';
+            }
+            else
+                lmsg = mkString("[WARNING] (reciver) Error updating user ", curr->login, " in .htpasswd file", NULL);
+            writeLog(lf, lmsg);
+        }
+        if(curr->status == 'D') {
+            if(deleteHtpasswdEntry(curr, path)) {
+                lmsg = mkString("[INFO] (reciver) User ", curr->login, " deleted from .htpasswd file", NULL);
+                rcurr->status = 'D';
+            }
+            else
+                lmsg = mkString("[WARNING] (reciver) Error deleting user ", curr->login, " from .htpasswd file", NULL);
+            writeLog(lf, lmsg);
+        }
+        rcurr->dbid = curr->dbid;
+        rcurr->scope = (char *) malloc((strlen(scope) +1) * sizeof(char));
+        memset(rcurr->scope, '\0', strlen(scope) +1);
+        strncpy(rcurr->scope, scope, strlen(scope));
+        rcurr->next = NULL;
+        
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+        
+        curr = curr->next;
+    }
+    
+    return rhead;
+}
+int updateHtgroupFile(char * authDir, vhostData * vhd) {
+    FILE * htgroup = NULL;
+    FILE * tmp = NULL;
+    char * htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
+    char * entry = NULL;
+    int entryExist = 0;
+    const int BufSize = 1024;
+    char buff[BufSize];
+
+    // ensure that auth directory exists
+    if(mkdir(authDir, 0755) < 0) {
+        if(errno != EEXIST) {
+            free(htgroupFilePath);
+            return 0;
+        }
+    }
+    // when there's no inital .htgroup file
+    if((htgroup = fopen(htgroupFilePath, "r")) == NULL) {
+        if((htgroup = fopen(htgroupFilePath, "w")) == NULL)
+            return 0;
+        else {
+            entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
+            fputs(entry, htgroup);
+            free(entry);
+            fclose(htgroup);
+            return 1;
+        }
+    }
+    
+    // .htgroup exists, we can proceed 
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htgroup);
+        return 0;
+    }
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, htgroup) != NULL) {
+        if(strstr(buff, vhd->ServerName) != NULL) {
+            entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
+            fputs(entry, tmp);
+            free(entry);
+            entryExist = 1;
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(htgroup);
+    
+    if(!entryExist) {
+        entry = mkString(vhd->ServerName, ": ", vhd->htusers, "\n", NULL);
+        fputs(entry, tmp);
+        free(entry);
+    }
+    rewind(tmp);
+    
+    if((htgroup = fopen(htgroupFilePath, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    memset(buff, '\0', BufSize);
+    while(fgets(buff, BufSize, tmp) != NULL) {
+        fputs(buff, htgroup);
+        memset(buff, '\0', BufSize);
+    }
+    fclose(tmp);
+    fclose(htgroup);
+    
+    return 1;
+}
+void apacheAuthConfig(char * os, vhostData * vhd, FILE * lf) {
+    char * lmsg = NULL;
+    char * authDir = NULL;
     char * htgroupFilePath = NULL;
 
     if(!strcmp(os, "Ubuntu"))
-        htgroupDir = "/etc/apache2/auth";
+        authDir = "/etc/apache2/auth";
     else if(strstr(os, "Centos") != NULL)
-        htgroupDir = "/etc/httpd/auth";
-    htgroupFilePath = mkString(htgroupDir, "/.htgroup", NULL);
-
-    if(mkdir(htgroupDir, 0755) < 0) {
-        if(errno != EEXIST) {
-            logmessage = mkString("[ERROR] (reciver) Blad tworzenia katalogu: ", htgroupDir, "\n", NULL);
-            writeLog(lf, logmessage);
+        authDir = "/etc/httpd/auth";
+    
+    htgroupFilePath = mkString(authDir, "/.htgroup", NULL);
+    
+    if(vhd->password_access) {
+        if(!updateHtgroupFile(authDir, vhd)) {
+            lmsg = mkString("[ERROR] (reciver) Error preparing htgroup file");
+            writeLog(lf, lmsg);
         }
-        else
-            createHtgroupFile(htgroupFilePath, vhd);
     }
-    else
-        createHtgroupFile(htgroupFilePath, vhd);
-
+    else {
+        if(!removeFromHtGroupFile(htgroupFilePath, vhd->ServerName)) {
+            lmsg = mkString("[WARNING] (reciver) Error removing (or not exist) entry", vhd->ServerName, " from .htgroup file", NULL);
+            writeLog(lf, lmsg);
+        }
+    }
     free(htgroupFilePath);
 }
 char * accessOrder(char * str) {
@@ -241,86 +408,6 @@ char * accessOrder(char * str) {
 
 	return order;
 }
-char * acl(char * str) {
-	char buff[256];
-	char chunk[64];
-	char * accesslist = NULL;
-	char * acl_entry = NULL;
-	size_t accesslist_len = 0;
-	int i = 0;
-
-	memset(buff, '\0', 256);
-	memset(chunk, '\0', 64);
-	while(*str) {
-		if(*str == '#') {
-			chunk[i] = '\0';
-			acl_entry = apache_accesslist_entry(chunk);
-			strcat(buff, acl_entry);
-			strcat(buff, "\n");
-			free(acl_entry);
-			i = 0;
-			str++;
-		}
-		else {
-			chunk[i] = *str;
-			str++; i++;
-		}
-	}
-	chunk[i] = '\0';
-	acl_entry = apache_accesslist_entry(chunk);
-	strcat(buff, acl_entry);
-
-	accesslist_len = strlen(buff) + 1;
-	accesslist = (char *) malloc(accesslist_len * sizeof(char));
-	memset(accesslist, '\0', accesslist_len);
-	strncpy(accesslist, buff, accesslist_len);
-	free(acl_entry);
-
-	return accesslist;
-}
-char * apache_accesslist_entry(char * str) {
-	char * allow = "\t\tAllow from ";		// poczatek linijki (allow)
-	char * deny = "\t\tDeny from ";			// poczatek linijki (deny)
-	char * rule = NULL;						// przyjmie wartosc allow lub deny
-	char * rule_entry = NULL;				// adres stringa z pojedyncza regula
-	char * access_val = NULL;				// wartosc 0 lub 1 - allow lub deny
-	char * str_begin = str;					// poczatek stringa przekazanego do funkcji
-	char * access_from = NULL;				// string przechowujacy wartosc from
-	char * access_from_begin = NULL;		// poczatek stringa przechowujacego from
-	long from_len = 0L;						// ilosc pamieci potrzebnej do przechowania wartosci from
-	size_t rule_len = 0;					// ilosc pamieci potrzebnej do przechowania calego entry
-
-	access_val = strchr(str, ':') + 1;							// odszukujemy wartosc allow lub deny
-	from_len = access_val - str_begin;							// okreslamy ilosc pamieci potrzebnej na przechowanie wartosci from
-	access_from = (char *) malloc(from_len * sizeof(char));		// alokujemy pamiec do przechowania wartosci from
-	access_from_begin = access_from;							// zapisujemy adres poczatkowy
-	memset(access_from, '\0', from_len);
-
-	// odczytujemy from ze stringa
-	while(*str_begin != ':') {
-		*access_from = *str_begin;
-		access_from++; str_begin++;
-	}
-	*access_from = '\0';
-
-	// okreslamy czy ma byc Deny from czy Allow from
-	if(strcmp(access_val, "0"))
-		rule = allow;
-	else
-		rule = deny;
-
-	// rezerwujemy pamiec i wypelniamy ja zebranymi danymi
-	rule_len = strlen(rule) + strlen(access_from_begin) + 1;
-	rule_entry = (char *) malloc(rule_len * sizeof(char));
-	memset(rule_entry, '\0', rule_len);
-	strcpy(rule_entry, rule);
-	strcat(rule_entry, access_from_begin);
-
-	// zwalniamy niepotrzebna pamiec
-	free(access_from_begin);
-
-	return rule_entry;
-}
 void reloadApache(char * os) {
 	pid_t pid;
 
@@ -336,73 +423,31 @@ void reloadApache(char * os) {
 	else if(pid > 0)
 		wait(NULL);
 }
-void apacheSetup(httpdata www, char * os, FILE * lf) {
-    char * msg = NULL;
-    int htusersCount = getHTusersCount(www.htpasswd);
+void createHtaccess(char * htaccessPath, char * hta_content) {
+    FILE * htaccess = NULL;
     
-    if(createVhostConfig(os, www.vhost, lf)) {
-        createWebsiteDir(www.vhost);
-        createHtaccess(www.vhost);
-        createHtgroupConfig(os, www.vhost, lf);
-        if(htusersCount > 0) {
-            createHtpasswdFile(os, www.htpasswd);
-        }
-        else {
-            clearAuthData(os);
-        }
-        msg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
-        writeLog(lf, msg);
-        reloadApache(os);
-    }
-    else {
-        msg = mkString("[ERROR] (reciver) Wystapil problem podczas tworzenia plikow z konfiguracja.", NULL);
-        writeLog(lf, msg);
-    }
-    if(removeVhost(os, www.vhost)) {
-        msg = mkString("[INFO] (reciver) Konfiguracja apacza zostala wyczyszczona z niepotrzebnych witryn.", NULL);
-        writeLog(lf, msg);
-        reloadApache(os);
-    }
-    cleanVhostData(www.vhost);
-}
-void createHtaccess(vhostData * vhd) {
-    FILE * htaccess;
-    char * htaccessPath = NULL;
-    vhostData * curr = vhd;
-    
-    while(curr) {
-        htaccessPath = mkString(curr->DocumentRoot, "/.htaccess", NULL);
-        if(strcmp(curr->htaccess, "NaN")) {
-            if((htaccess = fopen(htaccessPath, "w")) != NULL)
-                fprintf(htaccess, "%s\n", curr->htaccess);
-
-            fclose(htaccess);
-            free(htaccessPath);
-        }
-        curr = curr->next;
+    if((htaccess = fopen(htaccessPath, "w")) != NULL) {
+        fprintf(htaccess, "%s\n", hta_content);
+        fclose(htaccess);
     }
 }
-void createWebsiteDir(vhostData * vhd) {
-    vhostData * curr = vhd;
+void createWebsiteDir(char * websiteDir) {
     char * dirpath = NULL;
     size_t len = 0;
     
-    while(curr) {
-        len = strlen(curr->DocumentRoot) + 2;
-        dirpath = (char *) malloc(len * sizeof(char));
-        memset(dirpath, '\0', len);
-        strncpy(dirpath, curr->DocumentRoot, strlen(curr->DocumentRoot));
-        strncat(dirpath, "/", 2);
-        if(access(dirpath, F_OK) < 0) {
-            if(errno == ENOENT)
-                mkdirtree(curr->DocumentRoot);
-        }
-        free(dirpath);
-        curr = curr->next;
+    len = strlen(websiteDir) + 2;
+    dirpath = (char *) malloc(len * sizeof(char));
+    memset(dirpath, '\0', len);
+    
+    strncpy(dirpath, websiteDir, strlen(websiteDir));
+    strncat(dirpath, "/", 2);
+    if(access(dirpath, F_OK) < 0) {
+        if(errno == ENOENT)
+            mkdirtree(websiteDir);
     }
+    free(dirpath);
 }
 int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
-    vhostData * pos = vhd;              // aktualna pozycja w pamieci
     char * configDir = NULL;            // sciezka do katalogu konfiguracyjnego apacza
     char * configDir2 = NULL;           // Ubuntu only. sciezka do katalogu sites-enabled
     char * apacheAuthDir = NULL;        // sciezka do katalogu z uzytkownikami i grupami apacza
@@ -412,10 +457,7 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
     char * logentry = NULL;             // komunikat do logu programu
     char * acl_entry = NULL;            // kompletna lista konfiguracji dostepu
     char * acl_order = NULL;            // kolejnosc przetwarzania listy dostepow
-    FILE * vhost;                       // uchwyt pliku vhosta
-    int counter = 0;                    // liczba stworzonych vhostow
-    int total = getVhostsCount(vhd);    // calkowita liczba vhostow 
-    int vhostExist = 0;                 // ustawiamy 1 jesli plik juz istnial
+    FILE * vhost = NULL;                // uchwyt pliku vhosta
 
     // ustawiamy odpowiednie sciezki w zaleznosci od systemu operacyjnego
     if(!strcmp(distro, "Centos6") || !strcmp(distro, "Centos7")) {
@@ -430,248 +472,165 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
         logsDir = "/var/log/apache2";
     }
 
-    while(pos) {
-        if(!strcmp(pos->status, "A")) {
-            path = mkString(configDir, pos->ServerName, ".conf", NULL);
-            path2 = mkString(configDir2, pos->ServerName, ".conf", NULL);
-            if(!access(path, F_OK))
-                vhostExist = 1;
-            if((vhost = fopen(path, "w")) == NULL) {
-                logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
-                writeLog(lf, logentry);
-                pos = pos->next;
-                continue;
-            }
-            counter++;
-            acl_order = accessOrder(pos->vhost_access_order);
-            acl_entry = acl(pos->vhost_access_list);
-            fprintf(vhost, "<VirtualHost *:80>\n");
-            fprintf(vhost, "\tServerName %s\n", pos->ServerName);
-            if(strcmp(pos->ServerAlias, "NaN"))
-                fprintf(vhost, "\tServerAlias %s\n", pos->ServerAlias);
-            fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", pos->DocumentRoot);
-            fprintf(vhost, "\t<Directory %s>\n", pos->DocumentRoot);
-            fprintf(vhost, "\t\tOptions %s\n", pos->apacheOpts);
-            fprintf(vhost, "\t\tAllowOverride All\n");
-            fprintf(vhost, "\t\tOrder %s\n", acl_order);
-            fprintf(vhost, "%s\n", acl_entry);
-            if(!strcmp(distro, "Ubuntu"))
-                fprintf(vhost, "\t\tRequire all granted\n");
-            fprintf(vhost, "\t</Directory>\n\n");
-            if(pos->password_access) {
-                fprintf(vhost, "\t<Location />\n");
-                fprintf(vhost, "\t\tAuthType Basic\n");
-                fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
-                fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
-                fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
-                fprintf(vhost, "\t\tRequire group %s\n", pos->ServerName);
-                fprintf(vhost, "\t</Location>\n\n");
-            }
-            fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, pos->ServerName);
-            fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, pos->ServerName);
-            fprintf(vhost, "</VirtualHost>\n");
-            fclose(vhost);
-            free(acl_order);
-            free(acl_entry);
-            if(vhostExist)
-                logentry = mkString("[INFO] (reciver) Konfiguracja dla ", pos->ServerName, " zostala zaktualizowana", NULL);
-            else
-                logentry = mkString("[INFO] (reciver) Stworzona zostala konfiguracja dla ", pos->ServerName, NULL);
-            writeLog(lf, logentry);
-            if(!strcmp(distro, "Ubuntu"))
-                if(access(path2, F_OK) < 0) {
-                    if(errno == ENOENT) {
-                        if(symlink(path, path2)) {
-                            if(errno == EEXIST)
-                                logentry = mkString("[WARNING] (reciver) Vhost: ", pos->ServerName, " byl juz aktywny", NULL);
-                            else
-                                logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", pos->ServerName, NULL);
-                            writeLog(lf, logentry);
-                        }
-                    }
-                }
-            
-            vhostExist = 0;
-            free(path);
-            free(path2);
-        }
-        else if(!strcmp(pos->status, "D"))
-            counter++;
-        pos = pos->next;
-    }
-
-    /* weryfikujemy rezultat zakladania plikow
-     *  jesli nie udalo sie stworzyc zadnego: -1
-     *  jesli udalo sie stworzyc wszystkie: 1
-     *  jesli nie udalo sie stworzyc niektorych: 0
-     */
-    if(counter == 0)
-        return -1;
-    else if(counter == total)
-        return 1;
-    else
+    path = mkString(configDir, vhd->ServerName, ".conf", NULL);
+    path2 = mkString(configDir2, vhd->ServerName, ".conf", NULL);
+    
+    if((vhost = fopen(path, "w")) == NULL) {
+        logentry = mkString("[ERROR] (reciver) Blad tworzenia pliku: ", path, NULL);
+        writeLog(lf, logentry);
+        free(path);
+        free(path2);
         return 0;
+    }
+    acl_order = accessOrder(vhd->vhost_access_order);
+    acl_entry = vhostACL(vhd->vhost_access_list);
+    fprintf(vhost, "<VirtualHost *:80>\n");
+    fprintf(vhost, "\tServerName %s\n", vhd->ServerName);
+    if(strcmp(vhd->ServerAlias, "NaN"))
+        fprintf(vhost, "\tServerAlias %s\n", vhd->ServerAlias);
+    fprintf(vhost, "\tDocumentRoot \"%s\"\n\n", vhd->DocumentRoot);
+    fprintf(vhost, "\t<Directory %s>\n", vhd->DocumentRoot);
+    fprintf(vhost, "\t\tOptions %s\n", vhd->apacheOpts);
+    fprintf(vhost, "\t\tAllowOverride All\n");
+    fprintf(vhost, "\t\tOrder %s\n", acl_order);
+    fprintf(vhost, "%s\n", acl_entry);
+    if(!strcmp(distro, "Ubuntu"))
+        fprintf(vhost, "\t\tRequire all granted\n");
+    fprintf(vhost, "\t</Directory>\n\n");
+    if(vhd->password_access) {
+        fprintf(vhost, "\t<Location />\n");
+        fprintf(vhost, "\t\tAuthType Basic\n");
+        fprintf(vhost, "\t\tAuthName \"Restricted Area\"\n");
+        fprintf(vhost, "\t\tAuthUserFile %s/.htpasswd\n", apacheAuthDir);
+        fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
+        fprintf(vhost, "\t\tRequire group %s\n", vhd->ServerName);
+        fprintf(vhost, "\t</Location>\n\n");
+    }
+    fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhd->ServerName);
+    fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhd->ServerName);
+    fprintf(vhost, "</VirtualHost>\n");
+    fclose(vhost);
+    free(acl_order);
+    free(acl_entry);
+    if(!strcmp(distro, "Ubuntu")) {
+        if(access(path2, F_OK) < 0) {
+            if(errno == ENOENT) {
+                if(symlink(path, path2)) {
+                    if(errno == EEXIST)
+                        logentry = mkString("[WARNING] (reciver) Vhost: ", vhd->ServerName, " byl juz aktywny", NULL);
+                    else
+                        logentry = mkString("[ERROR] (reciver) Nie udalo sie aktywowac konfiguracji dla ", vhd->ServerName, NULL);
+                    writeLog(lf, logentry);
+                }
+            }
+        }
+    }
+    free(path);
+    free(path2);
+    
+    return 1;
 }
 void clearAuthData(char * os) {
-	char * htpasswd_path = NULL;
-	char * htgroup_path = NULL;
+    char * htgroup_path = NULL;
+    char * htpasswd_path = NULL;
+    char * authDir = NULL;
 
-	if(!strcmp(os, "Ubuntu")) {
-		htpasswd_path = "/etc/apache2/auth/.htpasswd";
-		htgroup_path = "/etc/apache2/auth/.htgroup";
-	}
-	else if(strstr(os, "Centos") != NULL) {
-		htpasswd_path = "/etc/httpd/auth/.htpasswd";
-		htgroup_path = "/etc/httpd/auth/.htgroup";
-	}
-
-	if(fileExist(htpasswd_path))
-		unlink(htpasswd_path);
-	if(fileExist(htgroup_path))
-		unlink(htgroup_path);
+    if(!strcmp(os, "Ubuntu")) {
+        htgroup_path = "/etc/apache2/auth/.htgroup";
+        htpasswd_path = "/etc/apache2/auth/.htpasswd";
+        authDir = "/etc/apache2/auth";
+    }
+    else if(strstr(os, "Centos") != NULL) {
+        htgroup_path = "/etc/httpd/auth/.htgroup";
+        htpasswd_path = "/etc/httpd/auth/.htpasswd";
+        authDir = "/etc/httpd/auth";
+    }
+    if(!fileExist(htgroup_path) && !fileExist(htpasswd_path))
+        rmdir(authDir);
 }
-int removeVhost(char * os, vhostData * vhd) {
-    int count = 0;
+void removeVhost(char * os, vhostData * vhd) {
     char * vhostConfig = NULL;
     char * vhostConfigSymlink = NULL;
     char * vhostDir = NULL;
-    vhostData * curr = vhd;
 
-    while(curr) {
-        vhostDir = mkString("/var/www/", curr->ServerName, "/", NULL);
-        if(!strcmp(os, "Ubuntu")) {
-            vhostConfig = mkString("/etc/apache2/sites-available/", curr->ServerName, ".conf", NULL);
-            vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", curr->ServerName, ".conf", NULL);
-        }
-        else if(strstr(os, "Centos") != NULL) {
-            vhostConfig = mkString("/etc/httpd/conf.d/", curr->ServerName, ".conf", NULL);
-        }
-        if(!strcmp(curr->status, "D")) {
-            if(vhostConfig != NULL) {
-                unlink(vhostConfig);
-                count++;
-            }
-            if(vhostConfigSymlink != NULL)
-                unlink(vhostConfigSymlink);
-        }
-        if(!strcmp(curr->purgedir, "Y"))
-            purgeDir(vhostDir);
-
-        if(vhostConfig != NULL) free(vhostConfig);
-        if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
-        if(vhostDir != NULL) free(vhostDir);
-        
-        curr = curr->next;
+    vhostDir = mkString("/var/www/", vhd->ServerName, "/", NULL);
+    if(!strcmp(os, "Ubuntu")) {
+        vhostConfig = mkString("/etc/apache2/sites-available/", vhd->ServerName, ".conf", NULL);
+        vhostConfigSymlink = mkString("/etc/apache2/sites-enabled/", vhd->ServerName, ".conf", NULL);
     }
-    return count;
-}
-int getApachedataSize(httpdata www) {
-    int size = 0;
-    int vhostPackageSize = 0;
-    int htpasswdPackageSize = 0;
+    else if(strstr(os, "Centos") != NULL) {
+        vhostConfig = mkString("/etc/httpd/conf.d/", vhd->ServerName, ".conf", NULL);
+    }
+    unlink(vhostConfig);
+    if(vhostConfigSymlink != NULL)
+        unlink(vhostConfigSymlink);
     
-    if(www.vhost != NULL)
-        vhostPackageSize = getVhostPackageSize(www.vhost);
-    if(www.htpasswd != NULL)
-        htpasswdPackageSize = getHtPasswdPackageSize(www.htpasswd);
-        
-    size = vhostPackageSize + htpasswdPackageSize;
-    size += strlen("{scope:apache,}");
-    size += strlen("vhost_num:,");
-    size += strlen("htpasswd_count:,");
-    
-    return size;
+    if(!strcmp(vhd->purgedir, "Y"))
+        purgeDir(vhostDir);
+
+    if(vhostConfig != NULL) free(vhostConfig);
+    if(vhostConfigSymlink != NULL) free(vhostConfigSymlink);
+    if(vhostDir != NULL) free(vhostDir);
 }
 int getVhostPackageSize(vhostData * vhd) {
-    int size = 0;           // licznik bajtow
-    int keysize = 0;        // rozmiar kluczy w pakiecie
-    vhostData * pos = vhd;  // aktualna pozycja w pamieci
-    char * tmp = NULL;      // tymczasowa zmienna do przechowania
-                            // wartosci numerycznych w formie stringu
-    int vhostCount = 0;     // zliczanie liczby vhostow
-
-    // nazwy kluczy w pakiecie;
+    vhostData * curr = vhd;     // current node
+    int size = 0;               // overrall data size
+    int keySize = 0;            // key names size
+    int nodeCount = 0;          // processed nodes count
+    char * tmp = NULL;          // temporary string
+    
+    // package header 
+    char * header = "{scope:apache,},";
+    // package keys names
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
                             "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
-                            "vhost_:", "{},", NULL};
-    const char ** key = keys;
-    while(*key) {
-        keysize += strlen(*key);
-        key++;
-    }
-    while(pos) {
-        // Dane tekstowe
-        size += strlen(pos->DocumentRoot);
-        size += strlen(pos->ServerAlias);
-        size += strlen(pos->ServerName);
-        size += strlen(pos->apacheOpts);
-        size += strlen(pos->htaccess);
-        size += strlen(pos->htusers);
-        size += strlen(pos->purgedir);
-        size += strlen(pos->status);
-        size += strlen(pos->user);
-        size += strlen(pos->vhost_access_list);
-        size += strlen(pos->vhost_access_order);
+                            "vhost_:", "dbid:,", "{},", "authbasic:,", NULL};
+    const char ** key = keys;    
+    
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        // string data
+        size += strlen(curr->DocumentRoot);
+        size += strlen(curr->ServerAlias);
+        size += strlen(curr->ServerName);
+        size += strlen(curr->apacheOpts);
+        size += strlen(curr->htaccess);
+        size += strlen(curr->htusers);
+        size += strlen(curr->purgedir);
+        size += strlen(curr->status);
+        size += strlen(curr->user);
+        size += strlen(curr->vhost_access_list);
+        size += strlen(curr->vhost_access_order);
 
-        // Dane numeryczne;
-        tmp = int2String(pos->password_access);
+        // numeric data
+        tmp = int2String(curr->password_access);
         size += strlen(tmp);
         free(tmp);
         
-        tmp = int2String(vhostCount);
+        tmp = int2String(nodeCount);
         size += strlen(tmp);
         free(tmp);
         
-        if(pos->next == NULL) {
-            tmp = int2String(pos->version);
+        tmp = int2String(curr->dbid);
+        size += strlen(tmp);
+        free(tmp);
+        
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
             size += strlen(tmp);
             free(tmp);
         }
                 
-        vhostCount++;
-        pos = pos->next;
+        nodeCount++;
+        curr = curr->next;
     }
-    size += keysize * vhostCount;
+    size += strlen(header);
+    size += keySize * nodeCount;
     
     return size;
-}
-int getHtPasswdPackageSize(htpasswdData * htp) {
-    int size = 0;
-    htpasswdData * pos = htp;
-    int entryCount = 0;
-    
-    char * key = "htpasswd:,";
-    while(pos) {
-        size += strlen(pos->entry);
-        entryCount++;
-        pos = pos->next;
-    }
-    size += strlen(key) + entryCount;
-    
-    return size;
-}
-int getVhostsCount(vhostData *vh) {
-    int sum  = 0;
-    vhostData * pos = vh;
-    
-    while(pos) {
-        sum++;
-        pos = pos->next;
-    }
-    return sum;
-}
-int getHTusersCount(htpasswdData * htp) {
-    int sum = 0;
-    htpasswdData * pos = htp;
-    
-    while(pos) {
-        // jesli entry nie jest NaN zwieksz licznik
-        if(strcmp(pos->entry, "NaN"))
-            sum++;
-        pos = pos->next;
-    }
-    return sum;
 }
 void cleanVhostData(vhostData * vhd) {
     vhostData * curr = vhd;
@@ -693,4 +652,270 @@ void cleanVhostData(vhostData * vhd) {
     if(next != NULL)
         cleanVhostData(next);
     free(curr);
+}
+resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
+    vhostData * vh = www.vhost;
+    char * htaccessPath = NULL;
+    char * lmsg = NULL;
+    int authItems = 0;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    while(vh) {
+        htaccessPath = mkString(vh->DocumentRoot, "/.htaccess", NULL);
+        if(!strcmp(vh->status, "N") || !strcmp(vh->status, "U")) {
+            if(createVhostConfig(os, vh, lf)) {
+                apacheAuthConfig(os, vh, lf);
+                if(vh->password_access)
+                    authItems++;
+                if(!strcmp(vh->status, "N"))
+                    createWebsiteDir(vh->DocumentRoot);
+                if(strcmp(vh->htaccess, "NaN"))
+                    createHtaccess(htaccessPath, vh->htaccess);
+                else
+                    unlink(htaccessPath);
+                
+                rcurr = respStatus("apache", 'A', vh->dbid);
+                if(rhead == NULL)
+                    rhead = rcurr;
+                else
+                    rprev->next = rcurr;
+                rprev = rcurr;
+                
+                if(!strcmp(vh->status, "N"))
+                    lmsg = mkString("[INFO] (reciver) Konfiguracja witryny ", vh->ServerName, " zostala utworzona", NULL);
+                else if(!strcmp(vh->status, "U"))
+                    lmsg = mkString("[INFO] (reciver) Konfiguracja witryny ", vh->ServerName, " zostala zaktualizowana", NULL);
+            }
+            else
+                lmsg = mkString("[ERROR] (reciver) Blad tworzenia konfiguracji dla witryny ", vh->ServerName, NULL);
+            writeLog(lf, lmsg);
+        }
+        if(!strcmp(vh->status, "D")) {
+            removeVhost(os, vh);
+            lmsg = mkString("[INFO] (reciver) Konfiguracja witryny ", vh->ServerName, " zostala usunięta", NULL);
+            writeLog(lf, lmsg);
+            rcurr = respStatus("apache", 'D', vh->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        free(htaccessPath);
+        vh = vh->next;
+    }
+    lmsg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
+    writeLog(lf, lmsg);
+    reloadApache(os);
+    
+    return rhead;
+}
+int removeFromHtGroupFile(char * path, char * entry) {
+    FILE * htgroup = NULL;
+    FILE * tmp = NULL;
+    int items = 0;
+    const int Size = 1024;
+    char buff[Size];
+    
+    if((htgroup = fopen(path, "r")) == NULL)
+        return -1;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htgroup);
+        return 0;
+    }
+    
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, htgroup) != NULL) {
+        if(strstr(buff, entry) != NULL)
+            continue;
+        else {
+            fputs(buff, tmp);
+            items++;
+        }
+        memset(buff, '\0', Size);
+    }
+    fclose(htgroup);
+    
+    if(items > 0) {
+        rewind(tmp);
+        if((htgroup = fopen(path, "w")) == NULL) {
+            fclose(tmp);
+            return 0;
+        }
+        memset(buff, '\0', Size);
+        while(fgets(buff, Size, tmp) != NULL) {
+            fputs(buff, htgroup);
+            memset(buff, '\0', Size);
+        }
+        fclose(tmp);
+        fclose(htgroup);
+    }
+    else {
+        fclose(tmp);
+        unlink(path);
+    }
+    return 1;
+}
+char * vhostACL(char * str) {
+    char * out      = NULL;                 // output string
+    char * curr     = str;                  // current character in string
+    char * allow    = "\t\tAllow from ";    // keywords #1
+    char * deny     = "\t\tDeny from ";     // keywords #2
+    int items       = 0;                    // items in string to process
+    int acl_seq     = 0;                    // number of acl sequences
+    size_t memsize  = 0;                    // memory size which handle output string
+    char buff[16];                          // temporary buffer, should be enough
+                                            // to store ip address
+    int index       = 0;                    // buffer index
+    
+    // let's check how many entries we have to process
+    while(*curr) {
+        if(*curr == '#')
+            items++;
+        curr++;
+    }
+    items += 1;                 // there's allways one item more than #
+    acl_seq = 2 * items;        // acl sequeces are 2 times more than items
+    
+    // size of input string + string length of longest direcive - number
+    // of streering acl sequences + two extra bytes, one for newline, second
+    // for string zero sign.
+    memsize = strlen(str) + (strlen(allow) * items) - acl_seq + 2;
+    out = (char *) malloc(memsize * sizeof(char));
+    memset(out, '\0', memsize);
+    
+    // let's move to the begining and prepare temporary buffer
+    curr = str;
+    memset(buff, '\0', 16);
+    while(*curr) {
+        if(*curr != ':')
+            buff[index++] = *curr++;
+        else {
+            if(*(curr + 1) == '1')
+                strncat(out, allow, strlen(allow));
+            else
+                strncat(out, deny, strlen(deny));
+            strncat(out, buff, strlen(buff));
+            *(out + strlen(out)) = '\n';
+            memset(buff, '\0', 16);
+            if(*(curr + 2) == '#')
+                curr = curr + 3;
+            else
+                break;
+            index = 0;
+        }
+    }
+    return out;
+}
+int createHtpasswdEntry(htpasswdData * data, char * path) {
+    FILE * htpasswd = NULL;     // .htpasswd file
+    
+    // if .htpasswd doesn't exist we need to create it
+    if((htpasswd = fopen(path, "r")) == NULL) {
+        if((htpasswd = fopen(path, "w")) == NULL)
+            return 0;
+        else {
+            fprintf(htpasswd, "%s:%s\n", data->login, data->pass);
+            fclose(htpasswd);
+            return 1;
+        }
+    }
+    fclose(htpasswd);
+    
+    if((htpasswd = fopen(path, "a")) == NULL)
+        return 0;
+    fprintf(htpasswd, "%s:%s\n", data->login, data->pass);
+    fclose(htpasswd);
+    
+    return 1;
+}
+int updateHtpasswdEntry(htpasswdData * data, char * path) {
+    FILE * htpasswd     = NULL;     // .htpasswd file
+    FILE * tmp          = NULL;     // temp file
+    char * entry        = NULL;
+    const int Size      = 1024;     // buffer size
+    char buff[Size];                // temporary buffer
+    
+    if((htpasswd = fopen(path, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htpasswd);
+        return 0;
+    }
+    
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, htpasswd) != NULL) {
+        if(strstr(buff, data->login) != NULL) {
+            entry = mkString(data->login, ":", data->pass, "\n", NULL);
+            fputs(entry, tmp);
+            free(entry);
+        }
+        else
+            fputs(buff, tmp);
+        memset(buff, '\0', Size);
+    }
+    fclose(htpasswd);
+    
+    rewind(tmp);
+    if((htpasswd = fopen(path, "w")) == NULL) {
+        fclose(tmp);
+        return 0;
+    }
+    while(fgets(buff, Size, tmp) != NULL) {
+        fputs(buff, htpasswd);
+        memset(buff, '\0', Size);
+    }
+    fclose(htpasswd);
+    fclose(tmp);
+    
+    return 1;
+}
+int deleteHtpasswdEntry(htpasswdData * data, char * path) {
+    FILE * htpasswd = NULL;
+    FILE * tmp      = NULL;
+    int items       = 0;
+    const int Size  = 1024;
+    char buff[Size];
+    
+    if((htpasswd = fopen(path, "r")) == NULL)
+        return 0;
+    if((tmp = tmpfile()) == NULL) {
+        fclose(htpasswd);
+        return 0;
+    }
+    
+    memset(buff, '\0', Size);
+    while(fgets(buff, Size, htpasswd) != NULL) {
+        if(strstr(buff, data->login) != NULL) {
+            memset(buff, '\0', Size);
+            continue;
+        }
+        fputs(buff, tmp);
+        memset(buff, '\0', Size);
+        items++;
+    }
+    fclose(htpasswd);
+    
+    if(items > 0) {
+        rewind(tmp);
+        if((htpasswd = fopen(path, "w")) == NULL) {
+            fclose(tmp);
+            return 0;
+        }
+        while(fgets(buff, Size, tmp) != NULL) {
+            fputs(buff, htpasswd);
+            memset(buff, '\0', Size);
+        }
+        fclose(tmp);
+        fclose(htpasswd);
+    }
+    else {
+        fclose(tmp);
+        unlink(path);
+    }
+    return 1;
 }

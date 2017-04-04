@@ -67,7 +67,7 @@ int connector(char * host, int port) {
             return -4;
         }   
     }
-	
+    return sockfd;
 }
 netinfo clientConnection(int sockfd) {
 	struct sockaddr_in client;

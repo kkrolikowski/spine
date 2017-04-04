@@ -221,18 +221,20 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
 	int netiffd = listener(port);
 	int clifd = -1;
-	char * clientResponse = NULL;	// string przesylany przez klienta (json)
-	char * datatype = NULL; 		// typ danych przesylanych do klienta
-	char * system_id = NULL;		// indentyfikator systemu (mac-adress)
-	char * os = NULL;				// nazwa dystrubucji Linuksa
+	char * clientResponse = NULL;       // string przesylany przez klienta (json)
+	char * datatype = NULL;             // typ danych przesylanych do klienta
+	char * system_id = NULL;            // indentyfikator systemu (mac-adress)
+	char * os = NULL;                   // nazwa dystrubucji Linuksa
 	char * configstring = NULL;
-	netinfo net;					// struktura przechowujaca ip oraz socket klienta
-	hostconfig config;            // konfiguracja calego hosta
-        ver * cfgver;                   // wersje poszczegolnych obszarow konfiguracji
-        char * clientver_str = NULL;    // wersja konfiguracji klienta (string)
-        int clientver = 0;              // wersja konfiguracji klienta
-        int packagever = 0;             // wersja konfiguracji pochodzaca z pakietu danych
-
+	netinfo net;                        // struktura przechowujaca ip oraz socket klienta
+	hostconfig config;                  // konfiguracja calego hosta
+        ver * cfgver;                       // wersje poszczegolnych obszarow konfiguracji
+        char * clientver_str = NULL;        // wersja konfiguracji klienta (string)
+        int clientver = 0;                  // wersja konfiguracji klienta
+        int packagever = 0;                 // wersja konfiguracji pochodzaca z pakietu danych
+        resp * updateMSGdata = NULL;        // update message to server agent
+        char * updateMSGdataString = NULL;  // updata message: string version
+        
 	while(1) {
 		net = clientConnection(netiffd);
 		if(GreetClient(net.sock) < 1) {
@@ -266,20 +268,27 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     packagever = readPackageVersion(clientResponse);
                     if(readLocalConfigVersion() < packagever) {
                         if(!strcmp(config.datatype, "hostconfig")) {
-                            if(config.httpd.vhost != NULL)
-                                apacheSetup(config.httpd, os, lf);
-                            else {
-                                logentry = mkString("[WARNING] (reciver) Brak konfiguracji apacza", NULL);
-                                writeLog(lf, logentry);
+                            if(config.httpd.vhost != NULL) {
+                                updateMSGdata = updateApacheSetup(config.httpd, os, lf);
+                                cleanVhostData(config.httpd.vhost);
                             }
+                            if(config.httpd.htpasswd != NULL) {
+                                updateMSGdata = HtpasswdSetup(config.httpd.htpasswd, os, lf, updateMSGdata);
+                                clearHtpasswdData(config.httpd.htpasswd);
+                            }
+                            clearAuthData(os);
                             if(config.sysUsers != NULL) {
-                                createUserAccounts(config.sysUsers, os, lf);
-                                updateUserAccounts(config.sysUsers, os, lf);
+                                updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
                             }
-                            else {
-                                logentry = mkString("[INFO] (reciver) Brak kont systemowych do utworzenia.", NULL);
-                                writeLog(lf, logentry);
+                            if(updateMSGdata != NULL) {
+                                updateMSGdataString = backMessage(updateMSGdata);
+                                clifd = connector(net.ipaddr, 2016);
+                                SendPackage(clifd, updateMSGdataString);
+                                close(clifd);
+                                free(updateMSGdataString);
+                                cleanMSGdata(updateMSGdata);
+                                updateMSGdata = NULL;
                             }
                             if(writeLocalConfigVersion(packagever)) {
                                 logentry = mkString("[INFO] (reciver) Konfiguracja zostala zaktualizowana", NULL);
@@ -293,6 +302,16 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     free(os);
 		}
+                // Status changes
+                if(!strcmp(datatype, "StatusChange")) {
+                    if((updateMSGdata = parseClientMessage(clientResponse)) != NULL) {
+                        if(applyStatusChange(updateMSGdata)) {
+                            logentry = mkString("[INFO] (reciver) status in database has been changed", NULL);
+                            writeLog(lf, logentry);
+                        }
+                        cleanMSGdata(updateMSGdata);
+                    }
+                }
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
                     system_id = jsonVal(clientResponse, "systemid");
@@ -313,8 +332,17 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                     }
                     
                     if(ReadHostConfig(system_id, &config, cfgver, clientver, lf)) {
-                        configstring = BuildConfigurationPackage(&config);
-                        clifd = connector(net.ipaddr, 2016);
+                        configstring = buildConfigPackage(&config);
+                        if((clifd = connector(net.ipaddr, 2016)) < 0) {
+                            logentry = mkString("[ERROR] could not connect to ", net.ipaddr, NULL);
+                            writeLog(lf, logentry);
+                            free(net.ipaddr);
+                            free(configstring);
+                            free(system_id);
+                            free(clientver_str);
+                            free(datatype);
+                            continue;
+                        }
                         SendPackage(clifd, configstring);
 
                         logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
@@ -322,14 +350,14 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 
                         close(clifd);
                         free(configstring);
-                    }
-                    cleanWWWConfiguration(system_id);                
+                    }             
                     free(system_id);
+                    free(clientver_str);
 		}
+                
 		close(net.sock);
 		free(net.ipaddr);
 		free(datatype);
-                free(clientver_str);
 		free(clientResponse);
 	}
 	close(netiffd);		// konczymy  nasluch
@@ -519,74 +547,53 @@ int clientNeedUpdate(char * clientData) {
 	else
 		return 0;
 }
-char * BuildConfigurationPackage(hostconfig * data) {
-        char * package = NULL;          // pelen pakiet danych
-        char * sysusers = NULL;         // konta uzytkownikow
-        char * vhosts = NULL;           // konfiguracja vhostow
-        char * htusers = NULL;          // konfiguracja htpasswd
-        char * s_vhost_count = NULL;    // liczba vhostow (string)
-        char * s_htusers_count = NULL;  // liczba kont htpasswd (string)
-        int size = 0;                   // ilosc pamieci do zaalokowania
-        const int DataTypes = 2;        // liczba obszarow konfiguracji:
-                                        // - apache, sysusers
-        int vhost_count = 0;            // liczba odczytanych vhostow
-        int htusers_count = 0;          // liczba odczytanych kont htpasswd
-        char * k_htpasswd_count = "htpasswd_count:";
-        char * dataType_braces = "{},";
-
-        // odczytujemy liczbe vhostow i zamieniamy ja na string
-        if(data->httpd.vhost != NULL) {
-            vhost_count = getVhostsCount(data->httpd.vhost);
-            s_vhost_count = int2String(vhost_count);
-        }
-        // odczytujemy liczbe kont htpasswd i zamieniamy ja na string
-        if(data->httpd.htpasswd != NULL) {
-            htusers_count = getHTusersCount(data->httpd.htpasswd);
-            s_htusers_count = int2String(htusers_count); 
-        }   
-        // obliczamy ile bedziemy potrzebowali pamieci na zbudowanie pakietu
-        if(data->sysUsers != NULL)
-            size += getSysUsersPackageSize(data->sysUsers);
-        if(data->httpd.vhost != NULL || data->httpd.htpasswd != NULL)
-            size += getApachedataSize(data->httpd);
-        if(data->httpd.htpasswd != NULL)
-            size += strlen(s_htusers_count) + strlen(k_htpasswd_count);
-        size += (strlen(dataType_braces) * DataTypes) + strlen("[datatype:hostconfig]") + 1; 
-
-        // alokujemy cala potrzebna pamiec
-        package = (char *) malloc(size * sizeof(char));
-        memset(package, '\0', size);
-        
-        // odczytujemy poszczegolne sekcje konfiguracji
-        if(data->sysUsers != NULL)
-            sysusers = sysusersPackage(data->sysUsers);  
-        if(data->httpd.vhost != NULL)
-            vhosts = apacheConfigPackage(data->httpd);   
-        if(data->httpd.htpasswd != NULL)
-            htusers = readHtpasswdData(data->httpd.htpasswd);
+char * buildConfigPackage(hostconfig * data) {
+    char * package              = NULL;               // output package string
+    char * vhost_package        = NULL;               // vhosts definitions
+    char * htusers_package      = NULL;               // htpasswd accounts data
+    char * sysusers_package     = NULL;               // system accounts data
+    size_t package_size = 0;                          // memory size needed to hold whole data
     
-        // skladamy pakiet w calosc
-	strncpy(package, "[datatype:hostconfig,", strlen("[datatype:hostconfig,") + 1);
-        if(data->sysUsers != NULL)
-            strncat(package, sysusers, strlen(sysusers) + 1);
-        if(data->httpd.vhost != NULL)
-            strncat(package, vhosts, strlen(vhosts) + 1);
-        if(data->httpd.htpasswd != NULL)
-            strncat(package, htusers, strlen(htusers) + 1);
-	if(data->httpd.htpasswd != NULL) {
-            strncat(package, k_htpasswd_count, strlen(k_htpasswd_count) + 1);
-            strncat(package, s_htusers_count, strlen(s_htusers_count) + 1);
-        }
-	strncat(package, "}]", 3);
-
-        // zwalniamy pamiec
-	if(s_htusers_count != NULL)   free(s_htusers_count);
-        if(s_vhost_count != NULL)     free(s_vhost_count);
-        if(htusers != NULL)           free(htusers);
-        if(vhosts != NULL)            free(vhosts);
-        if(sysusers != NULL)          free(sysusers);
-        
-	return package;
+    // defined scopes
+    vhostData * vh          = data->httpd.vhost;      // vhosts configuration
+    htpasswdData * htpass   = data->httpd.htpasswd;   // htpasswd accounts
+    sysuser * su            = data->sysUsers;         // system users accounts
+    
+    // global package keynames
+    char * package_header = "[datatype:hostconfig,";
+    
+    // obtaining size of defined scopes
+    if(vh != NULL)
+        package_size += getVhostPackageSize(vh);
+    if(htpass != NULL)
+        package_size += htusersDataSize(htpass);
+    if(su != NULL)
+        package_size += getSysUsersPackageSize(su);
+    package_size += strlen(package_header) + 2;
+    
+    // preparing memory
+    package = (char *) malloc(package_size * sizeof(char));
+    memset(package, '\0', package_size);
+    
+    strncpy(package, package_header, strlen(package_header));
+    if(vh != NULL) {
+        vhost_package = apacheConfigPackage(vh);
+        strncat(package, vhost_package, strlen(vhost_package));
+        free(vhost_package);
+    }
+    if(htpass != NULL) {
+        htusers_package = htpasswdConfigPackage(htpass);
+        strncat(package, htusers_package, strlen(htusers_package));
+        free(htusers_package);
+    }
+    if(su != NULL) {
+        sysusers_package = sysusersPackage(su);
+        strncat(package, sysusers_package, strlen(sysusers_package));
+        free(sysusers_package);
+    }
+    *(package + strlen(package)) = ']';
+    
+    return package;
 }
 int fileExist(char * path) {
 	FILE * fp = NULL;
@@ -609,7 +616,11 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            conf->httpd = ReadWWWConfiguration(hostid, lf);
+            conf->httpd.vhost = ReadVhostData(hostid); // getVhostData
+            status = 1;
+        }
+        if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
+            conf->httpd.htpasswd = ReadHtpasswdData(hostid); // getHtpasswdData
             status = 1;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
@@ -700,4 +711,134 @@ int maxver(int vers[], int n) {
             max = vers[i];
     
     return max;
+}
+char * backMessage(resp * rsp) {
+    resp * pos = rsp;
+    int itemcnt = 0;
+    int commacnt = 0;
+    int coloncnt = 0;
+    size_t messageSize = 0;
+    char * tmp = NULL;
+    char * message = NULL;
+    char * header = "datatype:StatusChange,scope:";
+    
+    // obtain amount of memory to allocate
+    while(pos) {
+        tmp = int2String(pos->dbid);
+        messageSize += strlen(tmp);
+        free(tmp);
+        itemcnt++;
+        pos = pos->next;
+    }
+    commacnt = itemcnt - 1;
+    coloncnt = itemcnt;
+    messageSize += strlen(header) + itemcnt + coloncnt + commacnt + 1;
+    messageSize += strlen(rsp->scope) + 1;
+    
+    // prepare memory
+    message = (char *) malloc(messageSize * sizeof(char));
+    memset(message, '\0', messageSize);
+    
+    // create package
+    strncpy(message, header, strlen(header));
+    strncat(message, rsp->scope, strlen(rsp->scope));
+    *(message+strlen(message)) = ',';
+    pos = rsp;
+    while(pos) {
+        tmp = int2String(pos->dbid);
+        strncat(message, tmp, strlen(tmp));
+        free(tmp);
+        *(message+strlen(message)) = ':';
+        *(message+strlen(message)) = pos->status;
+        if(pos->next != NULL)
+            *(message+strlen(message)) = ',';
+        pos = pos->next;
+    }
+    
+    return message;
+}
+void cleanMSGdata(resp * rsp) {
+    resp * curr = rsp;
+    
+    free(curr->scope);
+    if(curr->next != NULL)
+      cleanMSGdata(curr->next);
+    free(curr);
+}
+resp * parseClientMessage(char * str) {
+    char * pos = strstr(str, "scope") + strlen("scope:");    // begin of scope;
+    char * scope = NULL;
+    size_t len = 0;
+    
+    // local buffer for ID string
+    const int BufSize = 128;
+    char buff[BufSize];
+    int i = 0;
+    memset(buff, '\0', BufSize);
+    
+    // get the scope
+    while(*pos != ',')
+        buff[i++] = *pos++;
+    len = strlen(buff) + 1;
+    scope = (char *) malloc(len * sizeof(char));
+    memset(scope, '\0', len);
+    strncpy(scope, buff, len);
+    
+    // preparing node of data
+    resp * head = NULL;
+    resp * curr = NULL;
+    resp * prev = NULL;
+    
+    // preparing buffer and moving to first value to read
+    memset(buff, '\0', BufSize);
+    i = 0;
+    pos++;
+    while(*pos) {
+        if(*pos != ':')
+            buff[i++] = *pos++;
+        else {
+            // since we have whole ID read, we can create a node of data
+            curr = (resp *) malloc(sizeof(resp));
+            curr->dbid = atoi(buff);            
+            curr->status = *++pos;          // status is following the colon
+            curr->scope = (char *) malloc(len * sizeof(char));
+            memset(curr->scope, '\0', len);
+            strncpy(curr->scope, scope, len);
+            curr->next = NULL;
+            
+            // now we can clear the buffer and reset buffer index
+            memset(buff, '\0', BufSize);
+            i = 0;
+            
+            // if the following character is not the \0 character we can go
+            // to the next numeric value skipping comma sign
+            if(*(pos+1))
+                pos += 2;
+            
+            // binding nodes together
+            if(head == NULL)
+                head = curr;
+            else
+                prev->next = curr;
+            prev = curr;
+        }
+    }
+    free(scope);
+    
+    return head;
+}
+resp *  respStatus(char * scope, char status, int dbid) {
+    resp * node = NULL;
+    size_t len = 0;
+    
+    node = (resp *) malloc(sizeof(resp));
+    node->status = status;
+    node->dbid = dbid;
+    len = strlen(scope) + 1;
+    node->scope = (char *) malloc(len * sizeof(char));
+    memset(node->scope, '\0', len);
+    strncpy(node->scope, scope, len);
+    node->next = NULL;
+    
+    return node;
 }

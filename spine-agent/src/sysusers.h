@@ -59,7 +59,7 @@ char * updateGroup(char * buff, char * login);
 
 // function check if particular account needs to to be updated and
 // perform this action
-void updateUserAccounts(sysuser * su, char * os, FILE * lf);
+resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata);
 
 // function updates /etc/passwd file with current data
 int updatePasswd(sysuser * su);
@@ -88,6 +88,18 @@ int renameHomeDir(char * olduser, char * newuser);
 
 // function checks if login is present in sudo (wheel) group
 int isAdmin(char * os, char * login);
+
+// Function disables given sysuser account
+int disableAccount(char * login);
+
+// function returns changed string with ! mark
+char * lockEntry(char * entry);
+
+// function upadtes information about sshkeys for particular user
+int updateSSHKeys(sysuser * su, FILE * lf);
+
+// function remove entry with a given login with a given system file
+int removeFromSystemFile(char * login, char * systemFile);
 
 #endif /* SYSUSERS_H */
 
