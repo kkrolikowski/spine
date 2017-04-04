@@ -166,19 +166,19 @@ char * apacheConfigPackage(vhostData * www) {
         s_dbid = int2String(curr->dbid);
         entry = mkString(
                         "vhost_", numstr, ":{",
-                        "dbid:",             s_dbid,                   ",",
-                        "ServerName:",       curr->ServerName,         ",",
-                        "ServerAlias:",      curr->ServerAlias,        ",",
-                        "DocumentRoot:",     curr->DocumentRoot,       ",",
-                        "ApacheOpts:",       curr->apacheOpts,         ",",
-                        "VhostAccessOrder:", curr->vhost_access_order, ",",
-                        "VhostAccessList:",  curr->vhost_access_list,  ",",
-                        "htaccess:",         curr->htaccess,           ",",
-                        "authbasic:",        authbasic,                ",",
-                        "htusers:",          curr->htusers,            ",",
-                        "vhoststatus:",      curr->status,             ",",
-                        "purgedir:",         curr->purgedir,           ",",
-                        "user:",             curr->user,               "}",
+                        "dbid:\"",             s_dbid,                   "\",",
+                        "ServerName:\"",       curr->ServerName,         "\",",
+                        "ServerAlias:\"",      curr->ServerAlias,        "\",",
+                        "DocumentRoot:\"",     curr->DocumentRoot,       "\",",
+                        "ApacheOpts:\"",       curr->apacheOpts,         "\",",
+                        "VhostAccessOrder:\"", curr->vhost_access_order, "\",",
+                        "VhostAccessList:\"",  curr->vhost_access_list,  "\",",
+                        "htaccess:\"",         curr->htaccess,           "\",",
+                        "authbasic:\"",        authbasic,                "\",",
+                        "htusers:\"",          curr->htusers,            "\",",
+                        "vhoststatus:\"",      curr->status,             "\",",
+                        "purgedir:\"",         curr->purgedir,           "\",",
+                        "user:\"",             curr->user,               "\"}",
                         ",", NULL);
         strncat(package, entry, strlen(entry) + 1);
         if(curr->next == NULL)
@@ -577,6 +577,7 @@ int getVhostPackageSize(vhostData * vhd) {
     int size = 0;               // overrall data size
     int keySize = 0;            // key names size
     int nodeCount = 0;          // processed nodes count
+    int dqCount   = 2;          // double quotes count in each position
     char * tmp = NULL;          // temporary string
     
     // package header 
@@ -593,34 +594,34 @@ int getVhostPackageSize(vhostData * vhd) {
     
     while(curr) {
         // string data
-        size += strlen(curr->DocumentRoot);
-        size += strlen(curr->ServerAlias);
-        size += strlen(curr->ServerName);
-        size += strlen(curr->apacheOpts);
-        size += strlen(curr->htaccess);
-        size += strlen(curr->htusers);
-        size += strlen(curr->purgedir);
-        size += strlen(curr->status);
-        size += strlen(curr->user);
-        size += strlen(curr->vhost_access_list);
-        size += strlen(curr->vhost_access_order);
+        size += strlen(curr->DocumentRoot)          + dqCount;
+        size += strlen(curr->ServerAlias)           + dqCount;
+        size += strlen(curr->ServerName)            + dqCount;
+        size += strlen(curr->apacheOpts)            + dqCount;
+        size += strlen(curr->htaccess)              + dqCount;
+        size += strlen(curr->htusers)               + dqCount;
+        size += strlen(curr->purgedir)              + dqCount;
+        size += strlen(curr->status)                + dqCount;
+        size += strlen(curr->user)                  + dqCount;
+        size += strlen(curr->vhost_access_list)     + dqCount;
+        size += strlen(curr->vhost_access_order)    + dqCount;
 
         // numeric data
         tmp = int2String(curr->password_access);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         
         tmp = int2String(nodeCount);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         
         tmp = int2String(curr->dbid);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         
         if(curr->next == NULL) {
             tmp = int2String(curr->version);
-            size += strlen(tmp);
+            size += strlen(tmp)                     + dqCount;
             free(tmp);
         }
                 
