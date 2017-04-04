@@ -24,6 +24,7 @@ make install
 After this binary spine-agent should be placed in /usr/local/bin
 
 ## Recent Changes
+- **2017-04-04:** Introduced status flags and differential client updates
 - **2017-03-01:** Added function which allows spine admin to generate and send via e-mail new password for system user
 - **2017-02-25:** Added functionality allowing removing users from system
 - **2017-02-22:** Added functionality of editing user system accounts
