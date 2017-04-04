@@ -699,8 +699,6 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         free(htaccessPath);
         vh = vh->next;
     }
-    if(!authItems)
-        clearAuthData(os);
     
     lmsg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
     writeLog(lf, lmsg);
