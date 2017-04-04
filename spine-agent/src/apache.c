@@ -696,7 +696,8 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         }
         if(!strcmp(vh->status, "D")) {
             removeVhost(os, vh);
-            
+            lmsg = mkString("[INFO] (reciver) Konfiguracja witryny ", vh->ServerName, " zostala usunięta", NULL);
+            writeLog(lf, lmsg);
             rcurr = respStatus("apache", 'D', vh->dbid);
             if(rhead == NULL)
                 rhead = rcurr;
