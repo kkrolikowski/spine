@@ -115,7 +115,7 @@
       }
 
       // lista kont htaccess na danym serwerze
-      $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT id, login FROM www_users WHERE status NOT LIKE 'D' AND system_id = ". $_GET['serverid']);
       $q->execute();
       if($q->rowCount() == 0)
         $spine->assign('EmptyUserList', 1);
@@ -135,7 +135,7 @@
       $spine->assign('wwwuser', $wwwuser);
 
       // lista uzytkownikow z htpasswd
-      $q = $dbh->prepare("SELECT id, login FROM www_users WHERE system_id = ". $_GET['serverid']);
+      $q = $dbh->prepare("SELECT id, login FROM www_users WHERE status NOT LIKE 'D' AND system_id = ". $_GET['serverid']);
       $q->execute();
       if($q->rowCount() > 0) {
         while ($r = $q->fetch()) {
