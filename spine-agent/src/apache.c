@@ -532,13 +532,21 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
 }
 void clearAuthData(char * os) {
     char * htgroup_path = NULL;
+    char * htpasswd_path = NULL;
+    char * authDir = NULL;
 
-    if(!strcmp(os, "Ubuntu"))
+    if(!strcmp(os, "Ubuntu")) {
         htgroup_path = "/etc/apache2/auth/.htgroup";
-    else if(strstr(os, "Centos") != NULL)
+        htpasswd_path = "/etc/apache2/auth/.htpasswd";
+        authDir = "/etc/apache2/auth";
+    }
+    else if(strstr(os, "Centos") != NULL) {
         htgroup_path = "/etc/httpd/auth/.htgroup";
-    if(fileExist(htgroup_path))
-        unlink(htgroup_path);
+        htpasswd_path = "/etc/httpd/auth/.htpasswd";
+        authDir = "/etc/httpd/auth";
+    }
+    if(!fileExist(htgroup_path) && !fileExist(htpasswd_path))
+        rmdir(authDir);
 }
 void removeVhost(char * os, vhostData * vhd) {
     char * vhostConfig = NULL;
@@ -699,7 +707,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
         free(htaccessPath);
         vh = vh->next;
     }
-    
+    clearAuthData(os);
     lmsg = mkString("[INFO] (reciver) Konfiguracja apacza gotowa.", NULL);
     writeLog(lf, lmsg);
     reloadApache(os);

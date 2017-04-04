@@ -45,7 +45,7 @@ void createWebsiteDir(char * websiteDir);
 // plikow jest uzaleznione od dystrybucji linuksa
 int createVhostConfig(char * distro, vhostData * vhd, FILE * lf);
 
-// funkcja kasuje pliki .htpasswd i .htgroup jesli nie ma zadnych kont
+// function removes authdir only if there's no htpasswd and htgroup files inside
 void clearAuthData(char * os);
 
 // funkcja kasuje konfiguracje oraz zawartosc stron www. Zwraca liczbe skasowanych witryn
