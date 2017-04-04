@@ -869,6 +869,7 @@ int updateHtpasswdEntry(htpasswdData * data, char * path) {
 int deleteHtpasswdEntry(htpasswdData * data, char * path) {
     FILE * htpasswd = NULL;
     FILE * tmp      = NULL;
+    int items       = 0;
     const int Size  = 1024;
     char buff[Size];
     
@@ -887,20 +888,26 @@ int deleteHtpasswdEntry(htpasswdData * data, char * path) {
         }
         fputs(buff, tmp);
         memset(buff, '\0', Size);
+        items++;
     }
     fclose(htpasswd);
     
-    rewind(tmp);
-    if((htpasswd = fopen(path, "w")) == NULL) {
+    if(items > 0) {
+        rewind(tmp);
+        if((htpasswd = fopen(path, "w")) == NULL) {
+            fclose(tmp);
+            return 0;
+        }
+        while(fgets(buff, Size, tmp) != NULL) {
+            fputs(buff, htpasswd);
+            memset(buff, '\0', Size);
+        }
         fclose(tmp);
-        return 0;
+        fclose(htpasswd);
     }
-    while(fgets(buff, Size, tmp) != NULL) {
-        fputs(buff, htpasswd);
-        memset(buff, '\0', Size);
+    else {
+        fclose(tmp);
+        unlink(path);
     }
-    fclose(tmp);
-    fclose(htpasswd);
-    
     return 1;
 }
