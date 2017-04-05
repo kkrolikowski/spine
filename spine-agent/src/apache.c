@@ -13,6 +13,7 @@ int htusersDataSize(htpasswdData * htpass) {
     int size = 0;                       // overrall data size
     int keySize = 0;                    // key names size
     int nodeCount = 0;                  // processed nodes count
+    int dqCount   = 2;                  // double quotes count in each position
     char * tmp = NULL;                  // temporary string
 
     // package header
@@ -27,11 +28,11 @@ int htusersDataSize(htpasswdData * htpass) {
         keySize += strlen(*key++);
     
     while(curr) {
-        size += strlen(curr->login);
-        size += strlen(curr->pass);
+        size += strlen(curr->login)             + dqCount;
+        size += strlen(curr->pass)              + dqCount;
         
         tmp = int2String(curr->dbid);
-        size += strlen(tmp);
+        size += strlen(tmp)                     + dqCount;
         free(tmp);
         
         // string length of each user index number
@@ -42,7 +43,7 @@ int htusersDataSize(htpasswdData * htpass) {
         size += 1;          // one byte for status flag in each item
         if(curr->next == NULL) {
             tmp = int2String(curr->version);
-            size += strlen(tmp);
+            size += strlen(tmp)                 + dqCount;
             free(tmp);
         }
         nodeCount++;
@@ -89,11 +90,11 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
         status[0] = curr->status;
         
         entry = mkString(
-                        "user_",            numstr,        ":{",
-                        "dbid:",            s_dbid,         ",",
-                        "login:",           curr->login,    ",",
-                        "password:",        curr->pass,     ",",
-                        "status:",          status,         ",",
+                        "user_",              numstr,         ":{",
+                        "dbid:\"",            s_dbid,         "\",",
+                        "login:\"",           curr->login,    "\",",
+                        "password:\"",        curr->pass,     "\",",
+                        "status:\"",          status,         "\",",
                         NULL);
         
         strncat(package, entry, strlen(entry) + 1);
@@ -612,7 +613,7 @@ int getVhostPackageSize(vhostData * vhd) {
         free(tmp);
         
         tmp = int2String(nodeCount);
-        size += strlen(tmp)                         + dqCount;
+        size += strlen(tmp);
         free(tmp);
         
         tmp = int2String(curr->dbid);
