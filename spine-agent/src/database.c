@@ -46,29 +46,29 @@ int updateHostInfo(char * clientip, char * stream, FILE * lf) {
 	// odczytujemy informacje z jsona
 	InitSystemInformation(&hostinfo);
 
-	uptime_s = jsonVal(stream, "uptime");
+	uptime_s = getOptVal(stream, "uptime");
 	hostinfo.uptime = atol(uptime_s);
-	hostinfo.net_hwaddr = jsonVal(stream, "systemid");
-	hostinfo.hostname = jsonVal(stream, "hostname");
-	hostinfo.os = jsonVal(stream, "distro_name");
-	hdd_total_s = jsonVal(stream, "hdd_total");
+	hostinfo.net_hwaddr = getOptVal(stream, "systemid");
+	hostinfo.hostname = getOptVal(stream, "hostname");
+	hostinfo.os = getOptVal(stream, "distro_name");
+	hdd_total_s = getOptVal(stream, "hdd_total");
 	hostinfo.hdd_total = atol(hdd_total_s);
-	hdd_free_s = jsonVal(stream, "hdd_free");
+	hdd_free_s = getOptVal(stream, "hdd_free");
 	hostinfo.hdd_free = atol(hdd_free_s);
-	ram_total_s = jsonVal(stream, "ram_total");
+	ram_total_s = getOptVal(stream, "ram_total");
 	hostinfo.ram_total = atol(ram_total_s);
-	ram_free_s = jsonVal(stream, "ram_free");
+	ram_free_s = getOptVal(stream, "ram_free");
 	hostinfo.ram_free = atol(ram_free_s);
-	curr_time_s = jsonVal(stream, "curr_time");
+	curr_time_s = getOptVal(stream, "curr_time");
 	hostinfo.curr_time = atol(curr_time_s);
-	hostinfo.extip = jsonVal(stream, "ext_ip");
-        hostinfo.cpu = jsonVal(stream, "cpu");
+	hostinfo.extip = getOptVal(stream, "ext_ip");
+        hostinfo.cpu = getOptVal(stream, "cpu");
 	hostinfo.ip = clientip;
         
         // wypelniamy dane dot. statystyk interfejsu sieciowego
-        net_bytes_in_s = jsonVal(stream, "eth_in");
+        net_bytes_in_s = getOptVal(stream, "eth_in");
         //netinfo.bytes_in = atoi(net_bytes_in_s);
-        net_bytes_out_s = jsonVal(stream, "eth_out");
+        net_bytes_out_s = getOptVal(stream, "eth_out");
         //netinfo.bytes_out = atoi(net_bytes_out_s);
 
 	// sprawdzam czy istnieje w bazie rekord z okreslonym systemid.
@@ -382,7 +382,7 @@ int getDBHostID(char * hwaddr) {
 	return id;
 }
 void updateServiceState(char * cliresp) {
-	char * systemid = jsonVal(cliresp, "systemid");		// mac-adres hosta
+	char * systemid = getOptVal(cliresp, "systemid");		// mac-adres hosta
 	char * m_data = rawMonitoringData(cliresp);  		// surowe dane dot. monitoringu
 	int items = checks(m_data);					 		// liczba zarejestrowanych checkow
 	extern MYSQL * dbh;

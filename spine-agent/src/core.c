@@ -253,7 +253,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		// Sprawdzamy czy klient wysyla poprawne dane
-		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
+		if((datatype = getOptVal(clientResponse, "datatype")) == NULL) {
 			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
 			writeLog(lf, logentry);
 			free(clientResponse);
@@ -314,8 +314,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                 }
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
-                    system_id = jsonVal(clientResponse, "systemid");
-                    clientver_str = jsonVal(clientResponse, "config_ver");
+                    system_id = getOptVal(clientResponse, "systemid");
+                    clientver_str = getOptVal(clientResponse, "config_ver");
                     clientver = atoi(clientver_str);
                     
                     updateHostInfo(net.ipaddr, clientResponse, lf);
@@ -388,25 +388,25 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 		sshd_state = state_err;
 
 	char * package = mkString(
-			"[{datatype:sysinfo,package:{",
+			"[{datatype:\"sysinfo\",package:{",
 			"monitoring:{",
 			"httpd:", httpd_state,
 			",sshd:", sshd_state,
 			"},"
-			"uptime:", s_uptime, ",",
-			"hostname:", info->hostname, ",",
-			"distro_name:", info->os, ",",
-			"hdd_total:", s_hdd_total, ",",
-			"hdd_free:", s_hdd_free, ",",
-			"ram_total:", s_ram_total, ",",
-			"ram_free:", s_ram_free, ",",
-			"ext_ip:", info->extip, ",",
-                        "eth_out:", s_bytes_out, ",",
-                        "eth_in:", s_bytes_in, ",",
-                        "cpu:", info->cpu, ",",
-			"config_ver:", s_config_ver, ",",
-			"curr_time:", s_curr_time, ",",
-			"systemid:", info->net_hwaddr, "}}]",
+			"uptime:\"", s_uptime, "\",",
+			"hostname:\"", info->hostname, "\",",
+			"distro_name:\"", info->os, "\",",
+			"hdd_total:\"", s_hdd_total, "\",",
+			"hdd_free:\"", s_hdd_free, "\",",
+			"ram_total:\"", s_ram_total, "\",",
+			"ram_free:\"", s_ram_free, "\",",
+			"ext_ip:\"", info->extip, "\",",
+                        "eth_out:\"", s_bytes_out, "\",",
+                        "eth_in:\"", s_bytes_in, "\",",
+                        "cpu:\"", info->cpu, "\",",
+			"config_ver:\"", s_config_ver, "\",",
+			"curr_time:\"", s_curr_time, "\",",
+			"systemid:\"", info->net_hwaddr, "\"}}]",
 	NULL);
 
 	size_t package_len = strlen(package) + 1;
@@ -532,11 +532,11 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 }
 int clientNeedUpdate(char * clientData) {
 	// parsujemy wersje konfiguracji otrzymana od klienta
-	char * verStr = jsonVal(clientData, "config_ver");
+	char * verStr = getOptVal(clientData, "config_ver");
 	int clientConfVer = atoi(verStr);
 
 	// pobieramy z bazy wersje konfiguracji na podstawie ID klienta
-	char * hostID = jsonVal(clientData, "systemid");
+	char * hostID = getOptVal(clientData, "systemid");
 	int dbConfVer = checkDBConfigVer(hostID);
 
 	free(hostID);
@@ -560,7 +560,7 @@ char * buildConfigPackage(hostconfig * data) {
     sysuser * su            = data->sysUsers;         // system users accounts
     
     // global package keynames
-    char * package_header = "[datatype:hostconfig,";
+    char * package_header = "[datatype:\"hostconfig\",";
     
     // obtaining size of defined scopes
     if(vh != NULL)

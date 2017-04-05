@@ -57,17 +57,17 @@ char * sysusersPackage(sysuser * su) {
         keyentry     = sshkeysPackage(curr->sshkey);
         
         entry = mkString(
-                        "user_",        numstr,          ":{",
-                        "dbid:",        s_dbid,          ",",
-                        "username:",    curr->login,     ",",
-                        "password:",    curr->sha512,    ",",
-                        "gecos:",       curr->gecos,     ",",
-                        "expire:",      s_expval_val,    ",",
-                        "uidgid:",      s_uidgid_val,    ",",
-                        "active:",      s_active_val,    ",",
-                        "shell:",       s_shell_val,     ",",
-                        "sudo:",        s_sudo_val,      ",",
-                        "status:",      curr->status,    ",",
+                        "user_",          numstr,          ":{",
+                        "dbid:\"",        s_dbid,          "\",",
+                        "username:\"",    curr->login,     "\",",
+                        "password:\"",    curr->sha512,    "\",",
+                        "gecos:\"",       curr->gecos,     "\",",
+                        "expire:\"",      s_expval_val,    "\",",
+                        "uidgid:\"",      s_uidgid_val,    "\",",
+                        "active:\"",      s_active_val,    "\",",
+                        "shell:\"",       s_shell_val,     "\",",
+                        "sudo:\"",        s_sudo_val,      "\",",
+                        "status:\"",      curr->status,    "\",",
                         keyentry,                        NULL
                     );
         strncat(package, entry, strlen(entry) + 1);
@@ -174,6 +174,7 @@ int getSysUsersPackageSize(sysuser * su) {
     int size = 0;           // overrall data size
     int keySize = 0;        // key names size
     int nodeCount = 0;      // processed nodes count
+    int dqCount   = 2;      // double quotes count in each position
     char * tmp = NULL;      // temporary string
     
     // package header 
@@ -190,37 +191,37 @@ int getSysUsersPackageSize(sysuser * su) {
     
     while(curr) {
         // string data
-        size += strlen(curr->gecos);
-        size += strlen(curr->login);
-        size += strlen(curr->sha512);
-        size += strlen(curr->status);
+        size += strlen(curr->gecos)                 + dqCount;
+        size += strlen(curr->login)                 + dqCount;
+        size += strlen(curr->sha512)                + dqCount;
+        size += strlen(curr->status)                + dqCount;
         
         // numeric data
         tmp = int2String(curr->dbid);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         tmp = int2String(curr->active);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         tmp = int2String(curr->expiration);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         tmp = int2String(curr->shellaccess);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         tmp = int2String(curr->uidgid);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         tmp = int2String(curr->sudo);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         tmp = int2String(nodeCount);
-        size += strlen(tmp);
+        size += strlen(tmp)                         + dqCount;
         free(tmp);
         
         if(curr->next == NULL) {
             tmp = int2String(curr->version);
-            size += strlen(tmp);
+            size += strlen(tmp)                     + dqCount;
             free(tmp);
         }
         // ssh keys

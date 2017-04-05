@@ -226,7 +226,7 @@ void ParseConfigData(char * json, hostconfig * conf) {
     conf->sysUsers = NULL;
     char * pos = json;          // ustawiamy sie na poczatku pakietu
     // przetwarzamy typ pakietu
-    conf->datatype = jsonVal(json, "datatype");
+    conf->datatype = getOptVal(json, "datatype");
      
     if((pos = strstr(json, "scope:sysusers")) != NULL)
        conf->sysUsers = ParseConfigDataSYSUSERS(pos);
@@ -252,7 +252,7 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
     sysuser * prev = NULL;
     
     // processing config version
-    tmp = jsonVal(json, "config_ver");
+    tmp = getOptVal(json, "config_ver");
     cfgver = atoi(tmp);
     free(tmp);
     
@@ -261,27 +261,27 @@ sysuser * ParseConfigDataSYSUSERS(char * json) {
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
         curr = (sysuser *) malloc(sizeof(sysuser));
         
-        curr->gecos         = jsonVal(offset, "gecos");
-        curr->login         = jsonVal(offset, "username");
-        curr->sha512        = jsonVal(offset, "password");
-        curr->status        = jsonVal(offset, "status");
+        curr->gecos         = getOptVal(offset, "gecos");
+        curr->login         = getOptVal(offset, "username");
+        curr->sha512        = getOptVal(offset, "password");
+        curr->status        = getOptVal(offset, "status");
         
-        tmp                 = jsonVal(offset, "dbid");
+        tmp                 = getOptVal(offset, "dbid");
         curr->dbid          = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(offset, "active");
+        tmp                 = getOptVal(offset, "active");
         curr->active        = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(offset, "uidgid");
+        tmp                 = getOptVal(offset, "uidgid");
         curr->uidgid        = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(offset, "shell");
+        tmp                 = getOptVal(offset, "shell");
         curr->shellaccess   = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(offset, "expire");
+        tmp                 = getOptVal(offset, "expire");
         curr->expiration    = atoi(tmp);
         free(tmp);
-        tmp                 = jsonVal(offset, "sudo");
+        tmp                 = getOptVal(offset, "sudo");
         curr->sudo          = atoi(tmp);
         free(tmp);
         curr->version       = cfgver;
@@ -321,7 +321,7 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     htpasswdData * prev = NULL;
     
     // processing config version
-    tmp = jsonVal(json, "config_ver");
+    tmp = getOptVal(json, "config_ver");
     cfgver = atoi(tmp);
     free(tmp);
     
@@ -330,13 +330,13 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
         curr = (htpasswdData *) malloc(sizeof(sysuser));
         
-        curr->login         = jsonVal(offset, "login");
-        curr->pass          = jsonVal(offset, "password");
-        tmp                 = jsonVal(offset, "status");
+        curr->login         = getOptVal(offset, "login");
+        curr->pass          = getOptVal(offset, "password");
+        tmp                 = getOptVal(offset, "status");
         curr->status        = tmp[0];
         free(tmp);
         
-        tmp                 = jsonVal(offset, "dbid");
+        tmp                 = getOptVal(offset, "dbid");
         curr->dbid          = atoi(tmp);
         free(tmp);
         curr->version       = cfgver;
@@ -377,7 +377,7 @@ vhostData * ParseConfigDataAPACHE(char * json) {
     vhostData * head = NULL;
     
     // processing config version
-    tmp = jsonVal(json, "config_ver");
+    tmp = getOptVal(json, "config_ver");
     cfgver = atoi(tmp);
     free(tmp);
     
@@ -386,23 +386,23 @@ vhostData * ParseConfigDataAPACHE(char * json) {
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
         
         curr = (vhostData *) malloc(sizeof(vhostData));
-        curr->ServerName            = jsonVal(offset, "ServerName");
-        curr->ServerAlias           = jsonVal(offset, "ServerAlias");
-        curr->DocumentRoot          = jsonVal(offset, "DocumentRoot");
-        curr->apacheOpts            = jsonVal(offset, "ApacheOpts");
-        curr->vhost_access_order    = jsonVal(offset, "VhostAccessOrder");
-        curr->vhost_access_list     = jsonVal(offset, "VhostAccessList");
-        curr->htaccess              = jsonVal(offset, "htaccess");
+        curr->ServerName            = getOptVal(offset, "ServerName");
+        curr->ServerAlias           = getOptVal(offset, "ServerAlias");
+        curr->DocumentRoot          = getOptVal(offset, "DocumentRoot");
+        curr->apacheOpts            = getOptVal(offset, "ApacheOpts");
+        curr->vhost_access_order    = getOptVal(offset, "VhostAccessOrder");
+        curr->vhost_access_list     = getOptVal(offset, "VhostAccessList");
+        curr->htaccess              = getOptVal(offset, "htaccess");
         curr->version               = cfgver;
-        curr->user                  = jsonVal(offset, "user");
-        curr->htusers               = jsonVal(offset, "htusers");
-        curr->status                = jsonVal(offset, "vhoststatus");
-        curr->purgedir              = jsonVal(offset, "purgedir");
+        curr->user                  = getOptVal(offset, "user");
+        curr->htusers               = getOptVal(offset, "htusers");
+        curr->status                = getOptVal(offset, "vhoststatus");
+        curr->purgedir              = getOptVal(offset, "purgedir");
         
-        tmp                         = jsonVal(offset, "authbasic");
+        tmp                         = getOptVal(offset, "authbasic");
         curr->password_access       = atoi(tmp);
         free(tmp);
-        tmp                         = jsonVal(offset, "dbid");
+        tmp                         = getOptVal(offset, "dbid");
         curr->dbid                  = atoi(tmp);
         free(tmp);
         
