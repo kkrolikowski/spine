@@ -118,4 +118,8 @@ void cleanMSGdata(resp * rsp);
 // function creates single node of response status message.
 resp *  respStatus(char * scope, char status, int dbid);
 
+// function reads key value from json string. Value should be enclosed between
+// double quotes.
+char * getOptVal(char * json, char * key);
+
 #endif /* SPINE_AGENT_CORE_H_ */

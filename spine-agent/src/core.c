@@ -842,3 +842,38 @@ resp *  respStatus(char * scope, char status, int dbid) {
     
     return node;
 }
+char * getOptVal(char * json, char * key) {
+    char * result = NULL;                               // option value
+    char * pos = strstr(json, key) + strlen(key) + 1;   // let's move to the option value
+    char * begin = pos;                                 // save original position
+    int dq = 0;                                         // double quotes count
+    int memsize = 0;                                    // memory size needed to hold option value
+    int memindex = 0;                                   // current position in output buffer
+    
+    // calculate memory size
+    while(*pos && dq < 2) {
+        if(*pos == '"')
+            dq++;
+        else
+            memsize++;
+        pos++;
+    }
+    memsize += 1;
+    
+    // allocate memory for option value
+    result = (char *) malloc(memsize * sizeof(char));
+    memset(result, '\0', memsize);
+    
+    // reset initial values, double quote count and string position
+    // and copy value into output buffer
+    pos = begin;
+    dq = 0;
+    while(*pos && dq < 2) {
+        if(*pos == '"')
+            dq++;
+        else
+            result[memindex++] = *pos;
+        pos++;
+    }
+    return result;
+}
