@@ -253,7 +253,7 @@ void RetrieveData(int port, char * mode, FILE *lf) {
 			continue;
 		}
 		// Sprawdzamy czy klient wysyla poprawne dane
-		if((datatype = jsonVal(clientResponse, "datatype")) == NULL) {
+		if((datatype = getOptVal(clientResponse, "datatype")) == NULL) {
 			logentry = mkString("[WARN] (reciver) Nieobslugiwany format danych", NULL);
 			writeLog(lf, logentry);
 			free(clientResponse);
@@ -314,8 +314,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                 }
 		// jesli dane sa typu sysinfo, to znaczy, ze trzeba je zapisac w bazie danych
 		if(!strcmp(datatype, "sysinfo")) {
-                    system_id = jsonVal(clientResponse, "systemid");
-                    clientver_str = jsonVal(clientResponse, "config_ver");
+                    system_id = getOptVal(clientResponse, "systemid");
+                    clientver_str = getOptVal(clientResponse, "config_ver");
                     clientver = atoi(clientver_str);
                     
                     updateHostInfo(net.ipaddr, clientResponse, lf);
@@ -388,25 +388,25 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 		sshd_state = state_err;
 
 	char * package = mkString(
-			"[{datatype:sysinfo,package:{",
+			"[{datatype:\"sysinfo\",package:{",
 			"monitoring:{",
 			"httpd:", httpd_state,
 			",sshd:", sshd_state,
 			"},"
-			"uptime:", s_uptime, ",",
-			"hostname:", info->hostname, ",",
-			"distro_name:", info->os, ",",
-			"hdd_total:", s_hdd_total, ",",
-			"hdd_free:", s_hdd_free, ",",
-			"ram_total:", s_ram_total, ",",
-			"ram_free:", s_ram_free, ",",
-			"ext_ip:", info->extip, ",",
-                        "eth_out:", s_bytes_out, ",",
-                        "eth_in:", s_bytes_in, ",",
-                        "cpu:", info->cpu, ",",
-			"config_ver:", s_config_ver, ",",
-			"curr_time:", s_curr_time, ",",
-			"systemid:", info->net_hwaddr, "}}]",
+			"uptime:\"", s_uptime, "\",",
+			"hostname:\"", info->hostname, "\",",
+			"distro_name:\"", info->os, "\",",
+			"hdd_total:\"", s_hdd_total, "\",",
+			"hdd_free:\"", s_hdd_free, "\",",
+			"ram_total:\"", s_ram_total, "\",",
+			"ram_free:\"", s_ram_free, "\",",
+			"ext_ip:\"", info->extip, "\",",
+                        "eth_out:\"", s_bytes_out, "\",",
+                        "eth_in:\"", s_bytes_in, "\",",
+                        "cpu:\"", info->cpu, "\",",
+			"config_ver:\"", s_config_ver, "\",",
+			"curr_time:\"", s_curr_time, "\",",
+			"systemid:\"", info->net_hwaddr, "\"}}]",
 	NULL);
 
 	size_t package_len = strlen(package) + 1;
@@ -427,41 +427,6 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 	free(package);
 
 	return json;
-}
-char * jsonVal(const char * json, const char * pattern) {
-	char * val = NULL;
-        char * val_pos = NULL;
-
-	size_t pattern_len = strlen(pattern);
-        if((val_pos = strstr(json, pattern)) != NULL)
-            val_pos += (pattern_len + 1);
-        else
-            return NULL;
-
-	int i = 0;
-	size_t len = 0;
-	char tmp[PACKAGE_SIZE];
-	memset(tmp, '\0', PACKAGE_SIZE);
-
-	while(*val_pos != ',' &&
-			(
-			(*val_pos != '}' || *(val_pos+1) != ',') &&
-			(*val_pos != '}' || *(val_pos+1) != ']') &&
-			(*val_pos != '}' || *(val_pos+1) != '}')
-			)
-		)
-	{
-		tmp[i] = *val_pos;
-		val_pos++;
-		i++;
-	}
-
-	len = strlen(tmp) + 1;
-	val = (char *) malloc(len * sizeof(char));
-	memset(val, '\0', len);
-	strcpy(val, tmp);
-
-	return val;
 }
 void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;
@@ -532,11 +497,11 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 }
 int clientNeedUpdate(char * clientData) {
 	// parsujemy wersje konfiguracji otrzymana od klienta
-	char * verStr = jsonVal(clientData, "config_ver");
+	char * verStr = getOptVal(clientData, "config_ver");
 	int clientConfVer = atoi(verStr);
 
 	// pobieramy z bazy wersje konfiguracji na podstawie ID klienta
-	char * hostID = jsonVal(clientData, "systemid");
+	char * hostID = getOptVal(clientData, "systemid");
 	int dbConfVer = checkDBConfigVer(hostID);
 
 	free(hostID);
@@ -560,7 +525,7 @@ char * buildConfigPackage(hostconfig * data) {
     sysuser * su            = data->sysUsers;         // system users accounts
     
     // global package keynames
-    char * package_header = "[datatype:hostconfig,";
+    char * package_header = "[datatype:\"hostconfig\",";
     
     // obtaining size of defined scopes
     if(vh != NULL)
@@ -720,7 +685,7 @@ char * backMessage(resp * rsp) {
     size_t messageSize = 0;
     char * tmp = NULL;
     char * message = NULL;
-    char * header = "datatype:StatusChange,scope:";
+    char * header = "datatype:\"StatusChange\",scope:";
     
     // obtain amount of memory to allocate
     while(pos) {
@@ -841,4 +806,39 @@ resp *  respStatus(char * scope, char status, int dbid) {
     node->next = NULL;
     
     return node;
+}
+char * getOptVal(char * json, char * key) {
+    char * result = NULL;                               // option value
+    char * pos = strstr(json, key) + strlen(key) + 1;   // let's move to the option value
+    char * begin = pos;                                 // save original position
+    int dq = 0;                                         // double quotes count
+    int memsize = 0;                                    // memory size needed to hold option value
+    int memindex = 0;                                   // current position in output buffer
+    
+    // calculate memory size
+    while(*pos && dq < 2) {
+        if(*pos == '"')
+            dq++;
+        else
+            memsize++;
+        pos++;
+    }
+    memsize += 1;
+    
+    // allocate memory for option value
+    result = (char *) malloc(memsize * sizeof(char));
+    memset(result, '\0', memsize);
+    
+    // reset initial values, double quote count and string position
+    // and copy value into output buffer
+    pos = begin;
+    dq = 0;
+    while(*pos && dq < 2) {
+        if(*pos == '"')
+            dq++;
+        else
+            result[memindex++] = *pos;
+        pos++;
+    }
+    return result;
 }
