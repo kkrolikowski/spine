@@ -428,41 +428,6 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 
 	return json;
 }
-char * jsonVal(const char * json, const char * pattern) {
-	char * val = NULL;
-        char * val_pos = NULL;
-
-	size_t pattern_len = strlen(pattern);
-        if((val_pos = strstr(json, pattern)) != NULL)
-            val_pos += (pattern_len + 1);
-        else
-            return NULL;
-
-	int i = 0;
-	size_t len = 0;
-	char tmp[PACKAGE_SIZE];
-	memset(tmp, '\0', PACKAGE_SIZE);
-
-	while(*val_pos != ',' &&
-			(
-			(*val_pos != '}' || *(val_pos+1) != ',') &&
-			(*val_pos != '}' || *(val_pos+1) != ']') &&
-			(*val_pos != '}' || *(val_pos+1) != '}')
-			)
-		)
-	{
-		tmp[i] = *val_pos;
-		val_pos++;
-		i++;
-	}
-
-	len = strlen(tmp) + 1;
-	val = (char *) malloc(len * sizeof(char));
-	memset(val, '\0', len);
-	strcpy(val, tmp);
-
-	return val;
-}
 void SendData(char * mode, char * server, int port, FILE * lf) {
 	int confd;
 	char * logentry = NULL;
@@ -720,7 +685,7 @@ char * backMessage(resp * rsp) {
     size_t messageSize = 0;
     char * tmp = NULL;
     char * message = NULL;
-    char * header = "datatype:StatusChange,scope:";
+    char * header = "datatype:\"StatusChange\",scope:";
     
     // obtain amount of memory to allocate
     while(pos) {
