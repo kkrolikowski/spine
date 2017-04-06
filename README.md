@@ -14,14 +14,14 @@ Before you start building this project please ensure that you have installed req
 - libgtop2-dev
 
 Table below contains strict list of packages that should be installed before you will be able to build source code.
-| Distribution | Packages  |
-|---|---|
-| Ubuntu (16.04) | gcc autoconf2.64 libmysqlclient-dev libgtop2-dev libgtop-2.0-10  |
-|  Centos7 | gcc m4 automake perl-Data-Dumper mariadb-devel mariadb-libs libgtop2-devel |
+| **Distribution** | **Packages**                                                               |
+|------------------|----------------------------------------------------------------------------|
+| Ubuntu (16.04)   | gcc autoconf2.64 libmysqlclient-dev libgtop2-dev libgtop-2.0-10            |
+|  Centos7         | gcc m4 automake perl-Data-Dumper mariadb-devel mariadb-libs libgtop2-devel |
 
 #### Centos notes
 Because official Centos repository doesn't have required version of autoconf you should install it from different source.
-![autoconf-2.69-12.2.noarch.rpm]ftp://ftp.pbone.net/mirror/ftp5.gwdg.de/pub/opensuse/repositories/home:/monkeyiq:/centos6updates/CentOS_CentOS-6/noarch/autoconf-2.69-12.2.noarch.rpm
+[autoconf-2.69-12.2.noarch.rpm](ftp://ftp.pbone.net/mirror/ftp5.gwdg.de/pub/opensuse/repositories/home:/monkeyiq:/centos6updates/CentOS_CentOS-6/noarch/autoconf-2.69-12.2.noarch.rpm)
 Before you proceed with autoconf installation you should install all packages from above table.
 
 ### Install
