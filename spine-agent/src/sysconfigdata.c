@@ -405,6 +405,9 @@ vhostData * ParseConfigDataAPACHE(char * json) {
         tmp                         = getOptVal(offset, "dbid");
         curr->dbid                  = atoi(tmp);
         free(tmp);
+        tmp                         = getOptVal(offset, "uid");
+        curr->uid                   = atoi(tmp);
+        free(tmp);
         
         curr->next = NULL;
         
