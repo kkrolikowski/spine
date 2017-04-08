@@ -24,15 +24,9 @@
       $q = $dbh->prepare("SELECT login FROM sysusers WHERE id = ". $_POST['account']);
       $q->execute();
       $r = $q->fetch();
-      if($r['login'] == "root") {
-        $DocumentRoot = "/var/www/". $_POST['sn'] ."/htdocs";
-      }
-      else {
-        $DocumentRoot = "/home/" .$r['login']. "/public_html/". $_POST['sn'];
-      }
 
       $q = $dbh->prepare("INSERT INTO www(ServerName, ServerAlias, DocumentRoot, htaccess, user_id, system_id, status, access_order) VALUES('".
-      $_POST['sn']. "', '". $ServerAliasClean . "', '". $DocumentRoot. "', '". $htaccess. "', ". $_POST['account'].
+      $_POST['sn']. "', '". $ServerAliasClean . "', '/var/www/". $_POST['sn']. "/htdocs', '". $htaccess. "', ". $_POST['account'].
       ", ". $_POST['serverid'] .", 'N', '".$_POST['access_order']."')");
       $q->execute();
 
