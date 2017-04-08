@@ -141,6 +141,7 @@ char * apacheConfigPackage(vhostData * www) {
     char * numstr          = NULL;	// vhost index as a string
     char * entry           = NULL;      // particular vhost definition
     char * s_dbid          = NULL;      // DB ID in a form of string
+    char * uid             = NULL;      // UNIX uid of the owner of vhost
     // specific data
     char * authbasic       = NULL;	// authbasic flag
 
@@ -165,6 +166,7 @@ char * apacheConfigPackage(vhostData * www) {
         numstr = int2String(idx);
         authbasic = int2String(curr->password_access);
         s_dbid = int2String(curr->dbid);
+        uid = int2String(curr->uid);
         entry = mkString(
                         "vhost_", numstr, ":{",
                         "dbid:\"",             s_dbid,                   "\",",
@@ -179,6 +181,7 @@ char * apacheConfigPackage(vhostData * www) {
                         "htusers:\"",          curr->htusers,            "\",",
                         "vhoststatus:\"",      curr->status,             "\",",
                         "purgedir:\"",         curr->purgedir,           "\",",
+                        "uid:\"",              uid,                      "\",",
                         "user:\"",             curr->user,               "\"}",
                         ",", NULL);
         strncat(package, entry, strlen(entry) + 1);
@@ -190,6 +193,7 @@ char * apacheConfigPackage(vhostData * www) {
         free(entry);
         free(numstr);
         free(authbasic);
+        free(uid);
         if(strcmp(curr->ServerName, "NaN"))
             idx++;
         curr = curr->next;
@@ -591,7 +595,7 @@ int getVhostPackageSize(vhostData * vhd) {
     // package keys names
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
-                            "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
+                            "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:", "uid:,",
                             "vhost_:", "dbid:,", "{},", "authbasic:,", NULL};
     const char ** key = keys;    
     
@@ -622,6 +626,10 @@ int getVhostPackageSize(vhostData * vhd) {
         free(tmp);
         
         tmp = int2String(curr->dbid);
+        size += strlen(tmp)                         + dqCount;
+        free(tmp);
+        
+        tmp = int2String(curr->uid);
         size += strlen(tmp)                         + dqCount;
         free(tmp);
         
