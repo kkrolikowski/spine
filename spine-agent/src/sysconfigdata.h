@@ -77,7 +77,7 @@ void ParseConfigData(char * json, hostconfig * conf);
 char * linuxDistro(void);
 
 // funkcja tworzy strukture katalogow na podstawie podanej sciezki
-void mkdirtree(char * path);
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group);
 
 // funkcja odczytujaca aktualna wartosc IP z cache'a
 // w przypadku bledu odczytu zwraca NULL

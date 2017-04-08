@@ -394,7 +394,7 @@ vhostData * ParseConfigDataAPACHE(char * json) {
         curr->vhost_access_list     = getOptVal(offset, "VhostAccessList");
         curr->htaccess              = getOptVal(offset, "htaccess");
         curr->version               = cfgver;
-        curr->user                  = getOptVal(offset, "user");
+        curr->user                  = getOptVal(offset, "sysuser");
         curr->htusers               = getOptVal(offset, "htusers");
         curr->status                = getOptVal(offset, "vhoststatus");
         curr->purgedir              = getOptVal(offset, "purgedir");
@@ -453,7 +453,7 @@ char * linuxDistro(void) {
 
 	return name;
 }
-void mkdirtree(char * path) {
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group) {
   int i = 0;
   char * p = path;
   char buff[PATH_MAX];
@@ -461,11 +461,14 @@ void mkdirtree(char * path) {
 
   while(*p) {
     buff[i] = *p;
-    if(*p == '/')
-      mkdir(buff, 0755);
+    if(*p == '/') {
+      mkdir(buff, mode);
+      chown(buff, owner, group);
+    }
     i++; p++;
   }
-  mkdir(buff, 0755);
+  mkdir(buff, mode);
+  chown(buff, owner, group);
 }
 char * readIPCache(void) {
 	FILE * cache;
