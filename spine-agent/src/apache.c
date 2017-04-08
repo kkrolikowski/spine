@@ -182,7 +182,7 @@ char * apacheConfigPackage(vhostData * www) {
                         "vhoststatus:\"",      curr->status,             "\",",
                         "purgedir:\"",         curr->purgedir,           "\",",
                         "uid:\"",              uid,                      "\",",
-                        "user:\"",             curr->user,               "\"}",
+                        "sysuser:\"",          curr->user,               "\"}",
                         ",", NULL);
         strncat(package, entry, strlen(entry) + 1);
         if(curr->next == NULL)
@@ -436,19 +436,23 @@ void createHtaccess(char * htaccessPath, char * hta_content) {
         fclose(htaccess);
     }
 }
-void createWebsiteDir(char * websiteDir) {
+void createWebsiteDir(vhostData * vh) {
     char * dirpath = NULL;
     size_t len = 0;
     
-    len = strlen(websiteDir) + 2;
+    len = strlen(vh->DocumentRoot) + 2;
     dirpath = (char *) malloc(len * sizeof(char));
     memset(dirpath, '\0', len);
     
-    strncpy(dirpath, websiteDir, strlen(websiteDir));
+    strncpy(dirpath, vh->DocumentRoot, strlen(vh->DocumentRoot));
     strncat(dirpath, "/", 2);
     if(access(dirpath, F_OK) < 0) {
-        if(errno == ENOENT)
-            mkdirtree(websiteDir);
+        if(errno == ENOENT) {
+            if(vh->uid == 0)
+                mkdirtree(vh->DocumentRoot, 0755, vh->uid, vh->uid);
+            else
+                mkdirtree(vh->DocumentRoot, 0700, vh->uid, vh->uid);
+        }
     }
     free(dirpath);
 }
@@ -594,7 +598,7 @@ int getVhostPackageSize(vhostData * vhd) {
     char * header = "{scope:apache,},";
     // package keys names
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
-                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
+                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "sysuser:,",
                             "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:", "uid:,",
                             "vhost_:", "dbid:,", "{},", "authbasic:,", NULL};
     const char ** key = keys;    
@@ -687,7 +691,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
                 if(vh->password_access)
                     authItems++;
                 if(!strcmp(vh->status, "N"))
-                    createWebsiteDir(vh->DocumentRoot);
+                    createWebsiteDir(vh);
                 if(strcmp(vh->htaccess, "NaN"))
                     createHtaccess(htaccessPath, vh->htaccess);
                 else

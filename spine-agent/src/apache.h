@@ -39,7 +39,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf);
 void createHtaccess(char * htaccessPath, char * hta_content);
 
 // funkcja tworzy Katalogi w ktorych beda znajdowac sie strony www
-void createWebsiteDir(char * websiteDir);
+void createWebsiteDir(vhostData * vh);
 
 // funkcja tworzy pliki z konfiguracja virtualek apacza. Polozenie
 // plikow jest uzaleznione od dystrybucji linuksa
