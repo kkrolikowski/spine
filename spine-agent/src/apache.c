@@ -507,6 +507,11 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
         fprintf(vhost, "\t\tRequire group %s\n", vhd->ServerName);
         fprintf(vhost, "\t</Location>\n\n");
     }
+    if(strcmp(vhd->user, "root")) {
+        fprintf(vhost, "\t<IfModule mpm_itk_module>\n");
+        fprintf(vhost, "\t\tAssignUserId %s %s\n", vhd->user, vhd->user);
+        fprintf(vhost, "\t</IfModule>\n");
+    }
     fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhd->ServerName);
     fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhd->ServerName);
     fprintf(vhost, "</VirtualHost>\n");
