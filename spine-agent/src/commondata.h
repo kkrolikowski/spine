@@ -58,6 +58,7 @@ typedef struct vhostData {
     char * purgedir;		// flaga: Y - kasujemy pliki aplikacji, N - zostawiamy
     int version;                // wersja konfiguracji
     int dbid;                   // id rekordu z bazy danych
+    int uid;                    // UNIX UID wlasciciela vhosta
     struct vhostData * next;    // wskaznik do kolejnego vhosta
 } vhostData;
 
