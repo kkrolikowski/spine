@@ -106,6 +106,6 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json);
 
 // this is a recursive function which sets given permissions on a directory
 // and it's contents
-void updateDirPermissions(char * path, uid_t uid, gid_t gid, mode_t mode, FILE * lf);
+void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

@@ -470,8 +470,9 @@ void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group) {
   mkdir(buff, mode);
   chown(buff, owner, group);
 }
-void updateDirPermissions(char * path, uid_t uid, gid_t gid, mode_t mode, FILE * lf) {
+void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf) {
     DIR * d;
+    mode_t mode = 0;
     struct dirent * entry;
     struct stat n;
     char buff[256];
@@ -480,7 +481,7 @@ void updateDirPermissions(char * path, uid_t uid, gid_t gid, mode_t mode, FILE *
 
     memset(buff, '\0', 256);
     strcpy(buff, path);
-
+    
     d = opendir(path);
     stat(buff, &n);
     while((entry = readdir(d)) != NULL) {
@@ -491,6 +492,12 @@ void updateDirPermissions(char * path, uid_t uid, gid_t gid, mode_t mode, FILE *
         stat(buff, &n);
         if(S_ISDIR(n.st_mode)) {
               strncat(buff, "/", 1);
+              
+              if(uid == 0)
+                  mode = 0755;
+              else
+                  mode = 0700;
+              
               if(!chmod(buff, mode)) {
                   lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
                   writeLog(lf, lmsg);
@@ -501,9 +508,14 @@ void updateDirPermissions(char * path, uid_t uid, gid_t gid, mode_t mode, FILE *
                   free(tmp);
                   writeLog(lf, lmsg);
               }
-              updateDirPermissions(buff, uid, gid, mode, lf);
+              updateDirPermissions(buff, uid, gid, lf);
         }
         else {
+            if(uid == 0)
+                mode = 0644;
+            else
+                mode = 0600;
+            
             if(!chmod(buff, mode)) {
                   lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
                   writeLog(lf, lmsg);

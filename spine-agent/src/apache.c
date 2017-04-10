@@ -693,7 +693,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
                 if(!strcmp(vh->status, "N"))
                     createWebsiteDir(vh);
                 if(!strcmp(vh->status, "U"))
-                    updateDirPermissions(vh->DocumentRoot, vh->uid, vh->uid, 0700, lf);
+                    updateDirPermissions(vh->DocumentRoot, vh->uid, vh->uid, lf);
                 if(strcmp(vh->htaccess, "NaN"))
                     createHtaccess(htaccessPath, vh->htaccess);
                 else
