@@ -470,6 +470,57 @@ void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group) {
   mkdir(buff, mode);
   chown(buff, owner, group);
 }
+void updateDirPermissions(char * path, uid_t uid, gid_t gid, mode_t mode, FILE * lf) {
+    DIR * d;
+    struct dirent * entry;
+    struct stat n;
+    char buff[256];
+    char * lmsg = NULL;
+    char * tmp = NULL;
+
+    memset(buff, '\0', 256);
+    strcpy(buff, path);
+
+    d = opendir(path);
+    stat(buff, &n);
+    while((entry = readdir(d)) != NULL) {
+        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+
+        strncat(buff, entry->d_name, strlen(entry->d_name));
+        stat(buff, &n);
+        if(S_ISDIR(n.st_mode)) {
+              strncat(buff, "/", 1);
+              if(!chmod(buff, mode)) {
+                  lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
+                  writeLog(lf, lmsg);
+              }
+              if(!chown(buff, uid, gid)) {
+                  tmp = int2String(uid);
+                  lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
+                  free(tmp);
+                  writeLog(lf, lmsg);
+              }
+              updateDirPermissions(buff, uid, gid, mode, lf);
+        }
+        else {
+            if(!chmod(buff, mode)) {
+                  lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
+                  writeLog(lf, lmsg);
+              }
+              if(!chown(buff, uid, gid)) {
+                  tmp = int2String(uid);
+                  lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
+                  free(tmp);
+                  writeLog(lf, lmsg);
+              }
+        }
+
+        memset(buff, '\0', 256);
+        strcpy(buff, path);
+    }
+    closedir(d);
+}
 char * readIPCache(void) {
 	FILE * cache;
 	char * extip = NULL;
