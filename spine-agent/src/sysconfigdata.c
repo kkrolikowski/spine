@@ -453,9 +453,11 @@ char * linuxDistro(void) {
 
 	return name;
 }
-void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group) {
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf) {
   int i = 0;
   char * p = path;
+  char * lmsg = NULL;
+  char * tmp = NULL;
   char buff[PATH_MAX];
   memset(buff, '\0', PATH_MAX);
 
@@ -463,12 +465,22 @@ void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group) {
     buff[i] = *p;
     if(*p == '/') {
       mkdir(buff, mode);
-      chown(buff, owner, group);
+      if(!chown(buff, owner, group)) {
+          tmp = int2String(owner);
+          lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
+          free(tmp);
+          writeLog(lf, lmsg);
+      }
     }
     i++; p++;
   }
   mkdir(buff, mode);
-  chown(buff, owner, group);
+  if(!chown(buff, owner, group)) {
+    tmp = int2String(owner);
+    lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
+    free(tmp);
+    writeLog(lf, lmsg);
+  }
 }
 void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf) {
     DIR * d;

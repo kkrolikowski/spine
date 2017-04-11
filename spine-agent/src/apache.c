@@ -436,7 +436,7 @@ void createHtaccess(char * htaccessPath, char * hta_content) {
         fclose(htaccess);
     }
 }
-void createWebsiteDir(vhostData * vh) {
+void createWebsiteDir(vhostData * vh, FILE * lf) {
     char * dirpath = NULL;
     size_t len = 0;
     
@@ -449,9 +449,9 @@ void createWebsiteDir(vhostData * vh) {
     if(access(dirpath, F_OK) < 0) {
         if(errno == ENOENT) {
             if(vh->uid == 0)
-                mkdirtree(vh->DocumentRoot, 0755, vh->uid, vh->uid);
+                mkdirtree(vh->DocumentRoot, 0755, vh->uid, vh->uid, lf);
             else
-                mkdirtree(vh->DocumentRoot, 0700, vh->uid, vh->uid);
+                mkdirtree(vh->DocumentRoot, 0700, vh->uid, vh->uid, lf);
         }
     }
     free(dirpath);
@@ -691,7 +691,7 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
                 if(vh->password_access)
                     authItems++;
                 if(!strcmp(vh->status, "N"))
-                    createWebsiteDir(vh);
+                    createWebsiteDir(vh, lf);
                 if(!strcmp(vh->status, "U"))
                     updateDirPermissions(vh->DocumentRoot, vh->uid, vh->uid, lf);
                 if(strcmp(vh->htaccess, "NaN"))
