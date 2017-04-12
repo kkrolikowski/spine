@@ -77,7 +77,7 @@ void ParseConfigData(char * json, hostconfig * conf);
 char * linuxDistro(void);
 
 // funkcja tworzy strukture katalogow na podstawie podanej sciezki
-void mkdirtree(char * path);
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf);
 
 // funkcja odczytujaca aktualna wartosc IP z cache'a
 // w przypadku bledu odczytu zwraca NULL
@@ -103,5 +103,9 @@ sysuser * ParseConfigDataSYSUSERS(char * json);
 
 // function writes to memory htpasswd content
 htpasswdData * ParseConfigDataHTPASSWD(char * json);
+
+// this is a recursive function which sets given permissions on a directory
+// and it's contents
+void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

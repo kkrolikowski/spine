@@ -394,7 +394,7 @@ vhostData * ParseConfigDataAPACHE(char * json) {
         curr->vhost_access_list     = getOptVal(offset, "VhostAccessList");
         curr->htaccess              = getOptVal(offset, "htaccess");
         curr->version               = cfgver;
-        curr->user                  = getOptVal(offset, "user");
+        curr->user                  = getOptVal(offset, "sysuser");
         curr->htusers               = getOptVal(offset, "htusers");
         curr->status                = getOptVal(offset, "vhoststatus");
         curr->purgedir              = getOptVal(offset, "purgedir");
@@ -404,6 +404,9 @@ vhostData * ParseConfigDataAPACHE(char * json) {
         free(tmp);
         tmp                         = getOptVal(offset, "dbid");
         curr->dbid                  = atoi(tmp);
+        free(tmp);
+        tmp                         = getOptVal(offset, "uid");
+        curr->uid                   = atoi(tmp);
         free(tmp);
         
         curr->next = NULL;
@@ -450,19 +453,97 @@ char * linuxDistro(void) {
 
 	return name;
 }
-void mkdirtree(char * path) {
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf) {
   int i = 0;
   char * p = path;
+  char * lmsg = NULL;
+  char * tmp = NULL;
   char buff[PATH_MAX];
   memset(buff, '\0', PATH_MAX);
 
   while(*p) {
     buff[i] = *p;
-    if(*p == '/')
-      mkdir(buff, 0755);
+    if(*p == '/') {
+      mkdir(buff, mode);
+      if(!chown(buff, owner, group)) {
+          tmp = int2String(owner);
+          lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
+          free(tmp);
+          writeLog(lf, lmsg);
+      }
+    }
     i++; p++;
   }
-  mkdir(buff, 0755);
+  mkdir(buff, mode);
+  if(!chown(buff, owner, group)) {
+    tmp = int2String(owner);
+    lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
+    free(tmp);
+    writeLog(lf, lmsg);
+  }
+}
+void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf) {
+    DIR * d;
+    mode_t mode = 0;
+    struct dirent * entry;
+    struct stat n;
+    char buff[1024];
+    char * lmsg = NULL;
+    char * tmp = NULL;
+
+    memset(buff, '\0', 1024);
+    strncpy(buff, path, strlen(path));
+    
+    if(uid == 0)
+        mode = 0755;
+    else
+        mode = 0710;
+    
+    if(chmod(buff, mode)) {
+        lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
+        writeLog(lf, lmsg);
+    }
+    if(chown(buff, uid, gid)) {
+        tmp = int2String(uid);
+        lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
+        free(tmp);
+        writeLog(lf, lmsg);
+    }
+    
+    d = opendir(path);
+    stat(buff, &n);
+    while((entry = readdir(d)) != NULL) {
+        if(*(buff + strlen(buff) - 1) != '/')
+            *(buff + strlen(buff)) = '/';
+        if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+            continue;
+
+        strncat(buff, entry->d_name, strlen(entry->d_name));
+        stat(buff, &n);
+        if(S_ISDIR(n.st_mode))
+            updateDirPermissions(buff, uid, gid, lf);
+        else {
+            if(uid == 0)
+                mode = 0644;
+            else
+                mode = 0600;
+            
+            if(chmod(buff, mode)) {
+                lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
+                writeLog(lf, lmsg);
+            }
+            if(chown(buff, uid, gid)) {
+                tmp = int2String(uid);
+                lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
+                free(tmp);
+                writeLog(lf, lmsg);
+            }
+        }
+
+        memset(buff, '\0', 1024);
+        strncpy(buff, path, strlen(path));
+    }
+    closedir(d);
 }
 char * readIPCache(void) {
 	FILE * cache;

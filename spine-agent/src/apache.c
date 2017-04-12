@@ -141,6 +141,7 @@ char * apacheConfigPackage(vhostData * www) {
     char * numstr          = NULL;	// vhost index as a string
     char * entry           = NULL;      // particular vhost definition
     char * s_dbid          = NULL;      // DB ID in a form of string
+    char * uid             = NULL;      // UNIX uid of the owner of vhost
     // specific data
     char * authbasic       = NULL;	// authbasic flag
 
@@ -165,6 +166,7 @@ char * apacheConfigPackage(vhostData * www) {
         numstr = int2String(idx);
         authbasic = int2String(curr->password_access);
         s_dbid = int2String(curr->dbid);
+        uid = int2String(curr->uid);
         entry = mkString(
                         "vhost_", numstr, ":{",
                         "dbid:\"",             s_dbid,                   "\",",
@@ -179,7 +181,8 @@ char * apacheConfigPackage(vhostData * www) {
                         "htusers:\"",          curr->htusers,            "\",",
                         "vhoststatus:\"",      curr->status,             "\",",
                         "purgedir:\"",         curr->purgedir,           "\",",
-                        "user:\"",             curr->user,               "\"}",
+                        "uid:\"",              uid,                      "\",",
+                        "sysuser:\"",          curr->user,               "\"}",
                         ",", NULL);
         strncat(package, entry, strlen(entry) + 1);
         if(curr->next == NULL)
@@ -190,6 +193,7 @@ char * apacheConfigPackage(vhostData * www) {
         free(entry);
         free(numstr);
         free(authbasic);
+        free(uid);
         if(strcmp(curr->ServerName, "NaN"))
             idx++;
         curr = curr->next;
@@ -432,19 +436,23 @@ void createHtaccess(char * htaccessPath, char * hta_content) {
         fclose(htaccess);
     }
 }
-void createWebsiteDir(char * websiteDir) {
+void createWebsiteDir(vhostData * vh, FILE * lf) {
     char * dirpath = NULL;
     size_t len = 0;
     
-    len = strlen(websiteDir) + 2;
+    len = strlen(vh->DocumentRoot) + 2;
     dirpath = (char *) malloc(len * sizeof(char));
     memset(dirpath, '\0', len);
     
-    strncpy(dirpath, websiteDir, strlen(websiteDir));
+    strncpy(dirpath, vh->DocumentRoot, strlen(vh->DocumentRoot));
     strncat(dirpath, "/", 2);
     if(access(dirpath, F_OK) < 0) {
-        if(errno == ENOENT)
-            mkdirtree(websiteDir);
+        if(errno == ENOENT) {
+            if(vh->uid == 0)
+                mkdirtree(vh->DocumentRoot, 0755, vh->uid, vh->uid, lf);
+            else
+                mkdirtree(vh->DocumentRoot, 0700, vh->uid, vh->uid, lf);
+        }
     }
     free(dirpath);
 }
@@ -506,6 +514,11 @@ int createVhostConfig(char * distro, vhostData * vhd, FILE * lf) {
         fprintf(vhost, "\t\tAuthGroupFile %s/.htgroup\n", apacheAuthDir);
         fprintf(vhost, "\t\tRequire group %s\n", vhd->ServerName);
         fprintf(vhost, "\t</Location>\n\n");
+    }
+    if(strcmp(vhd->user, "root")) {
+        fprintf(vhost, "\t<IfModule mpm_itk_module>\n");
+        fprintf(vhost, "\t\tAssignUserId %s %s\n", vhd->user, vhd->user);
+        fprintf(vhost, "\t</IfModule>\n");
     }
     fprintf(vhost, "\tErrorLog %s/%s-error.log\n", logsDir, vhd->ServerName);
     fprintf(vhost, "\tCustomLog %s/%s-access.log combined\n", logsDir, vhd->ServerName);
@@ -585,8 +598,8 @@ int getVhostPackageSize(vhostData * vhd) {
     char * header = "{scope:apache,},";
     // package keys names
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
-                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "user:,",
-                            "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:",
+                            "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "sysuser:,",
+                            "VhostAccessOrder:,", "VhostAccessList:,", "config_ver:", "uid:,",
                             "vhost_:", "dbid:,", "{},", "authbasic:,", NULL};
     const char ** key = keys;    
     
@@ -617,6 +630,10 @@ int getVhostPackageSize(vhostData * vhd) {
         free(tmp);
         
         tmp = int2String(curr->dbid);
+        size += strlen(tmp)                         + dqCount;
+        free(tmp);
+        
+        tmp = int2String(curr->uid);
         size += strlen(tmp)                         + dqCount;
         free(tmp);
         
@@ -674,7 +691,9 @@ resp * updateApacheSetup(httpdata www, char * os, FILE * lf) {
                 if(vh->password_access)
                     authItems++;
                 if(!strcmp(vh->status, "N"))
-                    createWebsiteDir(vh->DocumentRoot);
+                    createWebsiteDir(vh, lf);
+                if(!strcmp(vh->status, "U"))
+                    updateDirPermissions(vh->DocumentRoot, vh->uid, vh->uid, lf);
                 if(strcmp(vh->htaccess, "NaN"))
                     createHtaccess(htaccessPath, vh->htaccess);
                 else
