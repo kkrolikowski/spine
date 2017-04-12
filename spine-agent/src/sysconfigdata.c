@@ -487,12 +487,12 @@ void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf) {
     mode_t mode = 0;
     struct dirent * entry;
     struct stat n;
-    char buff[256];
+    char buff[1024];
     char * lmsg = NULL;
     char * tmp = NULL;
 
-    memset(buff, '\0', 256);
-    strcpy(buff, path);
+    memset(buff, '\0', 1024);
+    strncpy(buff, path, strlen(path));
     
     if(uid == 0)
         mode = 0755;
@@ -513,51 +513,35 @@ void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf) {
     d = opendir(path);
     stat(buff, &n);
     while((entry = readdir(d)) != NULL) {
+        if(*(buff + strlen(buff) - 1) != '/')
+            *(buff + strlen(buff)) = '/';
         if(!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
             continue;
 
         strncat(buff, entry->d_name, strlen(entry->d_name));
         stat(buff, &n);
-        if(S_ISDIR(n.st_mode)) {
-              strncat(buff, "/", 1);
-              
-              if(uid == 0)
-                  mode = 0755;
-              else
-                  mode = 0710;
-              
-              if(chmod(buff, mode)) {
-                  lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
-                  writeLog(lf, lmsg);
-              }
-              if(chown(buff, uid, gid)) {
-                  tmp = int2String(uid);
-                  lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
-                  free(tmp);
-                  writeLog(lf, lmsg);
-              }
-              updateDirPermissions(buff, uid, gid, lf);
-        }
+        if(S_ISDIR(n.st_mode))
+            updateDirPermissions(buff, uid, gid, lf);
         else {
             if(uid == 0)
                 mode = 0644;
             else
                 mode = 0600;
             
-            if(!chmod(buff, mode)) {
-                  lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
-                  writeLog(lf, lmsg);
-              }
-              if(!chown(buff, uid, gid)) {
-                  tmp = int2String(uid);
-                  lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
-                  free(tmp);
-                  writeLog(lf, lmsg);
-              }
+            if(chmod(buff, mode)) {
+                lmsg = mkString("[WARNING] Cannot set permissions on ", buff, NULL);
+                writeLog(lf, lmsg);
+            }
+            if(chown(buff, uid, gid)) {
+                tmp = int2String(uid);
+                lmsg = mkString("[WARNING] Cannot change owner (uid: ", tmp, ")", NULL);
+                free(tmp);
+                writeLog(lf, lmsg);
+            }
         }
 
-        memset(buff, '\0', 256);
-        strcpy(buff, path);
+        memset(buff, '\0', 1024);
+        strncpy(buff, path, strlen(path));
     }
     closedir(d);
 }
