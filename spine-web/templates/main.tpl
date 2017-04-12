@@ -167,7 +167,7 @@
         <div class="row">
           <label for="wwwuser_edit" class="col-sm-2 control-label">Konto</label>
           <div class="col-sm-4" id="edit-wwwuser">
-            <select class="form-control" id="wwwuser-edit" name="account" disabled>
+            <select class="form-control" id="wwwuser-edit" name="account">
               {foreach from=$wwwuser key=id item=user}
               <option value="{$id}">{$user}</option>
               {/foreach}

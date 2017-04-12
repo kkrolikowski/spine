@@ -328,7 +328,7 @@ $(document).ready(function() {
           text: opt
         }));
       });
-      $('#wwwuser-edit').find('option[text="'+ response.user +'"]').attr('selected', 'selected');
+      $('#wwwuser-edit').find('option:contains("'+ response.user +'")').attr('selected', 'selected');
       if(response.access_order === "01") {
         $('#edit_orderallow').attr('checked', false);
         $('#edit_orderdeny').attr('checked', true);
@@ -518,10 +518,11 @@ $(document).ready(function() {
     if(htusers.length === 0) {
       htpasswd = 0;
     }
+    var owner = $('#wwwuser-edit').val();
     $.ajax({
       url: '/apache.php?edit=' + id,
       method: 'POST',
-      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htpasswd, htusers},
+      data: {serverid, sa, opts, htaccess, access_order, allow, fromhost, htpasswd, htusers, owner},
       success: function(response) {
         var tdIcon = $('#vhost-table').find('td:contains("'+ response.ServerName +'")').closest('td').next();
         var icon;

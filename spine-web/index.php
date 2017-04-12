@@ -98,7 +98,7 @@
       $spine->assign('sysuser', $sysuser);
 
       // lista stron WWW na danym serwerze
-      $q = $dbh->prepare("SELECT id, ServerName,htpasswd FROM www WHERE system_id = ". $_GET['serverid']." AND status = 'A'");
+      $q = $dbh->prepare("SELECT id, ServerName,htpasswd FROM www WHERE system_id = ". $_GET['serverid']." AND status NOT LIKE 'D'");
       $q->execute();
       if($q->rowCount() == 0)
         $spine->assign('EmptySiteList', 1);
