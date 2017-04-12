@@ -31,6 +31,7 @@ make install
 After this binary spine-agent should be placed in /usr/local/bin
 
 ## Recent Changes
+- **2017-04-12:** Apache webserver now can work on changed permissions inside vhost scope
 - **2017-04-05:** Fixed bug with .htaccess files unexpected truncating
 - **2017-04-04:** Introduced status flags and differential client updates
 - **2017-03-01:** Added function which allows spine admin to generate and send via e-mail new password for system user
