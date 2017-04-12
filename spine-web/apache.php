@@ -179,7 +179,7 @@
     foreach ($_POST['opts'] as $value) {
       array_push($opts, $value);
     }
-    $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $saClean ."', htaccess = '". $_POST['htaccess'].
+    $q = $dbh->prepare("UPDATE www SET ServerAlias = '". $saClean ."', user_id = ".$_POST['owner'].", htaccess = '". $_POST['htaccess'].
                         "', access_order = '".$_POST['access_order']."', htpasswd = ".$_POST['htpasswd'].", status = 'U' WHERE id = ". $_GET['edit']);
     $q->execute();
 
