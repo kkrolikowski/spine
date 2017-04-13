@@ -9,8 +9,13 @@
                       ", ".$_POST['vhostid'].")");
     $q->execute();
 
+    $q = $dbh->prepare("SELECT id FROM db_name WHERE name = '".$_POST['dbname']."'");
+    $q->execute();
+    $r = $q->fetch();
+    $dbid = $r['id'];
+
     $q = $dbh->prepare("SELECT d.id, d.name AS dbname, v.ServerName AS vhost FROM db_name d ".
-                      "JOIN www v ON d.vhost_id = v.id WHERE d.host_id = ".$_POST['serverid']);
+                      "JOIN www v ON d.vhost_id = v.id WHERE d.id = ".$dbid);
     $q->execute();
     while ($r = $q->fetch()) {
       $json[$r['id']] = array(
