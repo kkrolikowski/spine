@@ -1087,6 +1087,9 @@
                                        <li class="apache-section">
                                          <a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a>
                                        </li>
+                                       <li class="apache-section">
+                                         <a href="?serverid={$id}&item=dbsrv">Bazy danych</a>
+                                       </li>
                                      </ul>
                                    </li>
                                 {/foreach}
@@ -1189,14 +1192,17 @@
                       <li class="active">Informacje ogólne</li>
                       <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {elseif $smarty.get.item == "sysusers"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li class="active">Konta systemowe</li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {elseif $smarty.get.item == "wwwsrv"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="active">Serwer WWW</li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {/if}
                     </ol>
                     <h3 class="page-header">
