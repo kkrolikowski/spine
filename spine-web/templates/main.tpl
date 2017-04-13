@@ -1497,7 +1497,7 @@
               </div>
               {elseif $smarty.get.item == "sysusers"}
               <div class="row">
-                <div class="col-sm-4" id="user_acc_header"><h3>Konta użytkowników</h3></div>
+                <div class="col-sm-4" id="user_acc_header"><img src="images/users.png" height="70px" align="left"><h3>Konta użytkowników</h3></div>
                 <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
               </div>
               <div class="row">
@@ -1554,7 +1554,7 @@
                     <div class="tab-content">
                       <div role="tabpanel" class="tab-pane" id="dbconfig">
                         <div class="row">
-                          <div class="col-sm-4"><h3>Bazy danych</h3></div>
+                          <div class="col-sm-4"><img src="images/db.png" height="60px" align="left"><h3>Bazy danych</h3></div>
                           <div class="col-sm-4 new-item" id="new-db"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa baza</button></div>
                         </div>
                         <div class="col-sm-4">
@@ -1607,7 +1607,7 @@
                       <div class="tab-content">
                         <div role="tabpanel" class="tab-pane" id="wwwconfig">
                           <div class="row">
-                            <div class="col-sm-4"><h3>Lista stron www</h3></div>
+                            <div class="col-sm-4"><img src="images/websrv.png" height="60px" align="left"><h3>Lista stron www</h3></div>
                             <div class="col-sm-4 new-item" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
                           </div>
                           <div class="col-sm-4">
