@@ -82,6 +82,7 @@
       <script src="js/sysuserRemove.js"></script>
       <script src="js/smtp_settings.js"></script>
       <script src="js/resetpass.js"></script>
+      <script src="js/addnewdb.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
@@ -112,6 +113,33 @@
 
 <body onload="watch()">
   <!-- BEGIN: Sekcja formularzy edycji danych -->
+  <!-- BEGIN: Nowa baza danych -->
+  <form id="newDB" method="post" class="form-horizontal" role="form" style="display: none;">
+    <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+    <div class="form-group">
+      <label for="dbname" class="col-sm-2 control-label">DB Name</label>
+      <div class="col-sm-5">
+        <input type="text" class="form-control" id="dbname" placeholder="Database name">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="vhost-db" class="col-sm-2 control-label">WWW</label>
+      <div class="col-sm-5">
+        <select id="vhlist" class="form-control">
+          <option value="0">None</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-5" id="newDB_buttons">
+          <button type="button" class="btn btn-primary" id="adddb-btn">Create database</button>
+          <button type="button" class="btn btn-default" id="adddb-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- END: Nowa baza danych -->
     <!-- BEGIN: Edycja konfiguracji virtualhostow -->
     <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
       <input type="hidden" name="id" value="">
@@ -1087,7 +1115,7 @@
                                        <li class="apache-section">
                                          <a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a>
                                        </li>
-                                       <li class="apache-section">
+                                       <li class="db-section">
                                          <a href="?serverid={$id}&item=dbsrv">Bazy danych</a>
                                        </li>
                                      </ul>
@@ -1192,17 +1220,22 @@
                       <li class="active">Informacje ogólne</li>
                       <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
-                      <li><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
+                      <li class="db-section"><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {elseif $smarty.get.item == "sysusers"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li class="active">Konta systemowe</li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
-                      <li><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
+                      <li class="db-section"><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {elseif $smarty.get.item == "wwwsrv"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="active">Serwer WWW</li>
-                      <li><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
+                      <li class="db-section"><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
+                      {elseif $smarty.get.item == "dbsrv"}
+                      <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
+                      <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
+                      <li class="active">Bazy danych</li>
                       {/if}
                     </ol>
                     <h3 class="page-header">
@@ -1508,6 +1541,25 @@
                     {/foreach}
                     </tbody>
                   </table>
+                </div>
+              </div>
+              {elseif $smarty.get.item == "dbsrv"}
+              <div>
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active" id="db-config"><a href="#dbconfig" aria-controls="ogolne" role="tab" data-toggle="tab">Bazy danych</a></li>
+                  <li role="presentation" id="db-users"><a href="#dbusers" aria-controls="ogolne" role="tab" data-toggle="tab">Konta</a></li>
+                </ul>
+                <div class="row div-margin-top-10">
+                  <div class="col-sm-12">
+                    <div class="tab-content">
+                      <div role="tabpanel" class="tab-pane" id="dbconfig">
+                        <div class="row">
+                          <div class="col-sm-4"><h3>Bazy danych</h3></div>
+                          <div class="col-sm-4 new-item" id="new-db"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa baza</button></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               {elseif $smarty.get.item == "wwwsrv"}
