@@ -1557,6 +1557,37 @@
                           <div class="col-sm-4"><h3>Bazy danych</h3></div>
                           <div class="col-sm-4 new-item" id="new-db"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa baza</button></div>
                         </div>
+                        <div class="col-sm-4">
+                          {if isset($EmptyDBList)}
+                          <h5>Brak baz danych</h5>
+                          {else}
+                          <table class="table table-hover" id="vhost-table" data-id="{$smarty.get.serverid}">
+                            <thead>
+                              <th>Baza</th><th>Strona WWW</th><th>Akcja</th>
+                            </thead>
+                            <tbody>
+                              {foreach from=$dbs key=id item=v}
+                              <tr>
+                                <td>{$v.dbname}</td>
+                                <td><a href="http://{$v.vhost}/" target="_blank">{$v.vhost}</a></td>
+                                <td class="button-cell">
+                                  <div class="btn-group">
+                                    <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                                    <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      <span class="caret"></span>
+                                      <span class="sr-only">Toggle Dropdown</span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                      <li><a href="#" data-id="{$id}" class="editdb">Edytuj</a></li>
+                                    </ul>
+                                  </div>
+                                </td>
+                              </tr>
+                              {/foreach}
+                            </tbody>
+                          </table>
+                          {/if}
+                        </div>
                       </div>
                     </div>
                   </div>

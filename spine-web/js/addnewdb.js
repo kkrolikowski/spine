@@ -53,6 +53,8 @@ $(document).ready(function() {
       success: function() {
         alertify.success("Database added");
       }
+    }).success(function(rsp) {
+      // html table
     });
   });
 });
