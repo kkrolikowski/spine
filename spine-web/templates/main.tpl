@@ -119,13 +119,13 @@
     <div class="form-group">
       <label for="dbname" class="col-sm-2 control-label">DB Name</label>
       <div class="col-sm-5">
-        <input type="text" class="form-control" id="dbname" placeholder="Database name">
+        <input type="text" class="form-control" name="dbname" id="dbname" placeholder="Database name">
       </div>
     </div>
     <div class="form-group">
       <label for="vhost-db" class="col-sm-2 control-label">WWW</label>
       <div class="col-sm-5">
-        <select id="vhlist" class="form-control">
+        <select id="vhlist" name="vhostid" class="form-control">
           <option value="0">None</option>
         </select>
       </div>

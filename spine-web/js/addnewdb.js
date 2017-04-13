@@ -1,4 +1,9 @@
 $(document).ready(function() {
+
+/*
+        Display form section
+*/
+
   $('#new-db > button').on('click', function() {
     var serverid = $(this).attr('data-id');
 
@@ -29,11 +34,25 @@ $(document).ready(function() {
         .modal('show');
     });
   });
-  
+
   // cancel action
   $('#adddb-cancel').on('click', function() {
     $('.modal').hide();
     $('.modal-backdrop').hide();
     $('#vhlist option:gt(0)').remove();
+  });
+
+/*
+          Add / retrieve data section
+*/
+  $('#adddb-btn').on('click', function() {
+    $.ajax({
+      url: '/databases.php?add',
+      method: 'POST',
+      data: $('#newDB').serializeArray(),
+      success: function() {
+        alertify.success("Database added");
+      }
+    });
   });
 });
