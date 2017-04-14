@@ -83,6 +83,7 @@
       <script src="js/smtp_settings.js"></script>
       <script src="js/resetpass.js"></script>
       <script src="js/addnewdb.js"></script>
+      <script src="js/addnewdbusers.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
@@ -1592,6 +1593,9 @@
                           </table>
                           {/if}
                         </div>
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="dbusers">
+                        aaa
                       </div>
                     </div>
                   </div>

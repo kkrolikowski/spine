@@ -4,6 +4,13 @@ $(document).ready(function() {
         Display form section
 */
 
+  // tab switching
+  $('#db-config a').on('click', function(e) {
+    e.preventDefault();
+    $('#dbusers').hide();
+    $('#dbconfig').show();
+  });
+
   $('#new-db > button').on('click', function() {
     var serverid = $(this).attr('data-id');
 
