@@ -52,6 +52,9 @@ $(document).ready(function() {
       data: $('#newDB').serializeArray(),
       success: function() {
         alertify.success("Database added");
+      },
+      error: function(xhr) {
+        alertify.error(xhr.getResponseHeader('X-Message'));
       }
     }).success(function(rsp) {
       $('.modal').hide();
