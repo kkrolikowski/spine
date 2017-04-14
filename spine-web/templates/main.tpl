@@ -1563,7 +1563,7 @@
                           {else}
                           <table class="table table-hover" id="db-table" data-id="{$smarty.get.serverid}">
                             <thead>
-                              <th>Baza</th><th>Strona WWW</th><th>Akcja</th>
+                              <th>Baza</th><th>Strona WWW</th><th class="button-cell">Akcja</th>
                             </thead>
                             <tbody>
                               {foreach from=$dbs key=id item=v}
