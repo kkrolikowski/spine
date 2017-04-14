@@ -220,3 +220,6 @@
 #newDB_buttons {
   margin-left: 115px;
 }
+#new-db > button {
+  margin-left: 14px;
+}
