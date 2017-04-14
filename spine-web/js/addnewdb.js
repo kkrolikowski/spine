@@ -56,6 +56,9 @@ $(document).ready(function() {
     }).success(function(rsp) {
       $('.modal').hide();
       $('.modal-backdrop').hide();
+      $('#dbname').val("");
+      $('#vhlist option:gt(0)').remove();
+      $('#vhlist').find('option:contains("None")').attr('selected', 'selected');
       if($('#dbconfig h5').length) {
         $('#dbconfig h5').remove();
         $('#dbconfig > div:nth-child(2)').append(
