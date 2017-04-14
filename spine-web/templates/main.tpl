@@ -1561,7 +1561,7 @@
                           {if isset($EmptyDBList)}
                           <h5>Brak baz danych</h5>
                           {else}
-                          <table class="table table-hover" id="vhost-table" data-id="{$smarty.get.serverid}">
+                          <table class="table table-hover" id="db-table" data-id="{$smarty.get.serverid}">
                             <thead>
                               <th>Baza</th><th>Strona WWW</th><th>Akcja</th>
                             </thead>
@@ -1569,7 +1569,11 @@
                               {foreach from=$dbs key=id item=v}
                               <tr>
                                 <td>{$v.dbname}</td>
+                                {if $v.vhost == "None"}
+                                <td>{$v.vhost}</td>
+                                {else}
                                 <td><a href="http://{$v.vhost}/" target="_blank">{$v.vhost}</a></td>
+                                {/if}
                                 <td class="button-cell">
                                   <div class="btn-group">
                                     <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>

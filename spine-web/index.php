@@ -114,21 +114,6 @@
         $spine->assign('websites', $apacheconf);
       }
 
-      // Lista baz na serwerze
-      $q = $dbh->prepare("SELECT d.id, d.name AS dbname, v.ServerName AS vhost FROM db_name d ".
-                        "JOIN www v ON d.vhost_id = v.id WHERE d.host_id = ".$_GET['serverid']);
-      $q->execute();
-      if($q->rowCount() == 0)
-        $spine->assign('EmptyDBList', 1);
-      else {
-        while ($r = $q->fetch()) {
-          $dbs[$r['id']] = array(
-            'dbname' => $r['dbname'],
-            'vhost' => $r['vhost']
-          );
-        }
-        $spine->assign('dbs', $dbs);
-      }
       // lista kont htaccess na danym serwerze
       $q = $dbh->prepare("SELECT id, login FROM www_users WHERE status NOT LIKE 'D' AND system_id = ". $_GET['serverid']);
       $q->execute();
@@ -160,6 +145,22 @@
       }
       else {
         $spine->assign('htpasswd', 'NaN');
+      }
+      // Lista baz na serwerze
+      $q = $dbh->prepare("SELECT d.id, d.name AS dbname, CASE d.vhost_id WHEN 1 ".
+                        "THEN v.ServerName ELSE 'None' END AS vhost FROM db_name d ".
+                        "LEFT JOIN www v ON d.vhost_id = v.id WHERE d.host_id = ".$_GET['serverid']);
+      $q->execute();
+      if($q->rowCount() == 0)
+        $spine->assign('EmptyDBList', 1);
+      else {
+        while ($r = $q->fetch()) {
+          $dbs[$r['id']] = array(
+            'dbname' => $r['dbname'],
+            'vhost' => $r['vhost']
+          );
+        }
+        $spine->assign('dbs', $dbs);
       }
   }
   if($_GET['show'] == "logs") {

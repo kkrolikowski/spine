@@ -14,15 +14,18 @@
     $r = $q->fetch();
     $dbid = $r['id'];
 
-    $q = $dbh->prepare("SELECT d.id, d.name AS dbname, v.ServerName AS vhost FROM db_name d ".
-                      "JOIN www v ON d.vhost_id = v.id WHERE d.id = ".$dbid);
+    $q = $dbh->prepare("SELECT d.id, d.name AS dbname, CASE d.vhost_id WHEN 1 THEN ".
+                      "v.ServerName ELSE 'None' END AS vhost, d.host_id AS serverid ".
+                      "FROM db_name d LEFT JOIN www v ON d.vhost_id = v.id WHERE d.id =".$dbid);
     $q->execute();
-    while ($r = $q->fetch()) {
-      $json[$r['id']] = array(
-        'dbname' => $r['dbname'],
-        'vhost' => $r['vhost']
-      );
-    }
+    $r = $q->fetch();
+
+    $json = array(
+      'id' => $r['id'],
+      'dbname' => $r['dbname'],
+      'vhost' => $r['vhost'],
+      'serverid' => $r['serverid']
+    );
     header('Content-Type: application/json');
     echo json_encode($json);
   }
