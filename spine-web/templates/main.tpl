@@ -141,24 +141,40 @@
     </div>
   </form>
   <!-- END: Nowa baza danych -->
-  <form id="newDBuser" method="post" class="form-horizontal" role="form" style="display: none;">
+  <form id="newDBuser" method="post" class="form-horizontal" data-toggle="validator" role="form" style="display: none;">
     <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
     <div class="form-group">
-      <label for="dblogin" class="col-sm-2 control-label">Login</label>
-      <div class="col-sm-5">
-        <input type="text" class="form-control" name="dblogin" id="dblogin" placeholder="Database login">
+      <div class="row">
+        <label for="dblogin" class="col-sm-2 control-label">Login</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="dblogin" id="dblogin" placeholder="Database login" required>
+        </div>
       </div>
     </div>
     <div class="form-group">
-      <label for="dbpass" class="col-sm-2 control-label">Password</label>
-      <div class="col-sm-5">
-        <input type="password" class="form-control" name="dbpass" id="dbpass" placeholder="Database password">
+      <div class="row">
+        <label for="dbpass" class="col-sm-2 control-label">Password</label>
+        <div class="col-sm-5">
+          <input type="password" class="form-control" name="dbpass" id="dbpass" placeholder="Database password" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <label for="dbpass-confirm" class="col-sm-2 control-label">Confirm</label>
+        <div class="col-sm-5">
+          <input type="password" class="form-control" name="dbpass-confirm" id="dbpass-confirm"
+          placeholder="Database password" data-match="#dbpass" data-match-error="Password mismatch" required>
+        </div>
+        <div class="col-sm-4">
+          <div class="help-block with-errors"></div>
+        </div>
       </div>
     </div>
     <div class="form-group">
       <div class="row">
         <div class="col-sm-5" id="newDBuser_buttons">
-          <button type="button" class="btn btn-primary" id="adddbuser-btn">Add user</button>
+          <button type="submit" class="btn btn-primary" id="adddbuser-btn">Add user</button>
           <button type="button" class="btn btn-default" id="adddbuser-cancel">Cancel</button>
         </div>
       </div>
