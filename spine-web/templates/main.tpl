@@ -1498,14 +1498,14 @@
               </div>
               {elseif $smarty.get.item == "sysusers"}
               <div class="row">
-                <div class="col-sm-4" id="user_acc_header"><img src="images/kontasystemowe.png"></div>
-                <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+                <div class="col-sm-4" id="user_acc_header"><img src="images/kontasystemowe-bg.png"></div>
+                <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-lg btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
               </div>
               <div class="row">
                 <div class="col-sm-5">
-                  <table class="table table-stripped" id="users_table">
+                  <table class="table" id="users_table">
                     <thead>
-                      <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
+                      <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th><th></th>
                     </thead>
                     <tbody>
                     {foreach from=$sysuser key=userid item=info}
@@ -1549,22 +1549,23 @@
                 <ul class="nav nav-tabs" role="tablist">
                   <li role="presentation" class="active" id="db-config"><a href="#dbconfig" aria-controls="ogolne" role="tab" data-toggle="tab">Bazy danych</a></li>
                   <li role="presentation" id="db-users"><a href="#dbusers" aria-controls="ogolne" role="tab" data-toggle="tab">Konta</a></li>
+                  <li role="presentation" id="db-privs"><a href="#dbprivs" aria-controls="ogolne" role="tab" data-toggle="tab">Uprawnienia</a></li>
                 </ul>
                 <div class="row div-margin-top-10">
                   <div class="col-sm-12">
                     <div class="tab-content">
                       <div role="tabpanel" class="tab-pane" id="dbconfig">
                         <div class="row">
-                          <div class="col-sm-4"><img src="images/bazy.png"></div>
-                          <div class="col-sm-4 new-item" id="new-db"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa baza</button></div>
+                          <div class="col-sm-4"><img src="images/bazy-bg.png" width="75%"></div>
+                          <div class="col-sm-4 new-item" id="new-db"><button class="btn btn-lg btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa baza</button></div>
                         </div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-5">
                           {if isset($EmptyDBList)}
                           <h5>Brak baz danych</h5>
                           {else}
                           <table class="table table-hover" id="db-table" data-id="{$smarty.get.serverid}">
                             <thead>
-                              <th>Baza</th><th>Strona WWW</th><th class="button-cell">Akcja</th>
+                              <th>Baza</th><th>Strona WWW</th><th></th>
                             </thead>
                             <tbody>
                               {foreach from=$dbs key=id item=v}
@@ -1595,7 +1596,32 @@
                         </div>
                       </div>
                       <div role="tabpanel" class="tab-pane" id="dbusers">
-                        aaa
+                        <div class="row">
+                          <div class="col-sm-4"><img src="images/users.png"></div>
+                          <div class="col-sm-4 new-item" id="new-dbuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-2">
+                            <h2>Konta</h2>
+                            <table class="table" id="db-users-table">
+                              <thead>
+                                <th>Login</th><th></th>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                            </table>
+                          </div>
+                          <div class="col-sm-6">
+                            <h2>Uprawnienia</h2>
+                            <table class="table" id="db-users-perms">
+                              <thead>
+                                <th>Baza</th><th>Uprawnienia</th><th></th>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1615,7 +1641,7 @@
                       <div class="tab-content">
                         <div role="tabpanel" class="tab-pane" id="wwwconfig">
                           <div class="row">
-                            <div class="col-sm-4"><img src="images/stronywww.png"></div>
+                            <div class="col-sm-4"><img src="images/stronywww-bg.png"></div>
                             <div class="col-sm-4 new-item" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
                           </div>
                           <div class="col-sm-4">
@@ -1664,7 +1690,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="wwwusers">
                           <div class="row">
-                            <div class="col-sm-4"><h3>Lista kont</h3></div>
+                            <div class="col-sm-4"><img src="images/users.png"></div>
                             <div class="col-sm-4 new-item" id="new-htuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
                           </div>
                           <div class="col-sm-4">
