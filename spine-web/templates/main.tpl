@@ -141,6 +141,29 @@
     </div>
   </form>
   <!-- END: Nowa baza danych -->
+  <form id="newDBuser" method="post" class="form-horizontal" role="form" style="display: none;">
+    <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+    <div class="form-group">
+      <label for="dblogin" class="col-sm-2 control-label">Login</label>
+      <div class="col-sm-5">
+        <input type="text" class="form-control" name="dblogin" id="dblogin" placeholder="Database login">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="dbpass" class="col-sm-2 control-label">Password</label>
+      <div class="col-sm-5">
+        <input type="password" class="form-control" name="dbpass" id="dbpass" placeholder="Database password">
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-5" id="newDBuser_buttons">
+          <button type="button" class="btn btn-primary" id="adddbuser-btn">Add user</button>
+          <button type="button" class="btn btn-default" id="adddbuser-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </form>
     <!-- BEGIN: Edycja konfiguracji virtualhostow -->
     <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
       <input type="hidden" name="id" value="">
@@ -1606,16 +1629,6 @@
                             <table class="table" id="db-users-table">
                               <thead>
                                 <th>Login</th><th></th>
-                              </thead>
-                              <tbody>
-                              </tbody>
-                            </table>
-                          </div>
-                          <div class="col-sm-6">
-                            <h2>Uprawnienia</h2>
-                            <table class="table" id="db-users-perms">
-                              <thead>
-                                <th>Baza</th><th>Uprawnienia</th><th></th>
                               </thead>
                               <tbody>
                               </tbody>

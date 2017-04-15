@@ -217,7 +217,7 @@
   margin-left: 73px;
   margin-top: 10px;
 }
-#newDB_buttons {
+#newDB_buttons, #newDBuser_buttons {
   margin-left: 115px;
 }
 #new-db > button {
