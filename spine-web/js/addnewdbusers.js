@@ -24,4 +24,10 @@ $(document).ready(function() {
       })
       .modal('show');
   });
+
+  // cancel action
+  $('#adddbuser-cancel').on('click', function() {
+    $('.modal').hide();
+    $('.modal-backdrop').hide();
+  });
 });
