@@ -241,3 +241,6 @@ thead th:last-child {
   margin-top: 12px;
   margin-left: -15px;
 }
+#select-all-perms {
+  margin-top: 5px;
+}

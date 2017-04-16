@@ -6,4 +6,14 @@ $(document).ready(function() {
     $('#dbprivs').show();
     $('#dbconfig').hide();
   });
+
+  var selectPerms = $('#selperms');
+  selectPerms.select2({
+    placeholder: "Click here or...",
+    width: '100%',
+    minimumResultsForSearch: Infinity
+  });
+  $('#select-all-perms').on('click', function() {
+    selectPerms.val(["select", "insert", "update", "delete"]).trigger('change');
+  });
 });

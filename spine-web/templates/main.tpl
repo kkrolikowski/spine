@@ -110,6 +110,10 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/locale/pl.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.43/css/bootstrap-datetimepicker.min.css" />
 
+      <!-- Multiselect -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
 
 </head>
 
@@ -1665,7 +1669,42 @@
                         </div>
                       </div>
                       <div role="tabpanel" class="tab-pane" id="dbprivs">
-                        dupa
+                        <div class="row">
+                          <div class="col-sm-6">
+                            <form method="post" role="form" class="form-horizontal" id="setDBperms">
+                              <div class="form-group">
+                                <label for="seldb" class="control-label">Baza</label>
+                                <select class="form-control" name="dbname" id="seldb">
+                                  {foreach from=$dbs key=id item=v}
+                                  <option value="{$id}">{$v.dbname}</option>
+                                  {/foreach}
+                                </select>
+                              </div>
+                              <div class="form-group">
+                                <label for="seldbuser" class="control-label">User</label>
+                                <select class="form-control" name="dbuser" id="seldbuser">
+                                  {foreach from=$DBusers key=id item=username}
+                                  <option value="{$id}">{$username}</option>
+                                  {/foreach}
+                                </select>
+                              </div>
+                              <div class="form-group">
+                                <label for="selperms" class="control-label">Permissions</label>
+                                <select name="dbperms" id="selperms" class="form-control" multiple="multiple" style="width:100%">
+                                  <option value="select">SELECT</option>
+                                  <option value="insert">INSERT</option>
+                                  <option value="update">UPDATE</option>
+                                  <option value="delete">DELETE</option>
+                                </select>
+                                <button type="button" id="select-all-perms" class="btn btn-default">Select all</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-6">
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
