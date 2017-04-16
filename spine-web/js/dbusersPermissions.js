@@ -16,4 +16,7 @@ $(document).ready(function() {
   $('#select-all-perms').on('click', function() {
     selectPerms.val(["select", "insert", "update", "delete"]).trigger('change');
   });
+  $('#clear-all-perms').on('click', function() {
+    selectPerms.val(null).trigger('change');
+  });
 });

@@ -1696,7 +1696,10 @@
                                   <option value="update">UPDATE</option>
                                   <option value="delete">DELETE</option>
                                 </select>
-                                <button type="button" id="select-all-perms" class="btn btn-default">Select all</button>
+                                <div class="btn-group" role="group" id="change-all-perms">
+                                  <button type="button" id="select-all-perms" class="btn btn-default">Select all</button>
+                                  <button type="button" id="clear-all-perms" class="btn btn-default">Clear all</button>
+                                </div>
                               </div>
                             </form>
                           </div>
