@@ -4,6 +4,7 @@ $(document).ready(function() {
   $('#db-users a').on('click', function(e) {
     e.preventDefault();
     $('#dbconfig').hide();
+    $('#dbprivs').hide();
     $('#dbusers').show();
   });
 

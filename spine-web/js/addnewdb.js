@@ -8,6 +8,7 @@ $(document).ready(function() {
   $('#db-config a').on('click', function(e) {
     e.preventDefault();
     $('#dbusers').hide();
+    $('#dbprivs').hide();
     $('#dbconfig').show();
   });
 
