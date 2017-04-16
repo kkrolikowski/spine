@@ -16,6 +16,7 @@ $(document).ready(function() {
         show: false
       })
       .on('shown.bs.modal', function() {
+        $('#newDBuser').validator('validate');
         $('#newDBuser')
           .show()
       })
@@ -29,5 +30,27 @@ $(document).ready(function() {
   $('#adddbuser-cancel').on('click', function() {
     $('.modal').hide();
     $('.modal-backdrop').hide();
+  });
+
+  // add new database user
+  $('#adddbuser-btn').on('click', function(e) {
+    e.preventDefault();
+    $.ajax({
+      url: '/databases.php?adduser',
+      method: 'POST',
+      data: $('#newDBuser').serializeArray(),
+      success: function() {
+        alertify.success("Account added");
+      },
+      error: function(xhr) {
+        alertify.error(xhr.getResponseHeader('X-Message'));
+      }
+    }).success(function(r) {
+      $('.modal').hide();
+      $('.modal-backdrop').hide();
+      $('#dblogin').val("");
+      $('#dbpass').val("");
+      $('#dbpass-confirm').val("");
+    });
   });
 });

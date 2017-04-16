@@ -38,4 +38,31 @@
       echo json_encode($json);
     }
   }
+  if (isset($_GET['adduser'])) {
+    $q = $dbh->prepare("SELECT count(*) AS cnt FROM db_user WHERE host_id = ".$_POST['serverid'].
+                      " AND login = '".$_POST['dblogin']."'");
+    $q->execute();
+    $r = $q->fetch();
+    if ($r['cnt'] == 1) {
+      $message = "X-Message: User ". $_POST['dblogin'] ." exists.";
+      header($message, true, 406);
+    }
+    else {
+      $hash = "*" . strtoupper(sha1(sha1($_POST['dbpass'], TRUE)));
+      $q = $dbh->prepare("INSERT INTO db_user(login,pass,status,host_id) VALUES".
+                        "('".$_POST['dblogin']."', '".$hash."', 'N', ".$_POST['serverid'].")");
+      $q->execute();
+
+      $q = $dbh->prepare("SELECT id,login FROM db_user WHERE login = '".$_POST['dblogin']."'");
+      $q->execute();
+      $r = $q->fetch();
+
+      $json = array(
+        'id' => $r['id'],
+        'login' => $r['login']
+      );
+      header('Content-Type: application/json');
+      echo json_encode($json);
+    }
+  }
 ?>

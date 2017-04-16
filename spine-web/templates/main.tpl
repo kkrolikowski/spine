@@ -1616,7 +1616,8 @@
                                 <td><a href="http://{$v.vhost}/" target="_blank">{$v.vhost}</a></td>
                                 {/if}
                                 <td class="button-cell">
-                                  <div class="btn-group">
+                                  <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                                  <!--<div class="btn-group">
                                     <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
                                     <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                       <span class="caret"></span>
@@ -1625,7 +1626,7 @@
                                     <ul class="dropdown-menu">
                                       <li><a href="#" data-id="{$id}" class="editdb">Edytuj</a></li>
                                     </ul>
-                                  </div>
+                                  </div> -->
                                 </td>
                               </tr>
                               {/foreach}
@@ -1641,14 +1642,34 @@
                         </div>
                         <div class="row">
                           <div class="col-sm-2">
-                            <h2>Konta</h2>
+                            {if isset($EmptyDBuserList)}
+                            <h5>Brak danych</h5>
+                            {else}
                             <table class="table" id="db-users-table">
                               <thead>
                                 <th>Login</th><th></th>
                               </thead>
                               <tbody>
+                                {foreach from=$DBusers key=id item=login}
+                                <tr>
+                                  <td>{$login}</td>
+                                  <td align="right">
+                                    <div class="btn-group">
+                                      <button type="button" class="btn btn-danger rmddbuser" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                                      <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li><a href="#" data-id="{$id}" class="editdb">Change password</a></li>
+                                      </ul>
+                                    </div>
+                                  </td>
+                                </tr>
+                                {/foreach}
                               </tbody>
                             </table>
+                            {/if}
                           </div>
                         </div>
                       </div>

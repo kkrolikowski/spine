@@ -162,6 +162,17 @@
         }
         $spine->assign('dbs', $dbs);
       }
+
+      // lista kont mysql na serwerze
+      $q = $dbh->prepare("SELECT id,login FROM db_user WHERE host_id = ".$_GET['serverid']);
+      $q->execute();
+      if ($q->rowCount() == 0)
+        $spine->assign('EmptyDBuserList', 1);
+      else {
+        while ($r = $q->fetch())
+          $dbusers[$r['id']] = $r['login'];
+      }
+      $spine->assign('DBusers', $dbusers);
   }
   if($_GET['show'] == "logs") {
     $q = $dbh->prepare(
