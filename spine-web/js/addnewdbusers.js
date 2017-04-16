@@ -16,7 +16,6 @@ $(document).ready(function() {
         show: false
       })
       .on('shown.bs.modal', function() {
-        $('#newDBuser').validator('validate');
         $('#newDBuser')
           .show()
       })
