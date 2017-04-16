@@ -83,16 +83,7 @@ $(document).ready(function() {
                 '<td>'+ rsp.dbname +'</td>' +
                 '<td><a href="http://'+ rsp.vhost +'/" target="_blank">'+ rsp.vhost +'</a></td>' +
                 '<td class="button-cell">' +
-                  '<div class="btn-group">' +
-                    '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'">Usuń</button>' +
-                    '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                      '<span class="caret"></span>' +
-                      '<span class="sr-only">Toggle Dropdown</span>' +
-                    '</button>' +
-                    '<ul class="dropdown-menu">' +
-                      '<li><a href="#" data-id="'+ rsp.id +'" class="editdb">Edytuj</a></li>' +
-                    '</ul>' +
-                  '</div>' +
+                  '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'">Usuń</button>' +
                 '</td>' +
               '</tr>' +
             '</tbody>' +
@@ -112,16 +103,7 @@ $(document).ready(function() {
             '<td>'+ rsp.dbname +'</td>' +
             vhostCell +
             '<td class="button-cell">' +
-              '<div class="btn-group">' +
-                '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'">Usuń</button>' +
-                '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                  '<span class="caret"></span>' +
-                  '<span class="sr-only">Toggle Dropdown</span>' +
-                '</button>' +
-                '<ul class="dropdown-menu">' +
-                  '<li><a href="#" data-id="'+ rsp.id +'" class="editdb">Edytuj</a></li>' +
-                '</ul>' +
-              '</div>' +
+            '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'">Usuń</button>' +
             '</td>' +
           '</tr>'
         );
