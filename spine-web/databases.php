@@ -53,13 +53,14 @@
                         "('".$_POST['dblogin']."', '".$hash."', 'N', ".$_POST['serverid'].")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id,login FROM db_user WHERE login = '".$_POST['dblogin']."'");
+      $q = $dbh->prepare("SELECT id,login,host_id FROM db_user WHERE login = '".$_POST['dblogin']."'");
       $q->execute();
       $r = $q->fetch();
 
       $json = array(
         'id' => $r['id'],
-        'login' => $r['login']
+        'login' => $r['login'],
+        'serverid' => $r['host_id']
       );
       header('Content-Type: application/json');
       echo json_encode($json);

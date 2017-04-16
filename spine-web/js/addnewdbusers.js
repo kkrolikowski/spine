@@ -51,6 +51,52 @@ $(document).ready(function() {
       $('#dblogin').val("");
       $('#dbpass').val("");
       $('#dbpass-confirm').val("");
+      if ($('#dbusers h5').length) {
+        $('#dbusers h5').remove();
+        $('#dbusers > div:nth-child(2) > div').append(
+          '<table class="table" id="db-users-table">' +
+            '<thead>' +
+              '<th>Login</th><th></th>' +
+            '</thead>' +
+            '<tbody>' +
+              '<tr>' +
+                '<td>'+ r.login +'</td>' +
+                '<td align="right">' +
+                  '<div class="btn-group">' +
+                    '<button type="button" class="btn btn-danger rmddbuser" data-id="'+ r.id +'" data-serverid="'+ r.serverid +'">Usuń</button>' +
+                    '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                      '<span class="caret"></span>' +
+                      '<span class="sr-only">Toggle Dropdown</span>' +
+                    '</button>' +
+                    '<ul class="dropdown-menu">' +
+                      '<li><a href="#" data-id="'+ r.id +'" class="editdb">Change password</a></li>' +
+                    '</ul>' +
+                  '</div>' +
+                '</td>' +
+              '</tr>' +
+            '</tbody>' +
+          '</table>'
+        );
+      }
+      else {
+        $('#db-users-table > tbody').append(
+          '<tr>' +
+            '<td>'+ r.login +'</td>' +
+            '<td align="right">' +
+              '<div class="btn-group">' +
+                '<button type="button" class="btn btn-danger rmddbuser" data-id="'+ r.id +'" data-serverid="'+ r.serverid +'">Usuń</button>' +
+                '<button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                  '<span class="caret"></span>' +
+                  '<span class="sr-only">Toggle Dropdown</span>' +
+                '</button>' +
+                '<ul class="dropdown-menu">' +
+                  '<li><a href="#" data-id="'+ r.id +'" class="editdb">Change password</a></li>' +
+                '</ul>' +
+              '</div>' +
+            '</td>' +
+          '</tr>'
+        );
+      }
     });
   });
 });
