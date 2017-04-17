@@ -245,3 +245,6 @@ thead th:last-child {
   margin-top: 5px;
   margin-left: 0px;
 }
+#setDBperms > div:nth-child(4n) {
+  text-align: right;
+}

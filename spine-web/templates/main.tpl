@@ -1670,11 +1670,12 @@
                       </div>
                       <div role="tabpanel" class="tab-pane" id="dbprivs">
                         <div class="row">
-                          <div class="col-sm-6">
+                          <div class="col-sm-4">
                             <form method="post" role="form" class="form-horizontal" id="setDBperms">
                               <div class="form-group">
-                                <label for="seldb" class="control-label">Baza</label>
+                                <label for="seldb" class="control-label">Database</label>
                                 <select class="form-control" name="dbname" id="seldb">
+                                  <option value="" disabled selected>Choose database</option>
                                   {foreach from=$dbs key=id item=v}
                                   <option value="{$id}">{$v.dbname}</option>
                                   {/foreach}
@@ -1683,6 +1684,7 @@
                               <div class="form-group">
                                 <label for="seldbuser" class="control-label">User</label>
                                 <select class="form-control" name="dbuser" id="seldbuser">
+                                  <option value="" disabled selected>Choose database user</option>
                                   {foreach from=$DBusers key=id item=username}
                                   <option value="{$id}">{$username}</option>
                                   {/foreach}
@@ -1701,11 +1703,20 @@
                                   <button type="button" id="clear-all-perms" class="btn btn-default">Clear all</button>
                                 </div>
                               </div>
+                              <div class="form-group">
+                                <button type="submit" id="save-db-perms" class="btn btn-primary">Save</button>
+                                <button type="button" id="cancel-db-perms" class="btn btn-default">Cancel</button>
+                              </div>
                             </form>
                           </div>
-                        </div>
-                        <div class="row">
                           <div class="col-sm-6">
+                            <table class="table">
+                              <thead>
+                                <th>Database</th><th>Database user</th><th>Permissions</th><th></th>
+                              </thead>
+                              <tbody>
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
