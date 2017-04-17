@@ -1692,7 +1692,7 @@
                               </div>
                               <div class="form-group">
                                 <label for="selperms" class="control-label">Permissions</label>
-                                <select name="dbperms" id="selperms" class="form-control" multiple="multiple" style="width:100%">
+                                <select name="dbperms[]" id="selperms" class="form-control" multiple="multiple" style="width:100%">
                                   <option value="select">SELECT</option>
                                   <option value="insert">INSERT</option>
                                   <option value="update">UPDATE</option>
@@ -1710,7 +1710,7 @@
                             </form>
                           </div>
                           <div class="col-sm-6">
-                            <table class="table">
+                            <table class="table" id="db-permissions-table">
                               <thead>
                                 <th>Database</th><th>Database user</th><th>Permissions</th><th></th>
                               </thead>
