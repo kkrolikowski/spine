@@ -1716,7 +1716,10 @@
                               </thead>
                               <tbody>
                                 {foreach from=$DBgrants key=i item=g}
-                                <tr><td>{$g.dbname}</td><td>{$g.dbuser}</td><td>{$g.grants}</td></tr>
+                                <tr>
+                                  <td>{$g.dbname}</td><td>{$g.dbuser}</td><td>{$g.grants}</td>
+                                  <td align="right"><button type="button" class="btn btn-danger btn-sm rm-permission" data-id="{$i}">Remove</button></td>
+                                </tr>
                                 {/foreach}
                               </tbody>
                             </table>
