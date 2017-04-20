@@ -46,4 +46,9 @@ $(document).ready(function() {
       });
     });
   });
+  $('#db-permissions-table > tbody > tr').each(function() {
+    $(this).mouseover(function() {
+      $(this).css( 'cursor', 'pointer' );
+    })
+  });
 });
