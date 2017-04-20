@@ -85,7 +85,6 @@
       <script src="js/addnewdb.js"></script>
       <script src="js/addnewdbusers.js"></script>
       <script src="js/dbusersPermissions.js"></script>
-      <script src="js/jquery.rowspanizer.min.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
@@ -1716,6 +1715,9 @@
                                 <th>Database</th><th>Database user</th><th>Permissions</th><th></th>
                               </thead>
                               <tbody>
+                                {foreach from=$DBgrants key=i item=g}
+                                <tr><td>{$g.dbname}</td><td>{$g.dbuser}</td><td>{$g.grants}</td></tr>
+                                {/foreach}
                               </tbody>
                             </table>
                           </div>

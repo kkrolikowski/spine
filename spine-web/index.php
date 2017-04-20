@@ -173,6 +173,19 @@
           $dbusers[$r['id']] = $r['login'];
       }
       $spine->assign('DBusers', $dbusers);
+
+      // lista uprawnien do baz
+      $q = $dbh->prepare("SELECT dp.id, du.login, dn.name, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
+                        "JOIN db_user du ON dp.user_id = du.id JOIN sysinfo s ON dn.host_id = s.id");
+      $q->execute();
+      while($r = $q->fetch()) {
+        $dbgrants[$r['id']] = array(
+          'dbuser' => $r['login'],
+          'dbname' => $r['name'],
+          'grants' => $r['grants']
+        );
+      }
+      $spine->assign('DBgrants', $dbgrants);
   }
   if($_GET['show'] == "logs") {
     $q = $dbh->prepare(

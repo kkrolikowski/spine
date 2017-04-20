@@ -41,7 +41,6 @@ $(document).ready(function() {
           '<tr><td>'+ item.dbname +'</td><td>'+ item.dbuser +'</td><td>'+ grants +'</td></tr>'
         );
       });
-      $('#db-permissions-table').rowspanizer();
     });
   });
 });
