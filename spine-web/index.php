@@ -179,11 +179,16 @@
                         "JOIN db_user du ON dp.user_id = du.id JOIN sysinfo s ON dn.host_id = s.id");
       $q->execute();
       while($r = $q->fetch()) {
+        $grantsArray = explode(" ", $r['grants']);
+        foreach ($grantsArray as $val) {
+          $grants  .= "$val,";
+        }
         $dbgrants[$r['id']] = array(
           'dbuser' => $r['login'],
           'dbname' => $r['name'],
-          'grants' => $r['grants']
+          'grants' => rtrim($grants, ',')
         );
+        $grants = "";
       }
       $spine->assign('DBgrants', $dbgrants);
   }
