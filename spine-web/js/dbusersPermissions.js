@@ -51,4 +51,8 @@ $(document).ready(function() {
       $(this).css( 'cursor', 'pointer' );
     })
   });
+  $('#db-permissions-table > tbody > tr > td:nth-child(-n+3)').on('click', function() {
+    var id = $(this).closest('tr').find('button').attr('data-id');
+    console.log(id);
+  });
 });
