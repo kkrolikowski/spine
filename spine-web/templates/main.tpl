@@ -85,6 +85,7 @@
       <script src="js/addnewdb.js"></script>
       <script src="js/addnewdbusers.js"></script>
       <script src="js/dbusersPermissions.js"></script>
+      <script src="js/jquery.rowspanizer.min.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 

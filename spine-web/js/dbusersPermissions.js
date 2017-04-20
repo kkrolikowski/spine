@@ -31,14 +31,17 @@ $(document).ready(function() {
       data: form.serializeArray()
     }).success(function(r) {
       var table = $('#db-permissions-table > tbody');
-      var newrow = '<tr><td>'+ r.dbname +'</td><td>'+ r.dbuser +'</td><td>'+ r.grants +'</td></tr>';
-      var row = table.find('td:contains("'+ r.dbname +'")').parent();
-      var dbname_cell = table.find('td:contains("'+ r.dbname +'")');
-      var dbuser_cell = dbname_cell.closest('td:contains("'+ r.dbuser +'")');
-      if(dbname_cell.length && dbuser_cell.length)
-        row.replaceWith(newrow);
-      else
-        table.append(newrow);
+      table.empty();
+      $.each(r, function(i, item) {
+        var grants = item.grants.toString();
+        var last = grants.slice(-1);
+        if(last == ',')
+          grants = grants.slice(0, -1);
+        table.append(
+          '<tr><td>'+ item.dbname +'</td><td>'+ item.dbuser +'</td><td>'+ grants +'</td></tr>'
+        );
+      });
+      $('#db-permissions-table').rowspanizer();
     });
   });
 });

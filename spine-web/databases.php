@@ -67,21 +67,21 @@
     }
   }
   if (isset($_GET['addperms'])) {
+    foreach ($_POST['dbperms'] as $g)
+      $grants .= "$g ";
     // check if there are some privileges granted to particular user on particular DB
     $q = $dbh->prepare("SELECT id FROM db_privs WHERE db_id = ".$_POST['dbname']. " AND user_id = ".$_POST['dbuser']);
     $q->execute();
     $r = $q->fetch();
-    // if yes, let's remove previous privileges
+
     if($q->rowCount() > 0) {
       $id = $r['id'];
-      $q = $dbh->prepare("DELETE FROM db_privs WHERE id = ". $id);
-      $q->execute();
+      $q = $dbh->prepare("UPDATE db_privs SET grants = '".$grants."' WHERE id = ". $id);
     }
-    // and insert new
-    foreach ($_POST['dbperms'] as $g)
-      $grants .= "$g ";
-    $q = $dbh->prepare("INSERT INTO db_privs(grants, status, user_id, db_id) VALUES ".
-                      "('".rtrim($grants)."', 'N', ".$_POST['dbuser'].", ".$_POST['dbname'].")");
+    else {
+      $q = $dbh->prepare("INSERT INTO db_privs(grants, status, user_id, db_id) VALUES ".
+                        "('".rtrim($grants)."', 'N', ".$_POST['dbuser'].", ".$_POST['dbname'].")");
+    }
     $q->execute();
     // We need ID of last record
     $q = $dbh->prepare("SELECT id FROM db_privs WHERE db_id = ".$_POST['dbname']. " AND user_id = ".$_POST['dbuser']);
@@ -89,15 +89,17 @@
     $r = $q->fetch();
     $id = $r['id'];
     // to build and send json to javascript
-    $q = $dbh->prepare("SELECT du.login, dn.name, dp.grants FROM db_privs dp JOIN ".
-                      "db_name dn ON dp.db_id = dn.id JOIN db_user du ON dp.user_id = du.id WHERE dp.id =".$id);
+    $q = $dbh->prepare("SELECT dp.id, du.login, dn.name, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
+                      "JOIN db_user du ON dp.user_id = du.id JOIN sysinfo s ON dn.host_id = s.id");
     $q->execute();
-    $r = $q->fetch();
-    $json = array(
-      'dbuser' => $r['login'],
-      'dbname' => $r['name'],
-      'grants' => explode(" ", $r['grants'])
-    );
+    while($r = $q->fetch()) {
+      $json[$r['id']] = array(
+        'dbuser' => $r['login'],
+        'dbname' => $r['name'],
+        'grants' => explode(" ", $r['grants'])
+      );
+    }
+
     header('Content-Type: application/json');
     echo json_encode($json);
   }
