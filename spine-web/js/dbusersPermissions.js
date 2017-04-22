@@ -107,6 +107,7 @@ $(document).ready(function() {
   });
   $('.ch-dbuser-pass').on('click', function() {
     var login = $(this).closest('td').prev('td').html();
+    var dbid = $(this).attr('data-id');
     bootbox
       .dialog({
         title: '<strong>Login: '+ login +'</strong>',
@@ -114,6 +115,9 @@ $(document).ready(function() {
         show: false
       })
       .on('shown.bs.modal', function() {
+        $('#chDBuserPass').append(
+          '<input type="hidden" name="dbid" value="'+ dbid +'">'
+        );
         $('#chDBuserPass')
           .show()
       })
@@ -125,5 +129,8 @@ $(document).ready(function() {
   $('#chDBuserPass-cancel').on('click', function() {
     $('.modal').hide();
     $('.modal-backdrop').hide();
+  });
+  $('#chDBuserPass-btn').on('click', function() {
+    // future code
   });
 });
