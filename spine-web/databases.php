@@ -103,4 +103,19 @@
     header('Content-Type: application/json');
     echo json_encode($json);
   }
+  if (isset($_GET['getperm'])) {
+    $q = $dbh->prepare("SELECT id, db_id, user_id, grants FROM db_privs WHERE id = ".$_GET['getperm']);
+    $q->execute();
+    $r = $q->fetch();
+
+    $json = array(
+      'id' => $r['id'],
+      'dblogin' => $r['user_id'],
+      'dbname' => $r['db_id'],
+      'grants' => explode(" ", rtrim($r['grants']))
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode($json);
+  }
 ?>
