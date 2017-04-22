@@ -69,7 +69,7 @@ $(document).ready(function() {
                       '<span class="sr-only">Toggle Dropdown</span>' +
                     '</button>' +
                     '<ul class="dropdown-menu">' +
-                      '<li><a href="#" data-id="'+ r.id +'" class="editdb">Change password</a></li>' +
+                      '<li><a href="#" data-id="'+ r.id +'" class="ch-dbuser-pass">Change password</a></li>' +
                     '</ul>' +
                   '</div>' +
                 '</td>' +
@@ -90,7 +90,7 @@ $(document).ready(function() {
                   '<span class="sr-only">Toggle Dropdown</span>' +
                 '</button>' +
                 '<ul class="dropdown-menu">' +
-                  '<li><a href="#" data-id="'+ r.id +'" class="editdb">Change password</a></li>' +
+                  '<li><a href="#" data-id="'+ r.id +'" class="ch-dbuser-pass">Change password</a></li>' +
                 '</ul>' +
               '</div>' +
             '</td>' +
