@@ -122,4 +122,9 @@
     $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE id = ".$_GET['rmperm']);
     $q->execute();
   }
+  if (isset($_GET['chuserpass'])) {
+    $hash = "*" . strtoupper(sha1(sha1($_POST['dbpass'], TRUE)));
+    $q = $dbh->prepare("UPDATE db_user SET pass = '".$hash."', status = 'U' WHERE id = ".$_POST['dbid']);
+    $q->execute();
+  }
 ?>

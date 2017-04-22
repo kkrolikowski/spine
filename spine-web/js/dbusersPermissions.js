@@ -130,7 +130,20 @@ $(document).ready(function() {
     $('.modal').hide();
     $('.modal-backdrop').hide();
   });
-  $('#chDBuserPass-btn').on('click', function() {
-    // future code
+  $('#chDBuserPass-btn').on('click', function(e) {
+    e.preventDefault();
+    $.ajax({
+      url: '/databases.php?chuserpass',
+      method: 'POST',
+      data: $('#chDBuserPass').serializeArray(),
+      success: function() {
+        alertify.success("Haslo zmienione");
+      }
+    }).success(function() {
+      $('.modal').hide();
+      $('.modal-backdrop').hide();
+      $('#newdbpass').val("");
+      $('#newdbpass-confirm').val("");
+    });
   });
 });
