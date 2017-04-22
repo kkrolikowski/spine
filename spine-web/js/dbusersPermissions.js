@@ -105,4 +105,25 @@ $(document).ready(function() {
       }
     });
   });
+  $('.ch-dbuser-pass').on('click', function() {
+    var login = $(this).closest('td').prev('td').html();
+    bootbox
+      .dialog({
+        title: '<strong>Login: '+ login +'</strong>',
+        message: $('#chDBuserPass'),
+        show: false
+      })
+      .on('shown.bs.modal', function() {
+        $('#chDBuserPass')
+          .show()
+      })
+      .on('hide.bs.modal', function(e) {
+        $('#chDBuserPass').hide().appendTo('body');
+      })
+      .modal('show');
+  });
+  $('#chDBuserPass-cancel').on('click', function() {
+    $('.modal').hide();
+    $('.modal-backdrop').hide();
+  });
 });

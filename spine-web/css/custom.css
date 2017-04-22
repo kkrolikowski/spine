@@ -220,7 +220,7 @@
 #newDB_buttons, #newDBuser_buttons {
   margin-left: 115px;
 }
-#newDBuser_buttons {
+#newDBuser_buttons, #chDBuserPassButtons {
   margin-left: 105px;
 }
 #new-db > button {
