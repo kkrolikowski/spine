@@ -164,7 +164,7 @@
       }
 
       // lista kont mysql na serwerze
-      $q = $dbh->prepare("SELECT id,login FROM db_user WHERE host_id = ".$_GET['serverid']);
+      $q = $dbh->prepare("SELECT id,login FROM db_user WHERE status NOT LIKE 'D' AND host_id = ".$_GET['serverid']);
       $q->execute();
       if ($q->rowCount() == 0)
         $spine->assign('EmptyDBuserList', 1);
