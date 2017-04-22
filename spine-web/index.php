@@ -147,8 +147,8 @@
         $spine->assign('htpasswd', 'NaN');
       }
       // Lista baz na serwerze
-      $q = $dbh->prepare("SELECT d.id, d.name AS dbname, CASE d.vhost_id WHEN 1 ".
-                        "THEN v.ServerName ELSE 'None' END AS vhost FROM db_name d ".
+      $q = $dbh->prepare("SELECT d.id, d.name AS dbname, CASE d.vhost_id WHEN 0 ".
+                        "THEN 'None' ELSE v.ServerName END AS vhost FROM db_name d ".
                         "LEFT JOIN www v ON d.vhost_id = v.id WHERE d.host_id = ".$_GET['serverid']);
       $q->execute();
       if($q->rowCount() == 0)
