@@ -89,12 +89,13 @@
     $r = $q->fetch();
     $id = $r['id'];
     // to build and send json to javascript
-    $q = $dbh->prepare("SELECT dp.id, du.login, dn.name, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
+    $q = $dbh->prepare("SELECT dp.id, du.login, dp.user_id, dn.name, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
                       "JOIN db_user du ON dp.user_id = du.id JOIN sysinfo s ON dn.host_id = s.id WHERE dp.status NOT LIKE 'D'");
     $q->execute();
     while($r = $q->fetch()) {
       $json[$r['id']] = array(
         'dbuser' => $r['login'],
+        'user_id' => $r['user_id'],
         'dbname' => $r['name'],
         'grants' => explode(" ", $r['grants'])
       );
@@ -125,6 +126,12 @@
   if (isset($_GET['chuserpass'])) {
     $hash = "*" . strtoupper(sha1(sha1($_POST['dbpass'], TRUE)));
     $q = $dbh->prepare("UPDATE db_user SET pass = '".$hash."', status = 'U' WHERE id = ".$_POST['dbid']);
+    $q->execute();
+  }
+  if (isset($_GET['rmdbuser'])) {
+    $q = $dbh->prepare("UPDATE db_user SET status = 'D' WHERE id = ". $_GET['rmdbuser']);
+    $q->execute();
+    $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE user_id = ". $_GET['rmdbuser']);
     $q->execute();
   }
 ?>

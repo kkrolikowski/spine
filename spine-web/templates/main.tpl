@@ -1680,7 +1680,7 @@
                               <tbody>
                                 {foreach from=$DBusers key=id item=login}
                                 <tr>
-                                  <td data-userid="{$id}">{$login}</td>
+                                  <td>{$login}</td>
                                   <td align="right">
                                     <div class="btn-group">
                                       <button type="button" class="btn btn-danger rmddbuser" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
@@ -1750,7 +1750,7 @@
                               <tbody>
                                 {foreach from=$DBgrants key=i item=g}
                                 <tr>
-                                  <td>{$g.dbname}</td><td>{$g.dbuser}</td><td>{$g.grants}</td>
+                                  <td>{$g.dbname}</td><td data-userid="{$g.user_id}">{$g.dbuser}</td><td>{$g.grants}</td>
                                   <td align="right"><button type="button" class="btn btn-danger btn-sm rm-permission" data-id="{$i}">Remove</button></td>
                                 </tr>
                                 {/foreach}

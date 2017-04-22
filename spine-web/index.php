@@ -175,7 +175,7 @@
       $spine->assign('DBusers', $dbusers);
 
       // lista uprawnien do baz
-      $q = $dbh->prepare("SELECT dp.id, du.login, dn.name, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
+      $q = $dbh->prepare("SELECT dp.id, du.login, dp.user_id, dn.name, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
                         "JOIN db_user du ON dp.user_id = du.id JOIN sysinfo s ON dn.host_id = s.id WHERE dp.status NOT LIKE 'D'");
       $q->execute();
       while($r = $q->fetch()) {
@@ -185,6 +185,7 @@
         }
         $dbgrants[$r['id']] = array(
           'dbuser' => $r['login'],
+          'user_id' => $r['user_id'],
           'dbname' => $r['name'],
           'grants' => rtrim($grants, ',')
         );

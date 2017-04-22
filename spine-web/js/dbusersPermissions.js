@@ -72,7 +72,7 @@ $(document).ready(function() {
           grants = grants.slice(0, -1);
         table.append(
           '<tr>'+
-            '<td>'+ item.dbname +'</td><td>'+ item.dbuser +'</td><td>'+ grants +'</td>'+
+            '<td>'+ item.dbname +'</td><td data-userid="'+item.user_id+'">'+ item.dbuser +'</td><td>'+ grants +'</td>'+
             '<td align="right"><button type="button" class="btn btn-danger btn-sm rm-permission" data-id="'+ i +'">Remove</button></td>'+
           '</tr>'
         );
@@ -144,6 +144,30 @@ $(document).ready(function() {
       $('.modal-backdrop').hide();
       $('#newdbpass').val("");
       $('#newdbpass-confirm').val("");
+    });
+  });
+  $('.rmddbuser').on('click', function() {
+    var dbid = $(this).attr('data-id');
+    var user = $(this).closest('tr').find('td').eq(0).html();
+    var row = $(this).closest('tr');
+    var permissions = $('#db-permissions-table');
+    var message = "Kasuje konto "+ user;
+    alertify.confirm(message, function(e) {
+      if(e) {
+        $.ajax({
+          url: "/databases.php?rmdbuser=" + dbid,
+          method: "GET",
+          success: function() {
+            alertify.success("Uzytkownik "+ user +" zostal skasowany");
+            row.remove();
+            permissions.find('*[data-userid="'+ dbid +'"]').closest('tr').remove();
+            $('#seldbuser > option[value="'+ dbid +'"]').remove();
+          }
+        });
+      }
+      else {
+        // nie kasujemy
+      }
     });
   });
 });

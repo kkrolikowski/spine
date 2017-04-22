@@ -60,7 +60,7 @@ $(document).ready(function() {
             '</thead>' +
             '<tbody>' +
               '<tr>' +
-                '<td data-dbid="'+r.id+'">'+ r.login +'</td>' +
+                '<td>'+ r.login +'</td>' +
                 '<td align="right">' +
                   '<div class="btn-group">' +
                     '<button type="button" class="btn btn-danger rmddbuser" data-id="'+ r.id +'" data-serverid="'+ r.serverid +'">Usuń</button>' +
@@ -81,7 +81,7 @@ $(document).ready(function() {
       else {
         $('#db-users-table > tbody').append(
           '<tr>' +
-            '<td data-dbid="'+r.id+'">'+ r.login +'</td>' +
+            '<td>'+ r.login +'</td>' +
             '<td align="right">' +
               '<div class="btn-group">' +
                 '<button type="button" class="btn btn-danger rmddbuser" data-id="'+ r.id +'" data-serverid="'+ r.serverid +'">Usuń</button>' +
