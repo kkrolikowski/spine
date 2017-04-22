@@ -1654,7 +1654,11 @@
                                 <td><a href="http://{$v.vhost}/" target="_blank">{$v.vhost}</a></td>
                                 {/if}
                                 <td class="button-cell">
+                                  {if $v.vhost == "None"}
                                   <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                                  {else}
+                                  <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}" disabled>Usuń</button>
+                                  {/if}
                                 </td>
                               </tr>
                               {/foreach}
