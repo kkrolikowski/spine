@@ -118,4 +118,8 @@
     header('Content-Type: application/json');
     echo json_encode($json);
   }
+  if (isset($_GET['rmperm'])) {
+    $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE id = ".$_GET['rmperm']);
+    $q->execute();
+  }
 ?>

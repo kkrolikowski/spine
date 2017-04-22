@@ -83,4 +83,26 @@ $(document).ready(function() {
   });
   $('#db-permissions-table').ready(TableMouseOver);
   $('#db-permissions-table > tbody > tr > td:nth-child(-n+3)').on('click', getPermissionsInfo);
+  $('.rm-permission').on('click', function() {
+    var id = $(this).attr('data-id');
+    var dbname = $(this).closest('tr').find('td').eq(0).html();
+    var dbuser = $(this).closest('tr').find('td').eq(1).html();
+    var row = $(this).closest('tr');
+    var message = "Kasuje uprawnienia do bazy "+ dbname +" dla "+ dbuser;
+    alertify.confirm(message, function(e) {
+      if(e) {
+        $.ajax({
+          url: "/databases.php?rmperm=" + id,
+          method: "GET",
+          success: function() {
+            alertify.success("Uprawnienia zostaly zmienione");
+            row.remove();
+          }
+        });
+      }
+      else {
+        // nie kasujemy
+      }
+    });
+  });
 });
