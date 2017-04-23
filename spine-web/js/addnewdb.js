@@ -95,17 +95,17 @@ $(document).ready(function() {
         var vhostCell;
         if(rsp.vhost == "None") {
           vhostCell = '<td>'+ rsp.vhost +'</td>';
+          button = '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'">Usuń</button>';
         }
         else {
           vhostCell = '<td><a href="http://'+ rsp.vhost +'/" target="_blank">'+ rsp.vhost +'</a></td>';
+          button = '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'" disabled>Usuń</button>';
         }
         $('#db-table > tbody').append(
           '<tr>' +
             '<td>'+ rsp.dbname +'</td>' +
             vhostCell +
-            '<td class="button-cell">' +
-            '<button type="button" class="btn btn-danger rmdb" data-id="'+ rsp.id +'" data-serverid="'+ rsp.serverid +'">Usuń</button>' +
-            '</td>' +
+            '<td class="button-cell">'+ button +'</td>' +
           '</tr>'
         );
       }
