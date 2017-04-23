@@ -109,6 +109,7 @@ $(document).ready(function() {
           '</tr>'
         );
       }
+      $('#seldb').append('<option value="'+ rsp.id +'">'+ rsp.dbname +'</option>');
     });
   });
 });

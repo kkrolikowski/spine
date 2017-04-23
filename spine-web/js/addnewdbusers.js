@@ -97,6 +97,7 @@ $(document).ready(function() {
           '</tr>'
         );
       }
+      $('#seldbuser').append('<option value="'+ r.id +'">'+ r.login +'</option>');
     });
   });
 });
