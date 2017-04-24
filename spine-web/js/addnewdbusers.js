@@ -21,15 +21,15 @@ $(document).ready(function() {
           .show()
       })
       .on('hide.bs.modal', function(e) {
-        $('#newDB').hide().appendTo('body');
+        $('#newDBuser').hide().appendTo('body');
       })
       .modal('show');
   });
 
   // cancel action
   $('#adddbuser-cancel').on('click', function() {
-    $('.modal').hide();
-    $('.modal-backdrop').hide();
+    $('.modal').modal('hide');
+    $('#newDBuser').hide().appendTo('body');
   });
 
   // add new database user
@@ -46,8 +46,8 @@ $(document).ready(function() {
         alertify.error(xhr.getResponseHeader('X-Message'));
       }
     }).success(function(r) {
-      $('.modal').hide();
-      $('.modal-backdrop').hide();
+      $('.modal').modal('hide');
+      $('#newDBuser').hide().appendTo('body');
       $('#dblogin').val("");
       $('#dbpass').val("");
       $('#dbpass-confirm').val("");

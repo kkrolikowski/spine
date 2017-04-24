@@ -45,9 +45,9 @@ $(document).ready(function() {
 
   // cancel action
   $('#adddb-cancel').on('click', function() {
-    $('.modal').hide();
-    $('.modal-backdrop').hide();
+    $('.modal').modal('hide');
     $('#vhlist option:gt(0)').remove();
+    $('#newDB').hide().appendTo('body');
   });
 
 /*
@@ -65,10 +65,11 @@ $(document).ready(function() {
         alertify.error(xhr.getResponseHeader('X-Message'));
       }
     }).success(function(rsp) {
-      $('.modal').hide();
+      $('.modal').modal('hide');
       $('.modal-backdrop').hide();
       $('#dbname').val("");
       $('#vhlist option:gt(0)').remove();
+      $('#newDB').hide().appendTo('body');
       $('#vhlist').find('option:contains("None")').attr('selected', 'selected');
       if($('#dbconfig h5').length) {
         $('#dbconfig h5').remove();
