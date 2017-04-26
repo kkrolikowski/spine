@@ -248,3 +248,7 @@ thead th:last-child {
 #setDBperms > div:nth-child(4n) {
   text-align: right;
 }
+#db-permissions-table {
+  margin-top: 15px;
+  margin-left: 40px;
+}
