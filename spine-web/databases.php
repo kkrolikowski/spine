@@ -134,4 +134,11 @@
     $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE user_id = ". $_GET['rmdbuser']);
     $q->execute();
   }
+  if (isset($_GET['rmdb'])) {
+    $q = $dbh->prepare("UPDATE db_name SET status = 'D' WHERE id = ". $_GET['rmdb']);
+    $q->execute();
+
+    $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE db_id = ". $_GET['rmdb']);
+    $q->execute();
+  }
 ?>
