@@ -1755,7 +1755,7 @@
                               <tbody>
                                 {foreach from=$DBgrants key=i item=g}
                                 <tr>
-                                  <td>{$g.dbname}</td><td data-userid="{$g.user_id}">{$g.dbuser}</td><td>{$g.grants}</td>
+                                  <td data-dbid="{$g.db_id}">{$g.dbname}</td><td data-userid="{$g.user_id}">{$g.dbuser}</td><td>{$g.grants}</td>
                                   <td align="right"><button type="button" class="btn btn-danger btn-sm rm-permission" data-id="{$i}">Remove</button></td>
                                 </tr>
                                 {/foreach}
