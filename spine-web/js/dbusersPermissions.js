@@ -72,7 +72,7 @@ $(document).ready(function() {
           grants = grants.slice(0, -1);
         table.append(
           '<tr>'+
-            '<td>'+ item.dbname +'</td><td data-userid="'+item.user_id+'">'+ item.dbuser +'</td><td>'+ grants +'</td>'+
+            '<td data-dbid="'+ item.dbid +'">'+ item.dbname +'</td><td data-userid="'+item.user_id+'">'+ item.dbuser +'</td><td>'+ grants +'</td>'+
             '<td align="right"><button type="button" class="btn btn-danger btn-sm rm-permission" data-id="'+ i +'">Remove</button></td>'+
           '</tr>'
         );

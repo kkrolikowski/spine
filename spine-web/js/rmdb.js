@@ -12,10 +12,12 @@ $(document).ready(function() {
             alertify.success("Baza "+ dbname +" zostala skasowana");
             $(this).closest('tr').remove();
             $('#dbname > option:value="'+ dbid +'"').remove();
-        });
+        }
+      });
       }
       else {
         // nie kasujemy
       }
+    });
   });
 });
