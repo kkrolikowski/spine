@@ -20,10 +20,11 @@ $(document).ready(function() {
       url: '/apache.php?vhlist=' + serverid,
       method: 'GET'
     }).success(function(rsp) {
-      $.each(rsp, function(id, sn) {
-        $('#vhlist').append('<option value="'+ id +'">'+ sn +'</option>');
-      });
-
+      if(rsp) {
+        $.each(rsp, function(id, sn) {
+          $('#vhlist').append('<option value="'+ id +'">'+ sn +'</option>');
+        });
+      }
       // raise a modal window with new DB form
       bootbox
         .dialog({
