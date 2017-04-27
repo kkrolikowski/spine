@@ -34,6 +34,8 @@
         'vhost' => $r['vhost'],
         'serverid' => $r['serverid']
       );
+      updateConfigVersion($dbh, $_POST['serverid'], "db_name");
+
       header('Content-Type: application/json');
       echo json_encode($json);
     }
