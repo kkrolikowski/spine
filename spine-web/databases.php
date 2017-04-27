@@ -64,6 +64,7 @@
         'login' => $r['login'],
         'serverid' => $r['host_id']
       );
+      updateConfigVersion($dbh, $_POST['serverid'], "db_user");
       header('Content-Type: application/json');
       echo json_encode($json);
     }
