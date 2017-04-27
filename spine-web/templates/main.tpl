@@ -1710,6 +1710,7 @@
                         <div class="row">
                           <div class="col-sm-4">
                             <form method="post" role="form" class="form-horizontal" id="setDBperms">
+                              <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
                               <div class="form-group">
                                 <label for="seldb" class="control-label">Database</label>
                                 <select class="form-control" name="dbname" id="seldb">

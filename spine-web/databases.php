@@ -104,7 +104,7 @@
         'grants' => explode(" ", $r['grants'])
       );
     }
-
+    updateConfigVersion($dbh, $_POST['serverid'], "db_privs");
     header('Content-Type: application/json');
     echo json_encode($json);
   }
