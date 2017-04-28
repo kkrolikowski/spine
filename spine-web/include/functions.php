@@ -21,7 +21,9 @@ function checkConfigVer($dbh, $serverid) {
       array_push($versions, $r['version']);
     }
     $ver = max($versions);
-    return $ver + 1;
+    dayVersion() > $ver ? $ver = dayVersion() : $ver++;
+
+    return $ver;
   }
   else
     return dayVersion();
