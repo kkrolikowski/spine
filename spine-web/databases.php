@@ -126,17 +126,29 @@
   if (isset($_GET['rmperm'])) {
     $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE id = ".$_GET['rmperm']);
     $q->execute();
+
+    $q = $dbh->prepare("SELECT du.host_id FROM db_privs dp JOIN db_user du ON dp.user_id = du.id WHERE dp.id = ". $_GET['rmperm']);
+    $q->execute();
+    $r = $q->fetch();
+
+    updateConfigVersion($dbh, $r['host_id'], "db_privs");
   }
   if (isset($_GET['chuserpass'])) {
     $hash = "*" . strtoupper(sha1(sha1($_POST['dbpass'], TRUE)));
     $q = $dbh->prepare("UPDATE db_user SET pass = '".$hash."', status = 'U' WHERE id = ".$_POST['dbid']);
     $q->execute();
+    updateConfigVersion($dbh, $_POST['serverid'], "db_user");
   }
   if (isset($_GET['rmdbuser'])) {
     $q = $dbh->prepare("UPDATE db_user SET status = 'D' WHERE id = ". $_GET['rmdbuser']);
     $q->execute();
     $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE user_id = ". $_GET['rmdbuser']);
     $q->execute();
+
+    $q = $dbh->prepare("SELECT host_id FROM db_user WHERE id = ".$_GET['rmdbuser']);
+    $q->execute();
+    $r = $q->fetch();
+    updateConfigVersion($dbh, $r['host_id'], "db_user");
   }
   if (isset($_GET['rmdb'])) {
     $q = $dbh->prepare("UPDATE db_name SET status = 'D' WHERE id = ". $_GET['rmdb']);
@@ -144,5 +156,10 @@
 
     $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE db_id = ". $_GET['rmdb']);
     $q->execute();
+
+    $q = $dbh->prepare("SELECT host_id FROM db_name WHERE id = ". $_GET['rmdb']);
+    $q->execute();
+    $r = $q->fetch();
+    updateConfigVersion($dbh, $r['host_id'], "db_name");
   }
 ?>
