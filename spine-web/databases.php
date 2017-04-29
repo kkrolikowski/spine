@@ -55,7 +55,7 @@
                         "('".$_POST['dblogin']."', '".$hash."', 'N', ".$_POST['serverid'].")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id,login,host_id FROM db_user WHERE login = '".$_POST['dblogin']."'");
+      $q = $dbh->prepare("SELECT id,login,host_id FROM db_user WHERE login = '".$_POST['dblogin']."' AND host_id = ".$_POST['serverid']);
       $q->execute();
       $r = $q->fetch();
 
@@ -93,7 +93,7 @@
     $id = $r['id'];
     // to build and send json to javascript
     $q = $dbh->prepare("SELECT dp.id, du.login, dp.user_id, dn.name, dp.db_id, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
-                      "JOIN db_user du ON dp.user_id = du.id JOIN sysinfo s ON dn.host_id = s.id WHERE dp.status NOT LIKE 'D' AND dn.host_id = ".$_POST['serverid']);
+                      "JOIN db_user du ON dp.user_id = du.id WHERE dp.status NOT LIKE 'D' AND du.host_id = ".$_POST['serverid']);
     $q->execute();
     while($r = $q->fetch()) {
       $json[$r['id']] = array(

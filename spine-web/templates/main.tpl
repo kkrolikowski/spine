@@ -1715,8 +1715,8 @@
                                 <label for="seldb" class="control-label">Database</label>
                                 <select class="form-control" name="dbname" id="seldb">
                                   <option value="" disabled selected>Choose database</option>
-                                  {foreach from=$dbs key=id item=v}
-                                  <option value="{$id}">{$v.dbname}</option>
+                                  {foreach from=$dbs key=db_id item=v}
+                                  <option value="{$db_id}">{$v.dbname}</option>
                                   {/foreach}
                                 </select>
                               </div>
