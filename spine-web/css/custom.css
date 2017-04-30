@@ -245,7 +245,7 @@ thead th:last-child {
   margin-top: 5px;
   margin-left: 0px;
 }
-#setDBperms > div:nth-child(4n) {
+#setDBperms > div:nth-child(5n) {
   text-align: right;
 }
 #db-permissions-table {
