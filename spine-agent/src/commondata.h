@@ -62,6 +62,35 @@ typedef struct vhostData {
     struct vhostData * next;    // wskaznik do kolejnego vhosta
 } vhostData;
 
+// db grants info
+typedef struct grants {
+    int dbid;               // database uniqe ID
+    char status;            // status (N.U.D.A. scheme)
+    char * user;            // database login
+    char * dbname;          // database name
+    char * privs;           // granted privileges list
+    struct grants * next;   // next privilege
+} grants;
+
+// database users information
+typedef struct dbuser {
+    int dbid;               // database uniqe ID
+    char status;            // status (N.U.D.A. scheme)
+    char * login;           // database login
+    char * pass;            // database password
+    grants * privs;         // database privileges
+    struct dbuser * next;   // next 
+} dbuser;
+
+// database information
+typedef struct dbinfo {
+    int dbid;               // database unique ID
+    char status;            // item status (N.U.D.A. scheme)
+    char * dbname;          // name of database
+    dbuser * user;
+    struct dbinfo * next;
+} dbinfo;
+
 // ogolna struktura danych przechowujaca konfiguracje serwera www
 typedef struct httpdata {
     vhostData * vhost;          // vhosty apacza
