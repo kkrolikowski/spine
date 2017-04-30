@@ -172,4 +172,18 @@ $(document).ready(function() {
       }
     });
   });
+  $('#cancel-db-perms').on('click', function() {
+    $('#seldbuser > option').eq(0).removeAttr('disabled');
+    $('#seldb > option').eq(0).removeAttr('disabled');
+    $('#seldbuser > option:selected').removeAttr('selected');
+    $('#seldb > option:selected').removeAttr('selected');
+
+    $('#seldbuser > option').eq(0).attr('selected', 'selected');
+    $('#seldbuser > option').eq(0).attr('disabled', 'disabled');
+
+    $('#seldb > option').eq(0).attr('selected', 'selected');
+    $('#seldb > option').eq(0).attr('disabled', 'disabled');
+
+    $('#selperms').val(null).trigger('change');
+  });
 });
