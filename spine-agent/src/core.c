@@ -578,6 +578,9 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     conf->httpd.htpasswd = NULL;
     conf->httpd.vhost = NULL;
     conf->sysUsers = NULL;
+    conf->sqldb.db = NULL;
+    conf->sqldb.dbusers = NULL;
+    conf->sqldb.dbgrants = NULL;
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {

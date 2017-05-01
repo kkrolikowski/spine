@@ -113,7 +113,7 @@ typedef struct httpdata {
 typedef struct hostconfig {
     sysuser * sysUsers;     // konta uzytkownikow w systemie
     httpdata httpd;         // konfiguracja serwera www
-    rdbs * sqldb;           // dostepy do baz danych
+    rdbs sqldb;           // dostepy do baz danych
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
 } hostconfig;
 
