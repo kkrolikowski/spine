@@ -91,6 +91,13 @@ typedef struct dbinfo {
     struct dbinfo * next;
 } dbinfo;
 
+// generic type for gather all database access aspects.
+typedef struct rdbs {
+    dbinfo * db;
+    dbuser * dbusers;
+    grants * dbgrants;
+} rdbs;
+
 // ogolna struktura danych przechowujaca konfiguracje serwera www
 typedef struct httpdata {
     vhostData * vhost;          // vhosty apacza
@@ -106,6 +113,7 @@ typedef struct httpdata {
 typedef struct hostconfig {
     sysuser * sysUsers;     // konta uzytkownikow w systemie
     httpdata httpd;         // konfiguracja serwera www
+    rdbs * sqldb;           // dostepy do baz danych
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
 } hostconfig;
 
