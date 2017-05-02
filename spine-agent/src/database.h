@@ -98,4 +98,7 @@ void activate(char * scope, int id);
 // deletes item from db table
 void delete(char * scope, int id);
 
+// function gets database list
+dbinfo * getDatabaseNames(char * systemid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
