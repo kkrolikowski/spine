@@ -104,4 +104,7 @@ dbinfo * getDatabaseNames(char * systemid);
 // function gets database users information
 dbuser * getDatabaseUsers(char * systemid);
 
+// function gets privileges information
+grants * getDatabasePrivileges(char * systemid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

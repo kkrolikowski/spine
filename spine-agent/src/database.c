@@ -656,6 +656,7 @@ dbinfo * getDatabaseNames(char * systemid) {
         curr->dbid      = atoi(row[0]);
         curr->dbname    = readData(row[1]);
         curr->status    = row[2][0];
+        curr->next      = NULL;
         
         if(head == NULL)
             head = curr;
@@ -693,6 +694,49 @@ dbuser * getDatabaseUsers(char * systemid) {
         curr->login     = readData(row[1]);
         curr->pass      = readData(row[2]);
         curr->status    = row[3][0];
+        curr->next      = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
+}
+grants * getDatabasePrivileges(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    
+    char * query = mkString("SELECT dp.id, dn.name AS dbname, du.login AS dblogin, dp.grants,  ",
+                            "dp.status FROM db_privs dp JOIN db_user du ON dp.user_id = du.id ",
+                            "JOIN db_name dn ON dp.db_id = dn.id JOIN sysinfo s ON du.host_id ",
+                            "= s.id WHERE s.system_id = '",systemid,"'", NULL);
+    grants * head = NULL;
+    grants * curr = NULL;
+    grants * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    while((row = mysql_fetch_row(res))) {  
+        curr = (grants *) malloc(sizeof(grants));
+        
+        curr->dbid      = atoi(row[0]);
+        curr->dbname    = readData(row[1]);
+        curr->user      = readData(row[2]);
+        curr->privs     = readData(row[3]);
+        curr->status    = row[4][0];
+        curr->next      = NULL;
         
         if(head == NULL)
             head = curr;

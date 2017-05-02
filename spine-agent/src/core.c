@@ -603,6 +603,9 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
             conf->sqldb.dbusers = getDatabaseUsers(hostid);
             status = 1;
         }
+        if(!strcmp(curr->scope, "db_privs") && curr->version > clientver) {
+            conf->sqldb.dbgrants = getDatabasePrivileges(hostid);
+        }
         curr = curr->next;
     }
     
