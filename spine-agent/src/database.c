@@ -637,7 +637,7 @@ dbinfo * getDatabaseNames(char * systemid) {
     MYSQL_RES * res;
     MYSQL_ROW row;
     char * query = mkString("SELECT id, name, status FROM db_name WHERE host_id = ",
-                            "(SELECT id FROM sysinfo WHERE system_id = '",systemid"')", NULL);
+                            "(SELECT id FROM sysinfo WHERE system_id = '",systemid,"')", NULL);
     dbinfo * head = NULL;
     dbinfo * curr = NULL;
     dbinfo * prev = NULL;
