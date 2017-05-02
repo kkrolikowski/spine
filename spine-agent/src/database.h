@@ -107,4 +107,7 @@ dbuser * getDatabaseUsers(char * systemid);
 // function gets privileges information
 grants * getDatabasePrivileges(char * systemid);
 
+// function gets memory size needed to hold database names information
+int DBnamesDataSize(dbinfo * db);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
