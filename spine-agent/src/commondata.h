@@ -87,7 +87,6 @@ typedef struct dbinfo {
     int dbid;               // database unique ID
     char status;            // item status (N.U.D.A. scheme)
     char * dbname;          // name of database
-    dbuser * user;
     struct dbinfo * next;
 } dbinfo;
 

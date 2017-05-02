@@ -632,3 +632,39 @@ void delete(char * scope, int id) {
     free(query);
     free(sid);
 }
+dbinfo * getDatabaseNames(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    char * query = mkString("SELECT id, name, status FROM db_name WHERE host_id = ",
+                            "(SELECT id FROM sysinfo WHERE system_id = '",systemid"')", NULL);
+    dbinfo * head = NULL;
+    dbinfo * curr = NULL;
+    dbinfo * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    while((row = mysql_fetch_row(res))) {  
+        curr = (dbinfo *) malloc(sizeof(dbinfo));
+        
+        curr->dbid      = atoi(row[0]);
+        curr->dbname    = readData(row[1]);
+        curr->status    = row[2][0];
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
+}
