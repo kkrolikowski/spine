@@ -668,3 +668,40 @@ dbinfo * getDatabaseNames(char * systemid) {
     
     return head;
 }
+dbuser * getDatabaseUsers(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    char * query = mkString("SELECT id,login,pass,status FROM db_user WHERE host_id = ",
+                            "(SELECT id FROM sysinfo WHERE system_id = '",systemid,"')", NULL);
+    dbuser * head = NULL;
+    dbuser * curr = NULL;
+    dbuser * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    while((row = mysql_fetch_row(res))) {  
+        curr = (dbuser *) malloc(sizeof(dbuser));
+        
+        curr->dbid      = atoi(row[0]);
+        curr->login     = readData(row[1]);
+        curr->pass      = readData(row[2]);
+        curr->status    = row[3][0];
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
+}

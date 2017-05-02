@@ -101,4 +101,7 @@ void delete(char * scope, int id);
 // function gets database list
 dbinfo * getDatabaseNames(char * systemid);
 
+// function gets database users information
+dbuser * getDatabaseUsers(char * systemid);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

@@ -78,7 +78,6 @@ typedef struct dbuser {
     char status;            // status (N.U.D.A. scheme)
     char * login;           // database login
     char * pass;            // database password
-    grants * privs;         // database privileges
     struct dbuser * next;   // next 
 } dbuser;
 

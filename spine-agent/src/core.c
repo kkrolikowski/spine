@@ -599,6 +599,10 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
             conf->sqldb.db = getDatabaseNames(hostid);
             status = 1;
         }
+        if(!strcmp(curr->scope, "db_user") && curr->version > clientver) {
+            conf->sqldb.dbusers = getDatabaseUsers(hostid);
+            status = 1;
+        }
         curr = curr->next;
     }
     
