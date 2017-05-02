@@ -636,8 +636,10 @@ dbinfo * getDatabaseNames(char * systemid) {
     extern MYSQL * dbh;
     MYSQL_RES * res;
     MYSQL_ROW row;
-    char * query = mkString("SELECT id, name, status FROM db_name WHERE host_id = ",
-                            "(SELECT id FROM sysinfo WHERE system_id = '",systemid,"')", NULL);
+    char * query = mkString("SELECT dn.id, dn.name AS dbname, dn.status, cv.version ",
+                            "FROM db_name dn JOIN sysinfo s ON dn.host_id = s.id JOIN ",
+                            "configver cv ON dn.host_id = cv.systemid AND cv.scope = ",
+                            "'db_name' WHERE system_id = '",systemid,"'", NULL);
     dbinfo * head = NULL;
     dbinfo * curr = NULL;
     dbinfo * prev = NULL;
@@ -656,6 +658,7 @@ dbinfo * getDatabaseNames(char * systemid) {
         curr->dbid      = atoi(row[0]);
         curr->dbname    = readData(row[1]);
         curr->status    = row[2][0];
+        curr->version   = atoi(row[3]);
         curr->next      = NULL;
         
         if(head == NULL)
