@@ -719,10 +719,12 @@ grants * getDatabasePrivileges(char * systemid) {
     MYSQL_RES * res;
     MYSQL_ROW row;
     
-    char * query = mkString("SELECT dp.id, dn.name AS dbname, du.login AS dblogin, dp.grants,  ",
-                            "dp.status FROM db_privs dp JOIN db_user du ON dp.user_id = du.id ",
-                            "JOIN db_name dn ON dp.db_id = dn.id JOIN sysinfo s ON du.host_id ",
-                            "= s.id WHERE s.system_id = '",systemid,"'", NULL);
+    char * query = mkString("SELECT dp.id, dn.name AS dbname, du.login AS dblogin, ",
+                            "dp.grants, dp.status, cv.version FROM db_privs dp JOIN ",
+                            "db_user du ON dp.user_id = du.id JOIN db_name dn ON dp.db_id ",
+                            " = dn.id JOIN sysinfo s ON du.host_id = s.id JOIN configver ",
+                            "cv ON du.host_id = cv.systemid AND cv.scope = 'db_privs' ",
+                            "WHERE s.system_id = '",systemid,"'", NULL);
     grants * head = NULL;
     grants * curr = NULL;
     grants * prev = NULL;
@@ -743,6 +745,7 @@ grants * getDatabasePrivileges(char * systemid) {
         curr->user      = readData(row[2]);
         curr->privs     = readData(row[3]);
         curr->status    = row[4][0];
+        curr->version   = atoi(row[5]);
         curr->next      = NULL;
         
         if(head == NULL)
