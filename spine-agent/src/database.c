@@ -676,8 +676,11 @@ dbuser * getDatabaseUsers(char * systemid) {
     extern MYSQL * dbh;
     MYSQL_RES * res;
     MYSQL_ROW row;
-    char * query = mkString("SELECT id,login,pass,status FROM db_user WHERE host_id = ",
-                            "(SELECT id FROM sysinfo WHERE system_id = '",systemid,"')", NULL);
+    char * query = mkString("SELECT du.id, du.login AS dblogin, du.pass AS dbpass, ",
+                            "du.status, cv.version FROM db_user du JOIN configver cv ",
+                            "ON du.host_id = cv.systemid AND cv.scope = 'db_user' ",
+                            "JOIN sysinfo s ON du.host_id = s.id WHERE s.system_id = ",
+                            "'",systemid,"'", NULL);
     dbuser * head = NULL;
     dbuser * curr = NULL;
     dbuser * prev = NULL;
@@ -697,6 +700,7 @@ dbuser * getDatabaseUsers(char * systemid) {
         curr->login     = readData(row[1]);
         curr->pass      = readData(row[2]);
         curr->status    = row[3][0];
+        curr->version   = atoi(row[4]);
         curr->next      = NULL;
         
         if(head == NULL)
