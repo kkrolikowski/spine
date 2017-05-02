@@ -65,6 +65,7 @@ typedef struct vhostData {
 // db grants info
 typedef struct grants {
     int dbid;               // database uniqe ID
+    int version;            // configuration version
     char status;            // status (N.U.D.A. scheme)
     char * user;            // database login
     char * dbname;          // database name
@@ -75,6 +76,7 @@ typedef struct grants {
 // database users information
 typedef struct dbuser {
     int dbid;               // database uniqe ID
+    int version;            // configuration version
     char status;            // status (N.U.D.A. scheme)
     char * login;           // database login
     char * pass;            // database password
@@ -84,6 +86,7 @@ typedef struct dbuser {
 // database information
 typedef struct dbinfo {
     int dbid;               // database unique ID
+    int version;            // configuration version
     char status;            // item status (N.U.D.A. scheme)
     char * dbname;          // name of database
     struct dbinfo * next;
