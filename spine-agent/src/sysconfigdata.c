@@ -332,7 +332,7 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     idx = int2String(i);
     iheader = mkString("user_", idx, NULL);
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
-        curr = (htpasswdData *) malloc(sizeof(sysuser));
+        curr = (htpasswdData *) malloc(sizeof(htpasswdData));
         
         curr->login         = getOptVal(offset, "login");
         curr->pass          = getOptVal(offset, "password");
