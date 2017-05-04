@@ -523,6 +523,9 @@ char * buildConfigPackage(hostconfig * data) {
     vhostData * vh          = data->httpd.vhost;      // vhosts configuration
     htpasswdData * htpass   = data->httpd.htpasswd;   // htpasswd accounts
     sysuser * su            = data->sysUsers;         // system users accounts
+    dbinfo * dbi            = data->sqldb.db;         // database names
+    dbuser * dbu            = data->sqldb.dbusers;    // database users data
+    grants * dbg            = data->sqldb.dbgrants;   // database privilege informations
     
     // global package keynames
     char * package_header = "[datatype:\"hostconfig\",";
