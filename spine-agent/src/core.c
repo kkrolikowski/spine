@@ -519,6 +519,7 @@ char * buildConfigPackage(hostconfig * data) {
     char * sysusers_package     = NULL;               // system accounts data
     char * dbnames_package      = NULL;               // database names data
     char * dbusers_package      = NULL;               // database users data
+    char * dbgrants_package     = NULL;               // database privileges data
     size_t package_size = 0;                          // memory size needed to hold whole data
     
     // defined scopes
@@ -576,6 +577,11 @@ char * buildConfigPackage(hostconfig * data) {
         dbusers_package = DBusersConfigPackage(dbu);
         strncat(package, dbusers_package, strlen(dbusers_package));
         free(dbusers_package);
+    }
+    if(dbg != NULL) {
+        dbgrants_package = DBgrantsConfigPackage(dbu);
+        strncat(package, dbgrants_package, strlen(dbgrants_package));
+        free(dbgrants_package);
     }
     *(package + strlen(package)) = ']';
     

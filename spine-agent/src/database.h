@@ -128,4 +128,10 @@ char * DBusersConfigPackage(dbuser * db);
 // clear memory with database users data.
 void cleanDBusersData(dbuser * db);
 
+// function return string with database privilege package
+char * DBgrantsConfigPackage(grants * db);
+
+// clear memory with database privilges data
+void cleanDBgrantsData(grants * db);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
