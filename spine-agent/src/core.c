@@ -537,6 +537,12 @@ char * buildConfigPackage(hostconfig * data) {
         package_size += htusersDataSize(htpass);
     if(su != NULL)
         package_size += getSysUsersPackageSize(su);
+    if(dbi != NULL)
+        package_size += DBnamesDataSize(dbi);
+    if(dbu != NULL)
+        package_size += DBnamesDataSize(dbu);
+    if(dbg != NULL)
+        package_size += DBgrantsDataSize(dbg);
     package_size += strlen(package_header) + 2;
     
     // preparing memory
