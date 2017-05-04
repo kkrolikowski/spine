@@ -104,6 +104,9 @@ sysuser * ParseConfigDataSYSUSERS(char * json);
 // function writes to memory htpasswd content
 htpasswdData * ParseConfigDataHTPASSWD(char * json);
 
+// function writes to memory database names content
+dbinfo * ParseConfigDataDBNAMES(char * json);
+
 // this is a recursive function which sets given permissions on a directory
 // and it's contents
 void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);

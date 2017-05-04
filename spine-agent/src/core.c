@@ -579,7 +579,7 @@ char * buildConfigPackage(hostconfig * data) {
         free(dbusers_package);
     }
     if(dbg != NULL) {
-        dbgrants_package = DBgrantsConfigPackage(dbu);
+        dbgrants_package = DBgrantsConfigPackage(dbg);
         strncat(package, dbgrants_package, strlen(dbgrants_package));
         free(dbgrants_package);
     }
