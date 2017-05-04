@@ -122,4 +122,10 @@ char * DBNamesConfigPackage(dbinfo * db);
 // clear memory with database names data.
 void cleanDBinfoData(dbinfo * db);
 
+// function return string with database users package
+char * DBusersConfigPackage(dbuser * db);
+
+// clear memory with database users data.
+void cleanDBusersData(dbuser * db);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
