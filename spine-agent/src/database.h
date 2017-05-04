@@ -110,4 +110,7 @@ grants * getDatabasePrivileges(char * systemid);
 // function gets memory size needed to hold database names information
 int DBnamesDataSize(dbinfo * db);
 
+// function gets memory size needed to hold database users information
+int DBusersDataSize(dbuser * db);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

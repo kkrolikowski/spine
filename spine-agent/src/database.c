@@ -804,3 +804,49 @@ int DBnamesDataSize(dbinfo * db) {
     
     return size;
 }
+int DBusersDataSize(dbuser * db) {
+    dbuser * curr = db;                 // current node
+    int size = 0;                       // overrall data size
+    int keySize = 0;                    // key names size
+    int nodeCount = 0;                  // processed nodes count
+    int dqCount   = 2;                  // double quotes count in each position
+    char * tmp = NULL;                  // temporary string
+
+    // package header
+    char * header = "{scope:db_user,},";    
+    // package keys names
+    char * keys[] = { "dbusernum_:", "dblogin:,", "dbid:,", "status:,", 
+                      "dbpass:,", "config_version:,", NULL 
+                    };
+    char ** key = keys;
+    
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        size += strlen(curr->login)            + dqCount;
+        size += strlen(curr->pass)             + dqCount;
+        
+        tmp = int2String(curr->dbid);
+        size += strlen(tmp)                     + dqCount;
+        free(tmp);
+        
+        // string length of each user index number
+        tmp = int2String(nodeCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        size += 1;          // one byte for status flag in each item
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
+            size += strlen(tmp)                 + dqCount;
+            free(tmp);
+        }
+        nodeCount++;
+        curr = curr->next;
+    }
+    size += strlen(header);
+    size += keySize * nodeCount;
+    
+    return size;
+}
