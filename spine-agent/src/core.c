@@ -540,7 +540,7 @@ char * buildConfigPackage(hostconfig * data) {
     if(dbi != NULL)
         package_size += DBnamesDataSize(dbi);
     if(dbu != NULL)
-        package_size += DBnamesDataSize(dbu);
+        package_size += DBusersDataSize(dbu);
     if(dbg != NULL)
         package_size += DBgrantsDataSize(dbg);
     package_size += strlen(package_header) + 2;
