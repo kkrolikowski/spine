@@ -113,4 +113,7 @@ int DBnamesDataSize(dbinfo * db);
 // function gets memory size needed to hold database users information
 int DBusersDataSize(dbuser * db);
 
+// function gets memory size needed to hold database privileges information
+int DBgrantsDataSize(grants * db);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
