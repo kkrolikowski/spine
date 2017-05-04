@@ -517,6 +517,7 @@ char * buildConfigPackage(hostconfig * data) {
     char * vhost_package        = NULL;               // vhosts definitions
     char * htusers_package      = NULL;               // htpasswd accounts data
     char * sysusers_package     = NULL;               // system accounts data
+    char * dbnames_package      = NULL;               // database names data
     size_t package_size = 0;                          // memory size needed to hold whole data
     
     // defined scopes
@@ -564,6 +565,11 @@ char * buildConfigPackage(hostconfig * data) {
         sysusers_package = sysusersPackage(su);
         strncat(package, sysusers_package, strlen(sysusers_package));
         free(sysusers_package);
+    }
+    if(dbi != NULL) {
+        dbnames_package = DBNamesConfigPackage(dbi);
+        strncat(package, dbnames_package, strlen(dbnames_package));
+        free(dbnames_package);
     }
     *(package + strlen(package)) = ']';
     

@@ -116,4 +116,10 @@ int DBusersDataSize(dbuser * db);
 // function gets memory size needed to hold database privileges information
 int DBgrantsDataSize(grants * db);
 
+// function return string with database names package
+char * DBNamesConfigPackage(dbinfo * db);
+
+// clear memory with database names data.
+void cleanDBinfoData(dbinfo * db);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

@@ -897,3 +897,78 @@ int DBgrantsDataSize(grants * db) {
     
     return size;
 }
+char * DBNamesConfigPackage(dbinfo * db) {
+    // common data
+    dbinfo * curr          = db;        // node traversing pointer
+    int size               = 0;         // package size
+    int idx                = 0;		// node index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// node index as a string
+    char * entry           = NULL;      // particular entry definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // specific data
+    char status[2];                     // status flags can be: NUDA
+    
+    // package header
+    char * header = "{scope:db_name,";
+
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
+
+    if(db == NULL)
+        return NULL;
+    
+    // preparing memory
+    size = DBnamesDataSize(db) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
+
+    // package building
+    strncpy(package, header, strlen(header)); // configuration type
+    while(curr) {
+        numstr = int2String(idx);
+        s_dbid = int2String(curr->dbid);
+        memset(status, '\0', 2);
+        status[0] = curr->status;
+        entry = mkString(
+                        "dbnum_", numstr, ":{",
+                        "dbid:\"",             s_dbid,         "\",",
+                        "dbname:\"",           curr->dbname,   "\",",
+                        "status:\"",           status,         "\"}",
+                        ",", NULL);
+        strncat(package, entry, strlen(entry) + 1);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+
+        // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+        free(s_dbid);
+        free(entry);
+        free(numstr);
+        idx++;
+        curr = curr->next;
+    }
+
+    // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
+    strncat(package, "},", 2);
+
+    // czyscimy niepotrzebne dane
+    free(s_config_ver);
+    cleanDBinfoData(db);
+
+    return package;
+}
+void cleanDBinfoData(dbinfo * db) {
+    dbinfo * curr = db;
+    dbinfo * next = NULL;
+    
+    free(curr->dbname);
+    
+    next = curr->next;
+    if(next != NULL)
+        cleanDBinfoData(next);
+    free(curr);
+}
