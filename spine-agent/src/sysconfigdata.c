@@ -225,6 +225,7 @@ void ParseConfigData(char * json, hostconfig * conf) {
     conf->httpd.vhost = NULL;
     conf->sysUsers = NULL;
     conf->sqldb.db = NULL;
+    conf->sqldb.dbusers = NULL;
 
     char * pos = json;          // ustawiamy sie na poczatku pakietu
     // przetwarzamy typ pakietu
@@ -238,6 +239,8 @@ void ParseConfigData(char * json, hostconfig * conf) {
        conf->httpd.htpasswd = ParseConfigDataHTPASSWD(pos);
     if((pos = strstr(json, "scope:db_name")) != NULL)
         conf->sqldb.db = ParseConfigDataDBNAMES(pos);
+    if((pos = strstr(json, "scope:db_user")) != NULL)
+        conf->sqldb.dbusers = ParseConfigDataDBUSERS(pos);
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
     char * offset   = NULL;             // relative position in input string
@@ -480,6 +483,62 @@ dbinfo * ParseConfigDataDBNAMES(char * json) {
         i++;
         idx = int2String(i);
         iheader = mkString("dbnum_", idx, NULL);
+    }
+    free(idx);
+    free(iheader);
+    
+    return head;  
+}
+dbuser * ParseConfigDataDBUSERS(char * json) {
+    char * offset       = NULL;        // relative position in input string
+    char * iheader      = NULL;        // this is header of data portion
+    char * idx          = NULL;        // actual position of user data
+    char * tmp          = NULL;        // helper variable for converting string into numeric vals
+    int i               = 0;           // actual number of processed data items
+    int cfgver          = 0;           // config version
+    
+    // when to end reading input data
+    char * end          = strstr(json, "config_ver:");
+    
+    // inicjalizacja danych do listy laczonej
+    dbuser * head = NULL;
+    dbuser * curr = NULL;
+    dbuser * prev = NULL;
+    
+    // processing config version
+    tmp = getOptVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
+    
+    idx = int2String(i);
+    iheader = mkString("dbusernum_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
+        curr = (dbinfo *) malloc(sizeof(dbinfo));
+        
+        curr->login         = getOptVal(offset, "dblogin");
+        curr->pass          = getOptVal(offset, "dbpass");
+        tmp                 = getOptVal(offset, "status");
+        curr->status        = tmp[0];
+        free(tmp);
+        
+        tmp                 = getOptVal(offset, "dbid");
+        curr->dbid          = atoi(tmp);
+        free(tmp);
+        curr->version       = cfgver;
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;      
+        
+        free(iheader);
+        free(idx);
+        
+        i++;
+        idx = int2String(i);
+        iheader = mkString("dbusernum_", idx, NULL);
     }
     free(idx);
     free(iheader);
