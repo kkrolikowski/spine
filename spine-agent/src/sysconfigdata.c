@@ -516,7 +516,7 @@ dbuser * ParseConfigDataDBUSERS(char * json) {
     idx = int2String(i);
     iheader = mkString("dbusernum_", idx, NULL);
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
-        curr = (dbinfo *) malloc(sizeof(dbinfo));
+        curr = (dbuser *) malloc(sizeof(dbuser));
         
         curr->login         = getOptVal(offset, "dblogin");
         curr->pass          = getOptVal(offset, "dbpass");
@@ -572,7 +572,7 @@ grants * ParseConfigDataDBPRIVS(char * json) {
     idx = int2String(i);
     iheader = mkString("dbprivnum_", idx, NULL);
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
-        curr = (dbinfo *) malloc(sizeof(dbinfo));
+        curr = (grants *) malloc(sizeof(grants));
         
         curr->dbname        = getOptVal(offset, "dbname");
         curr->user          = getOptVal(offset, "dblogin");
