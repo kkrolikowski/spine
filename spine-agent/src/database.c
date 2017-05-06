@@ -610,6 +610,8 @@ void activate(char * scope, int id) {
        query = mkString("UPDATE www_users SET status = 'A' WHERE id = ", sid, NULL);
     if(!strcmp(scope, "sysusers"))
        query = mkString("UPDATE sysusers SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_name"))
+       query = mkString("UPDATE db_name SET status = 'A' WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
@@ -627,6 +629,8 @@ void delete(char * scope, int id) {
        query = mkString("DELETE FROM www_users WHERE id = ", sid, NULL);
     if(!strcmp(scope, "sysusers"))
        query = mkString("DELETE FROM sysusers WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_name"))
+       query = mkString("DELETE FROM db_name WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
