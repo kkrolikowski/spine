@@ -117,4 +117,8 @@ grants * ParseConfigDataDBPRIVS(char * json);
 // and it's contents
 void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
 
+// function initiates connection to localhost database. It has hardcoded
+// root@localhost account
+MYSQL * mysqlconn(char * os);
+
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */
