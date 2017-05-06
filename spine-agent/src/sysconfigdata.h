@@ -1,5 +1,6 @@
 #ifndef SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
+#include <mysql.h>
 #include "apache.h"
 #include "commondata.h"
 

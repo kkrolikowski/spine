@@ -281,6 +281,10 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
                             }
+                            if(config.sqldb.db != NULL) {
+                                updateMSGdata = DatabaseSetup(config.sqldb.db, os, lf, updateMSGdata);
+                                cleanDBinfoData(config.sqldb.db);
+                            }
                             if(updateMSGdata != NULL) {
                                 updateMSGdataString = backMessage(updateMSGdata);
                                 clifd = connector(net.ipaddr, 2016);

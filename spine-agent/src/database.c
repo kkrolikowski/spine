@@ -1128,3 +1128,69 @@ void cleanDBgrantsData(grants * db) {
         cleanDBgrantsData(next);
     free(curr);
 }
+resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
+    dbinfo * curr = db;
+    char * msg = NULL;
+    
+    // response to server
+    resp * rhead = respdata;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    // moving to the end of the list
+    while(rhead != NULL)
+        rhead = rhead->next;
+    
+    while(curr) {
+        if(curr->status == 'N') {
+            if(dbmgr(curr->dbname, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database: ", curr->dbname, " created", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Creation database: ", curr->dbname, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_name", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(curr->status == 'D') {
+            if(dbmgr(curr->dbname, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database: ", curr->dbname, " removed", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Removing database: ", curr->dbname, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_name", 'D', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        curr = curr->next;
+    }
+    return rhead;
+}
+int dbmgr(char * dbname, char action, char * os) {
+    MYSQL * mysqlh = mysqlconn(os);
+    char * query = NULL;
+    int status = 0;
+    
+    if(action == 'N')
+        query = mkString("CREATE DATABASE ", dbname, NULL);
+    else if(action == 'D')
+        query = mkString("DROP DATABASE ", dbname, NULL);
+    
+    if(!mysqlh)
+        return 0;
+    if(!mysql_query(mysqlh, query))
+        status = 1;
+    
+    mysql_close(mysqlh);
+    free(query);
+    
+    return status;
+}

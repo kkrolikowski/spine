@@ -134,4 +134,13 @@ char * DBgrantsConfigPackage(grants * db);
 // clear memory with database privilges data
 void cleanDBgrantsData(grants * db);
 
+// Function manages databases on particular host. Creates new and removes
+// old ones.
+resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata);
+
+// function performes on database one of the actions:
+// add new or remove's existing based on action flag. 
+// Returned values: 1 - success, 0: failure
+int dbmgr(char * dbname, char action, char * os);
+
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */
