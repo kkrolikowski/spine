@@ -623,6 +623,7 @@ void delete(char * scope, int id) {
     extern MYSQL * dbh;
     
     char * query = NULL;
+    char * query_privs = NULL;
     char * sid = int2String(id);
     
     if(!strcmp(scope, "apache"))
@@ -633,8 +634,12 @@ void delete(char * scope, int id) {
        query = mkString("DELETE FROM sysusers WHERE id = ", sid, NULL);
     if(!strcmp(scope, "db_name"))
        query = mkString("DELETE FROM db_name WHERE id = ", sid, NULL);
-    if(!strcmp(scope, "db_user"))
-       query = mkString("DELETE FROM db_user WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_user")) {
+        query_privs = mkString("DELETE FROM db_privs WHERE user_id = ", sid, NULL);
+        query = mkString("DELETE FROM db_user WHERE id = ", sid, NULL);
+        mysql_query(dbh, query_privs);
+        free(query_privs);
+    }
     
     mysql_query(dbh, query);
     free(query);
