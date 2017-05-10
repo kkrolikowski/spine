@@ -612,6 +612,8 @@ void activate(char * scope, int id) {
        query = mkString("UPDATE sysusers SET status = 'A' WHERE id = ", sid, NULL);
     if(!strcmp(scope, "db_name"))
        query = mkString("UPDATE db_name SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_user"))
+       query = mkString("UPDATE db_user SET status = 'A' WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
@@ -631,6 +633,8 @@ void delete(char * scope, int id) {
        query = mkString("DELETE FROM sysusers WHERE id = ", sid, NULL);
     if(!strcmp(scope, "db_name"))
        query = mkString("DELETE FROM db_name WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_user"))
+       query = mkString("DELETE FROM db_user WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
@@ -1178,6 +1182,66 @@ resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
     }
     return rhead;
 }
+resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
+    dbuser * curr = db;
+    char * msg = NULL;
+    
+    // response to server
+    resp * rhead = respdata;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    // moving to the end of the list
+    while(rhead != NULL)
+        rhead = rhead->next;
+    
+    while(curr) {
+        if(curr->status == 'N') {
+            if(dbusermgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database user: ", curr->login, " created", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Creation database user: ", curr->login, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_user", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(curr->status == 'D') {
+            if(dbusermgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database user: ", curr->login, " removed", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Removing database user: ", curr->login, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_user", 'D', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(curr->status == 'U') {
+            if(dbusermgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database user: ", curr->login, " updated", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Updating database user: ", curr->login, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_user", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        curr = curr->next;
+    }
+    return rhead;
+}
 int dbmgr(char * dbname, char action, char * os) {
     MYSQL * mysqlh = mysqlconn(os);
     char * query = NULL;
@@ -1192,6 +1256,32 @@ int dbmgr(char * dbname, char action, char * os) {
         return 0;
     if(!mysql_query(mysqlh, query))
         status = 1;
+    
+    mysql_close(mysqlh);
+    free(query);
+    
+    return status;
+}
+int dbusermgr(dbuser * db, char action, char * os) {
+    MYSQL * mysqlh = mysqlconn(os);
+    char * query = NULL;
+    int status = 0;
+    
+    if(action == 'N')
+        query = mkString("CREATE USER '", db->login, "'@'localhost' IDENTIFIED ",
+                         "BY PASSWORD '",db->pass, "'" , NULL);
+    else if(action == 'D')
+        query = mkString("DROP USER '", db->login, "'@'localhost'", NULL);
+    else if(action == 'U')
+        query = mkString("UPDATE mysql.user SET authentication_string = '",db->pass,
+                         "' WHERE User = '",db->login,"' AND host = 'localhost'",  NULL);
+    
+    if(!mysqlh)
+        return 0;
+    if(!mysql_query(mysqlh, query)) {
+        mysql_query(mysqlh, "flush privileges");
+        status = 1;
+    }
     
     mysql_close(mysqlh);
     free(query);
