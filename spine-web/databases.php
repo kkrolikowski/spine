@@ -71,7 +71,7 @@
   }
   if (isset($_GET['addperms'])) {
     foreach ($_POST['dbperms'] as $g)
-      $grants .= "$g ";
+      $grants .= "$g,";
     // check if there are some privileges granted to particular user on particular DB
     $q = $dbh->prepare("SELECT id FROM db_privs WHERE db_id = ".$_POST['dbname']. " AND user_id = ".$_POST['dbuser']);
     $q->execute();
@@ -83,7 +83,7 @@
     }
     else {
       $q = $dbh->prepare("INSERT INTO db_privs(grants, status, user_id, db_id) VALUES ".
-                        "('".rtrim($grants)."', 'N', ".$_POST['dbuser'].", ".$_POST['dbname'].")");
+                        "('".rtrim($grants, ',')."', 'N', ".$_POST['dbuser'].", ".$_POST['dbname'].")");
     }
     $q->execute();
     // We need ID of last record
@@ -101,7 +101,7 @@
         'user_id' => $r['user_id'],
         'dbid' => $r['db_id'],
         'dbname' => $r['name'],
-        'grants' => explode(" ", $r['grants'])
+        'grants' => explode(",", $r['grants'])
       );
     }
     updateConfigVersion($dbh, $_POST['serverid'], "db_privs");
@@ -117,7 +117,7 @@
       'id' => $r['id'],
       'dblogin' => $r['user_id'],
       'dbname' => $r['db_id'],
-      'grants' => explode(" ", rtrim($r['grants']))
+      'grants' => explode(",", rtrim($r['grants']))
     );
 
     header('Content-Type: application/json');
