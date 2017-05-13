@@ -13,7 +13,7 @@
 
 int apacheAlive(void) {
 	// request do wyslania do apacza
-	char * http_req = mkString("HEAD / HTTP/1.1\nHost: localhost\n\n", NULL);
+	char * http_req = mkString("HEAD / HTTP/1.1\r\nHost: localhost\r\n\r\n", NULL);
 
 	// przygotowujemy bufor
 	const int SIZE = 256;
