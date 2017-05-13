@@ -644,6 +644,7 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
         }
         if(!strcmp(curr->scope, "db_privs") && curr->version > clientver) {
             conf->sqldb.dbgrants = getDatabasePrivileges(hostid);
+            status = 1;
         }
         curr = curr->next;
     }
