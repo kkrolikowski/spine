@@ -1272,7 +1272,7 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
                 msg = mkString("[ERRPR] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
             writeLog(lf, msg);
             
-            rcurr = respStatus("db_user", 'A', curr->dbid);
+            rcurr = respStatus("db_privs", 'A', curr->dbid);
             if(rhead == NULL)
                 rhead = rcurr;
             else
@@ -1300,7 +1300,7 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
                 msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
             writeLog(lf, msg);
             
-            rcurr = respStatus("db_user", 'A', curr->dbid);
+            rcurr = respStatus("db_privs", 'A', curr->dbid);
             if(rhead == NULL)
                 rhead = rcurr;
             else
