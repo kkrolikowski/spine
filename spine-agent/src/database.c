@@ -614,6 +614,8 @@ void activate(char * scope, int id) {
        query = mkString("UPDATE db_name SET status = 'A' WHERE id = ", sid, NULL);
     if(!strcmp(scope, "db_user"))
        query = mkString("UPDATE db_user SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_privs"))
+       query = mkString("UPDATE db_privs SET status = 'A' WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
@@ -640,6 +642,8 @@ void delete(char * scope, int id) {
         mysql_query(dbh, query_privs);
         free(query_privs);
     }
+    if(!strcmp(scope, "db_privs"))
+        query = mkString("DELETE FROM db_privs WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
@@ -1247,6 +1251,66 @@ resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
     }
     return rhead;
 }
+resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdata) {
+    grants * curr = db;
+    char * msg = NULL;
+    
+    // response to server
+    resp * rhead = respdata;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    
+    // moving to the end of the list
+    while(rhead != NULL)
+        rhead = rhead->next;
+    
+    while(curr) {
+        if(curr->status == 'N') {
+            if(dbgrantsmgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, NULL);
+            else
+                msg = mkString("[ERRPR] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_user", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(curr->status == 'D') {
+            if(dbgrantsmgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Revoke permissions to ", curr->dbname, "for ", curr->user, NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Revoke permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_user", 'D', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        if(curr->status == 'U') {
+            if(dbgrantsmgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, "for ", curr->user, NULL);
+            else
+                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
+            writeLog(lf, msg);
+            
+            rcurr = respStatus("db_user", 'A', curr->dbid);
+            if(rhead == NULL)
+                rhead = rcurr;
+            else
+                rprev->next = rcurr;
+            rprev = rcurr;
+        }
+        curr = curr->next;
+    }
+    return rhead;
+}
 int dbmgr(char * dbname, char action, char * os) {
     MYSQL * mysqlh = mysqlconn(os);
     char * query = NULL;
@@ -1289,6 +1353,57 @@ int dbusermgr(dbuser * db, char action, char * os) {
     }
     
     mysql_close(mysqlh);
+    free(query);
+    
+    return status;
+}
+int dbgrantsmgr(grants * db, char action, char * os) {
+    MYSQL * mysqlh = mysqlconn(os);
+    
+    char * grant = mkString("GRANT ", db->privs, " ON ", db->dbname, ".* TO '",
+                        db->user, "'@'localhost'", NULL);
+    char * revoke = mkString("REVOKE ALL ON ", db->dbname, " FROM '", db->user, 
+                        "'@'localhost'", NULL);
+    char * query = NULL;
+    int status = 0;
+    
+    if(action == 'N')
+        query = grant;
+    else if(action == 'D') {
+        if(mysqlUserExist(mysqlh, db->user))
+            query = revoke;
+    }
+    else if(action == 'U') {
+        mysql_query(mysqlh, revoke);
+        query = grant;
+    }
+    
+    if(!mysqlh)
+        return 0;
+    if(!mysql_query(mysqlh, query)) {
+        mysql_query(mysqlh, "flush privileges");
+        status = 1;
+    }
+    
+    mysql_close(mysqlh);
+    free(grant);
+    free(revoke);
+    
+    return status;
+}
+int mysqlUserExist(MYSQL * dbh, char * login) {
+    char * query = mkString("SELECT User FROM mysql.user WHERE User = '", login, "'", NULL);
+    int status = 0;
+    
+    if(!mysql_query(dbh, query)) {
+        if(mysql_field_count(dbh))
+            status = 1;
+        else
+            status = 0;
+    }
+    else
+        status = 0;
+    
     free(query);
     
     return status;

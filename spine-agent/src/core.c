@@ -289,6 +289,10 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 updateMSGdata = DatabaseUsersSetup(config.sqldb.dbusers, os, lf, updateMSGdata);
                                 cleanDBusersData(config.sqldb.dbusers);
                             }
+                            if(config.sqldb.dbgrants != NULL) {
+                                updateMSGdata = DatabaseUserGrantsSetup(config.sqldb.dbgrants, os, lf, updateMSGdata);
+                                cleanDBgrantsData(config.sqldb.dbgrants);
+                            }
                             if(updateMSGdata != NULL) {
                                 updateMSGdataString = backMessage(updateMSGdata);
                                 clifd = connector(net.ipaddr, 2016);
