@@ -79,7 +79,7 @@
 
     if($q->rowCount() > 0) {
       $id = $r['id'];
-      $q = $dbh->prepare("UPDATE db_privs SET grants = '".$grants."' WHERE id = ". $id);
+      $q = $dbh->prepare("UPDATE db_privs SET grants = '".rtrim($grants, ',')."' WHERE id = ". $id);
     }
     else {
       $q = $dbh->prepare("INSERT INTO db_privs(grants, status, user_id, db_id) VALUES ".
