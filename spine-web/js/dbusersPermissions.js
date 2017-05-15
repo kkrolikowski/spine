@@ -70,7 +70,7 @@ $(document).ready(function() {
     minimumResultsForSearch: Infinity
   });
   $('#select-all-perms').on('click', function() {
-    selectPerms.val(["select", "insert", "update", "delete"]).trigger('change');
+    selectPerms.val(["select", "insert", "update", "delete", "create", "drop"]).trigger('change');
   });
   $('#clear-all-perms').on('click', function() {
     selectPerms.val(null).trigger('change');

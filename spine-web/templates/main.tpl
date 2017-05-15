@@ -1736,6 +1736,8 @@
                                   <option value="insert">INSERT</option>
                                   <option value="update">UPDATE</option>
                                   <option value="delete">DELETE</option>
+                                  <option value="create">CREATE</option>
+                                  <option value="drop">DROP</option>
                                 </select>
                                 <div class="btn-group" role="group" id="change-all-perms">
                                   <button type="button" id="select-all-perms" class="btn btn-default">Select all</button>
