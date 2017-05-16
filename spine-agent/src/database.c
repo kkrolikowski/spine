@@ -1153,6 +1153,7 @@ resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
     resp * rhead = respdata;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    resp * rpos  = respdata;
     
     // moving to the end of the list
     while(rhead != NULL)
@@ -1164,14 +1165,8 @@ resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
                 msg = mkString("[INFO] (reciver) Database: ", curr->dbname, " created", NULL);
             else
                 msg = mkString("[ERROR] (reciver) Creation database: ", curr->dbname, " failed", NULL);
-            writeLog(lf, msg);
-            
+            writeLog(lf, msg);          
             rcurr = respStatus("db_name", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(curr->status == 'D') {
             if(dbmgr(curr->dbname, curr->status, os))
@@ -1179,30 +1174,43 @@ resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
             else
                 msg = mkString("[ERROR] (reciver) Removing database: ", curr->dbname, " failed", NULL);
             writeLog(lf, msg);
-            
             rcurr = respStatus("db_name", 'D', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+        
         curr = curr->next;
     }
-    return rhead;
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
 }
 resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
     dbuser * curr = db;
     char * msg = NULL;
     
     // response to server
-    resp * rhead = respdata;
+    resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    resp * rpos  = respdata;
     
     // moving to the end of the list
-    while(rhead != NULL)
-        rhead = rhead->next;
+    //while(rhead != NULL)
+    //    rhead = rhead->next;
     
     while(curr) {
         if(curr->status == 'N') {
@@ -1210,14 +1218,8 @@ resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
                 msg = mkString("[INFO] (reciver) Database user: ", curr->login, " created", NULL);
             else
                 msg = mkString("[ERROR] (reciver) Creation database user: ", curr->login, " failed", NULL);
-            writeLog(lf, msg);
-            
+            writeLog(lf, msg);           
             rcurr = respStatus("db_user", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(curr->status == 'D') {
             if(dbusermgr(curr, curr->status, os))
@@ -1225,40 +1227,47 @@ resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
             else
                 msg = mkString("[ERROR] (reciver) Removing database user: ", curr->login, " failed", NULL);
             writeLog(lf, msg);
-            
             rcurr = respStatus("db_user", 'D', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(curr->status == 'U') {
             if(dbusermgr(curr, curr->status, os))
                 msg = mkString("[INFO] (reciver) Database user: ", curr->login, " updated", NULL);
             else
                 msg = mkString("[ERROR] (reciver) Updating database user: ", curr->login, " failed", NULL);
-            writeLog(lf, msg);
-            
+            writeLog(lf, msg);           
             rcurr = respStatus("db_user", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+            
         curr = curr->next;
     }
-    return rhead;
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
 }
 resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdata) {
     grants * curr = db;
     char * msg = NULL;
     
     // response to server
-    resp * rhead = respdata;
+    resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    resp * rpos  = respdata;
     
     // moving to the end of the list
     while(rhead != NULL)
@@ -1270,14 +1279,8 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
                 msg = mkString("[INFO] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, NULL);
             else
                 msg = mkString("[ERRPR] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
-            writeLog(lf, msg);
-            
+            writeLog(lf, msg);            
             rcurr = respStatus("db_privs", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(curr->status == 'D') {
             if(dbgrantsmgr(curr, curr->status, os))
@@ -1285,13 +1288,7 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
             else
                 msg = mkString("[ERROR] (reciver) Revoke permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
             writeLog(lf, msg);
-            
             rcurr = respStatus("db_privs", 'D', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(curr->status == 'U') {
             if(dbgrantsmgr(curr, curr->status, os))
@@ -1299,17 +1296,29 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
             else
                 msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
             writeLog(lf, msg);
-            
             rcurr = respStatus("db_privs", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+            
         curr = curr->next;
     }
-    return rhead;
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
 }
 int dbmgr(char * dbname, char action, char * os) {
     MYSQL * mysqlh = mysqlconn(os);
