@@ -149,6 +149,7 @@
     $q->execute();
     $r = $q->fetch();
     updateConfigVersion($dbh, $r['host_id'], "db_user");
+    updateConfigVersion($dbh, $r['host_id'], "db_privs");
   }
   if (isset($_GET['rmdb'])) {
     $q = $dbh->prepare("UPDATE db_name SET status = 'D' WHERE id = ". $_GET['rmdb']);
@@ -161,5 +162,6 @@
     $q->execute();
     $r = $q->fetch();
     updateConfigVersion($dbh, $r['host_id'], "db_name");
+    updateConfigVersion($dbh, $r['host_id'], "db_privs");
   }
 ?>
