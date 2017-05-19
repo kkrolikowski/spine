@@ -1266,10 +1266,6 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
     resp * rprev = NULL;
     resp * rpos  = respdata;
     
-    // moving to the end of the list
-    while(rhead != NULL)
-        rhead = rhead->next;
-    
     while(curr) {
         if(curr->status == 'N') {
             if(dbgrantsmgr(curr, curr->status, os))
@@ -1387,10 +1383,11 @@ int dbgrantsmgr(grants * db, char action, char * os) {
         mysql_query(mysqlh, revoke);
         query = grant;
     }
-    
-    if(!mysql_query(mysqlh, query)) {
-        mysql_query(mysqlh, "flush privileges");
-        status = 1;
+    if(query) {
+        if(!mysql_query(mysqlh, query)) {
+            mysql_query(mysqlh, "flush privileges");
+            status = 1;
+        }
     }
     
     mysql_close(mysqlh);
