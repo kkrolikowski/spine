@@ -1276,25 +1276,25 @@ resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdat
     while(curr) {
         if(curr->status == 'N') {
             if(dbgrantsmgr(curr, curr->status, os))
-                msg = mkString("[INFO] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, NULL);
+                msg = mkString("[INFO] (reciver) Adding permissions to ", curr->dbname, " for ", curr->user, NULL);
             else
-                msg = mkString("[ERRPR] (reciver) Adding permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
+                msg = mkString("[ERRPR] (reciver) Adding permissions to ", curr->dbname, " for ", curr->user, " failed", NULL);
             writeLog(lf, msg);            
             rcurr = respStatus("db_privs", 'A', curr->dbid);
         }
         if(curr->status == 'D') {
             if(dbgrantsmgr(curr, curr->status, os))
-                msg = mkString("[INFO] (reciver) Revoke permissions to ", curr->dbname, "for ", curr->user, NULL);
+                msg = mkString("[INFO] (reciver) Revoke permissions to ", curr->dbname, " for ", curr->user, NULL);
             else
-                msg = mkString("[ERROR] (reciver) Revoke permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
+                msg = mkString("[ERROR] (reciver) Revoke permissions to ", curr->dbname, " for ", curr->user, " failed", NULL);
             writeLog(lf, msg);
             rcurr = respStatus("db_privs", 'D', curr->dbid);
         }
         if(curr->status == 'U') {
             if(dbgrantsmgr(curr, curr->status, os))
-                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, "for ", curr->user, NULL);
+                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, " for ", curr->user, NULL);
             else
-                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, "for ", curr->user, " failed", NULL);
+                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, " for ", curr->user, " failed", NULL);
             writeLog(lf, msg);
             rcurr = respStatus("db_privs", 'A', curr->dbid);
         }
