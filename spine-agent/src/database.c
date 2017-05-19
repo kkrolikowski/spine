@@ -1378,6 +1378,8 @@ int dbgrantsmgr(grants * db, char action, char * os) {
     else if(action == 'D') {
         if(mysqlUserExist(mysqlh, db->user))
             query = revoke;
+        else
+            status = 1;
     }
     else if(action == 'U') {
         mysql_query(mysqlh, revoke);
