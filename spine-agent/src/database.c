@@ -1151,14 +1151,10 @@ resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
     char * msg = NULL;
     
     // response to server
-    resp * rhead = respdata;
+    resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
     resp * rpos  = respdata;
-    
-    // moving to the end of the list
-    while(rhead != NULL)
-        rhead = rhead->next;
     
     while(curr) {
         if(curr->status == 'N') {
