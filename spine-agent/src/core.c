@@ -704,6 +704,9 @@ int readPackageVersion(char * str) {
         max++;
         pos++;
     }
+    if(max == 0)
+        return -1;
+    
     int vers[max];          // tablica przechowujaca odczytane wersje konfiguracji
     int n = 0;              // index tablicy
     
