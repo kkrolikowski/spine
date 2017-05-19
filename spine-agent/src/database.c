@@ -656,7 +656,8 @@ dbinfo * getDatabaseNames(char * systemid) {
     char * query = mkString("SELECT dn.id, dn.name AS dbname, dn.status, cv.version ",
                             "FROM db_name dn JOIN sysinfo s ON dn.host_id = s.id JOIN ",
                             "configver cv ON dn.host_id = cv.systemid AND cv.scope = ",
-                            "'db_name' WHERE system_id = '",systemid,"'", NULL);
+                            "'db_name' WHERE dn.status NOT LIKE 'A' AND system_id = '",
+                            systemid,"'", NULL);
     dbinfo * head = NULL;
     dbinfo * curr = NULL;
     dbinfo * prev = NULL;
@@ -696,8 +697,8 @@ dbuser * getDatabaseUsers(char * systemid) {
     char * query = mkString("SELECT du.id, du.login AS dblogin, du.pass AS dbpass, ",
                             "du.status, cv.version FROM db_user du JOIN configver cv ",
                             "ON du.host_id = cv.systemid AND cv.scope = 'db_user' ",
-                            "JOIN sysinfo s ON du.host_id = s.id WHERE s.system_id = ",
-                            "'",systemid,"'", NULL);
+                            "JOIN sysinfo s ON du.host_id = s.id WHERE du.status ",
+                            "NOT LIKE 'A' AND s.system_id = '",systemid,"'", NULL);
     dbuser * head = NULL;
     dbuser * curr = NULL;
     dbuser * prev = NULL;
@@ -741,7 +742,7 @@ grants * getDatabasePrivileges(char * systemid) {
                             "db_user du ON dp.user_id = du.id JOIN db_name dn ON dp.db_id ",
                             " = dn.id JOIN sysinfo s ON du.host_id = s.id JOIN configver ",
                             "cv ON du.host_id = cv.systemid AND cv.scope = 'db_privs' ",
-                            "WHERE s.system_id = '",systemid,"'", NULL);
+                            "WHERE dp.status NOT LIKE 'A' AND s.system_id = '",systemid,"'", NULL);
     grants * head = NULL;
     grants * curr = NULL;
     grants * prev = NULL;
@@ -1207,10 +1208,6 @@ resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
     resp * rcurr = NULL;
     resp * rprev = NULL;
     resp * rpos  = respdata;
-    
-    // moving to the end of the list
-    //while(rhead != NULL)
-    //    rhead = rhead->next;
     
     while(curr) {
         if(curr->status == 'N') {
