@@ -140,28 +140,41 @@
     updateConfigVersion($dbh, $_POST['serverid'], "db_user");
   }
   if (isset($_GET['rmdbuser'])) {
-    $q = $dbh->prepare("UPDATE db_user SET status = 'D' WHERE id = ". $_GET['rmdbuser']);
-    $q->execute();
-    $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE user_id = ". $_GET['rmdbuser']);
-    $q->execute();
-
     $q = $dbh->prepare("SELECT host_id FROM db_user WHERE id = ".$_GET['rmdbuser']);
     $q->execute();
     $r = $q->fetch();
+
+    $q = $dbh->prepare("UPDATE db_user SET status = 'D' WHERE id = ". $_GET['rmdbuser']);
+    $q->execute();
+
+    $q2 = $dbh->prepare("SELECT count(*) AS rowcnt FROM db_privs WHERE user_id = ".$_GET['rmdbuser']);
+    $q2->execute();
+    $r2 = $q2->fetch();
+    if($r2['rowcnt'] > 0) {
+      $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE user_id = ". $_GET['rmdbuser']);
+      $q->execute();
+      updateConfigVersion($dbh, $r['host_id'], "db_privs");
+    }
+
     updateConfigVersion($dbh, $r['host_id'], "db_user");
-    updateConfigVersion($dbh, $r['host_id'], "db_privs");
   }
   if (isset($_GET['rmdb'])) {
-    $q = $dbh->prepare("UPDATE db_name SET status = 'D' WHERE id = ". $_GET['rmdb']);
-    $q->execute();
-
-    $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE db_id = ". $_GET['rmdb']);
-    $q->execute();
-
     $q = $dbh->prepare("SELECT host_id FROM db_name WHERE id = ". $_GET['rmdb']);
     $q->execute();
     $r = $q->fetch();
+
+    $q = $dbh->prepare("UPDATE db_name SET status = 'D' WHERE id = ". $_GET['rmdb']);
+    $q->execute();
+
+    $q2 = $dbh->prepare("SELECT count(*) AS rows FROM db_privs WHERE db_id = ". $_GET['rmdb']);
+    $q2->execute();
+    $r2 = $q2->fetch();
+    if($r2['rows'] > 0) {
+      $q = $dbh->prepare("UPDATE db_privs SET status = 'D' WHERE db_id = ". $_GET['rmdb']);
+      $q->execute();
+      updateConfigVersion($dbh, $r['host_id'], "db_privs");
+    }
+
     updateConfigVersion($dbh, $r['host_id'], "db_name");
-    updateConfigVersion($dbh, $r['host_id'], "db_privs");
   }
 ?>
