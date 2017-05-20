@@ -623,28 +623,40 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            conf->httpd.vhost = ReadVhostData(hostid); // getVhostData
-            status = 1;
+            if((conf->httpd.vhost = ReadVhostData(hostid))) // getVhostData
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
-            conf->httpd.htpasswd = ReadHtpasswdData(hostid); // getHtpasswdData
-            status = 1;
+            if((conf->httpd.htpasswd = ReadHtpasswdData(hostid))) // getHtpasswdData
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
-            conf->sysUsers = getSystemAccounts(conf, hostid);
-            status = 1;
+            if((conf->sysUsers = getSystemAccounts(conf, hostid)))
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "db_name") && curr->version > clientver) {
-            conf->sqldb.db = getDatabaseNames(hostid);
-            status = 1;
+            if((conf->sqldb.db = getDatabaseNames(hostid)))
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "db_user") && curr->version > clientver) {
-            conf->sqldb.dbusers = getDatabaseUsers(hostid);
-            status = 1;
+            if((conf->sqldb.dbusers = getDatabaseUsers(hostid)))
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "db_privs") && curr->version > clientver) {
-            conf->sqldb.dbgrants = getDatabasePrivileges(hostid);
-            status = 1;
+            if((conf->sqldb.dbgrants = getDatabasePrivileges(hostid)))
+                status = 1;
+            else
+                status = 0;
         }
         curr = curr->next;
     }
