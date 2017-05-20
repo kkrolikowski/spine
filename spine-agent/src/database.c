@@ -1332,7 +1332,13 @@ int dbmgr(char * dbname, char action, char * os) {
 int dbusermgr(dbuser * db, char action, char * os) {
     MYSQL * mysqlh = mysqlconn(os);
     char * query = NULL;
+    char * passColName = NULL;
     int status = 0;
+    
+    if(!strcmp(os, "Ubuntu"))
+        passColName = "authentication_string";
+    else
+        passColName = "Password";
     
     if(action == 'N')
         query = mkString("CREATE USER '", db->login, "'@'localhost' IDENTIFIED ",
@@ -1340,7 +1346,7 @@ int dbusermgr(dbuser * db, char action, char * os) {
     else if(action == 'D')
         query = mkString("DROP USER '", db->login, "'@'localhost'", NULL);
     else if(action == 'U')
-        query = mkString("UPDATE mysql.user SET authentication_string = '",db->pass,
+        query = mkString("UPDATE mysql.user SET ", passColName, " = '",db->pass,
                          "' WHERE User = '",db->login,"' AND host = 'localhost'",  NULL);
     
     if(!mysqlh)
