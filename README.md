@@ -31,6 +31,7 @@ make install
 After this binary spine-agent should be placed in /usr/local/bin
 
 ## Recent Changes
+- **2017-05-23:** MySQL database administration: users and databases management
 - **2017-04-12:** Apache webserver now can work on changed permissions inside vhost scope
 - **2017-04-05:** Fixed bug with .htaccess files unexpected truncating
 - **2017-04-04:** Introduced status flags and differential client updates
