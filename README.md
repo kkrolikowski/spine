@@ -13,6 +13,13 @@ Before you start building this project please ensure that you have installed req
 - libgtop2-7
 - libgtop2-dev
 
+Table below contains strict list of packages that should be installed before you will be able to build source code.
+
+| **Distribution** | **Packages**                                                               |
+|:-----------------|:---------------------------------------------------------------------------|
+| Ubuntu (16.04)   | gcc autoconf2.64 libmysqlclient-dev libgtop2-dev libgtop-2.0-10            |
+| Centos7          | gcc m4 automake perl-Data-Dumper mariadb-devel mariadb-libs libgtop2-devel |
+
 ### Install
 Download sources from master branch, unzip and go to spine-agent subfolder
 ```
@@ -24,6 +31,9 @@ make install
 After this binary spine-agent should be placed in /usr/local/bin
 
 ## Recent Changes
+- **2017-04-12:** Apache webserver now can work on changed permissions inside vhost scope
+- **2017-04-05:** Fixed bug with .htaccess files unexpected truncating
+- **2017-04-04:** Introduced status flags and differential client updates
 - **2017-03-01:** Added function which allows spine admin to generate and send via e-mail new password for system user
 - **2017-02-25:** Added functionality allowing removing users from system
 - **2017-02-22:** Added functionality of editing user system accounts
