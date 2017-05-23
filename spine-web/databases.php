@@ -17,7 +17,7 @@
                         ", ".$_POST['vhostid'].")");
       $q->execute();
 
-      $q = $dbh->prepare("SELECT id FROM db_name WHERE name = '".$_POST['dbname']."'");
+      $q = $dbh->prepare("SELECT id FROM db_name WHERE name = '".$_POST['dbname']."' AND host_id = ".$_POST['serverid']);
       $q->execute();
       $r = $q->fetch();
       $dbid = $r['id'];
