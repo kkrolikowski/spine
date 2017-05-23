@@ -656,6 +656,9 @@ $(document).ready(function() {
   $('.apache-section').ready(function() {
     $(this).find('#wwwconfig').show();
   });
+  $('.db-section').ready(function() {
+    $(this).find('#dbconfig').show();
+  });
   $(document).on('click', '#new-vhost > button', function() {
     var id = $(this).attr('data-id');
     $.ajax({

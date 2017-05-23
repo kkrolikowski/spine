@@ -146,6 +146,53 @@
       else {
         $spine->assign('htpasswd', 'NaN');
       }
+      // Lista baz na serwerze
+      $q = $dbh->prepare("SELECT d.id, d.name AS dbname, CASE d.vhost_id WHEN 0 ".
+                        "THEN 'None' ELSE v.ServerName END AS vhost FROM db_name d ".
+                        "LEFT JOIN www v ON d.vhost_id = v.id WHERE d.status NOT LIKE 'D' AND d.host_id = ".$_GET['serverid']);
+      $q->execute();
+      if($q->rowCount() == 0)
+        $spine->assign('EmptyDBList', 1);
+      else {
+        while ($r = $q->fetch()) {
+          $dbs[$r['id']] = array(
+            'dbname' => $r['dbname'],
+            'vhost' => $r['vhost']
+          );
+        }
+        $spine->assign('dbs', $dbs);
+      }
+
+      // lista kont mysql na serwerze
+      $q = $dbh->prepare("SELECT id,login FROM db_user WHERE status NOT LIKE 'D' AND host_id = ".$_GET['serverid']);
+      $q->execute();
+      if ($q->rowCount() == 0)
+        $spine->assign('EmptyDBuserList', 1);
+      else {
+        while ($r = $q->fetch())
+          $dbusers[$r['id']] = $r['login'];
+      }
+      $spine->assign('DBusers', $dbusers);
+
+      // lista uprawnien do baz
+      $q = $dbh->prepare("SELECT dp.id, du.login, dp.user_id, dn.name, dp.db_id, dp.grants FROM db_privs dp JOIN db_name dn ON dp.db_id = dn.id ".
+                        "JOIN db_user du ON dp.user_id = du.id WHERE dp.status NOT LIKE 'D' AND du.host_id = ".$_GET['serverid']);
+      $q->execute();
+      while($r = $q->fetch()) {
+        $grantsArray = explode(" ", $r['grants']);
+        foreach ($grantsArray as $val) {
+          $grants  .= "$val,";
+        }
+        $dbgrants[$r['id']] = array(
+          'dbuser' => $r['login'],
+          'user_id' => $r['user_id'],
+          'dbname' => $r['name'],
+          'db_id' => $r['db_id'],
+          'grants' => rtrim($grants, ',')
+        );
+        $grants = "";
+      }
+      $spine->assign('DBgrants', $dbgrants);
   }
   if($_GET['show'] == "logs") {
     $q = $dbh->prepare(

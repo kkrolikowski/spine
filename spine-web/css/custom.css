@@ -189,7 +189,7 @@
   padding-bottom: 40px;
 }
 #user_acc_btn {
-  margin-top: 16px;
+  margin-top: 20px;
 }
 .sys-account-form {
   padding-top: 14px;
@@ -216,4 +216,39 @@
 #smtp_settings_save {
   margin-left: 73px;
   margin-top: 10px;
+}
+#newDB_buttons, #newDBuser_buttons {
+  margin-left: 115px;
+}
+#newDBuser_buttons, #chDBuserPassButtons {
+  margin-left: 105px;
+}
+#new-db > button {
+  margin-left: 103px;
+}
+thead {
+  background-color: black;
+  color: white;
+}
+thead th:first-child {
+  border-radius:10px 0 0 10px;
+}
+
+thead th:last-child {
+  border-radius:0 10px 10px 0;
+}
+#db-table, #db-users-table {
+  margin-top: 12px;
+  margin-left: -15px;
+}
+#change-all-perms {
+  margin-top: 5px;
+  margin-left: 0px;
+}
+#setDBperms > div:nth-child(5n) {
+  text-align: right;
+}
+#db-permissions-table {
+  margin-top: 15px;
+  margin-left: 40px;
 }

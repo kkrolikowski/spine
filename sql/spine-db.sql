@@ -42,6 +42,85 @@ LOCK TABLES `configver` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `db_name`
+--
+
+DROP TABLE IF EXISTS `db_name`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_name` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(45) DEFAULT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  `host_id` int(11) DEFAULT NULL,
+  `vhost_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `db_name`
+--
+
+LOCK TABLES `db_name` WRITE;
+/*!40000 ALTER TABLE `db_name` DISABLE KEYS */;
+/*!40000 ALTER TABLE `db_name` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `db_privs`
+--
+
+DROP TABLE IF EXISTS `db_privs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_privs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `grants` varchar(128) DEFAULT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `db_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `db_privs`
+--
+
+LOCK TABLES `db_privs` WRITE;
+/*!40000 ALTER TABLE `db_privs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `db_privs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `db_user`
+--
+
+DROP TABLE IF EXISTS `db_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `db_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `login` varchar(45) DEFAULT NULL,
+  `pass` varchar(128) DEFAULT NULL,
+  `status` varchar(1) DEFAULT NULL,
+  `host_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `db_user`
+--
+
+LOCK TABLES `db_user` WRITE;
+/*!40000 ALTER TABLE `db_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `db_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `log_host`
 --
 
@@ -440,4 +519,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-04-05  1:00:37
+-- Dump completed on 2017-04-27 20:10:59

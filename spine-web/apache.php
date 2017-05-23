@@ -277,4 +277,13 @@
 
     updateConfigVersion($dbh, $_POST['serverid'], "apache");
   }
+  if(isset($_GET['vhlist'])) {
+    $q = $dbh->prepare("SELECT id, ServerName FROM www WHERE system_id = ". $_GET['vhlist']);
+    $q->execute();
+    while ($r = $q->fetch()) {
+      $json[$r['id']] = $r['ServerName'];
+    }
+    header('Content-Type: application/json');
+    echo json_encode($json);
+  }
 ?>

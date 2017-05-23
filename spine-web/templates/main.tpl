@@ -82,6 +82,10 @@
       <script src="js/sysuserRemove.js"></script>
       <script src="js/smtp_settings.js"></script>
       <script src="js/resetpass.js"></script>
+      <script src="js/addnewdb.js"></script>
+      <script src="js/addnewdbusers.js"></script>
+      <script src="js/dbusersPermissions.js"></script>
+      <script src="js/rmdb.js"></script>
 
       <link href="/css/custom.css" rel="stylesheet">
 
@@ -107,11 +111,114 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/locale/pl.js"></script>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.43/css/bootstrap-datetimepicker.min.css" />
 
+      <!-- Multiselect -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" />
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+
 
 </head>
 
 <body onload="watch()">
   <!-- BEGIN: Sekcja formularzy edycji danych -->
+  <!-- BEGIN: Nowa baza danych -->
+  <form id="newDB" method="post" class="form-horizontal" role="form" style="display: none;">
+    <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+    <div class="form-group">
+      <label for="dbname" class="col-sm-2 control-label">DB Name</label>
+      <div class="col-sm-5">
+        <input type="text" class="form-control" name="dbname" id="dbname" placeholder="Database name">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="vhost-db" class="col-sm-2 control-label">WWW</label>
+      <div class="col-sm-5">
+        <select id="vhlist" name="vhostid" class="form-control">
+          <option value="0">None</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-5" id="newDB_buttons">
+          <button type="button" class="btn btn-primary" id="adddb-btn">Create database</button>
+          <button type="button" class="btn btn-default" id="adddb-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- END: Nowa baza danych -->
+  <form id="newDBuser" method="post" class="form-horizontal" data-toggle="validator" role="form" style="display: none;">
+    <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+    <div class="form-group">
+      <div class="row">
+        <label for="dblogin" class="col-sm-2 control-label">Login</label>
+        <div class="col-sm-5">
+          <input type="text" class="form-control" name="dblogin" id="dblogin" placeholder="Database login" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <label for="dbpass" class="col-sm-2 control-label">Password</label>
+        <div class="col-sm-5">
+          <input type="password" class="form-control" name="dbpass" id="dbpass" placeholder="Database password" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <label for="dbpass-confirm" class="col-sm-2 control-label">Confirm</label>
+        <div class="col-sm-5">
+          <input type="password" class="form-control" name="dbpass-confirm" id="dbpass-confirm"
+          placeholder="Database password" data-match="#dbpass" data-match-error="Password mismatch" required>
+        </div>
+        <div class="col-sm-4">
+          <div class="help-block with-errors"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-5" id="newDBuser_buttons">
+          <button type="submit" class="btn btn-primary" id="adddbuser-btn">Add user</button>
+          <button type="button" class="btn btn-default" id="adddbuser-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- BEGIN: DB user password change -->
+  <form id="chDBuserPass" method="post" class="form-horizontal" data-toggle="validator" role="form" style="display: none;">
+    <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+    <div class="form-group">
+      <div class="row">
+        <label for="newdbpass" class="col-sm-2 control-label">Password</label>
+        <div class="col-sm-5">
+          <input type="password" class="form-control" name="dbpass" id="newdbpass" placeholder="Database password" required>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <label for="newdbpass-confirm" class="col-sm-2 control-label">Confirm</label>
+        <div class="col-sm-5">
+          <input type="password" class="form-control" name="dbpass-confirm" id="newdbpass-confirm"
+          placeholder="Database password" data-match="#newdbpass" data-match-error="Password mismatch" required>
+        </div>
+        <div class="col-sm-4">
+          <div class="help-block with-errors"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="row">
+        <div class="col-sm-5" id="chDBuserPassButtons">
+          <button type="submit" class="btn btn-primary" id="chDBuserPass-btn">Change password</button>
+          <button type="button" class="btn btn-default" id="chDBuserPass-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- END: DB user password change -->
     <!-- BEGIN: Edycja konfiguracji virtualhostow -->
     <form id="vhostEditForm" method="post" class="form-horizontal" role="form" style="display: none;">
       <input type="hidden" name="id" value="">
@@ -1087,6 +1194,9 @@
                                        <li class="apache-section">
                                          <a href="?serverid={$id}&item=wwwsrv">Serwer WWW</a>
                                        </li>
+                                       <li class="db-section">
+                                         <a href="?serverid={$id}&item=dbsrv">Bazy danych</a>
+                                       </li>
                                      </ul>
                                    </li>
                                 {/foreach}
@@ -1189,14 +1299,22 @@
                       <li class="active">Informacje ogólne</li>
                       <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
+                      <li class="db-section"><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {elseif $smarty.get.item == "sysusers"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li class="active">Konta systemowe</li>
                       <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
+                      <li class="db-section"><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
                       {elseif $smarty.get.item == "wwwsrv"}
                       <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
                       <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
                       <li class="active">Serwer WWW</li>
+                      <li class="db-section"><a href="?serverid={$smarty.get.serverid}&item=dbsrv">Bazy danych</a></li>
+                      {elseif $smarty.get.item == "dbsrv"}
+                      <li><a href="?serverid={$smarty.get.serverid}&item=info">Informacje ogólne</a></li>
+                      <li><a href="?serverid={$smarty.get.serverid}&item=sysusers">Konta systemowe</a></li>
+                      <li class="apache-section"><a href="?serverid={$smarty.get.serverid}&item=wwwsrv">Serwer WWW</a></li>
+                      <li class="active">Bazy danych</li>
                       {/if}
                     </ol>
                     <h3 class="page-header">
@@ -1458,14 +1576,14 @@
               </div>
               {elseif $smarty.get.item == "sysusers"}
               <div class="row">
-                <div class="col-sm-4" id="user_acc_header"><h3>Konta użytkowników</h3></div>
-                <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+                <div class="col-sm-4" id="user_acc_header"><img src="images/kontasystemowe-bg.png"></div>
+                <div class="col-sm-4" id="user_acc_btn"><button class="btn btn-lg btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
               </div>
               <div class="row">
                 <div class="col-sm-5">
-                  <table class="table table-stripped" id="users_table">
+                  <table class="table" id="users_table">
                     <thead>
-                      <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th>
+                      <th>Login</th><th>Imię Nazwisko</th><th>E-mail</th><th></th>
                     </thead>
                     <tbody>
                     {foreach from=$sysuser key=userid item=info}
@@ -1504,6 +1622,155 @@
                   </table>
                 </div>
               </div>
+              {elseif $smarty.get.item == "dbsrv"}
+              <div>
+                <ul class="nav nav-tabs" role="tablist">
+                  <li role="presentation" class="active" id="db-config"><a href="#dbconfig" aria-controls="ogolne" role="tab" data-toggle="tab">Bazy danych</a></li>
+                  <li role="presentation" id="db-users"><a href="#dbusers" aria-controls="ogolne" role="tab" data-toggle="tab">Konta</a></li>
+                  <li role="presentation" id="db-privs"><a href="#dbprivs" aria-controls="ogolne" role="tab" data-toggle="tab">Uprawnienia</a></li>
+                </ul>
+                <div class="row div-margin-top-10">
+                  <div class="col-sm-12">
+                    <div class="tab-content">
+                      <div role="tabpanel" class="tab-pane" id="dbconfig">
+                        <div class="row">
+                          <div class="col-sm-4"><img src="images/bazy-bg.png" width="75%"></div>
+                          <div class="col-sm-4 new-item" id="new-db"><button class="btn btn-lg btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa baza</button></div>
+                        </div>
+                        <div class="col-sm-5">
+                          {if isset($EmptyDBList)}
+                          <h5>Brak baz danych</h5>
+                          {else}
+                          <table class="table table-hover" id="db-table" data-id="{$smarty.get.serverid}">
+                            <thead>
+                              <th>Baza</th><th>Strona WWW</th><th></th>
+                            </thead>
+                            <tbody>
+                              {foreach from=$dbs key=id item=v}
+                              <tr>
+                                <td>{$v.dbname}</td>
+                                {if $v.vhost == "None"}
+                                <td>{$v.vhost}</td>
+                                {else}
+                                <td><a href="http://{$v.vhost}/" target="_blank">{$v.vhost}</a></td>
+                                {/if}
+                                <td class="button-cell">
+                                  {if $v.vhost == "None"}
+                                  <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                                  {else}
+                                  <button type="button" class="btn btn-danger rmdb" data-id="{$id}" data-serverid="{$smarty.get.serverid}" disabled>Usuń</button>
+                                  {/if}
+                                </td>
+                              </tr>
+                              {/foreach}
+                            </tbody>
+                          </table>
+                          {/if}
+                        </div>
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="dbusers">
+                        <div class="row">
+                          <div class="col-sm-4"><img src="images/users.png"></div>
+                          <div class="col-sm-4 new-item" id="new-dbuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-2">
+                            {if isset($EmptyDBuserList)}
+                            <h5>Brak danych</h5>
+                            {else}
+                            <table class="table" id="db-users-table">
+                              <thead>
+                                <th>Login</th><th></th>
+                              </thead>
+                              <tbody>
+                                {foreach from=$DBusers key=id item=login}
+                                <tr>
+                                  <td>{$login}</td>
+                                  <td align="right">
+                                    <div class="btn-group">
+                                      <button type="button" class="btn btn-danger rmddbuser" data-id="{$id}" data-serverid="{$smarty.get.serverid}">Usuń</button>
+                                      <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="caret"></span>
+                                        <span class="sr-only">Toggle Dropdown</span>
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li><a href="#" data-id="{$id}" class="ch-dbuser-pass">Change password</a></li>
+                                      </ul>
+                                    </div>
+                                  </td>
+                                </tr>
+                                {/foreach}
+                              </tbody>
+                            </table>
+                            {/if}
+                          </div>
+                        </div>
+                      </div>
+                      <div role="tabpanel" class="tab-pane" id="dbprivs">
+                        <div class="row">
+                          <div class="col-sm-4">
+                            <form method="post" role="form" class="form-horizontal" id="setDBperms">
+                              <input type="hidden" name="serverid" value="{$smarty.get.serverid}">
+                              <div class="form-group">
+                                <label for="seldb" class="control-label">Database</label>
+                                <select class="form-control" name="dbname" id="seldb">
+                                  <option value="" disabled selected>Choose database</option>
+                                  {foreach from=$dbs key=db_id item=v}
+                                  <option value="{$db_id}">{$v.dbname}</option>
+                                  {/foreach}
+                                </select>
+                              </div>
+                              <div class="form-group">
+                                <label for="seldbuser" class="control-label">User</label>
+                                <select class="form-control" name="dbuser" id="seldbuser">
+                                  <option value="" disabled selected>Choose database user</option>
+                                  {foreach from=$DBusers key=id item=username}
+                                  <option value="{$id}">{$username}</option>
+                                  {/foreach}
+                                </select>
+                              </div>
+                              <div class="form-group">
+                                <label for="selperms" class="control-label">Permissions</label>
+                                <select name="dbperms[]" id="selperms" class="form-control" multiple="multiple" style="width:100%">
+                                  <option value="select">SELECT</option>
+                                  <option value="insert">INSERT</option>
+                                  <option value="update">UPDATE</option>
+                                  <option value="delete">DELETE</option>
+                                  <option value="create">CREATE</option>
+                                  <option value="drop">DROP</option>
+                                </select>
+                                <div class="btn-group" role="group" id="change-all-perms">
+                                  <button type="button" id="select-all-perms" class="btn btn-default">Select all</button>
+                                  <button type="button" id="clear-all-perms" class="btn btn-default">Clear all</button>
+                                </div>
+                              </div>
+                              <div class="form-group">
+                                <button type="submit" id="save-db-perms" class="btn btn-primary">Save</button>
+                                <button type="button" id="cancel-db-perms" class="btn btn-default">Cancel</button>
+                              </div>
+                            </form>
+                          </div>
+                          <div class="col-sm-6">
+                            <table class="table" id="db-permissions-table">
+                              <thead>
+                                <th>Database</th><th>Database user</th><th>Permissions</th><th></th>
+                              </thead>
+                              <tbody>
+                                {foreach from=$DBgrants key=i item=g}
+                                <tr>
+                                  <td data-dbid="{$g.db_id}">{$g.dbname}</td><td data-userid="{$g.user_id}">{$g.dbuser}</td><td>{$g.grants}</td>
+                                  <td align="right"><button type="button" class="btn btn-danger btn-sm rm-permission" data-id="{$i}">Remove</button></td>
+                                </tr>
+                                {/foreach}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               {elseif $smarty.get.item == "wwwsrv"}
               <div>
                   <!-- Nav tabs -->
@@ -1518,7 +1785,7 @@
                       <div class="tab-content">
                         <div role="tabpanel" class="tab-pane" id="wwwconfig">
                           <div class="row">
-                            <div class="col-sm-4"><h3>Lista stron www</h3></div>
+                            <div class="col-sm-4"><img src="images/stronywww-bg.png"></div>
                             <div class="col-sm-4 new-item" id="new-vhost"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowa strona</button></div>
                           </div>
                           <div class="col-sm-4">
@@ -1567,7 +1834,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="wwwusers">
                           <div class="row">
-                            <div class="col-sm-4"><h3>Lista kont</h3></div>
+                            <div class="col-sm-4"><img src="images/users.png"></div>
                             <div class="col-sm-4 new-item" id="new-htuser"><button class="btn btn-success" type="button" data-id="{$smarty.get.serverid}">Nowe konto</button></div>
                           </div>
                           <div class="col-sm-4">
