@@ -169,8 +169,8 @@ char * getExternalIP(void) {
 	char buff[256];
 	memset(buff, '\0', 256);
 
-	char * request = mkString("GET /ip.php HTTP/1.1\n",
-							"Host: ", apihost, "\n\n", NULL);
+	char * request = mkString("GET /ip.php HTTP/1.1\r\n",
+                                  "Host: ", apihost, "\r\n\r\n", NULL);
 	char * lastHeader = "Content-Type:";
 
 	int apifd = connector(apihost, apiport);

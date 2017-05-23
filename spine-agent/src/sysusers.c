@@ -623,9 +623,10 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
     char * homedir = NULL;
     
     // response to server
-    resp * rhead = respdata;
+    resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    resp * rpos  = respdata;
     
     // moving to the end of the list
     while(rhead != NULL)
@@ -635,11 +636,6 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
         if(!strcmp(curr->status, "N")) {
             createUserAccounts(curr, os, lf);
             rcurr = respStatus("sysusers", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(!strcmp(curr->status, "U")) {
             if((old = oldlogin(curr->uidgid, curr->login)) != NULL) {
@@ -685,14 +681,8 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
                 msg = mkString("[INFO] (reciver) SSH keys for ", curr->login, NULL);
             else
                 msg = mkString("[INFO] (reciver) Disabled SSH keys for ", curr->login, NULL);
-            writeLog(lf, msg);
-            
+            writeLog(lf, msg);            
             rcurr = respStatus("sysusers", 'A', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
         if(!strcmp(curr->status, "D")) {
             if(!removeFromSystemFile(curr->login, "/etc/passwd")) {
@@ -717,18 +707,30 @@ resp * updateUserAccounts(sysuser * su, char * os, FILE * lf, resp * respdata) {
             purgeDir(homedir);
             msg = mkString("[INFO] (reciver) Account ", curr->login, " deleted.", NULL);
             writeLog(lf, msg);
-            free(homedir);
-            
+            free(homedir);           
             rcurr = respStatus("sysusers", 'D', curr->dbid);
-            if(rhead == NULL)
-                rhead = rcurr;
-            else
-                rprev->next = rcurr;
-            rprev = rcurr;
         }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+
         curr = curr->next;
     }
-    return rhead;
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
 }
 int updatePasswd(sysuser * su) {
     int status = 1;                         // exit code: 1 - success, 0 - failure

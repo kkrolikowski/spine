@@ -62,6 +62,43 @@ typedef struct vhostData {
     struct vhostData * next;    // wskaznik do kolejnego vhosta
 } vhostData;
 
+// db grants info
+typedef struct grants {
+    int dbid;               // database uniqe ID
+    int version;            // configuration version
+    char status;            // status (N.U.D.A. scheme)
+    char * user;            // database login
+    char * dbname;          // database name
+    char * privs;           // granted privileges list
+    struct grants * next;   // next privilege
+} grants;
+
+// database users information
+typedef struct dbuser {
+    int dbid;               // database uniqe ID
+    int version;            // configuration version
+    char status;            // status (N.U.D.A. scheme)
+    char * login;           // database login
+    char * pass;            // database password
+    struct dbuser * next;   // next 
+} dbuser;
+
+// database information
+typedef struct dbinfo {
+    int dbid;               // database unique ID
+    int version;            // configuration version
+    char status;            // item status (N.U.D.A. scheme)
+    char * dbname;          // name of database
+    struct dbinfo * next;
+} dbinfo;
+
+// generic type for gather all database access aspects.
+typedef struct rdbs {
+    dbinfo * db;
+    dbuser * dbusers;
+    grants * dbgrants;
+} rdbs;
+
 // ogolna struktura danych przechowujaca konfiguracje serwera www
 typedef struct httpdata {
     vhostData * vhost;          // vhosty apacza
@@ -77,6 +114,7 @@ typedef struct httpdata {
 typedef struct hostconfig {
     sysuser * sysUsers;     // konta uzytkownikow w systemie
     httpdata httpd;         // konfiguracja serwera www
+    rdbs sqldb;           // dostepy do baz danych
     char * datatype;        // typ: hostconfig (server) lub sysinfo (client)
 } hostconfig;
 

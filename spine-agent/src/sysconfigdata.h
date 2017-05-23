@@ -1,5 +1,6 @@
 #ifndef SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
+#include <mysql.h>
 #include "apache.h"
 #include "commondata.h"
 
@@ -104,8 +105,21 @@ sysuser * ParseConfigDataSYSUSERS(char * json);
 // function writes to memory htpasswd content
 htpasswdData * ParseConfigDataHTPASSWD(char * json);
 
+// function writes to memory database names content
+dbinfo * ParseConfigDataDBNAMES(char * json);
+
+// function writes to memory database users content
+dbuser * ParseConfigDataDBUSERS(char * json);
+
+// function writes to memory database privileges content
+grants * ParseConfigDataDBPRIVS(char * json);
+
 // this is a recursive function which sets given permissions on a directory
 // and it's contents
 void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
+
+// function initiates connection to localhost database. It has hardcoded
+// root@localhost account
+MYSQL * mysqlconn(char * os);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

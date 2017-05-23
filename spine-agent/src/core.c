@@ -281,6 +281,18 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                                 updateMSGdata = updateUserAccounts(config.sysUsers, os, lf, updateMSGdata);
                                 cleanSysUsersData(config.sysUsers);
                             }
+                            if(config.sqldb.db != NULL) {
+                                updateMSGdata = DatabaseSetup(config.sqldb.db, os, lf, updateMSGdata);
+                                cleanDBinfoData(config.sqldb.db);
+                            }
+                            if(config.sqldb.dbusers != NULL) {
+                                updateMSGdata = DatabaseUsersSetup(config.sqldb.dbusers, os, lf, updateMSGdata);
+                                cleanDBusersData(config.sqldb.dbusers);
+                            }
+                            if(config.sqldb.dbgrants != NULL) {
+                                updateMSGdata = DatabaseUserGrantsSetup(config.sqldb.dbgrants, os, lf, updateMSGdata);
+                                cleanDBgrantsData(config.sqldb.dbgrants);
+                            }
                             if(updateMSGdata != NULL) {
                                 updateMSGdataString = backMessage(updateMSGdata);
                                 clifd = connector(net.ipaddr, 2016);
@@ -517,12 +529,18 @@ char * buildConfigPackage(hostconfig * data) {
     char * vhost_package        = NULL;               // vhosts definitions
     char * htusers_package      = NULL;               // htpasswd accounts data
     char * sysusers_package     = NULL;               // system accounts data
+    char * dbnames_package      = NULL;               // database names data
+    char * dbusers_package      = NULL;               // database users data
+    char * dbgrants_package     = NULL;               // database privileges data
     size_t package_size = 0;                          // memory size needed to hold whole data
     
     // defined scopes
     vhostData * vh          = data->httpd.vhost;      // vhosts configuration
     htpasswdData * htpass   = data->httpd.htpasswd;   // htpasswd accounts
     sysuser * su            = data->sysUsers;         // system users accounts
+    dbinfo * dbi            = data->sqldb.db;         // database names
+    dbuser * dbu            = data->sqldb.dbusers;    // database users data
+    grants * dbg            = data->sqldb.dbgrants;   // database privilege informations
     
     // global package keynames
     char * package_header = "[datatype:\"hostconfig\",";
@@ -534,6 +552,12 @@ char * buildConfigPackage(hostconfig * data) {
         package_size += htusersDataSize(htpass);
     if(su != NULL)
         package_size += getSysUsersPackageSize(su);
+    if(dbi != NULL)
+        package_size += DBnamesDataSize(dbi);
+    if(dbu != NULL)
+        package_size += DBusersDataSize(dbu);
+    if(dbg != NULL)
+        package_size += DBgrantsDataSize(dbg);
     package_size += strlen(package_header) + 2;
     
     // preparing memory
@@ -555,6 +579,21 @@ char * buildConfigPackage(hostconfig * data) {
         sysusers_package = sysusersPackage(su);
         strncat(package, sysusers_package, strlen(sysusers_package));
         free(sysusers_package);
+    }
+    if(dbi != NULL) {
+        dbnames_package = DBNamesConfigPackage(dbi);
+        strncat(package, dbnames_package, strlen(dbnames_package));
+        free(dbnames_package);
+    }
+    if(dbu != NULL) {
+        dbusers_package = DBusersConfigPackage(dbu);
+        strncat(package, dbusers_package, strlen(dbusers_package));
+        free(dbusers_package);
+    }
+    if(dbg != NULL) {
+        dbgrants_package = DBgrantsConfigPackage(dbg);
+        strncat(package, dbgrants_package, strlen(dbgrants_package));
+        free(dbgrants_package);
     }
     *(package + strlen(package)) = ']';
     
@@ -578,19 +617,46 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     conf->httpd.htpasswd = NULL;
     conf->httpd.vhost = NULL;
     conf->sysUsers = NULL;
+    conf->sqldb.db = NULL;
+    conf->sqldb.dbusers = NULL;
+    conf->sqldb.dbgrants = NULL;
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            conf->httpd.vhost = ReadVhostData(hostid); // getVhostData
-            status = 1;
+            if((conf->httpd.vhost = ReadVhostData(hostid))) // getVhostData
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
-            conf->httpd.htpasswd = ReadHtpasswdData(hostid); // getHtpasswdData
-            status = 1;
+            if((conf->httpd.htpasswd = ReadHtpasswdData(hostid))) // getHtpasswdData
+                status = 1;
+            else
+                status = 0;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
-            conf->sysUsers = getSystemAccounts(conf, hostid);
-            status = 1;
+            if((conf->sysUsers = getSystemAccounts(conf, hostid)))
+                status = 1;
+            else
+                status = 0;
+        }
+        if(!strcmp(curr->scope, "db_name") && curr->version > clientver) {
+            if((conf->sqldb.db = getDatabaseNames(hostid)))
+                status = 1;
+            else
+                status = 0;
+        }
+        if(!strcmp(curr->scope, "db_user") && curr->version > clientver) {
+            if((conf->sqldb.dbusers = getDatabaseUsers(hostid)))
+                status = 1;
+            else
+                status = 0;
+        }
+        if(!strcmp(curr->scope, "db_privs") && curr->version > clientver) {
+            if((conf->sqldb.dbgrants = getDatabasePrivileges(hostid)))
+                status = 1;
+            else
+                status = 0;
         }
         curr = curr->next;
     }
@@ -650,6 +716,9 @@ int readPackageVersion(char * str) {
         max++;
         pos++;
     }
+    if(max == 0)
+        return -1;
+    
     int vers[max];          // tablica przechowujaca odczytane wersje konfiguracji
     int n = 0;              // index tablicy
     
@@ -678,45 +747,42 @@ int maxver(int vers[], int n) {
     return max;
 }
 char * backMessage(resp * rsp) {
-    resp * pos = rsp;
-    int itemcnt = 0;
-    int commacnt = 0;
-    int coloncnt = 0;
-    size_t messageSize = 0;
-    char * tmp = NULL;
-    char * message = NULL;
-    char * header = "datatype:\"StatusChange\",scope:";
-    
-    // obtain amount of memory to allocate
+    char * message      = NULL;      // result string
+    char * entry        = NULL;      // piece of configuration
+    char * dbid         = NULL;      // string form
+    char status[2];                  // status in string form
+    resp * pos          = rsp;       // begin of response data
+    size_t memsize      = 0;         // memory size for whole message
+
+    // key string constants
+    char * header = "datatype:\"StatusChange\",";
+
     while(pos) {
-        tmp = int2String(pos->dbid);
-        messageSize += strlen(tmp);
-        free(tmp);
-        itemcnt++;
+        dbid = int2String(pos->dbid);
+        status[0] = pos->status;
+        status[1] = '\0';
+        entry = mkString("{scope:", pos->scope, ",", dbid, ":", status, "},", NULL);
+        memsize += strlen(entry);
+        free(entry);
+        free(dbid);
         pos = pos->next;
     }
-    commacnt = itemcnt - 1;
-    coloncnt = itemcnt;
-    messageSize += strlen(header) + itemcnt + coloncnt + commacnt + 1;
-    messageSize += strlen(rsp->scope) + 1;
+
+    memsize += strlen(header) + 1;
     
-    // prepare memory
-    message = (char *) malloc(messageSize * sizeof(char));
-    memset(message, '\0', messageSize);
+    message = (char *) malloc(memsize * sizeof(char));
+    memset(message, '\0', memsize);
     
-    // create package
     strncpy(message, header, strlen(header));
-    strncat(message, rsp->scope, strlen(rsp->scope));
-    *(message+strlen(message)) = ',';
     pos = rsp;
     while(pos) {
-        tmp = int2String(pos->dbid);
-        strncat(message, tmp, strlen(tmp));
-        free(tmp);
-        *(message+strlen(message)) = ':';
-        *(message+strlen(message)) = pos->status;
-        if(pos->next != NULL)
-            *(message+strlen(message)) = ',';
+        dbid = int2String(pos->dbid);
+        status[0] = pos->status;
+        status[1] = '\0';
+        entry = mkString("{scope:", pos->scope, ",", dbid, ":", status, "},", NULL);
+        strncat(message, entry, strlen(entry));
+        free(entry);
+        free(dbid);
         pos = pos->next;
     }
     
@@ -731,66 +797,47 @@ void cleanMSGdata(resp * rsp) {
     free(curr);
 }
 resp * parseClientMessage(char * str) {
-    char * pos = strstr(str, "scope") + strlen("scope:");    // begin of scope;
-    char * scope = NULL;
-    size_t len = 0;
-    
-    // local buffer for ID string
-    const int BufSize = 128;
-    char buff[BufSize];
+    char * pos = str;
+    const int Size = 128;
     int i = 0;
-    memset(buff, '\0', BufSize);
+    char buff[Size];
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
     
-    // get the scope
-    while(*pos != ',')
-        buff[i++] = *pos++;
-    len = strlen(buff) + 1;
-    scope = (char *) malloc(len * sizeof(char));
-    memset(scope, '\0', len);
-    strncpy(scope, buff, len);
-    
-    // preparing node of data
-    resp * head = NULL;
-    resp * curr = NULL;
-    resp * prev = NULL;
-    
-    // preparing buffer and moving to first value to read
-    memset(buff, '\0', BufSize);
-    i = 0;
-    pos++;
-    while(*pos) {
-        if(*pos != ':')
-            buff[i++] = *pos++;
-        else {
-            // since we have whole ID read, we can create a node of data
-            curr = (resp *) malloc(sizeof(resp));
-            curr->dbid = atoi(buff);            
-            curr->status = *++pos;          // status is following the colon
-            curr->scope = (char *) malloc(len * sizeof(char));
-            memset(curr->scope, '\0', len);
-            strncpy(curr->scope, scope, len);
-            curr->next = NULL;
-            
-            // now we can clear the buffer and reset buffer index
-            memset(buff, '\0', BufSize);
-            i = 0;
-            
-            // if the following character is not the \0 character we can go
-            // to the next numeric value skipping comma sign
-            if(*(pos+1))
-                pos += 2;
-            
-            // binding nodes together
-            if(head == NULL)
-                head = curr;
+    while((pos = strstr(pos, "scope:")) != NULL) {
+        pos += strlen("scope:");
+        rcurr = (resp *) malloc(sizeof(resp));
+        memset(buff, '\0', Size);
+        i = 0;
+        
+        while(*pos != '}') {
+            if(*pos == ',') {
+                rcurr->scope = (char *) malloc((strlen(buff) + 1) * sizeof(char));
+                memset(rcurr->scope, '\0', strlen(buff) + 1);
+                strncpy(rcurr->scope, buff, strlen(buff));
+                memset(buff, '\0', Size);
+                i = 0;
+                pos++;
+            }
+            else if(*pos == ':') {
+                rcurr->dbid = atoi(buff);
+                rcurr->status = *(pos + 1);
+                rcurr->next = NULL;
+                memset(buff, '\0', Size);
+                i = 0;
+                pos++;
+            }
             else
-                prev->next = curr;
-            prev = curr;
+                buff[i++] = *pos++;
         }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
     }
-    free(scope);
-    
-    return head;
+    return rhead;
 }
 resp *  respStatus(char * scope, char status, int dbid) {
     resp * node = NULL;

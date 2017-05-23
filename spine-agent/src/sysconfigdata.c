@@ -224,6 +224,10 @@ void ParseConfigData(char * json, hostconfig * conf) {
     conf->httpd.htpasswd = NULL;
     conf->httpd.vhost = NULL;
     conf->sysUsers = NULL;
+    conf->sqldb.db = NULL;
+    conf->sqldb.dbusers = NULL;
+    conf->sqldb.dbgrants = NULL;
+
     char * pos = json;          // ustawiamy sie na poczatku pakietu
     // przetwarzamy typ pakietu
     conf->datatype = getOptVal(json, "datatype");
@@ -234,6 +238,12 @@ void ParseConfigData(char * json, hostconfig * conf) {
        conf->httpd.vhost = ParseConfigDataAPACHE(pos);
     if((pos = strstr(json, "scope:htusers")) != NULL)
        conf->httpd.htpasswd = ParseConfigDataHTPASSWD(pos);
+    if((pos = strstr(json, "scope:db_name")) != NULL)
+        conf->sqldb.db = ParseConfigDataDBNAMES(pos);
+    if((pos = strstr(json, "scope:db_user")) != NULL)
+        conf->sqldb.dbusers = ParseConfigDataDBUSERS(pos);
+    if((pos = strstr(json, "scope:db_privs")) != NULL)
+        conf->sqldb.dbgrants = ParseConfigDataDBPRIVS(pos);
 }
 sysuser * ParseConfigDataSYSUSERS(char * json) {
     char * offset   = NULL;             // relative position in input string
@@ -328,7 +338,7 @@ htpasswdData * ParseConfigDataHTPASSWD(char * json) {
     idx = int2String(i);
     iheader = mkString("user_", idx, NULL);
     while((offset = strstr(json, iheader)) != NULL && offset < end) {
-        curr = (htpasswdData *) malloc(sizeof(sysuser));
+        curr = (htpasswdData *) malloc(sizeof(htpasswdData));
         
         curr->login         = getOptVal(offset, "login");
         curr->pass          = getOptVal(offset, "password");
@@ -426,6 +436,174 @@ vhostData * ParseConfigDataAPACHE(char * json) {
     }
     
     return head;
+}
+dbinfo * ParseConfigDataDBNAMES(char * json) {
+    char * offset       = NULL;        // relative position in input string
+    char * iheader      = NULL;        // this is header of data portion
+    char * idx          = NULL;        // actual position of user data
+    char * tmp          = NULL;        // helper variable for converting string into numeric vals
+    int i               = 0;           // actual number of processed data items
+    int cfgver          = 0;           // config version
+    
+    // when to end reading input data
+    char * end          = strstr(json, "config_ver:");
+    
+    // inicjalizacja danych do listy laczonej
+    dbinfo * head = NULL;
+    dbinfo * curr = NULL;
+    dbinfo * prev = NULL;
+    
+    // processing config version
+    tmp = getOptVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
+    
+    idx = int2String(i);
+    iheader = mkString("dbnum_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
+        curr = (dbinfo *) malloc(sizeof(dbinfo));
+        
+        curr->dbname        = getOptVal(offset, "dbname");
+        tmp                 = getOptVal(offset, "status");
+        curr->status        = tmp[0];
+        free(tmp);
+        
+        tmp                 = getOptVal(offset, "dbid");
+        curr->dbid          = atoi(tmp);
+        free(tmp);
+        curr->version       = cfgver;
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;      
+        
+        free(iheader);
+        free(idx);
+        
+        i++;
+        idx = int2String(i);
+        iheader = mkString("dbnum_", idx, NULL);
+    }
+    free(idx);
+    free(iheader);
+    
+    return head;  
+}
+dbuser * ParseConfigDataDBUSERS(char * json) {
+    char * offset       = NULL;        // relative position in input string
+    char * iheader      = NULL;        // this is header of data portion
+    char * idx          = NULL;        // actual position of user data
+    char * tmp          = NULL;        // helper variable for converting string into numeric vals
+    int i               = 0;           // actual number of processed data items
+    int cfgver          = 0;           // config version
+    
+    // when to end reading input data
+    char * end          = strstr(json, "config_ver:");
+    
+    // inicjalizacja danych do listy laczonej
+    dbuser * head = NULL;
+    dbuser * curr = NULL;
+    dbuser * prev = NULL;
+    
+    // processing config version
+    tmp = getOptVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
+    
+    idx = int2String(i);
+    iheader = mkString("dbusernum_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
+        curr = (dbuser *) malloc(sizeof(dbuser));
+        
+        curr->login         = getOptVal(offset, "dblogin");
+        curr->pass          = getOptVal(offset, "dbpass");
+        tmp                 = getOptVal(offset, "status");
+        curr->status        = tmp[0];
+        free(tmp);
+        
+        tmp                 = getOptVal(offset, "dbid");
+        curr->dbid          = atoi(tmp);
+        free(tmp);
+        curr->version       = cfgver;
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;      
+        
+        free(iheader);
+        free(idx);
+        
+        i++;
+        idx = int2String(i);
+        iheader = mkString("dbusernum_", idx, NULL);
+    }
+    free(idx);
+    free(iheader);
+    
+    return head;  
+}
+grants * ParseConfigDataDBPRIVS(char * json) {
+    char * offset       = NULL;        // relative position in input string
+    char * iheader      = NULL;        // this is header of data portion
+    char * idx          = NULL;        // actual position of user data
+    char * tmp          = NULL;        // helper variable for converting string into numeric vals
+    int i               = 0;           // actual number of processed data items
+    int cfgver          = 0;           // config version
+    
+    // when to end reading input data
+    char * end          = strstr(json, "config_ver:");
+    
+    // inicjalizacja danych do listy laczonej
+    grants * head = NULL;
+    grants * curr = NULL;
+    grants * prev = NULL;
+    
+    // processing config version
+    tmp = getOptVal(json, "config_ver");
+    cfgver = atoi(tmp);
+    free(tmp);
+    
+    idx = int2String(i);
+    iheader = mkString("dbprivnum_", idx, NULL);
+    while((offset = strstr(json, iheader)) != NULL && offset < end) {
+        curr = (grants *) malloc(sizeof(grants));
+        
+        curr->dbname        = getOptVal(offset, "dbname");
+        curr->user          = getOptVal(offset, "dblogin");
+        curr->privs         = getOptVal(offset, "grants");
+        tmp                 = getOptVal(offset, "status");
+        curr->status        = tmp[0];
+        free(tmp);
+        
+        tmp                 = getOptVal(offset, "dbid");
+        curr->dbid          = atoi(tmp);
+        free(tmp);
+        curr->version       = cfgver;
+        curr->next = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;      
+        
+        free(iheader);
+        free(idx);
+        
+        i++;
+        idx = int2String(i);
+        iheader = mkString("dbprivnum_", idx, NULL);
+    }
+    free(idx);
+    free(iheader);
+    
+    return head;  
 }
 char * linuxDistro(void) {
 	char buff[128];
@@ -635,4 +813,18 @@ char * CPUusage(void) {
     cpu_idle_old = cpu.idle;
 
     return usage_s;
+}
+MYSQL * mysqlconn(char * os) {
+   MYSQL * db = mysql_init(NULL);
+   char * sockpath = NULL;
+   
+   if(!strcmp(os, "Ubuntu"))
+       sockpath = "/var/run/mysqld/mysqld.sock";
+   else
+       sockpath = "/var/lib/mysql/mysql.sock";
+   
+   if(mysql_real_connect(db, "localhost", "root", NULL, "mysql" ,0, sockpath,0) != NULL)
+      return db;
+   else
+      return NULL;
 }

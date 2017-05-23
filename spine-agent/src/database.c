@@ -610,6 +610,12 @@ void activate(char * scope, int id) {
        query = mkString("UPDATE www_users SET status = 'A' WHERE id = ", sid, NULL);
     if(!strcmp(scope, "sysusers"))
        query = mkString("UPDATE sysusers SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_name"))
+       query = mkString("UPDATE db_name SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_user"))
+       query = mkString("UPDATE db_user SET status = 'A' WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_privs"))
+       query = mkString("UPDATE db_privs SET status = 'A' WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
@@ -619,6 +625,7 @@ void delete(char * scope, int id) {
     extern MYSQL * dbh;
     
     char * query = NULL;
+    char * query_privs = NULL;
     char * sid = int2String(id);
     
     if(!strcmp(scope, "apache"))
@@ -627,8 +634,785 @@ void delete(char * scope, int id) {
        query = mkString("DELETE FROM www_users WHERE id = ", sid, NULL);
     if(!strcmp(scope, "sysusers"))
        query = mkString("DELETE FROM sysusers WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_name"))
+       query = mkString("DELETE FROM db_name WHERE id = ", sid, NULL);
+    if(!strcmp(scope, "db_user")) {
+        query_privs = mkString("DELETE FROM db_privs WHERE user_id = ", sid, NULL);
+        query = mkString("DELETE FROM db_user WHERE id = ", sid, NULL);
+        mysql_query(dbh, query_privs);
+        free(query_privs);
+    }
+    if(!strcmp(scope, "db_privs"))
+        query = mkString("DELETE FROM db_privs WHERE id = ", sid, NULL);
     
     mysql_query(dbh, query);
     free(query);
     free(sid);
 }
+dbinfo * getDatabaseNames(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    char * query = mkString("SELECT dn.id, dn.name AS dbname, dn.status, cv.version ",
+                            "FROM db_name dn JOIN sysinfo s ON dn.host_id = s.id JOIN ",
+                            "configver cv ON dn.host_id = cv.systemid AND cv.scope = ",
+                            "'db_name' WHERE dn.status NOT LIKE 'A' AND system_id = '",
+                            systemid,"'", NULL);
+    dbinfo * head = NULL;
+    dbinfo * curr = NULL;
+    dbinfo * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    while((row = mysql_fetch_row(res))) {  
+        curr = (dbinfo *) malloc(sizeof(dbinfo));
+        
+        curr->dbid      = atoi(row[0]);
+        curr->dbname    = readData(row[1]);
+        curr->status    = row[2][0];
+        curr->version   = atoi(row[3]);
+        curr->next      = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
+}
+dbuser * getDatabaseUsers(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    char * query = mkString("SELECT du.id, du.login AS dblogin, du.pass AS dbpass, ",
+                            "du.status, cv.version FROM db_user du JOIN configver cv ",
+                            "ON du.host_id = cv.systemid AND cv.scope = 'db_user' ",
+                            "JOIN sysinfo s ON du.host_id = s.id WHERE du.status ",
+                            "NOT LIKE 'A' AND s.system_id = '",systemid,"'", NULL);
+    dbuser * head = NULL;
+    dbuser * curr = NULL;
+    dbuser * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    while((row = mysql_fetch_row(res))) {  
+        curr = (dbuser *) malloc(sizeof(dbuser));
+        
+        curr->dbid      = atoi(row[0]);
+        curr->login     = readData(row[1]);
+        curr->pass      = readData(row[2]);
+        curr->status    = row[3][0];
+        curr->version   = atoi(row[4]);
+        curr->next      = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
+}
+grants * getDatabasePrivileges(char * systemid) {
+    extern MYSQL * dbh;
+    MYSQL_RES * res;
+    MYSQL_ROW row;
+    
+    char * query = mkString("SELECT dp.id, dn.name AS dbname, du.login AS dblogin, ",
+                            "dp.grants, dp.status, cv.version FROM db_privs dp JOIN ",
+                            "db_user du ON dp.user_id = du.id JOIN db_name dn ON dp.db_id ",
+                            " = dn.id JOIN sysinfo s ON du.host_id = s.id JOIN configver ",
+                            "cv ON du.host_id = cv.systemid AND cv.scope = 'db_privs' ",
+                            "WHERE dp.status NOT LIKE 'A' AND s.system_id = '",systemid,"'", NULL);
+    grants * head = NULL;
+    grants * curr = NULL;
+    grants * prev = NULL;
+    
+    if(mysql_query(dbh, query)) {
+        free(query);
+        return NULL;
+    }
+    if((res = mysql_store_result(dbh)) == NULL) {
+        free(query);
+        return NULL;
+    }
+    while((row = mysql_fetch_row(res))) {  
+        curr = (grants *) malloc(sizeof(grants));
+        
+        curr->dbid      = atoi(row[0]);
+        curr->dbname    = readData(row[1]);
+        curr->user      = readData(row[2]);
+        curr->privs     = readData(row[3]);
+        curr->status    = row[4][0];
+        curr->version   = atoi(row[5]);
+        curr->next      = NULL;
+        
+        if(head == NULL)
+            head = curr;
+        else
+            prev->next = curr;
+        prev = curr;
+    }
+    mysql_free_result(res);
+    free(query);
+    
+    return head;
+}
+int DBnamesDataSize(dbinfo * db) {
+    dbinfo * curr = db;                 // current node
+    int size = 0;                       // overrall data size
+    int keySize = 0;                    // key names size
+    int nodeCount = 0;                  // processed nodes count
+    int dqCount   = 2;                  // double quotes count in each position
+    char * tmp = NULL;                  // temporary string
+
+    // package header
+    char * header = "{scope:db_name,},";    
+    // package keys names
+    char * keys[] = { "dbnum_:", "dbname:,", "dbid:,", "status:,", 
+                      "config_version:,", NULL 
+                    };
+    char ** key = keys;
+    
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        size += strlen(curr->dbname)            + dqCount;
+        
+        tmp = int2String(curr->dbid);
+        size += strlen(tmp)                     + dqCount;
+        free(tmp);
+        
+        // string length of each user index number
+        tmp = int2String(nodeCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        size += 1;          // one byte for status flag in each item
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
+            size += strlen(tmp)                 + dqCount;
+            free(tmp);
+        }
+        nodeCount++;
+        curr = curr->next;
+    }
+    size += strlen(header);
+    size += keySize * nodeCount;
+    
+    return size;
+}
+int DBusersDataSize(dbuser * db) {
+    dbuser * curr = db;                 // current node
+    int size = 0;                       // overrall data size
+    int keySize = 0;                    // key names size
+    int nodeCount = 0;                  // processed nodes count
+    int dqCount   = 2;                  // double quotes count in each position
+    char * tmp = NULL;                  // temporary string
+
+    // package header
+    char * header = "{scope:db_user,},";    
+    // package keys names
+    char * keys[] = { "dbusernum_:", "dblogin:,", "dbid:,", "status:,", 
+                      "dbpass:,", "config_version:,", NULL 
+                    };
+    char ** key = keys;
+    
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        size += strlen(curr->login)            + dqCount;
+        size += strlen(curr->pass)             + dqCount;
+        
+        tmp = int2String(curr->dbid);
+        size += strlen(tmp)                     + dqCount;
+        free(tmp);
+        
+        // string length of each user index number
+        tmp = int2String(nodeCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        size += 1;          // one byte for status flag in each item
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
+            size += strlen(tmp)                 + dqCount;
+            free(tmp);
+        }
+        nodeCount++;
+        curr = curr->next;
+    }
+    size += strlen(header);
+    size += keySize * nodeCount;
+    
+    return size;
+}
+int DBgrantsDataSize(grants * db) {
+    grants * curr = db;                 // current node
+    int size = 0;                       // overrall data size
+    int keySize = 0;                    // key names size
+    int nodeCount = 0;                  // processed nodes count
+    int dqCount   = 2;                  // double quotes count in each position
+    char * tmp = NULL;                  // temporary string
+
+    // package header
+    char * header = "{scope:db_privs,},";    
+    // package keys names
+    char * keys[] = { "dbprivnum_:", "dbid:,", "dblogin:,", "dbname:,", 
+                      "grants:,", "status:,", "config_version:,", NULL 
+                    };
+    char ** key = keys;
+    
+    while(*key)
+        keySize += strlen(*key++);
+    
+    while(curr) {
+        size += strlen(curr->dbname)            + dqCount;
+        size += strlen(curr->user)              + dqCount;
+        size += strlen(curr->privs)             + dqCount;
+        
+        tmp = int2String(curr->dbid);
+        size += strlen(tmp)                     + dqCount;
+        free(tmp);
+        
+        // string length of each user index number
+        tmp = int2String(nodeCount);
+        size += strlen(tmp);
+        free(tmp);
+        
+        size += 1;          // one byte for status flag in each item
+        if(curr->next == NULL) {
+            tmp = int2String(curr->version);
+            size += strlen(tmp)                 + dqCount;
+            free(tmp);
+        }
+        nodeCount++;
+        curr = curr->next;
+    }
+    size += strlen(header);
+    size += keySize * nodeCount;
+    
+    return size;
+}
+char * DBNamesConfigPackage(dbinfo * db) {
+    // common data
+    dbinfo * curr          = db;        // node traversing pointer
+    int size               = 0;         // package size
+    int idx                = 0;		// node index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// node index as a string
+    char * entry           = NULL;      // particular entry definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // specific data
+    char status[2];                     // status flags can be: NUDA
+    
+    // package header
+    char * header = "{scope:db_name,";
+
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
+
+    if(db == NULL)
+        return NULL;
+    
+    // preparing memory
+    size = DBnamesDataSize(db) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
+
+    // package building
+    strncpy(package, header, strlen(header)); // configuration type
+    while(curr) {
+        numstr = int2String(idx);
+        s_dbid = int2String(curr->dbid);
+        memset(status, '\0', 2);
+        status[0] = curr->status;
+        entry = mkString(
+                        "dbnum_", numstr, ":{",
+                        "dbid:\"",             s_dbid,         "\",",
+                        "dbname:\"",           curr->dbname,   "\",",
+                        "status:\"",           status,         "\"}",
+                        ",", NULL);
+        strncat(package, entry, strlen(entry) + 1);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+
+        // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+        free(s_dbid);
+        free(entry);
+        free(numstr);
+        idx++;
+        curr = curr->next;
+    }
+
+    // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
+    strncat(package, "},", 2);
+
+    // czyscimy niepotrzebne dane
+    free(s_config_ver);
+    cleanDBinfoData(db);
+
+    return package;
+}
+char * DBusersConfigPackage(dbuser * db) {
+    // common data
+    dbuser * curr          = db;        // node traversing pointer
+    int size               = 0;         // package size
+    int idx                = 0;		// node index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// node index as a string
+    char * entry           = NULL;      // particular entry definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // specific data
+    char status[2];                     // status flags can be: NUDA
+    
+    // package header
+    char * header = "{scope:db_user,";
+
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
+
+    if(db == NULL)
+        return NULL;
+    
+    // preparing memory
+    size = DBusersDataSize(db) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
+
+    // package building
+    strncpy(package, header, strlen(header)); // configuration type
+    while(curr) {
+        numstr = int2String(idx);
+        s_dbid = int2String(curr->dbid);
+        memset(status, '\0', 2);
+        status[0] = curr->status;
+        entry = mkString(
+                        "dbusernum_",    numstr,      ":{",
+                        "dbid:\"",       s_dbid,      "\",",
+                        "dblogin:\"",    curr->login, "\",",
+                        "dbpass:\"",     curr->pass,  "\",",
+                        "status:\"",     status,      "\"}",
+                        ",", NULL);
+        strncat(package, entry, strlen(entry) + 1);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+
+        // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+        free(s_dbid);
+        free(entry);
+        free(numstr);
+        idx++;
+        curr = curr->next;
+    }
+
+    // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
+    strncat(package, "},", 2);
+
+    // czyscimy niepotrzebne dane
+    free(s_config_ver);
+    cleanDBusersData(db);
+
+    return package;
+}
+char * DBgrantsConfigPackage(grants * db) {
+    // common data
+    grants * curr          = db;        // node traversing pointer
+    int size               = 0;         // package size
+    int idx                = 0;		// node index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// node index as a string
+    char * entry           = NULL;      // particular entry definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // specific data
+    char status[2];                     // status flags can be: NUDA
+    
+    // package header
+    char * header = "{scope:db_privs,";
+
+    // config version
+    char * k_config_ver = "config_ver:";
+    char * s_config_ver = NULL;
+
+    if(db == NULL)
+        return NULL;
+    
+    // preparing memory
+    size = DBgrantsDataSize(db) + 1;
+    package = (char *) malloc(size * sizeof(char));
+    memset(package, '\0', size);
+
+    // package building
+    strncpy(package, header, strlen(header)); // configuration type
+    while(curr) {
+        numstr = int2String(idx);
+        s_dbid = int2String(curr->dbid);
+        memset(status, '\0', 2);
+        status[0] = curr->status;
+        entry = mkString(
+                        "dbprivnum_",    numstr,        ":{",
+                        "dbid:\"",       s_dbid,        "\",",
+                        "dblogin:\"",    curr->user,    "\",",
+                        "dbname:\"",     curr->dbname,  "\",",
+                        "grants:\"",     curr->privs,   "\",",   
+                        "status:\"",     status,        "\"}",
+                        ",", NULL);
+        strncat(package, entry, strlen(entry) + 1);
+        if(curr->next == NULL)
+            s_config_ver = int2String(curr->version);
+
+        // zwalniamy pamiec i przygotowujemy zmienne do kolejnej iteracji
+        free(s_dbid);
+        free(entry);
+        free(numstr);
+        idx++;
+        curr = curr->next;
+    }
+
+    // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
+    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, s_config_ver, strlen(s_config_ver));
+    strncat(package, "},", 2);
+
+    // czyscimy niepotrzebne dane
+    free(s_config_ver);
+    cleanDBgrantsData(db);
+
+    return package;
+}
+void cleanDBinfoData(dbinfo * db) {
+    dbinfo * curr = db;
+    dbinfo * next = NULL;
+    
+    free(curr->dbname);
+    
+    next = curr->next;
+    if(next != NULL)
+        cleanDBinfoData(next);
+    free(curr);
+}
+void cleanDBusersData(dbuser * db) {
+    dbuser * curr = db;
+    dbuser * next = NULL;
+    
+    free(curr->login);
+    free(curr->pass);
+    
+    next = curr->next;
+    if(next != NULL)
+        cleanDBusersData(next);
+    free(curr);
+}
+void cleanDBgrantsData(grants * db) {
+    grants * curr = db;
+    grants * next = NULL;
+    
+    free(curr->dbname);
+    free(curr->user);
+    free(curr->privs);
+    
+    next = curr->next;
+    if(next != NULL)
+        cleanDBgrantsData(next);
+    free(curr);
+}
+resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata) {
+    dbinfo * curr = db;
+    char * msg = NULL;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    resp * rpos  = respdata;
+    
+    while(curr) {
+        if(curr->status == 'N') {
+            if(dbmgr(curr->dbname, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database: ", curr->dbname, " created", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Creation database: ", curr->dbname, " failed", NULL);
+            writeLog(lf, msg);          
+            rcurr = respStatus("db_name", 'A', curr->dbid);
+        }
+        if(curr->status == 'D') {
+            if(dbmgr(curr->dbname, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database: ", curr->dbname, " removed", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Removing database: ", curr->dbname, " failed", NULL);
+            writeLog(lf, msg);
+            rcurr = respStatus("db_name", 'D', curr->dbid);
+        }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+        
+        curr = curr->next;
+    }
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
+}
+resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata) {
+    dbuser * curr = db;
+    char * msg = NULL;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    resp * rpos  = respdata;
+    
+    while(curr) {
+        if(curr->status == 'N') {
+            if(dbusermgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database user: ", curr->login, " created", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Creation database user: ", curr->login, " failed", NULL);
+            writeLog(lf, msg);           
+            rcurr = respStatus("db_user", 'A', curr->dbid);
+        }
+        if(curr->status == 'D') {
+            if(dbusermgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database user: ", curr->login, " removed", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Removing database user: ", curr->login, " failed", NULL);
+            writeLog(lf, msg);
+            rcurr = respStatus("db_user", 'D', curr->dbid);
+        }
+        if(curr->status == 'U') {
+            if(dbusermgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Database user: ", curr->login, " updated", NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Updating database user: ", curr->login, " failed", NULL);
+            writeLog(lf, msg);           
+            rcurr = respStatus("db_user", 'A', curr->dbid);
+        }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+            
+        curr = curr->next;
+    }
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
+}
+resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdata) {
+    grants * curr = db;
+    char * msg = NULL;
+    
+    // response to server
+    resp * rhead = NULL;
+    resp * rcurr = NULL;
+    resp * rprev = NULL;
+    resp * rpos  = respdata;
+    
+    while(curr) {
+        if(curr->status == 'N') {
+            if(dbgrantsmgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Adding permissions to ", curr->dbname, " for ", curr->user, NULL);
+            else
+                msg = mkString("[ERRPR] (reciver) Adding permissions to ", curr->dbname, " for ", curr->user, " failed", NULL);
+            writeLog(lf, msg);            
+            rcurr = respStatus("db_privs", 'A', curr->dbid);
+        }
+        if(curr->status == 'D') {
+            if(dbgrantsmgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Revoke permissions to ", curr->dbname, " for ", curr->user, NULL);
+            else
+                msg = mkString("[ERROR] (reciver) Revoke permissions to ", curr->dbname, " for ", curr->user, " failed", NULL);
+            writeLog(lf, msg);
+            rcurr = respStatus("db_privs", 'D', curr->dbid);
+        }
+        if(curr->status == 'U') {
+            if(dbgrantsmgr(curr, curr->status, os))
+                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, " for ", curr->user, NULL);
+            else
+                msg = mkString("[INFO] (reciver) Updating permissions to ", curr->dbname, " for ", curr->user, " failed", NULL);
+            writeLog(lf, msg);
+            rcurr = respStatus("db_privs", 'A', curr->dbid);
+        }
+        if(rhead == NULL)
+            rhead = rcurr;
+        else
+            rprev->next = rcurr;
+        rprev = rcurr;
+            
+        curr = curr->next;
+    }
+    while(respdata) {
+        if(respdata->next == NULL) {
+            respdata->next = rhead;
+            break;
+        }
+        respdata = respdata->next;
+    }
+    if(rpos != NULL)
+        respdata = rpos;
+    else
+        respdata = rhead;
+    
+    return respdata;
+}
+int dbmgr(char * dbname, char action, char * os) {
+    MYSQL * mysqlh = mysqlconn(os);
+    char * query = NULL;
+    int status = 0;
+    
+    if(action == 'N')
+        query = mkString("CREATE DATABASE ", dbname, NULL);
+    else if(action == 'D')
+        query = mkString("DROP DATABASE ", dbname, NULL);
+    
+    if(!mysqlh)
+        return 0;
+    if(!mysql_query(mysqlh, query))
+        status = 1;
+    
+    mysql_close(mysqlh);
+    free(query);
+    
+    return status;
+}
+int dbusermgr(dbuser * db, char action, char * os) {
+    MYSQL * mysqlh = mysqlconn(os);
+    char * query = NULL;
+    char * passColName = NULL;
+    int status = 0;
+    
+    if(!strcmp(os, "Ubuntu"))
+        passColName = "authentication_string";
+    else
+        passColName = "Password";
+    
+    if(action == 'N')
+        query = mkString("CREATE USER '", db->login, "'@'localhost' IDENTIFIED ",
+                         "BY PASSWORD '",db->pass, "'" , NULL);
+    else if(action == 'D')
+        query = mkString("DROP USER '", db->login, "'@'localhost'", NULL);
+    else if(action == 'U')
+        query = mkString("UPDATE mysql.user SET ", passColName, " = '",db->pass,
+                         "' WHERE User = '",db->login,"' AND host = 'localhost'",  NULL);
+    
+    if(!mysqlh)
+        return 0;
+    if(!mysql_query(mysqlh, query)) {
+        mysql_query(mysqlh, "flush privileges");
+        status = 1;
+    }
+    
+    mysql_close(mysqlh);
+    free(query);
+    
+    return status;
+}
+int dbgrantsmgr(grants * db, char action, char * os) {
+    MYSQL * mysqlh = mysqlconn(os);
+    
+    if(!mysqlh)
+        return 0;
+    
+    char * grant = mkString("GRANT ", db->privs, " ON ", db->dbname, ".* TO '",
+                        db->user, "'@'localhost'", NULL);
+    char * revoke = mkString("REVOKE ALL ON ", db->dbname, ".* FROM '", db->user, 
+                        "'@'localhost'", NULL);
+    char * query = NULL;
+    int status = 0;
+    
+    
+    if(action == 'N')
+        query = grant;
+    else if(action == 'D') {
+        if(mysqlUserExist(mysqlh, db->user))
+            query = revoke;
+        else
+            status = 1;
+    }
+    else if(action == 'U') {
+        mysql_query(mysqlh, revoke);
+        query = grant;
+    }
+    if(query) {
+        if(!mysql_query(mysqlh, query)) {
+            mysql_query(mysqlh, "flush privileges");
+            status = 1;
+        }
+    }
+    
+    mysql_close(mysqlh);
+    free(grant);
+    free(revoke);
+    
+    return status;
+}
+int mysqlUserExist(MYSQL * dbh, char * login) {
+    MYSQL_RES * res = NULL;
+    char * query = mkString("SELECT User FROM mysql.user WHERE User = '", login, "'", NULL);
+    int status = 0;
+    
+    if(!mysql_query(dbh, query)) {
+        if((res = mysql_store_result(dbh))) {
+            if(mysql_num_rows(res))
+                status = 1;
+            mysql_free_result(res);
+        }
+    }
+    free(query);
+    
+    return status;
+ }

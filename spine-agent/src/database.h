@@ -98,4 +98,63 @@ void activate(char * scope, int id);
 // deletes item from db table
 void delete(char * scope, int id);
 
+// function gets database list
+dbinfo * getDatabaseNames(char * systemid);
+
+// function gets database users information
+dbuser * getDatabaseUsers(char * systemid);
+
+// function gets privileges information
+grants * getDatabasePrivileges(char * systemid);
+
+// function gets memory size needed to hold database names information
+int DBnamesDataSize(dbinfo * db);
+
+// function gets memory size needed to hold database users information
+int DBusersDataSize(dbuser * db);
+
+// function gets memory size needed to hold database privileges information
+int DBgrantsDataSize(grants * db);
+
+// function return string with database names package
+char * DBNamesConfigPackage(dbinfo * db);
+
+// clear memory with database names data.
+void cleanDBinfoData(dbinfo * db);
+
+// function return string with database users package
+char * DBusersConfigPackage(dbuser * db);
+
+// clear memory with database users data.
+void cleanDBusersData(dbuser * db);
+
+// function return string with database privilege package
+char * DBgrantsConfigPackage(grants * db);
+
+// clear memory with database privilges data
+void cleanDBgrantsData(grants * db);
+
+// Function manages databases on particular host. Creates new and removes
+// old ones.
+resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata);
+
+// database users management
+resp * DatabaseUsersSetup(dbuser * db, char * os, FILE * lf, resp * respdata);
+
+// database privileges
+resp * DatabaseUserGrantsSetup(grants * db, char * os, FILE * lf, resp * respdata);
+
+// function performes on database one of the actions:
+// add new or remove's existing based on action flag. 
+// Returned values: 1 - success, 0: failure
+int dbmgr(char * dbname, char action, char * os);
+
+// function manages database users. Performes on of the actions:
+// add new, upates password or removes existing user.
+// Returned values: 1 - success, 0 - failure
+int dbusermgr(dbuser * db, char action, char * os);
+
+int dbgrantsmgr(grants * db, char action, char * os);
+// function checks if user exists in database
+int mysqlUserExist(MYSQL * dbh, char * login);
 #endif /* SPINE_AGENT_SRC_DATABASE_H_ */

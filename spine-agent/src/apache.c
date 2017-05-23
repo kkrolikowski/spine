@@ -244,9 +244,10 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
     char * lmsg = NULL;             // log message
 
     // response data
-    resp * rhead = rdata;
+    resp * rhead = NULL;
     resp * rcurr = NULL;
     resp * rprev = NULL;
+    resp * rpos  = rdata;
     
     while(rhead != NULL)
         rhead = rhead->next;
@@ -294,8 +295,19 @@ resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rda
         
         curr = curr->next;
     }
+    while(rdata) {
+        if(rdata->next == NULL) {
+            rdata->next = rhead;
+            break;
+        }
+        rdata = rdata->next;
+    }
+    if(rpos != NULL)
+        rdata = rpos;
+    else
+        rdata = rhead;
     
-    return rhead;
+    return rdata;
 }
 int updateHtgroupFile(char * authDir, vhostData * vhd) {
     FILE * htgroup = NULL;
