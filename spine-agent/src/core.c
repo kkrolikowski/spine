@@ -388,6 +388,7 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 	char * state_err = "ERR";
 	char * httpd_state = NULL;
 	char * sshd_state = NULL;
+        char * mysql_state = NULL;
 
 	if(s_state->apache_status == 1)
 		httpd_state = state_ok;
@@ -398,12 +399,17 @@ char * BuildPackage(systeminfo * info, monitoring * s_state, netifstats * n_stat
 		sshd_state = state_ok;
 	else
 		sshd_state = state_err;
+        if(s_state->mysql_status == 1)
+		mysql_state = state_ok;
+	else
+		mysql_state = state_err;
 
 	char * package = mkString(
 			"[{datatype:\"sysinfo\",package:{",
 			"monitoring:{",
 			"httpd:", httpd_state,
 			",sshd:", sshd_state,
+                        ",mysql:", mysql_state,
 			"},"
 			"uptime:\"", s_uptime, "\",",
 			"hostname:\"", info->hostname, "\",",
@@ -454,7 +460,7 @@ void SendData(char * mode, char * server, int port, FILE * lf) {
 	unsigned long (*SysInfo[6])(void) = { getuptime, DiskSizeTotal, DiskSizeFree, ramFree, ramTotal, getCurrentTime };
 
 	// wskazniki do funkcji weryfikujacych dzialanie uslug w systemie.
-	int (*check[])(void) = { apacheAlive, sshdAlive };
+	int (*check[])(void) = { apacheAlive, sshdAlive, mysqlAlive };
 
 	while(1) {
 		if((confd = connector(server, port)) < 0) {
