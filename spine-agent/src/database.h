@@ -107,33 +107,6 @@ dbuser * getDatabaseUsers(char * systemid);
 // function gets privileges information
 grants * getDatabasePrivileges(char * systemid);
 
-// function gets memory size needed to hold database names information
-int DBnamesDataSize(dbinfo * db);
-
-// function gets memory size needed to hold database users information
-int DBusersDataSize(dbuser * db);
-
-// function gets memory size needed to hold database privileges information
-int DBgrantsDataSize(grants * db);
-
-// function return string with database names package
-char * DBNamesConfigPackage(dbinfo * db);
-
-// clear memory with database names data.
-void cleanDBinfoData(dbinfo * db);
-
-// function return string with database users package
-char * DBusersConfigPackage(dbuser * db);
-
-// clear memory with database users data.
-void cleanDBusersData(dbuser * db);
-
-// function return string with database privilege package
-char * DBgrantsConfigPackage(grants * db);
-
-// clear memory with database privilges data
-void cleanDBgrantsData(grants * db);
-
 // Function manages databases on particular host. Creates new and removes
 // old ones.
 resp * DatabaseSetup(dbinfo * db, char * os, FILE * lf, resp * respdata);

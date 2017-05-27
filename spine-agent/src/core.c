@@ -15,6 +15,7 @@
 #include "monitoring.h"
 #include "sysusers.h"
 #include "commondata.h"
+#include "buildpkg.h"
 
 int savePidFile(int pid) {
 	FILE * pf;
