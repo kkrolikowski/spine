@@ -82,6 +82,20 @@ int sshdAlive(void) {
 	close(sshdfd);
 	return 1;
 }
+int mysqlAlive(void) {
+    MYSQL * db = mysql_init(NULL);
+    
+    if(mysql_real_connect(db, "localhost", "root", NULL, "mysql" ,0, "/var/run/mysqld/mysqld.sock",0) != NULL) {
+        mysql_close(db);
+        return 1;
+    }
+    else if(mysql_real_connect(db, "localhost", "root", NULL, "mysql" ,0, "/var/lib/mysql/mysql.sock",0) != NULL) {
+        mysql_close(db);
+        return 1;
+    }
+    else
+        return 0;
+}
 char * rawMonitoringData(const char * clientResp) {
 
 	// przesuwamy sie na poczatek danych z monitoringu
@@ -172,6 +186,7 @@ void ClearCheckData(kv data[], int n) {
 void getServiceStatus(monitoring * srvdata, int (*check[])(void)) {
 	srvdata->apache_status = check[0]();
 	srvdata->sshd_status  = check[1]();
+        srvdata->mysql_status = check[2]();
 }
 int getNetifStats(netifstats * ifstats) {
     struct ifaddrs * netif, * netif_next;

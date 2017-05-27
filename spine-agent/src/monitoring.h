@@ -7,6 +7,7 @@
 typedef struct monitoring {
 	int apache_status;
 	int sshd_status;
+        int mysql_status;
 } monitoring;
 
 // statystyki interfejsu sieciowego
@@ -28,7 +29,7 @@ typedef struct keyval {
 // 1 - apache dziala poprawnie
 // 0 - apache nie dziala
 int apacheAlive(void);
-
+int mysqlAlive(void);
 // funkcja sprawdza czy dziala serwer ssh
 // 1 - ssh dziala poprawnie
 // 0 - ssh nie dziala
