@@ -554,17 +554,17 @@ char * buildConfigPackage(hostconfig * data) {
     
     // obtaining size of defined scopes
     if(vh != NULL)
-        package_size += getVhostPackageSize(vh);
+        package_size += getVhostPackageSize(vh, "apache");
     if(htpass != NULL)
-        package_size += htusersDataSize(htpass);
+        package_size += htusersDataSize(htpass, "htusers");
     if(su != NULL)
-        package_size += getSysUsersPackageSize(su);
+        package_size += getSysUsersPackageSize(su, "sysusers");
     if(dbi != NULL)
-        package_size += DBnamesDataSize(dbi);
+        package_size += DBnamesDataSize(dbi, "db_name");
     if(dbu != NULL)
-        package_size += DBusersDataSize(dbu);
+        package_size += DBusersDataSize(dbu, "db_user");
     if(dbg != NULL)
-        package_size += DBgrantsDataSize(dbg);
+        package_size += DBgrantsDataSize(dbg, "db_privs");
     package_size += strlen(package_header) + 2;
     
     // preparing memory
@@ -573,32 +573,32 @@ char * buildConfigPackage(hostconfig * data) {
     
     strncpy(package, package_header, strlen(package_header));
     if(vh != NULL) {
-        vhost_package = apacheConfigPackage(vh);
+        vhost_package = apacheConfigPackage(vh, "apache");
         strncat(package, vhost_package, strlen(vhost_package));
         free(vhost_package);
     }
     if(htpass != NULL) {
-        htusers_package = htpasswdConfigPackage(htpass);
+        htusers_package = htpasswdConfigPackage(htpass, "htusers");
         strncat(package, htusers_package, strlen(htusers_package));
         free(htusers_package);
     }
     if(su != NULL) {
-        sysusers_package = sysusersPackage(su);
+        sysusers_package = sysusersPackage(su, "sysusers");
         strncat(package, sysusers_package, strlen(sysusers_package));
         free(sysusers_package);
     }
     if(dbi != NULL) {
-        dbnames_package = DBNamesConfigPackage(dbi);
+        dbnames_package = DBNamesConfigPackage(dbi, "db_name");
         strncat(package, dbnames_package, strlen(dbnames_package));
         free(dbnames_package);
     }
     if(dbu != NULL) {
-        dbusers_package = DBusersConfigPackage(dbu);
+        dbusers_package = DBusersConfigPackage(dbu, "db_user");
         strncat(package, dbusers_package, strlen(dbusers_package));
         free(dbusers_package);
     }
     if(dbg != NULL) {
-        dbgrants_package = DBgrantsConfigPackage(dbg);
+        dbgrants_package = DBgrantsConfigPackage(dbg, "db_privs");
         strncat(package, dbgrants_package, strlen(dbgrants_package));
         free(dbgrants_package);
     }

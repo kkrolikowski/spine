@@ -5,7 +5,7 @@
 #include "core.h"
 #include "commondata.h"
 
-int getVhostPackageSize(vhostData * vhd) {
+int getVhostPackageSize(vhostData * vhd, char * scope) {
     vhostData * curr = vhd;     // current node
     int size = 0;               // overrall data size
     int keySize = 0;            // key names size
@@ -14,7 +14,7 @@ int getVhostPackageSize(vhostData * vhd) {
     char * tmp = NULL;          // temporary string
     
     // package header 
-    char * header = "{scope:apache,},";
+    char * header = mkString("{scope:", scope, ",},", NULL);
     // package keys names
     const char * keys[] = { "DocumentRoot:,", "ServerAlias:,", "ServerName:,", "ApacheOpts:,",
                             "htaccess:,", "htusers:,", "purgedir:,", "vhoststatus:,", "sysuser:,",
@@ -67,10 +67,11 @@ int getVhostPackageSize(vhostData * vhd) {
     }
     size += strlen(header);
     size += keySize * nodeCount;
+    free(header);
     
     return size;
 }
-int htusersDataSize(htpasswdData * htpass) {
+int htusersDataSize(htpasswdData * htpass, char * scope) {
     htpasswdData * curr = htpass;       // current node
     int size = 0;                       // overrall data size
     int keySize = 0;                    // key names size
@@ -79,7 +80,7 @@ int htusersDataSize(htpasswdData * htpass) {
     char * tmp = NULL;                  // temporary string
 
     // package header
-    char * header = "{scope:htusers,},";    
+    char * header = mkString("{scope:", scope, ",},", NULL);    
     // package keys names
     char * keys[] = { "user_:" "login:,", "password:,", "dbid:,", 
                       "status:,", "config_version:,", NULL 
@@ -113,6 +114,7 @@ int htusersDataSize(htpasswdData * htpass) {
     }
     size += strlen(header);
     size += keySize * nodeCount;
+    free(header);
     
     return size;
 }
@@ -136,7 +138,7 @@ int getSSHkeysPackageSize(sshkeys * ssh) {
     
     return size;
 }
-int getSysUsersPackageSize(sysuser * su) {
+int getSysUsersPackageSize(sysuser * su, char * scope) {
     sysuser * curr = su;    // current node
     int size = 0;           // overrall data size
     int keySize = 0;        // key names size
@@ -145,7 +147,7 @@ int getSysUsersPackageSize(sysuser * su) {
     char * tmp = NULL;      // temporary string
     
     // package header 
-    char * header = "{scope:sysusers,},";  
+    char * header = mkString("{scope:", scope, ",},", NULL);
     // package keys names
     const char * keys[] = { "dbid:," "username:,", "password:,", "gecos:,", "expire:,",
                             "uidgid:,", "active:,", "purgedir:,", "shell:,",
@@ -199,10 +201,11 @@ int getSysUsersPackageSize(sysuser * su) {
     }
     size += strlen(header);
     size += keySize * nodeCount;
+    free(header);
 
     return size;
 }
-int DBnamesDataSize(dbinfo * db) {
+int DBnamesDataSize(dbinfo * db, char * scope) {
     dbinfo * curr = db;                 // current node
     int size = 0;                       // overrall data size
     int keySize = 0;                    // key names size
@@ -211,7 +214,7 @@ int DBnamesDataSize(dbinfo * db) {
     char * tmp = NULL;                  // temporary string
 
     // package header
-    char * header = "{scope:db_name,},";    
+    char * header = mkString("{scope:", scope, ",},", NULL);
     // package keys names
     char * keys[] = { "dbnum_:", "dbname:,", "dbid:,", "status:,", 
                       "config_version:,", NULL 
@@ -244,10 +247,11 @@ int DBnamesDataSize(dbinfo * db) {
     }
     size += strlen(header);
     size += keySize * nodeCount;
+    free(header);
     
     return size;
 }
-int DBusersDataSize(dbuser * db) {
+int DBusersDataSize(dbuser * db, char * scope) {
     dbuser * curr = db;                 // current node
     int size = 0;                       // overrall data size
     int keySize = 0;                    // key names size
@@ -256,7 +260,7 @@ int DBusersDataSize(dbuser * db) {
     char * tmp = NULL;                  // temporary string
 
     // package header
-    char * header = "{scope:db_user,},";    
+    char * header = mkString("{scope:", scope, ",},", NULL);    
     // package keys names
     char * keys[] = { "dbusernum_:", "dblogin:,", "dbid:,", "status:,", 
                       "dbpass:,", "config_version:,", NULL 
@@ -290,10 +294,11 @@ int DBusersDataSize(dbuser * db) {
     }
     size += strlen(header);
     size += keySize * nodeCount;
+    free(header);
     
     return size;
 }
-int DBgrantsDataSize(grants * db) {
+int DBgrantsDataSize(grants * db, char * scope) {
     grants * curr = db;                 // current node
     int size = 0;                       // overrall data size
     int keySize = 0;                    // key names size
@@ -302,7 +307,7 @@ int DBgrantsDataSize(grants * db) {
     char * tmp = NULL;                  // temporary string
 
     // package header
-    char * header = "{scope:db_privs,},";    
+    char * header = mkString("{scope:", scope, ",},", NULL);    
     // package keys names
     char * keys[] = { "dbprivnum_:", "dbid:,", "dblogin:,", "dbname:,", 
                       "grants:,", "status:,", "config_version:,", NULL 
@@ -337,24 +342,25 @@ int DBgrantsDataSize(grants * db) {
     }
     size += strlen(header);
     size += keySize * nodeCount;
+    free(header);
     
     return size;
 }
-char * apacheConfigPackage(vhostData * www) {
+char * apacheConfigPackage(vhostData * www, char * scope) {
     // common data
     vhostData * curr       = www;       // node traversing pointer
-    int size               = 0;         // package size
-    int idx                = 0;		// vhost index
-    char * package         = NULL;      // output package
-    char * numstr          = NULL;	// vhost index as a string
-    char * entry           = NULL;      // particular vhost definition
-    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // common variables
+    #define X(L, R, V) L R = V;
+        COMMON_VARS
+    #undef X
+    
     char * uid             = NULL;      // UNIX uid of the owner of vhost
     // specific data
     char * authbasic       = NULL;	// authbasic flag
 
     // package header
-    char * header = "{scope:apache,";
+    char * header = mkString("{scope:", scope, ",", NULL);
 
     // config version
     char * k_config_ver = "config_ver:";
@@ -364,7 +370,7 @@ char * apacheConfigPackage(vhostData * www) {
         return NULL;
     
     // preparing memory
-    size = getVhostPackageSize(www) + 1;
+    size = getVhostPackageSize(www, scope) + 1;
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
 
@@ -414,24 +420,25 @@ char * apacheConfigPackage(vhostData * www) {
 
     // czyscimy niepotrzebne dane
     free(s_config_ver);
+    free(header);
     cleanVhostData(www);
 
     return package;
 }
-char * htpasswdConfigPackage(htpasswdData * htpass) {
+char * htpasswdConfigPackage(htpasswdData * htpass, char * scope) {
     // common data
     htpasswdData * curr     = htpass;   // node traversing pointer
-    int size = 0;                       // package size
-    int idx  = 0;			// item number
-    char * package          = NULL;     // output package
-    char * numstr           = NULL;	// item number as a string
-    char * entry            = NULL;     // particular entry definition
-    char * s_dbid           = NULL;     // DB ID in a form of string
+    
+    // common variables
+    #define X(L, R, V) L R = V;
+        COMMON_VARS
+    #undef X
+
     // specific data
     char status[2];                     // status flags can be: NUDA
 
     // package header
-    char * header = "{scope:htusers,";
+    char * header = mkString("{scope:", scope, ",", NULL);
 
     // config version
     char * k_config_ver = "config_ver:";
@@ -441,7 +448,7 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
         return NULL;
     
     // preparing memory
-    size = htusersDataSize(htpass) + 1;
+    size = htusersDataSize(htpass, scope) + 1;
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
   
@@ -480,6 +487,7 @@ char * htpasswdConfigPackage(htpasswdData * htpass) {
 
     // czyscimy niepotrzebne dane
     free(s_config_ver);
+    free(header);
     clearHtpasswdData(htpass);
 
     return package;
@@ -530,15 +538,15 @@ char * sshkeysPackage(sshkeys * k) {
     }
     return package;
 }
-char * sysusersPackage(sysuser * su) {
+char * sysusersPackage(sysuser * su, char * scope) {
     // common data
     sysuser * curr          = su;       // node traversing pointer
-    int size                = 0;        // package size
-    int idx                 = 0;        // item number
-    char * package          = NULL;     // result package
-    char * numstr           = NULL;     // item number as a string
-    char * entry            = NULL;     // particular entry definition
-    char * s_dbid           = NULL;     // DB ID in a form of string
+    
+    // common variables
+    #define X(L, R, V) L R = V;
+        COMMON_VARS
+    #undef X
+    
     // specific data
     char * keyentry         = NULL;     // sshkeys belonging to user
     char * s_expval_val     = NULL;     // account expiration
@@ -549,7 +557,7 @@ char * sysusersPackage(sysuser * su) {
     //sysuser * su_begin = su;            // poczatek wezla
     
     // package header
-    char * header = "{scope:sysusers,";
+    char * header = mkString("{scope:", scope, ",", NULL);
     
     // config version
     char * k_config_ver = "config_ver:";
@@ -559,7 +567,7 @@ char * sysusersPackage(sysuser * su) {
         return NULL;
     
     // preparing memory
-    size = getSysUsersPackageSize(su);
+    size = getSysUsersPackageSize(su, scope);
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
     
@@ -612,25 +620,25 @@ char * sysusersPackage(sysuser * su) {
     strncat(package, "}", 2);
     
     free(s_config_ver);
+    free(header);
     cleanSysUsersData(su);
     
     return package;
 }
-char * DBNamesConfigPackage(dbinfo * db) {
+char * DBNamesConfigPackage(dbinfo * db, char * scope) {
     // common data
     dbinfo * curr          = db;        // node traversing pointer
-    int size               = 0;         // package size
-    int idx                = 0;		// node index
-    char * package         = NULL;      // output package
-    char * numstr          = NULL;	// node index as a string
-    char * entry           = NULL;      // particular entry definition
-    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // common variables
+    #define X(L, R, V) L R = V;
+        COMMON_VARS
+    #undef X
     
     // specific data
     char status[2];                     // status flags can be: NUDA
     
     // package header
-    char * header = "{scope:db_name,";
+    char * header = mkString("{scope:", scope,",", NULL);
 
     // config version
     char * k_config_ver = "config_ver:";
@@ -640,7 +648,7 @@ char * DBNamesConfigPackage(dbinfo * db) {
         return NULL;
     
     // preparing memory
-    size = DBnamesDataSize(db) + 1;
+    size = DBnamesDataSize(db, scope) + 1;
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
 
@@ -676,25 +684,25 @@ char * DBNamesConfigPackage(dbinfo * db) {
 
     // czyscimy niepotrzebne dane
     free(s_config_ver);
+    free(header);
     cleanDBinfoData(db);
 
     return package;
 }
-char * DBusersConfigPackage(dbuser * db) {
+char * DBusersConfigPackage(dbuser * db, char * scope) {
     // common data
     dbuser * curr          = db;        // node traversing pointer
-    int size               = 0;         // package size
-    int idx                = 0;		// node index
-    char * package         = NULL;      // output package
-    char * numstr          = NULL;	// node index as a string
-    char * entry           = NULL;      // particular entry definition
-    char * s_dbid          = NULL;      // DB ID in a form of string
+    
+    // common variables
+    #define X(L, R, V) L R = V;
+        COMMON_VARS
+    #undef X
     
     // specific data
     char status[2];                     // status flags can be: NUDA
     
     // package header
-    char * header = "{scope:db_user,";
+    char * header = mkString("{scope:", scope,",", NULL);
 
     // config version
     char * k_config_ver = "config_ver:";
@@ -704,7 +712,7 @@ char * DBusersConfigPackage(dbuser * db) {
         return NULL;
     
     // preparing memory
-    size = DBusersDataSize(db) + 1;
+    size = DBusersDataSize(db, scope) + 1;
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
 
@@ -741,25 +749,25 @@ char * DBusersConfigPackage(dbuser * db) {
 
     // czyscimy niepotrzebne dane
     free(s_config_ver);
+    free(header);
     cleanDBusersData(db);
 
     return package;
 }
-char * DBgrantsConfigPackage(grants * db) {
+char * DBgrantsConfigPackage(grants * db, char * scope) {
     // common data
     grants * curr          = db;        // node traversing pointer
-    int size               = 0;         // package size
-    int idx                = 0;		// node index
-    char * package         = NULL;      // output package
-    char * numstr          = NULL;	// node index as a string
-    char * entry           = NULL;      // particular entry definition
-    char * s_dbid          = NULL;      // DB ID in a form of string
     
+    // common variables
+    #define X(L, R, V) L R = V;
+        COMMON_VARS
+    #undef X
+
     // specific data
     char status[2];                     // status flags can be: NUDA
     
     // package header
-    char * header = "{scope:db_privs,";
+    char * header = mkString("{scope:", scope,",", NULL);
 
     // config version
     char * k_config_ver = "config_ver:";
@@ -769,7 +777,7 @@ char * DBgrantsConfigPackage(grants * db) {
         return NULL;
     
     // preparing memory
-    size = DBgrantsDataSize(db) + 1;
+    size = DBgrantsDataSize(db, scope) + 1;
     package = (char *) malloc(size * sizeof(char));
     memset(package, '\0', size);
 
@@ -807,6 +815,7 @@ char * DBgrantsConfigPackage(grants * db) {
 
     // czyscimy niepotrzebne dane
     free(s_config_ver);
+    free(header);
     cleanDBgrantsData(db);
 
     return package;
