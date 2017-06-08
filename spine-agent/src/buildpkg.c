@@ -347,16 +347,14 @@ int DBgrantsDataSize(grants * db, char * scope) {
     return size;
 }
 char * apacheConfigPackage(vhostData * www, char * scope) {
-    // common data
-    vhostData * curr       = www;       // node traversing pointer
-    
     // common variables
     #define X(L, R, V) L R = V;
         COMMON_VARS
     #undef X
-    
-    char * uid             = NULL;      // UNIX uid of the owner of vhost
+     
     // specific data
+    vhostData * curr       = www;       // node traversing pointer
+    char * uid             = NULL;      // UNIX uid of the owner of vhost
     char * authbasic       = NULL;	// authbasic flag
 
     // package header
@@ -422,15 +420,13 @@ char * apacheConfigPackage(vhostData * www, char * scope) {
     return package;
 }
 char * htpasswdConfigPackage(htpasswdData * htpass, char * scope) {
-    // common data
-    htpasswdData * curr     = htpass;   // node traversing pointer
-    
     // common variables
     #define X(L, R, V) L R = V;
         COMMON_VARS
     #undef X
 
     // specific data
+    htpasswdData * curr     = htpass;   // node traversing pointer
     char status[2];                     // status flags can be: NUDA
 
     // package header
@@ -531,22 +527,19 @@ char * sshkeysPackage(sshkeys * k) {
     return package;
 }
 char * sysusersPackage(sysuser * su, char * scope) {
-    // common data
-    sysuser * curr          = su;       // node traversing pointer
-    
     // common variables
     #define X(L, R, V) L R = V;
         COMMON_VARS
     #undef X
     
     // specific data
+    sysuser * curr          = su;       // node traversing pointer
     char * keyentry         = NULL;     // sshkeys belonging to user
     char * s_expval_val     = NULL;     // account expiration
     char * s_uidgid_val     = NULL;     // UID/GID
     char * s_active_val     = NULL;     // 1: account is active, 0: inactive
     char * s_shell_val      = NULL;     // 1: account have shell access, 0: doesn't
     char * s_sudo_val       = NULL;     // 1: admin privileges, 0: regular user
-    //sysuser * su_begin = su;            // poczatek wezla
     
     // package header
     char * header = mkString("{scope:", scope, ",", NULL);
@@ -614,15 +607,13 @@ char * sysusersPackage(sysuser * su, char * scope) {
     return package;
 }
 char * DBNamesConfigPackage(dbinfo * db, char * scope) {
-    // common data
-    dbinfo * curr          = db;        // node traversing pointer
-    
     // common variables
     #define X(L, R, V) L R = V;
         COMMON_VARS
     #undef X
     
     // specific data
+    dbinfo * curr          = db;        // node traversing pointer
     char status[2];                     // status flags can be: NUDA
     
     // package header
@@ -674,15 +665,13 @@ char * DBNamesConfigPackage(dbinfo * db, char * scope) {
     return package;
 }
 char * DBusersConfigPackage(dbuser * db, char * scope) {
-    // common data
-    dbuser * curr          = db;        // node traversing pointer
-    
     // common variables
     #define X(L, R, V) L R = V;
         COMMON_VARS
     #undef X
     
     // specific data
+    dbuser * curr          = db;        // node traversing pointer
     char status[2];                     // status flags can be: NUDA
     
     // package header
@@ -735,15 +724,13 @@ char * DBusersConfigPackage(dbuser * db, char * scope) {
     return package;
 }
 char * DBgrantsConfigPackage(grants * db, char * scope) {
-    // common data
-    grants * curr          = db;        // node traversing pointer
-    
     // common variables
     #define X(L, R, V) L R = V;
         COMMON_VARS
     #undef X
 
     // specific data
+    grants * curr          = db;        // node traversing pointer
     char status[2];                     // status flags can be: NUDA
     
     // package header
