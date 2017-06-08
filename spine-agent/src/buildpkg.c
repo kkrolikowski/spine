@@ -362,10 +362,6 @@ char * apacheConfigPackage(vhostData * www, char * scope) {
     // package header
     char * header = mkString("{scope:", scope, ",", NULL);
 
-    // config version
-    char * k_config_ver = "config_ver:";
-    char * s_config_ver = NULL;
-
     if(www == NULL)
         return NULL;
     
@@ -414,7 +410,7 @@ char * apacheConfigPackage(vhostData * www, char * scope) {
     }
 
     // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, "config_ver:", strlen("config_ver:"));
     strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "},", 2);
 
@@ -440,10 +436,6 @@ char * htpasswdConfigPackage(htpasswdData * htpass, char * scope) {
     // package header
     char * header = mkString("{scope:", scope, ",", NULL);
 
-    // config version
-    char * k_config_ver = "config_ver:";
-    char * s_config_ver = NULL;
-    
     if(htpass == NULL)
         return NULL;
     
@@ -481,7 +473,7 @@ char * htpasswdConfigPackage(htpasswdData * htpass, char * scope) {
     }
 
     // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, "config_ver:", strlen("config_ver:"));
     strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "},", 2);
 
@@ -559,10 +551,6 @@ char * sysusersPackage(sysuser * su, char * scope) {
     // package header
     char * header = mkString("{scope:", scope, ",", NULL);
     
-    // config version
-    char * k_config_ver = "config_ver:";
-    char * s_config_ver = NULL;
-    
     if(su == NULL)
         return NULL;
     
@@ -615,7 +603,7 @@ char * sysusersPackage(sysuser * su, char * scope) {
         idx++;
         curr = curr->next;
     }
-    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, "config_ver:", strlen("config_ver:"));
     strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "}", 2);
     
@@ -639,10 +627,6 @@ char * DBNamesConfigPackage(dbinfo * db, char * scope) {
     
     // package header
     char * header = mkString("{scope:", scope,",", NULL);
-
-    // config version
-    char * k_config_ver = "config_ver:";
-    char * s_config_ver = NULL;
 
     if(db == NULL)
         return NULL;
@@ -678,7 +662,7 @@ char * DBNamesConfigPackage(dbinfo * db, char * scope) {
     }
 
     // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, "config_ver:", strlen("config_ver:"));
     strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "},", 2);
 
@@ -703,10 +687,6 @@ char * DBusersConfigPackage(dbuser * db, char * scope) {
     
     // package header
     char * header = mkString("{scope:", scope,",", NULL);
-
-    // config version
-    char * k_config_ver = "config_ver:";
-    char * s_config_ver = NULL;
 
     if(db == NULL)
         return NULL;
@@ -743,7 +723,7 @@ char * DBusersConfigPackage(dbuser * db, char * scope) {
     }
 
     // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, "config_ver:", strlen("config_ver:"));
     strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "},", 2);
 
@@ -768,10 +748,6 @@ char * DBgrantsConfigPackage(grants * db, char * scope) {
     
     // package header
     char * header = mkString("{scope:", scope,",", NULL);
-
-    // config version
-    char * k_config_ver = "config_ver:";
-    char * s_config_ver = NULL;
 
     if(db == NULL)
         return NULL;
@@ -809,7 +785,7 @@ char * DBgrantsConfigPackage(grants * db, char * scope) {
     }
 
     // dodatkowe dane: liczba vhostow, ktore zostaly odczytane
-    strncat(package, k_config_ver, strlen(k_config_ver));
+    strncat(package, "config_ver:", strlen("config_ver:"));
     strncat(package, s_config_ver, strlen(s_config_ver));
     strncat(package, "},", 2);
 

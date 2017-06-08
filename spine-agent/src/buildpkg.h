@@ -10,7 +10,8 @@ X(int, idx, 0) \
 X(char *, package, NULL) \
 X(char *, numstr, NULL) \
 X(char *, entry, NULL) \
-X(char *, s_dbid, NULL)
+X(char *, s_dbid, NULL) \
+X(char *, s_config_ver, NULL)
 
 /* Apche scope */
 
