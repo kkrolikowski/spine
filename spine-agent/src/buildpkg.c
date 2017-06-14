@@ -348,10 +348,14 @@ int DBgrantsDataSize(grants * db, char * scope) {
 }
 char * apacheConfigPackage(vhostData * www, char * scope) {
     // common variables
-    #define X(L, R, V) L R = V;
-        COMMON_VARS
-    #undef X
-     
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    char * s_config_ver    = NULL;      // configuration version
+
     // specific data
     vhostData * curr       = www;       // node traversing pointer
     char * uid             = NULL;      // UNIX uid of the owner of vhost
@@ -421,10 +425,14 @@ char * apacheConfigPackage(vhostData * www, char * scope) {
 }
 char * htpasswdConfigPackage(htpasswdData * htpass, char * scope) {
     // common variables
-    #define X(L, R, V) L R = V;
-        COMMON_VARS
-    #undef X
-
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    char * s_config_ver    = NULL;      // configuration version
+    
     // specific data
     htpasswdData * curr     = htpass;   // node traversing pointer
     char status[2];                     // status flags can be: NUDA
@@ -528,9 +536,13 @@ char * sshkeysPackage(sshkeys * k) {
 }
 char * sysusersPackage(sysuser * su, char * scope) {
     // common variables
-    #define X(L, R, V) L R = V;
-        COMMON_VARS
-    #undef X
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    char * s_config_ver    = NULL;      // configuration version
     
     // specific data
     sysuser * curr          = su;       // node traversing pointer
@@ -608,9 +620,13 @@ char * sysusersPackage(sysuser * su, char * scope) {
 }
 char * DBNamesConfigPackage(dbinfo * db, char * scope) {
     // common variables
-    #define X(L, R, V) L R = V;
-        COMMON_VARS
-    #undef X
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    char * s_config_ver    = NULL;      // configuration version
     
     // specific data
     dbinfo * curr          = db;        // node traversing pointer
@@ -666,9 +682,13 @@ char * DBNamesConfigPackage(dbinfo * db, char * scope) {
 }
 char * DBusersConfigPackage(dbuser * db, char * scope) {
     // common variables
-    #define X(L, R, V) L R = V;
-        COMMON_VARS
-    #undef X
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    char * s_config_ver    = NULL;      // configuration version
     
     // specific data
     dbuser * curr          = db;        // node traversing pointer
@@ -725,9 +745,13 @@ char * DBusersConfigPackage(dbuser * db, char * scope) {
 }
 char * DBgrantsConfigPackage(grants * db, char * scope) {
     // common variables
-    #define X(L, R, V) L R = V;
-        COMMON_VARS
-    #undef X
+    int size               = 0;         // package size
+    int idx                = 0;		// vhost index
+    char * package         = NULL;      // output package
+    char * numstr          = NULL;	// vhost index as a string
+    char * entry           = NULL;      // particular vhost definition
+    char * s_dbid          = NULL;      // DB ID in a form of string
+    char * s_config_ver    = NULL;      // configuration version
 
     // specific data
     grants * curr          = db;        // node traversing pointer

@@ -2,17 +2,6 @@
 #define BUILDPKG_H
 #include "commondata.h"
 
-/* Macros */
-
-#define COMMON_VARS \
-X(int, size, 0) \
-X(int, idx, 0) \
-X(char *, package, NULL) \
-X(char *, numstr, NULL) \
-X(char *, entry, NULL) \
-X(char *, s_dbid, NULL) \
-X(char *, s_config_ver, NULL)
-
 /* Apche scope */
 
 // obtaining memory size
