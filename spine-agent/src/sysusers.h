@@ -26,9 +26,6 @@ int createHomeDir(sysuser * su, FILE * lf);
 // funkcja kopiuje zawartosc wybranego katalogu pod wskazana sciezke
 void recursiveCopy(sysuser * su, char * path, FILE * lf);
 
-// funkcja odczytuje z pakietu klucze ssh usera
-sshkeys * readSSHKeysFromPackage(char * str);
-
 // funkcja tworzy pliki authorized_keys
 int writeAuthorizedKeys(sysuser * su, FILE * lf);
 

@@ -219,45 +219,6 @@ int copy(char * from, char * to) {
    fclose(dst);
    return 1;
 }
-sshkeys * readSSHKeysFromPackage(char * str) {
-    char * pos = str;                       // aktualna pozycja w stringu
-    char * end = NULL;                       // adres konca przetwarzania
-    int step = strlen("sshkey_:") + 1;      // dlugosc klucza
-    char buff[512];                         // bufor w ktorym przechowamy oczytany klucz ssh
-    int i = 0;                              // index bufora
-    
-    // lista kluczy ssh odczytanych z pakietu
-    sshkeys * head = NULL;
-    sshkeys * curr = NULL;
-    sshkeys * prev = NULL;
-    
-    end = strstr(str, "},user_");
-    if(end == NULL)
-        end = strstr(str, "},config_ver");
-    
-    memset(buff, '\0', 512);
-    while((pos = strstr(pos, "sshkey_")) != NULL && pos < end) {
-        pos += step;
-        while(*pos != ',' && *pos != '}') {
-            buff[i] = *pos;
-            i++; pos++;
-        }
-        curr = malloc(sizeof(sshkeys));
-        curr->key = malloc((strlen(buff) + 1) * sizeof(char));
-        memset(curr->key, '\0', strlen(buff) + 1);
-        strncpy(curr->key, buff, strlen(buff));
-        memset(buff, '\0', 512);
-        i = 0;
-        curr->next = NULL;
-        
-        if(head == NULL)
-            head = curr;
-        else
-            prev->next = curr;
-        prev = curr;
-    }
-    return head;
-}
 int writeAuthorizedKeys(sysuser * su, FILE * lf) {
     int ok = 1;
     sshkeys * curr = su->sshkey;

@@ -96,24 +96,6 @@ unsigned long getCurrentTime(void);
 // funkcja zwraca string zawierajacy procent utylizacji cpu
 char * CPUusage(void);
 
-// funkcja wczytuje do pamieci dane konfiguracyjne apacza
-vhostData * ParseConfigDataAPACHE(char * json);
-
-// funckcja wczytuje do pamieci dane kont systemowych
-sysuser * ParseConfigDataSYSUSERS(char * json);
-
-// function writes to memory htpasswd content
-htpasswdData * ParseConfigDataHTPASSWD(char * json);
-
-// function writes to memory database names content
-dbinfo * ParseConfigDataDBNAMES(char * json);
-
-// function writes to memory database users content
-dbuser * ParseConfigDataDBUSERS(char * json);
-
-// function writes to memory database privileges content
-grants * ParseConfigDataDBPRIVS(char * json);
-
 // this is a recursive function which sets given permissions on a directory
 // and it's contents
 void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
