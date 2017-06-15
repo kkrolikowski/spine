@@ -28,16 +28,6 @@ int savePidFile(int pid) {
 
 	return 1;
 }
-int existPidFile(char * path) {
-	FILE * pf;
-
-	if((pf = fopen(path, "r")) == NULL)
-		return 0;
-	else {
-		fclose(pf);
-		return 1;
-	}
-}
 char * mkString(char * qstr, ...) {
     va_list String;                     // czesc stringa
     size_t stringLenght = 0;            // liczba znakow w calym stringu

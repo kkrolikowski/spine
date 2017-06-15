@@ -32,9 +32,6 @@ typedef struct ver {
 // funkcja zapisuje pid glownego procesu w pliku
 int savePidFile(int pid);
 
-// funkcja sprawdza czy istnieje pidfile
-int existPidFile(char * path);
-
 // Inicjalizacja struktury config_data
 void InitConfigData(config_data * cfd);
 
