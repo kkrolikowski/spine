@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// sprawdzamy czy program nie jest juz uruchomiony
-	if(existPidFile(PID_PATH)) {
+	if(fileExist(PID_PATH)) {
 		fprintf(stderr, "[CRIT] Spine Agent jest juz uruchomiony, wychodze.\n");
 		exit(EXIT_FAILURE);
 	}
