@@ -15,8 +15,8 @@
 #include "monitoring.h"
 #include "sysusers.h"
 #include "commondata.h"
-#include "buildpkg.h"
-#include "dbdata.h"
+#include "configdata/buildpkg.h"
+#include "configdata/dbdata.h"
 
 int savePidFile(int pid) {
 	FILE * pf;

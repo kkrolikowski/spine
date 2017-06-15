@@ -20,7 +20,7 @@
 #include "monitoring.h"
 #include "commondata.h"
 #include "sysusers.h"
-#include "extractpkg.h"
+#include "configdata/extractpkg.h"
 
 unsigned long getuptime(void) {
 	struct sysinfo sys;
