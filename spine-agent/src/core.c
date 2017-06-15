@@ -16,6 +16,7 @@
 #include "sysusers.h"
 #include "commondata.h"
 #include "buildpkg.h"
+#include "dbdata.h"
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -630,19 +631,19 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            if((conf->httpd.vhost = ReadVhostData(hostid))) // getVhostData
+            if((conf->httpd.vhost = getVhostData(hostid)))
                 status = 1;
             else
                 status = 0;
         }
         if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
-            if((conf->httpd.htpasswd = ReadHtpasswdData(hostid))) // getHtpasswdData
+            if((conf->httpd.htpasswd = getHtpasswdData(hostid)))
                 status = 1;
             else
                 status = 0;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
-            if((conf->sysUsers = getSystemAccounts(conf, hostid)))
+            if((conf->sysUsers = getSystemAccounts(hostid)))
                 status = 1;
             else
                 status = 0;

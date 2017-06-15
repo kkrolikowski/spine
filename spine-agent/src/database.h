@@ -51,12 +51,6 @@ int checkDBConfigVer(char * systemid);
 // zawartosc do zaalokowanego obszaru pamieci.
 char * readData(char * input);
 
-// funkcja tworzy liste laczona zawierajaca konta htpasswd
-htpasswdData * ReadHtpasswdData(char * hostid);
-
-// funkcja tworzy liste laczona zawierajaca konfiguracje virtualhostow
-vhostData * ReadVhostData(char * hostid);
-
 // funkcja zwraca ID rekordu z bazy zawierajacego okreslony mac-adres serwera
 int getDBHostID(char * hwaddr);
 
@@ -78,17 +72,6 @@ void updateServiceState(char * cliresp);
 // funkcja sluzy do aktualizacji tabelki z danymi na temat ruchu sieciowego
 void insertNetworkData(char * bytes_in, char * bytes_out, char * time_stmp, char * hostid);
 
-// funkcja sluzy do odczytywania informacji z bazy na temat kont systemowych
-// po odczytaniu danych zapisuje je do struktury hc. Aby pobrac dane na temat
-// wlasciwego hosta wykorzystuje string systemid.
-// Wartosci zwracane: 1 - udalo sie pobrac dane, 0 - brak danych
-sysuser * getSystemAccounts(hostconfig * hc, char * systemid);
-
-// funkcja pomocnicza: tworzy liste laczona zawierajaca klucze ssh uzytkownika
-// zwraca adres pierwszego wezla, ktory zostanie podczepiony pod liste laczona
-// kont systemowych.
-sshkeys * readSSHkeys(char * str);
-
 // function updates db records with information provided from client
 int applyStatusChange(resp * data);
 
@@ -97,15 +80,6 @@ void activate(char * scope, int id);
 
 // deletes item from db table
 void delete(char * scope, int id);
-
-// function gets database list
-dbinfo * getDatabaseNames(char * systemid);
-
-// function gets database users information
-dbuser * getDatabaseUsers(char * systemid);
-
-// function gets privileges information
-grants * getDatabasePrivileges(char * systemid);
 
 // Function manages databases on particular host. Creates new and removes
 // old ones.
