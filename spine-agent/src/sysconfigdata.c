@@ -19,6 +19,7 @@
 #include "network.h"
 #include "monitoring.h"
 #include "commondata.h"
+#include "toolkit.h"
 #include "sysusers.h"
 #include "configdata/extractpkg.h"
 

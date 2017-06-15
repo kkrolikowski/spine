@@ -63,9 +63,6 @@ char * ulong2String(unsigned long n);
 // Funkcja zwraca wartosc long w formie stringu
 char * long2String(long n);
 
-// Funkcja zwraca wartosc int w formie stringu
-char * int2String(int n);
-
 // Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
 // bedzie je przetwarzac.
 void RetrieveData(int port, char * mode, FILE *lf);
@@ -82,9 +79,6 @@ int clientNeedUpdate(char * clientData);
 
 // funkcja kumuluje konfigi w jednego jsona
 char * buildConfigPackage(hostconfig * data);
-
-// funkcja zwraca 1 jesli plik istnieje
-int fileExist(char * path);
 
 // funkcja sluzy do pobierania z bazy konfiguracji hostow
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf);

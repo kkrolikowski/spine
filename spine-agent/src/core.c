@@ -15,6 +15,7 @@
 #include "monitoring.h"
 #include "sysusers.h"
 #include "commondata.h"
+#include "toolkit.h"
 #include "configdata/buildpkg.h"
 #include "configdata/dbdata.h"
 
@@ -174,20 +175,6 @@ char * ulong2String(unsigned long n) {
 	size_t len = 0;
 
 	sprintf(tmp, "%lu", n);
-	len = strlen(tmp) + 1;
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
-	strcpy(str, tmp);
-
-	return str;
-}
-char * int2String(int n) {
-	char tmp[11];
-	memset(tmp, '\0', 11);
-	char * str = NULL;
-	size_t len = 0;
-
-	sprintf(tmp, "%d", n);
 	len = strlen(tmp) + 1;
 	str = (char *) malloc(len * sizeof(char));
 	memset(str, '\0', len);
@@ -596,16 +583,6 @@ char * buildConfigPackage(hostconfig * data) {
     *(package + strlen(package)) = ']';
     
     return package;
-}
-int fileExist(char * path) {
-	FILE * fp = NULL;
-
-	if((fp = fopen(path, "r")) == NULL)
-		return 0;
-	else {
-		fclose(fp);
-		return 1;
-	}
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
     int status = 0;         // status funkcji: 1 - sukces, 0 - error

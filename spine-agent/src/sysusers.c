@@ -9,7 +9,8 @@
 #include <sys/types.h>
 #include "commondata.h"
 #include "sysusers.h"
-#include "core.h"                                         
+#include "core.h"
+#include "toolkit.h"
                                                 
 int createUserAccounts(sysuser * su, char * os, FILE * lf) {
     int status = 1;

@@ -7,6 +7,7 @@
 #include <wait.h>
 #include "apache.h"
 #include "core.h"
+#include "toolkit.h"
 
 resp * HtpasswdSetup(htpasswdData * htp, char * os, FILE * lf, resp * rdata) {
     char * authDir = NULL;      // os related directory "auth" path

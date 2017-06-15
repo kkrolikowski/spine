@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <mysql.h>
 #include "core.h"
+#include "toolkit.h"
 #include "database.h"
 
 pid_t recvp = -1;

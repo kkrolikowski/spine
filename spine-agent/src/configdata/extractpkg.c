@@ -3,6 +3,7 @@
 #include <string.h>
 #include "core.h"
 #include "commondata.h"
+#include "toolkit.h"
 #include "extractpkg.h"
 
 sysuser * ParseConfigDataSYSUSERS(char * json) {

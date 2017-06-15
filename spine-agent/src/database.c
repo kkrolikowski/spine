@@ -9,6 +9,7 @@
 #include "monitoring.h"
 #include "sysusers.h"
 #include "commondata.h"
+#include "toolkit.h"
 
 void InitDBConnData(dbconn db) {
 	db.dbhost = NULL;

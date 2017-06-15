@@ -4,6 +4,7 @@
 #include "buildpkg.h"
 #include "core.h"
 #include "commondata.h"
+#include "toolkit.h"
 
 int getVhostPackageSize(vhostData * vhd, char * scope) {
     vhostData * curr = vhd;     // current node
