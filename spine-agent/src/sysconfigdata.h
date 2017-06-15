@@ -1,7 +1,6 @@
 #ifndef SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #include <mysql.h>
-#include "apache.h"
 #include "commondata.h"
 
 #define SPOOL_DIR "/var/spool/spine"

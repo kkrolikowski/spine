@@ -2,7 +2,6 @@
 #define SPINE_AGENT_CORE_H_
 #include "sysconfigdata.h"
 #include "database.h"
-#include "apache.h"
 #include "monitoring.h"
 
 #define BUFSIZE 128			// bufor do odczytu pliku konfiguracyjnego
