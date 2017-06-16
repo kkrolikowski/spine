@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -65,19 +64,6 @@ char * mkString(char * qstr, ...) {
         va_end(String);
     }
     return str;
-}
-char * timestamp(void) {
-	time_t epoch;
-	char * timestamp = NULL;
-	struct tm * now;
-
-	time(&epoch);
-	timestamp = (char *) malloc(20 * sizeof(char));
-	memset(timestamp, '\0', 20);
-	now = localtime(&epoch);
-	strftime(timestamp, 20, "%F %T", now);
-
-	return timestamp;
 }
 void writeLog(FILE *lf, char * message) {
 	char * ts = timestamp();
@@ -167,34 +153,6 @@ char * parseLine(char * line) {
 		val++;
 	}
 	return valStart;
-}
-char * ulong2String(unsigned long n) {
-	char tmp[12];
-	memset(tmp, '\0', 12);
-	char * str = NULL;
-	size_t len = 0;
-
-	sprintf(tmp, "%lu", n);
-	len = strlen(tmp) + 1;
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
-	strcpy(str, tmp);
-
-	return str;
-}
-char * long2String(long n) {
-	char tmp[12];
-	memset(tmp, '\0', 12);
-	char * str = NULL;
-	size_t len = 0;
-
-	sprintf(tmp, "%ld", n);
-	len = strlen(tmp) + 1;
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
-	strcpy(str, tmp);
-
-	return str;
 }
 void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;

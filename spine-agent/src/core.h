@@ -39,9 +39,6 @@ void InitConfigData(config_data * cfd);
 // laczenia stringow. Ostatnim argumentem musi byc NULL
 char * mkString(char * qstr, ...);
 
-// funkcja zwraca aktualny czas w formacie: YYY-MM-DD hh:mm:ss
-char * timestamp(void);
-
 // funkcja zapisująca informacje do wskazanego przez uchwyt lf
 // pliku z logami.
 void writeLog(FILE *lf, char * message);
@@ -56,12 +53,6 @@ int ReadConfig(config_data * cfd, FILE * cf);
 
 // Funkcja wyciaga wartosci opcji, ktore sa skonfigurowane w pliku
 char * parseLine(char * line);
-
-// Funkcja zwraca wartosc unsigned long w formie stringu
-char * ulong2String(unsigned long n);
-
-// Funkcja zwraca wartosc long w formie stringu
-char * long2String(long n);
 
 // Funkcja odbiera dane z sieci a nastepnie za pomoca innych funkcji
 // bedzie je przetwarzac.
