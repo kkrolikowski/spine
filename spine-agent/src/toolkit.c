@@ -27,7 +27,7 @@ char * int2String(int n) {
     str = (char *) malloc(len * sizeof(char));
     if(str != NULL) {
         memset(str, '\0', len);
-        strcpy(str, tmp);
+        strncpy(str, tmp, strlen(tmp));
     }
 
     return str;
@@ -43,7 +43,7 @@ char * long2String(long n) {
     str = (char *) malloc(len * sizeof(char));
     if(str != NULL) {
         memset(str, '\0', len);
-        strcpy(str, tmp);
+        strncpy(str, tmp, strlen(tmp));
     }
     
     return str;
@@ -59,7 +59,7 @@ char * ulong2String(unsigned long n) {
     str = (char *) malloc(len * sizeof(char));
     if(str != NULL) {
         memset(str, '\0', len);
-        strcpy(str, tmp);
+        strncpy(str, tmp, strlen(tmp));
     }
 
     return str;
