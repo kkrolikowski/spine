@@ -10,6 +10,7 @@
 #include "monitoring.h"
 #include "network.h"
 #include "core.h"
+#include "toolkit.h"
 
 int apacheAlive(void) {
 	// request do wyslania do apacza

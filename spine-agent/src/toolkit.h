@@ -27,5 +27,11 @@ char * ulong2String(unsigned long n);
 // _NOTICE_: Please remember to free() allocated memory after string usage.
 char * timestamp(void);
 
+// mkString() is designed to concatenate all agruments passed to it into one string.
+// Sample usage: str = mkString("string literal ", string1, " string literal", NULL);
+// _IMPORTANT_: string list should be terminated with NULL.
+// _NOTICE_: Please remember to free() allocated memory after string usage.
+char * mkString(char * qstr, ...);
+
 #endif /* TOOLKIT_H */
 

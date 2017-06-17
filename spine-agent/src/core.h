@@ -35,10 +35,6 @@ int savePidFile(int pid);
 // Inicjalizacja struktury config_data
 void InitConfigData(config_data * cfd);
 
-// funkcja ogolnego przeznaczenia, ktora sluzy do
-// laczenia stringow. Ostatnim argumentem musi byc NULL
-char * mkString(char * qstr, ...);
-
 // funkcja zapisująca informacje do wskazanego przez uchwyt lf
 // pliku z logami.
 void writeLog(FILE *lf, char * message);

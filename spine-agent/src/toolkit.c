@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <time.h>
 #include "toolkit.h"
 
@@ -76,4 +77,41 @@ char * timestamp(void) {
         strftime(timestamp, 20, "%F %T", now);
     }
     return timestamp;
+}
+char * mkString(char * qstr, ...) {
+    va_list String;                     // String element
+    size_t stringLenght = 0;            // number of bytes in whole string
+    char * str = NULL;                  // result
+
+    // First and next list elements
+    char * Sfirst = qstr;
+    char * Snext = qstr;
+
+    // string lenth calculation
+    va_start(String, qstr);
+    while(Snext != NULL) {
+        stringLenght += strlen(Snext);
+        Snext = va_arg(String, char *);
+    }
+    va_end(String);
+
+/*
+ * Let's go to the first list element and put all pieces together
+*/
+    str = (char *) malloc((stringLenght + 1) * sizeof(char));
+    memset(str, '\0', ((stringLenght + 1) * sizeof(char)));
+    if(str != NULL) {
+        memset(str, '\0', stringLenght + 1);
+        Snext = Sfirst;
+        va_start(String, qstr);
+        while(Snext != NULL) {
+            if(str[0] == '\0')
+                strncpy(str, Snext, strlen(Snext));
+            else
+                strncat(str, Snext, strlen(Snext));
+            Snext = va_arg(String, char *);
+        }
+        va_end(String);
+    }
+    return str;
 }

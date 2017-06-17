@@ -5,6 +5,7 @@
 #include "core.h"
 #include "commondata.h"
 #include "dbdata.h"
+#include "toolkit.h"
 
 vhostData * getVhostData(char * hostid) {
     // Zmienne umozliwiajace wyciaganie danych z bazy
