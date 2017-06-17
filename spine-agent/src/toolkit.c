@@ -4,7 +4,11 @@
 #include <string.h>
 #include <stdarg.h>
 #include <time.h>
+#include <limits.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include "toolkit.h"
+#include "core.h"
 
 int fileExist(char * path) {
     FILE * fp = NULL;
@@ -114,4 +118,33 @@ char * mkString(char * qstr, ...) {
         va_end(String);
     }
     return str;
+}
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf) {
+  int i = 0;
+  char * p = path;
+  char * lmsg = NULL;
+  char * tmp = NULL;
+  char buff[PATH_MAX];
+  memset(buff, '\0', PATH_MAX);
+
+  while(*p) {
+    buff[i] = *p;
+    if(*p == '/') {
+      mkdir(buff, mode);
+      if(!chown(buff, owner, group)) {
+          tmp = int2String(owner);
+          lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
+          free(tmp);
+          writeLog(lf, lmsg);
+      }
+    }
+    i++; p++;
+  }
+  mkdir(buff, mode);
+  if(!chown(buff, owner, group)) {
+    tmp = int2String(owner);
+    lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
+    free(tmp);
+    writeLog(lf, lmsg);
+  }
 }

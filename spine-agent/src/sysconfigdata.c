@@ -10,7 +10,6 @@
 #include <sys/utsname.h>
 #include <net/if.h>
 #include <unistd.h>
-#include <limits.h>
 #include <dirent.h>
 #include <time.h>
 #include <glibtop/cpu.h>
@@ -272,35 +271,6 @@ char * linuxDistro(void) {
 	strncpy(name, distro, len);
 
 	return name;
-}
-void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf) {
-  int i = 0;
-  char * p = path;
-  char * lmsg = NULL;
-  char * tmp = NULL;
-  char buff[PATH_MAX];
-  memset(buff, '\0', PATH_MAX);
-
-  while(*p) {
-    buff[i] = *p;
-    if(*p == '/') {
-      mkdir(buff, mode);
-      if(!chown(buff, owner, group)) {
-          tmp = int2String(owner);
-          lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
-          free(tmp);
-          writeLog(lf, lmsg);
-      }
-    }
-    i++; p++;
-  }
-  mkdir(buff, mode);
-  if(!chown(buff, owner, group)) {
-    tmp = int2String(owner);
-    lmsg = mkString("[WARNING] Cannot change owner of ", buff, "to: ", tmp, NULL);
-    free(tmp);
-    writeLog(lf, lmsg);
-  }
 }
 void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf) {
     DIR * d;

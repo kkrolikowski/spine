@@ -76,9 +76,6 @@ void ParseConfigData(char * json, hostconfig * conf);
 // funkcja zwraca nazwe dystrybucji Linuksa
 char * linuxDistro(void);
 
-// funkcja tworzy strukture katalogow na podstawie podanej sciezki
-void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf);
-
 // funkcja odczytujaca aktualna wartosc IP z cache'a
 // w przypadku bledu odczytu zwraca NULL
 char * readIPCache(void);

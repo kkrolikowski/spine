@@ -33,5 +33,9 @@ char * timestamp(void);
 // _NOTICE_: Please remember to free() allocated memory after string usage.
 char * mkString(char * qstr, ...);
 
-#endif /* TOOLKIT_H */
+// mkdirtree() creates directory tructure based on givent path.
+// aditional parameters required are permission mode, (i.e. 0755), UID, GID
+// and logfile handle
+void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf);
 
+#endif /* TOOLKIT_H */
