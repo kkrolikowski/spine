@@ -17,14 +17,8 @@ int writeShadow(sysuser * su);
 // funkcja zapisuje dane w pliku /etc/group
 int writeGroup(sysuser * su);
 
-// funkcja do kopiowania plikow
-int copy(char * from, char * to);
-
 // funkcja tworzy katalog domowy uzytkownika
 int createHomeDir(sysuser * su, FILE * lf);
-
-// funkcja kopiuje zawartosc wybranego katalogu pod wskazana sciezke
-void recursiveCopy(sysuser * su, char * path, FILE * lf);
 
 // funkcja tworzy pliki authorized_keys
 int writeAuthorizedKeys(sysuser * su, FILE * lf);

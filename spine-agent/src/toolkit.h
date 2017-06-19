@@ -1,7 +1,7 @@
 /* toolkit.h -- common purpose functions library */
 #ifndef TOOLKIT_H
 #define TOOLKIT_H
-
+#include "commondata.h"
 // fileExist() tries to open file with given path in readonly mode
 // return values: 0 - failure, 1 - success
 int fileExist(char * path);
@@ -48,5 +48,14 @@ void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
 // purgeDir() is a recursive function that removes given directory path (name)
 // with all it's contents.
 void purgeDir(char * name);
+
+// recursiveCopy() copies contents of directory available at a given path
+// into /home/user directory. Function sets basic pemission on destination files
+// and directories. /home/ path is hardcoded
+void recursiveCopy(sysuser * su, char * path, FILE * lf);
+
+// copy() is a simple function, that opens "from" and writes it's contents into
+// "to".
+int copy(char * from, char * to);
 
 #endif /* TOOLKIT_H */
