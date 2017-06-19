@@ -38,4 +38,15 @@ char * mkString(char * qstr, ...);
 // and logfile handle
 void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf);
 
+// updateDirPermissions() alters permissions along the given path.
+// This is a recursive function that takes additional arguments which are
+// UID and GID. Files and directories modes are hardcoded:
+// *     root user: 0755 - directories, 0644 - files
+// * non-root user: 0710 - directories, 0600 - files
+void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
+
+// purgeDir() is a recursive function that removes given directory path (name)
+// with all it's contents.
+void purgeDir(char * name);
+
 #endif /* TOOLKIT_H */

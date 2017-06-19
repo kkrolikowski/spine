@@ -83,18 +83,11 @@ char * readIPCache(void);
 // funkcja zapisuje aktualny adres IP w pliku
 int writeIPCache(char * extip);
 
-// funkcja kasuje katalog wraz z zawartoscia
-void purgeDir(char * name);
-
 // funkcja zwraca aktualny czas w sekundach (UNIX time)
 unsigned long getCurrentTime(void);
 
 // funkcja zwraca string zawierajacy procent utylizacji cpu
 char * CPUusage(void);
-
-// this is a recursive function which sets given permissions on a directory
-// and it's contents
-void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
 
 // function initiates connection to localhost database. It has hardcoded
 // root@localhost account
