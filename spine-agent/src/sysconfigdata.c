@@ -19,7 +19,7 @@
 #include "monitoring.h"
 #include "commondata.h"
 #include "toolkit.h"
-#include "sysusers.h"
+#include "scopes/sysusers.h"
 #include "configdata/extractpkg.h"
 
 unsigned long getuptime(void) {

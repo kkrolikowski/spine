@@ -7,7 +7,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 #include "monitoring.h"
-#include "sysusers.h"
+#include "scopes/sysusers.h"
 #include "commondata.h"
 #include "toolkit.h"
 
