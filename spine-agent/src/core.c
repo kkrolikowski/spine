@@ -10,6 +10,7 @@
 #include "sysconfigdata.h"
 #include "database.h"
 #include "scopes/apache.h"
+#include "scopes/db.h"
 #include "monitoring.h"
 #include "scopes/sysusers.h"
 #include "commondata.h"

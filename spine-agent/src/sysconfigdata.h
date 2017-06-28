@@ -89,8 +89,4 @@ unsigned long getCurrentTime(void);
 // funkcja zwraca string zawierajacy procent utylizacji cpu
 char * CPUusage(void);
 
-// function initiates connection to localhost database. It has hardcoded
-// root@localhost account
-MYSQL * mysqlconn(char * os);
-
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

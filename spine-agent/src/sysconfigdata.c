@@ -333,17 +333,3 @@ char * CPUusage(void) {
 
     return usage_s;
 }
-MYSQL * mysqlconn(char * os) {
-   MYSQL * db = mysql_init(NULL);
-   char * sockpath = NULL;
-   
-   if(!strcmp(os, "Ubuntu"))
-       sockpath = "/var/run/mysqld/mysqld.sock";
-   else
-       sockpath = "/var/lib/mysql/mysql.sock";
-   
-   if(mysql_real_connect(db, "localhost", "root", NULL, "mysql" ,0, sockpath,0) != NULL)
-      return db;
-   else
-      return NULL;
-}
