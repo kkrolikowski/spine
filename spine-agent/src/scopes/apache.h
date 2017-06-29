@@ -6,15 +6,6 @@
 
 /*			FUNKCJE			*/
 
-// funkcja czysci elementy listy elementow
-void clearHtpasswdData(htpasswdData * htpasswd);
-
-// funkcja buduje jsona z konfiuguracja apacza na podstawie tabel konfiguracyjnych w bazie
-char * apacheConfigPackage(vhostData * www);
-
-// function builds htpasswd configuration package
-char * htpasswdConfigPackage(htpasswdData * htpass);
-
 // tworzenie pliku htpasswd
 resp * createHtpasswdFile(htpasswdData * htp, char * path, FILE * lf, resp * rdata);
 
@@ -50,15 +41,6 @@ void clearAuthData(char * os);
 
 // funkcja kasuje konfiguracje oraz zawartosc stron www. Zwraca liczbe skasowanych witryn
 void removeVhost(char * os, vhostData * vhd);
-
-// funckja zwraca wartosc pamieci potrzebna do przechowania danych vhostow
-int getVhostPackageSize(vhostData * vhd);
-
-// funkcja zwraca wartosc pamieci potrzebna do przechowania opcji z kontami htpasswd
-int htusersDataSize(htpasswdData * htpass);
-
-// funkcja czysci dynamiczna lista konfiuracji vhostow
-void cleanVhostData(vhostData * vhd);
 
 // removing entry fron .htgroup
 int removeFromHtGroupFile(char * path, char * entry);

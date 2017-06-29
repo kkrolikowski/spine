@@ -1,9 +1,7 @@
 /* core.c -- podstawowe funkcje programu */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -11,10 +9,14 @@
 #include "network.h"
 #include "sysconfigdata.h"
 #include "database.h"
-#include "apache.h"
+#include "scopes/apache.h"
+#include "scopes/db.h"
 #include "monitoring.h"
-#include "sysusers.h"
+#include "scopes/sysusers.h"
 #include "commondata.h"
+#include "toolkit.h"
+#include "configdata/buildpkg.h"
+#include "configdata/dbdata.h"
 
 int savePidFile(int pid) {
 	FILE * pf;
@@ -25,66 +27,6 @@ int savePidFile(int pid) {
 	fclose(pf);
 
 	return 1;
-}
-int existPidFile(char * path) {
-	FILE * pf;
-
-	if((pf = fopen(path, "r")) == NULL)
-		return 0;
-	else {
-		fclose(pf);
-		return 1;
-	}
-}
-char * mkString(char * qstr, ...) {
-    va_list String;                     // czesc stringa
-    size_t stringLenght = 0;            // liczba znakow w calym stringu
-    char * str = NULL;                  // string wynikowy
-
-    // adres pierwszej i kolejnej czesci lancucha
-    // na razie maja ten sam adres.
-    char * Sfirst = qstr;
-    char * Snext = qstr;
-
-    // obliczamy dlugosc calego stringa
-    va_start(String, qstr);
-    while(Snext != NULL) {
-        stringLenght += strlen(Snext);
-        Snext = va_arg(String, char *);
-    }
-    va_end(String);
-
-/*
- * Przechodzimy do poczatku i laczymy wszystkie czesci ze soba
-*/
-    str = (char *) malloc((stringLenght + 1) * sizeof(char));   // alokujemy pamiec
-    if(str != NULL) {
-        memset(str, '\0', stringLenght + 1);
-        Snext = Sfirst;                       // wracamy na poczatek
-        va_start(String, qstr);
-        while(Snext != NULL) {
-            if(str[0] == '\0')                // Sprawdzamy czy obszar pamieci jest pusty
-                strcpy(str, Snext);           // jesli tak, to kopiujemy pierwsza czesc
-            else							  // w przeciwnym wypadku doklejamy nastepna
-                strcat(str, Snext);
-            Snext = va_arg(String, char *);
-        }
-        va_end(String);
-    }
-    return str;
-}
-char * timestamp(void) {
-	time_t epoch;
-	char * timestamp = NULL;
-	struct tm * now;
-
-	time(&epoch);
-	timestamp = (char *) malloc(20 * sizeof(char));
-	memset(timestamp, '\0', 20);
-	now = localtime(&epoch);
-	strftime(timestamp, 20, "%F %T", now);
-
-	return timestamp;
 }
 void writeLog(FILE *lf, char * message) {
 	char * ts = timestamp();
@@ -174,48 +116,6 @@ char * parseLine(char * line) {
 		val++;
 	}
 	return valStart;
-}
-char * ulong2String(unsigned long n) {
-	char tmp[12];
-	memset(tmp, '\0', 12);
-	char * str = NULL;
-	size_t len = 0;
-
-	sprintf(tmp, "%lu", n);
-	len = strlen(tmp) + 1;
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
-	strcpy(str, tmp);
-
-	return str;
-}
-char * int2String(int n) {
-	char tmp[11];
-	memset(tmp, '\0', 11);
-	char * str = NULL;
-	size_t len = 0;
-
-	sprintf(tmp, "%d", n);
-	len = strlen(tmp) + 1;
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
-	strcpy(str, tmp);
-
-	return str;
-}
-char * long2String(long n) {
-	char tmp[12];
-	memset(tmp, '\0', 12);
-	char * str = NULL;
-	size_t len = 0;
-
-	sprintf(tmp, "%ld", n);
-	len = strlen(tmp) + 1;
-	str = (char *) malloc(len * sizeof(char));
-	memset(str, '\0', len);
-	strcpy(str, tmp);
-
-	return str;
 }
 void RetrieveData(int port, char * mode, FILE *lf) {
 	char * logentry = NULL;
@@ -553,17 +453,17 @@ char * buildConfigPackage(hostconfig * data) {
     
     // obtaining size of defined scopes
     if(vh != NULL)
-        package_size += getVhostPackageSize(vh);
+        package_size += getVhostPackageSize(vh, "apache");
     if(htpass != NULL)
-        package_size += htusersDataSize(htpass);
+        package_size += htusersDataSize(htpass, "htusers");
     if(su != NULL)
-        package_size += getSysUsersPackageSize(su);
+        package_size += getSysUsersPackageSize(su, "sysusers");
     if(dbi != NULL)
-        package_size += DBnamesDataSize(dbi);
+        package_size += DBnamesDataSize(dbi, "db_name");
     if(dbu != NULL)
-        package_size += DBusersDataSize(dbu);
+        package_size += DBusersDataSize(dbu, "db_user");
     if(dbg != NULL)
-        package_size += DBgrantsDataSize(dbg);
+        package_size += DBgrantsDataSize(dbg, "db_privs");
     package_size += strlen(package_header) + 2;
     
     // preparing memory
@@ -572,48 +472,38 @@ char * buildConfigPackage(hostconfig * data) {
     
     strncpy(package, package_header, strlen(package_header));
     if(vh != NULL) {
-        vhost_package = apacheConfigPackage(vh);
+        vhost_package = apacheConfigPackage(vh, "apache");
         strncat(package, vhost_package, strlen(vhost_package));
         free(vhost_package);
     }
     if(htpass != NULL) {
-        htusers_package = htpasswdConfigPackage(htpass);
+        htusers_package = htpasswdConfigPackage(htpass, "htusers");
         strncat(package, htusers_package, strlen(htusers_package));
         free(htusers_package);
     }
     if(su != NULL) {
-        sysusers_package = sysusersPackage(su);
+        sysusers_package = sysusersPackage(su, "sysusers");
         strncat(package, sysusers_package, strlen(sysusers_package));
         free(sysusers_package);
     }
     if(dbi != NULL) {
-        dbnames_package = DBNamesConfigPackage(dbi);
+        dbnames_package = DBNamesConfigPackage(dbi, "db_name");
         strncat(package, dbnames_package, strlen(dbnames_package));
         free(dbnames_package);
     }
     if(dbu != NULL) {
-        dbusers_package = DBusersConfigPackage(dbu);
+        dbusers_package = DBusersConfigPackage(dbu, "db_user");
         strncat(package, dbusers_package, strlen(dbusers_package));
         free(dbusers_package);
     }
     if(dbg != NULL) {
-        dbgrants_package = DBgrantsConfigPackage(dbg);
+        dbgrants_package = DBgrantsConfigPackage(dbg, "db_privs");
         strncat(package, dbgrants_package, strlen(dbgrants_package));
         free(dbgrants_package);
     }
     *(package + strlen(package)) = ']';
     
     return package;
-}
-int fileExist(char * path) {
-	FILE * fp = NULL;
-
-	if((fp = fopen(path, "r")) == NULL)
-		return 0;
-	else {
-		fclose(fp);
-		return 1;
-	}
 }
 int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver, FILE * lf) {
     int status = 0;         // status funkcji: 1 - sukces, 0 - error
@@ -629,19 +519,19 @@ int ReadHostConfig(char * hostid, hostconfig * conf, ver * cfgver, int clientver
     
     while(curr) {
         if(!strcmp(curr->scope, "apache") && curr->version > clientver) {
-            if((conf->httpd.vhost = ReadVhostData(hostid))) // getVhostData
+            if((conf->httpd.vhost = getVhostData(hostid)))
                 status = 1;
             else
                 status = 0;
         }
         if(!strcmp(curr->scope, "htusers") && curr->version > clientver) {
-            if((conf->httpd.htpasswd = ReadHtpasswdData(hostid))) // getHtpasswdData
+            if((conf->httpd.htpasswd = getHtpasswdData(hostid)))
                 status = 1;
             else
                 status = 0;
         }
         if(!strcmp(curr->scope, "sysusers") && curr->version > clientver) {
-            if((conf->sysUsers = getSystemAccounts(conf, hostid)))
+            if((conf->sysUsers = getSystemAccounts(hostid)))
                 status = 1;
             else
                 status = 0;

@@ -1,7 +1,6 @@
 #ifndef SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #define SPINE_AGENT_SRC_SYSCONFIGDATA_H_
 #include <mysql.h>
-#include "apache.h"
 #include "commondata.h"
 
 #define SPOOL_DIR "/var/spool/spine"
@@ -77,9 +76,6 @@ void ParseConfigData(char * json, hostconfig * conf);
 // funkcja zwraca nazwe dystrybucji Linuksa
 char * linuxDistro(void);
 
-// funkcja tworzy strukture katalogow na podstawie podanej sciezki
-void mkdirtree(char * path, mode_t mode, uid_t owner, gid_t group, FILE * lf);
-
 // funkcja odczytujaca aktualna wartosc IP z cache'a
 // w przypadku bledu odczytu zwraca NULL
 char * readIPCache(void);
@@ -87,39 +83,10 @@ char * readIPCache(void);
 // funkcja zapisuje aktualny adres IP w pliku
 int writeIPCache(char * extip);
 
-// funkcja kasuje katalog wraz z zawartoscia
-void purgeDir(char * name);
-
 // funkcja zwraca aktualny czas w sekundach (UNIX time)
 unsigned long getCurrentTime(void);
 
 // funkcja zwraca string zawierajacy procent utylizacji cpu
 char * CPUusage(void);
-
-// funkcja wczytuje do pamieci dane konfiguracyjne apacza
-vhostData * ParseConfigDataAPACHE(char * json);
-
-// funckcja wczytuje do pamieci dane kont systemowych
-sysuser * ParseConfigDataSYSUSERS(char * json);
-
-// function writes to memory htpasswd content
-htpasswdData * ParseConfigDataHTPASSWD(char * json);
-
-// function writes to memory database names content
-dbinfo * ParseConfigDataDBNAMES(char * json);
-
-// function writes to memory database users content
-dbuser * ParseConfigDataDBUSERS(char * json);
-
-// function writes to memory database privileges content
-grants * ParseConfigDataDBPRIVS(char * json);
-
-// this is a recursive function which sets given permissions on a directory
-// and it's contents
-void updateDirPermissions(char * path, uid_t uid, gid_t gid, FILE * lf);
-
-// function initiates connection to localhost database. It has hardcoded
-// root@localhost account
-MYSQL * mysqlconn(char * os);
 
 #endif /* SPINE_AGENT_SRC_SYSCONFIGDATA_H_ */

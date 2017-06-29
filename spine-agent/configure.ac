@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([spine-agent], [0.0.1])
 AC_CONFIG_SRCDIR([src/sysconfigdata.c])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign subdir-objects -Wall])
 AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.

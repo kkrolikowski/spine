@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include "network.h"
 #include "core.h"
+#include "toolkit.h"
 
 int listener(int port) {
 	int sockfd;

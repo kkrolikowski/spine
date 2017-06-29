@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <mysql.h>
 #include "core.h"
+#include "toolkit.h"
 #include "database.h"
 
 pid_t recvp = -1;
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// sprawdzamy czy program nie jest juz uruchomiony
-	if(existPidFile(PID_PATH)) {
+	if(fileExist(PID_PATH)) {
 		fprintf(stderr, "[CRIT] Spine Agent jest juz uruchomiony, wychodze.\n");
 		exit(EXIT_FAILURE);
 	}
