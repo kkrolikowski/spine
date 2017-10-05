@@ -237,3 +237,17 @@ int delay(int fd, const char * func, int delay_time) {
     else
         return 0;
 }
+int getBuffSize(int sockfd) {
+    char * sbs = NULL;
+    int bs = 0;
+    char buff[64];
+    
+    memset(buff, '\0', 64);
+    if(read(sockfd, buff, sizeof(buff)) > 0) {
+        if((sbs = strstr(buff, "DATASIZE:")) != NULL) {
+            sbs += strlen("DATASIZE:");
+            bs = atoi(sbs);
+        }
+    }
+    return bs;
+}

@@ -47,4 +47,6 @@ char * getExternalIP(void);
 // funkcja ustawia timeout dla polaczen
 int delay(int fd, const char * func, int delay_time);
 
+// function read buffer size declaration
+int getBuffSize(int sockfd);
 #endif /* SPINE_AGENT_SRC_NETWORK_H_ */
