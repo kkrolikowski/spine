@@ -98,8 +98,8 @@ int GreetClient(int sockfd) {
 	char * greet = "Spine Agent v1.0\n\r200 Go Ahead\n\r";
 
 	// przygotowujemy bufor
-	char buff[NET_BUFFER];
-	memset(buff, '\0', NET_BUFFER);
+	char buff[64];
+	memset(buff, '\0', 64);
 
 	strcpy(buff, greet);
 	sendbytes = write(sockfd, buff, sizeof(buff));
@@ -145,10 +145,10 @@ int SendPackage(int sockfd, char * message) {
 }
 int waitForHEllo(int sockfd) {
 	int status = 0;
-	char buff[NET_BUFFER];
-	memset(buff, '\0', NET_BUFFER);
+	char buff[64];
+	memset(buff, '\0', 64);
 
-	if(read(sockfd, buff, NET_BUFFER) > 1) {
+	if(read(sockfd, buff, 64) > 1) {
 		if(strstr(buff, "200 Go Ahead") != NULL)
 			status = 1;
 	}
