@@ -112,8 +112,10 @@ char * readClientData(int sockfd) {
 	int i;						// index bufora
 
 	// przygotowujemy bufor
-	char buff[NET_BUFFER];
-	memset(buff, '\0', NET_BUFFER);
+        int Size = getBuffSize(sockfd);
+        
+	char buff[Size];
+	memset(buff, '\0', Size);
 
 	if(read(sockfd, buff, sizeof(buff)) > 0) {
 		resplen = strlen(buff) + 1;
@@ -131,11 +133,12 @@ int SendPackage(int sockfd, char * message) {
   int bytesSent = 0;
 
   // Przygotowanie bufora i skopiowanie do niego danych
-  char buff[NET_BUFFER];
-  memset(buff, '\0', NET_BUFFER);
-  strncpy(buff, message, NET_BUFFER);
+  int Size = setBuffSize(sockfd, message);
+  char buff[Size];
+  memset(buff, '\0', Size);
+  strncpy(buff, message, Size);
 
-  if((bytesSent = write(sockfd, buff, NET_BUFFER)) < 1)
+  if((bytesSent = write(sockfd, buff, Size)) < 1)
     return 0;
 
   return bytesSent;
@@ -250,4 +253,20 @@ int getBuffSize(int sockfd) {
         }
     }
     return bs;
+}
+int setBuffSize(int conn, char * str) {
+    int size = strlen(str);
+    char * s_size = int2String(size);
+    char buff[64];
+    
+    memset(buff, '\0', 64);
+    strncpy(buff, "DATASIZE:", 10);
+    strncat(buff, s_size, strlen(s_size));
+    
+    if(write(conn, buff, sizeof(buff)) > 0)
+        return size;
+    else
+        return 0;
+    
+    free(s_size);
 }
