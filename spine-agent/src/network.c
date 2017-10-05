@@ -107,40 +107,40 @@ int GreetClient(int sockfd) {
 	return sendbytes;
 }
 char * readClientData(int sockfd) {
-	char * clientresp = NULL;		// odpowiedz klienta
-	size_t resplen = 0;                             // dlugosc stringu przeslanego przez klienta
-	int i;						// index bufora
+    char * clientresp = NULL;		// odpowiedz klienta
+    size_t resplen = 0;                             // dlugosc stringu przeslanego przez klienta
+    int i;						// index bufora
 
-	// przygotowujemy bufor
-        int Size = getBuffSize(sockfd);
-        
-	char buff[Size];
-	memset(buff, '\0', Size);
+    // przygotowujemy bufor
+    int Size = 0;
+    if((Size = getBuffSize(sockfd)) > 0) {
+        char buff[Size];
+        memset(buff, '\0', Size);
 
-	if(read(sockfd, buff, sizeof(buff)) > 0) {
-		resplen = strlen(buff) + 1;
-		clientresp = (char *) malloc(resplen * sizeof(char));
-		memset(clientresp, '\0', resplen);
+        if(read(sockfd, buff, sizeof(buff)) > 0) {
+            resplen = strlen(buff) + 1;
+            clientresp = (char *) malloc(resplen * sizeof(char));
+            memset(clientresp, '\0', resplen);
 
-		for(i = 0; i < resplen; i++)
-			clientresp[i] = buff[i];
-		clientresp[i-1] = '\0';		// pozbywam sie nowej linii
+            for(i = 0; i < resplen; i++)
+                clientresp[i] = buff[i];
+            clientresp[i-1] = '\0';		// pozbywam sie nowej linii
 
-	}
-	return clientresp;
+        }
+    }
+    return clientresp;
 }
 int SendPackage(int sockfd, char * message) {
   int bytesSent = 0;
-
+  int Size = 0;
   // Przygotowanie bufora i skopiowanie do niego danych
-  int Size = setBuffSize(sockfd, message);
-  char buff[Size];
-  memset(buff, '\0', Size);
-  strncpy(buff, message, Size);
-
-  if((bytesSent = write(sockfd, buff, Size)) < 1)
-    return 0;
-
+  if((Size = setBuffSize(sockfd, message)) > 0) {
+    char buff[Size];
+    memset(buff, '\0', Size);
+    strncpy(buff, message, Size);
+    if((bytesSent = write(sockfd, buff, Size)) < 1)
+        return 0;
+  }
   return bytesSent;
 }
 int waitForHEllo(int sockfd) {
