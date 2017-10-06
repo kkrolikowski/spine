@@ -98,8 +98,8 @@ int GreetClient(int sockfd) {
 	char * greet = "Spine Agent v1.0\n\r200 Go Ahead\n\r";
 
 	// przygotowujemy bufor
-	char buff[NET_BUFFER];
-	memset(buff, '\0', NET_BUFFER);
+	char buff[64];
+	memset(buff, '\0', 64);
 
 	strcpy(buff, greet);
 	sendbytes = write(sockfd, buff, sizeof(buff));
@@ -107,45 +107,48 @@ int GreetClient(int sockfd) {
 	return sendbytes;
 }
 char * readClientData(int sockfd) {
-	char * clientresp = NULL;		// odpowiedz klienta
-	size_t resplen = 0;                             // dlugosc stringu przeslanego przez klienta
-	int i;						// index bufora
+    char * clientresp = NULL;		// odpowiedz klienta
+    size_t resplen = 0;                             // dlugosc stringu przeslanego przez klienta
+    int i;						// index bufora
 
-	// przygotowujemy bufor
-	char buff[NET_BUFFER];
-	memset(buff, '\0', NET_BUFFER);
+    // przygotowujemy bufor
+    int Size = 0;
+    if((Size = getBuffSize(sockfd)) > 0) {
+        char buff[Size];
+        memset(buff, '\0', Size);
 
-	if(read(sockfd, buff, sizeof(buff)) > 0) {
-		resplen = strlen(buff) + 1;
-		clientresp = (char *) malloc(resplen * sizeof(char));
-		memset(clientresp, '\0', resplen);
+        if(read(sockfd, buff, sizeof(buff)) > 0) {
+            resplen = strlen(buff) + 1;
+            clientresp = (char *) malloc(resplen * sizeof(char));
+            memset(clientresp, '\0', resplen);
 
-		for(i = 0; i < resplen; i++)
-			clientresp[i] = buff[i];
-		clientresp[i-1] = '\0';		// pozbywam sie nowej linii
+            for(i = 0; i < resplen; i++)
+                clientresp[i] = buff[i];
+            clientresp[i-1] = '\0';		// pozbywam sie nowej linii
 
-	}
-	return clientresp;
+        }
+    }
+    return clientresp;
 }
 int SendPackage(int sockfd, char * message) {
   int bytesSent = 0;
-
+  int Size = 0;
   // Przygotowanie bufora i skopiowanie do niego danych
-  char buff[NET_BUFFER];
-  memset(buff, '\0', NET_BUFFER);
-  strncpy(buff, message, NET_BUFFER);
-
-  if((bytesSent = write(sockfd, buff, NET_BUFFER)) < 1)
-    return 0;
-
+  if((Size = setBuffSize(sockfd, message)) > 0) {
+    char buff[Size];
+    memset(buff, '\0', Size);
+    strncpy(buff, message, Size);
+    if((bytesSent = write(sockfd, buff, Size)) < 1)
+        return 0;
+  }
   return bytesSent;
 }
 int waitForHEllo(int sockfd) {
 	int status = 0;
-	char buff[NET_BUFFER];
-	memset(buff, '\0', NET_BUFFER);
+	char buff[64];
+	memset(buff, '\0', 64);
 
-	if(read(sockfd, buff, NET_BUFFER) > 1) {
+	if(read(sockfd, buff, 64) > 1) {
 		if(strstr(buff, "200 Go Ahead") != NULL)
 			status = 1;
 	}
@@ -236,4 +239,34 @@ int delay(int fd, const char * func, int delay_time) {
         return 1;
     else
         return 0;
+}
+int getBuffSize(int sockfd) {
+    char * sbs = NULL;
+    int bs = 0;
+    char buff[64];
+    
+    memset(buff, '\0', 64);
+    if(read(sockfd, buff, sizeof(buff)) > 0) {
+        if((sbs = strstr(buff, "DATASIZE:")) != NULL) {
+            sbs += strlen("DATASIZE:");
+            bs = atoi(sbs);
+        }
+    }
+    return bs;
+}
+int setBuffSize(int conn, char * str) {
+    int size = strlen(str);
+    char * s_size = int2String(size);
+    char buff[64];
+    
+    memset(buff, '\0', 64);
+    strncpy(buff, "DATASIZE:", 10);
+    strncat(buff, s_size, strlen(s_size));
+    
+    if(write(conn, buff, sizeof(buff)) > 0)
+        return size;
+    else
+        return 0;
+    
+    free(s_size);
 }
