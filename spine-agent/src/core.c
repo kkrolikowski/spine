@@ -134,6 +134,8 @@ void RetrieveData(int port, char * mode, FILE *lf) {
         int packagever = 0;                 // wersja konfiguracji pochodzaca z pakietu danych
         resp * updateMSGdata = NULL;        // update message to server agent
         char * updateMSGdataString = NULL;  // updata message: string version
+        int bytesSent = 0;                  // volume of data - integer form
+        char * s_bytesSent = NULL;            // volume of data - string form
         
 	while(1) {
 		net = clientConnection(netiffd);
@@ -255,12 +257,13 @@ void RetrieveData(int port, char * mode, FILE *lf) {
                             free(datatype);
                             continue;
                         }
-                        SendPackage(clifd, configstring);
-
-                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, NULL);
+                        bytesSent = SendPackage(clifd, configstring);
+                        s_bytesSent = int2String(bytesSent);
+                        logentry = mkString("[INFO] (reciver) Konfiguracja zostala wyslana do ",  net.ipaddr, " (", s_bytesSent, " bytes)", NULL);
                         writeLog(lf, logentry);
 
                         close(clifd);
+                        free(s_bytesSent);
                         free(configstring);
                     }             
                     free(system_id);
